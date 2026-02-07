@@ -1,0 +1,56 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 2: Admin{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
+
+    <h2>Admin Dashboard</h2>
+    <div class="banner">
+        ⚠️ This panel is usually restricted.
+    </div>
+
+    <p>System User Accounts (Confidential):</p>
+    
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Password</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>{{ user.password }}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: var(--bg-color);
+        }
+    </style>
+{% endblock %}

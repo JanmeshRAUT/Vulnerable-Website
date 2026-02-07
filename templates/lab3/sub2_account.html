@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}My Account - SecureShop{% endblock %}
+
+{% block header %}
+    <header style="background: #6366f1; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab3') }}" style="color: #c7d2fe; font-size: 0.875rem; text-decoration: none;">&larr; Back to Lab Menu</a>
+            <div style="font-weight: 700; font-size: 1.5rem;">🔒 SecureShop</div>
+        </div>
+        <div>
+            <span style="margin-right: 1rem; color: #c7d2fe;">👤 {{ username }}</span>
+            <a href="{{ url_for('lab3_2_logout') }}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Logout</a>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="max-width: 900px; margin: 0 auto;">
+        <h2 style="margin-bottom: 2rem;">My Account</h2>
+        
+        {% if flag %}
+            <script>
+                alert("Congratulations! {{ flag }}");
+            </script>
+            <div class="alert alert-success" style="margin-bottom: 2rem;">
+                <strong>🎉 FLAG CAPTURED!</strong> {{ flag }}
+            </div>
+            <div class="alert alert-error" style="margin-bottom: 2rem;">
+                <strong>Vulnerability Exploited:</strong> You bypassed two-factor authentication!
+                <br><br>
+                <strong>How it worked:</strong>
+                <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Logged in as <code>carlos:montoya</code></li>
+                    <li>Redirected to 2FA verification page</li>
+                    <li>Instead of entering the code, you manually navigated to <code>/lab3/2/my-account</code></li>
+                    <li>The application only checked if you were logged in, NOT if you completed 2FA!</li>
+                </ol>
+            </div>
+        {% endif %}
+        
+        <div class="card">
+            <h3>Account Information</h3>
+            <div style="margin-top: 1.5rem;">
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Username:</strong>
+                    <span>{{ username }}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Email:</strong>
+                    <span>{{ username }}@secureshop.com</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>2FA Status:</strong>
+                    <span style="color: {% if verified %}#10b981{% else %}#ef4444{% endif %};">
+                        {% if verified %}✅ Verified{% else %}⚠️ Not Verified (Bypassed!){% endif %}
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Account Type:</strong>
+                    <span style="color: {% if username == 'carlos' %}#fbbf24{% else %}#94a3b8{% endif %};">
+                        {% if username == 'carlos' %}Premium Member{% else %}Standard Member{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 2rem;">
+            <h3>Security Settings</h3>
+            <p style="color: #94a3b8; margin-top: 1rem;">Manage your security preferences</p>
+            <div style="margin-top: 1.5rem;">
+                <button class="btn" style="background: #6366f1; margin-right: 0.5rem;">Change Password</button>
+                <button class="btn" style="background: #334155;">Enable 2FA</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

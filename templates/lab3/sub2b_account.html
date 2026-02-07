@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - BankSecure{% endblock %}
+
+{% block header %}
+    <header style="background: #059669; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab3_2_menu') }}" style="color: #d1fae5; font-size: 0.875rem; text-decoration: none;">&larr; Back to Variations</a>
+            <div style="font-weight: 700; font-size: 1.5rem;">🏦 BankSecure</div>
+        </div>
+        <div>
+            <span style="margin-right: 1rem; color: #d1fae5;">👤 {{ username }}</span>
+            <a href="{{ url_for('lab3_2b_logout') }}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Logout</a>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <h2 style="margin-bottom: 2rem;">Account Dashboard</h2>
+        
+        {% if flag %}
+            <script>
+                alert("Congratulations! {{ flag }}");
+            </script>
+            <div class="alert alert-success" style="margin-bottom: 2rem;">
+                <strong>🎉 FLAG CAPTURED!</strong> {{ flag }}
+            </div>
+            <div class="alert alert-error" style="margin-bottom: 2rem;">
+                <strong>Vulnerability Exploited:</strong> You bypassed two-factor authentication!
+                <br><br>
+                <strong>How it worked:</strong>
+                <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Logged in as <code>bob:bob456</code></li>
+                    <li>Redirected to 2FA verification page</li>
+                    <li>Instead of entering the code, you manually navigated to <code>/lab3/2b/dashboard</code></li>
+                    <li>The application only checked if you were logged in, NOT if you completed 2FA!</li>
+                </ol>
+            </div>
+        {% endif %}
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="card">
+                <h3 style="color: #059669;">Account Balance</h3>
+                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">$12,450.00</p>
+                <p style="color: #94a3b8; font-size: 0.875rem;">Available Balance</p>
+            </div>
+            <div class="card">
+                <h3 style="color: #059669;">Savings</h3>
+                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">$5,230.50</p>
+                <p style="color: #94a3b8; font-size: 0.875rem;">Total Savings</p>
+            </div>
+            <div class="card">
+                <h3 style="color: #059669;">Credit Card</h3>
+                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">$1,850.00</p>
+                <p style="color: #94a3b8; font-size: 0.875rem;">Current Balance</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Account Information</h3>
+            <div style="margin-top: 1.5rem;">
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Account ID:</strong>
+                    <span>{{ username }}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Email:</strong>
+                    <span>{{ username }}@banksecure.com</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>2FA Status:</strong>
+                    <span style="color: {% if verified %}#10b981{% else %}#ef4444{% endif %};">
+                        {% if verified %}✅ Verified{% else %}⚠️ Not Verified (Bypassed!){% endif %}
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Account Type:</strong>
+                    <span style="color: {% if username == 'bob' %}#fbbf24{% else %}#94a3b8{% endif %};">
+                        {% if username == 'bob' %}Premium Account{% else %}Standard Account{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 2rem;">
+            <h3>Recent Transactions</h3>
+            <div style="margin-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #334155;">
+                    <span>Transfer to John Doe</span>
+                    <span style="color: #ef4444;">-$250.00</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #334155;">
+                    <span>Salary Deposit</span>
+                    <span style="color: #10b981;">+$3,500.00</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 1rem;">
+                    <span>Online Purchase</span>
+                    <span style="color: #ef4444;">-$89.99</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

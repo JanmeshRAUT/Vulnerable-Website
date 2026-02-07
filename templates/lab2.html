@@ -1,0 +1,35 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 2: Access Control{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+
+    <h2>Lab 2: Access Control</h2>
+    <div class="banner">
+        ⚠️ This lab is intentionally vulnerable to Broken Access Control.
+    </div>
+
+    <p>Welcome to the Employee Portal. Please select an action:</p>
+
+    <div class="card-grid">
+        <div class="card">
+            <h3>My Profile</h3>
+            <p>View your employee details.</p>
+            <!-- IDOR Vulnerability link -->
+            <a href="{{ url_for('lab2_user', id=2) }}" class="btn">View Profile (ID: 2)</a>
+        </div>
+        
+        <div class="card" style="opacity: 0.5;">
+            <h3>Admin Panel</h3>
+            <p>(Authorized Personnel Only)</p>
+            <!-- Hidden Admin Link (Security through Obscurity) -->
+            <!-- In real world this might be removed from HTML but endpoint exists -->
+            <a href="{{ url_for('lab2_admin') }}" class="btn btn-danger">Admin Dashboard</a>
+        </div>
+    </div>
+    
+    <div class="alert alert-error">
+        Hint: Check the URL parameters. Can you view User ID 1 (Admin)? Can you access the Admin Panel without login?
+    </div>
+{% endblock %}

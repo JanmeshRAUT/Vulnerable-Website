@@ -1,0 +1,44 @@
+
+{% extends 'base.html' %}
+{% block title %}Vulnerable Corp - Home{% endblock %}
+
+{% block content %}
+    <!-- Educational Banner (kept small) -->
+    <div style="background: #334155; padding: 0.5rem; font-size: 0.8rem; text-align: center; margin-bottom: 2rem; border-radius: 4px;">
+        <span style="color: #cbd5e1;">[Lab 2.1 Environment]</span> 
+        <a href="{{ url_for('lab2') }}" style="color: #60a5fa; margin-left: 10px;">&larr; Back to Lab Menu</a>
+    </div>
+
+    <!-- Fake Company Website -->
+    <div class="hero" style="text-align: center; padding: 4rem 0;">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem; color: var(--accent);">Vulnerable Corp.</h1>
+        <p style="font-size: 1.25rem; color: var(--text-secondary);">Innovating the future, one vulnerability at a time.</p>
+        <br>
+        <a href="#" class="btn" style="padding: 0.75rem 2rem; font-size: 1.1rem;">Our Products</a>
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <h3>Our Mission</h3>
+            <p>To provide completely open and accessible services to everyone, intentionally or not.</p>
+        </div>
+        <div class="card">
+            <h3>Global Reach</h3>
+            <p>We serve customers worldwide with data centers in every continent.</p>
+        </div>
+        <div class="card">
+            <h3>Transparency</h3>
+            <p>We believe in hiding nothing. Our admin panels are just a click away (if you know where to look).</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-secondary);">
+        <p>Corporate Resources:</p>
+        <ul style="list-style: none; padding: 0; display: flex; justify-content: center; gap: 2rem;">
+            <li><a href="#" style="color: var(--text-secondary);">Privacy Policy</a></li>
+            <li><a href="#" style="color: var(--text-secondary);">Terms of Service</a></li>
+            <!-- Explicitly giving robots.txt as requested -->
+            <li><a href="{{ url_for('robots_txt') }}">robots.txt</a></li>
+        </ul>
+    </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Lab 3: Authentication{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+
+    <h2>Lab 3: Authentication Vulnerabilities</h2>
+    <div class="banner">
+        ⚠️ This lab contains authentication vulnerabilities with multiple themed variations.
+    </div>
+
+    <div class="card-grid">
+        <!-- Lab 3.1: Brute Force -->
+        <div class="card">
+            <h3>Lab 3.1: Brute Force Attack</h3>
+            <p>No rate limiting - credentials can be brute forced using wordlists.</p>
+            <a href="{{ url_for('lab3_1') }}" class="btn">Start Lab 3.1</a>
+        </div>
+        
+        <!-- Lab 3.2: 2FA Bypass -->
+        <div class="card">
+            <h3>Lab 3.2: 2FA Bypass</h3>
+            <p>Bypass two-factor authentication - 3 themed variations available.</p>
+            <a href="{{ url_for('lab3_2_menu') }}" class="btn">View Variations</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Lab 2.4: IDOR Variations{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
+
+    <h2>Lab 2.4: Parameter Tampering (IDOR) - Choose a Variation</h2>
+    <div class="banner">
+        ⚠️ Manipulate URL parameters to access other accounts - Same vulnerability, different themes!
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #64748b, #94a3b8); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">🚗</div>
+            <h3>Variation A: AutoParts</h3>
+            <p style="color: #94a3b8;">Auto parts store</p>
+            <a href="{{ url_for('lab2_4') }}" class="btn" style="background: #64748b;">Start Variation A</a>
+        </div>
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #eab308, #fbbf24); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">💎</div>
+            <h3>Variation B: JewelryStore</h3>
+            <p style="color: #94a3b8;">Jewelry marketplace (Same vulnerability)</p>
+            <a href="{{ url_for('lab2_4') }}" class="btn" style="background: #eab308;">Practice Again</a>
+        </div>
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #2563eb, #3b82f6); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">⚡</div>
+            <h3>Variation C: ElectroMart</h3>
+            <p style="color: #94a3b8;">Electronics hub (Same vulnerability)</p>
+            <a href="{{ url_for('lab2_4') }}" class="btn" style="background: #2563eb;">Practice Again</a>
+        </div>
+    </div>
+{% endblock %}

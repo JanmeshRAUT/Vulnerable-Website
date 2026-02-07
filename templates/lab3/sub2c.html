@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}CloudDrive - Cloud Storage{% endblock %}
+
+{% block header %}
+    <header style="background: #dc2626; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab3_2_menu') }}" style="color: #fecaca; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+            <div style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.025em;">☁️ CloudDrive</div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <button onclick="document.getElementById('loginModal').style.display='flex'" class="btn" style="background: white; color: #dc2626; padding: 0.5rem 1.5rem; font-size: 0.875rem;">Sign In</button>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="background: linear-gradient(135deg, #dc2626, #ef4444); border-radius: 1rem; padding: 3rem; color: white; margin-bottom: 3rem; text-align: center;">
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Welcome to CloudDrive</h1>
+        <p style="font-size: 1.125rem; opacity: 0.9;">Secure cloud storage for all your files</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+            <h3>File Storage</h3>
+            <p style="color: #94a3b8;">Store files securely in the cloud</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔄</div>
+            <h3>Auto Sync</h3>
+            <p style="color: #94a3b8;">Sync across all your devices</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
+            <h3>2FA Protected</h3>
+            <p style="color: #94a3b8;">Advanced security features</p>
+        </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative;">
+            <button onclick="document.getElementById('loginModal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.5rem;">&times;</button>
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #dc2626;">☁️ Sign In</h2>
+            <form id="loginForm">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Username</label>
+                    <input type="text" name="username" id="username" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Password</label>
+                    <input type="password" name="password" id="password" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
+                </div>
+                <div id="errorMsg" style="color: #ef4444; margin-bottom: 1rem; display: none;"></div>
+                <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; background: #dc2626;">Sign In</button>
+                <div style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #64748b;">
+                    Test accounts:<br>
+                    <code>user1:pass1</code> or <code>admin:admin2024</code>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+            
+            try {
+                const response = await fetch('{{ url_for("lab3_2c_login") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    errorMsg.textContent = 'Invalid credentials';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'Login failed';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+{% endblock %}

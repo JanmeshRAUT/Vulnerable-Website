@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}2FA Verification - BankSecure{% endblock %}
+
+{% block header %}
+    <header style="background: #059669; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab3_2b') }}" style="color: #d1fae5; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+            <div style="font-weight: 700; font-size: 1.5rem;">🏦 BankSecure</div>
+        </div>
+        <div style="color: #d1fae5; font-size: 0.875rem;">
+            Account: <strong>{{ username }}</strong>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="max-width: 1200px; margin: 2rem auto;">
+        <h2 style="margin-bottom: 2rem; text-align: center;">Two-Factor Authentication</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <!-- LEFT: SMS Client -->
+            <div class="card">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #334155;">
+                    <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">📱</span>
+                        SMS Messages
+                    </h3>
+                    <span style="background: #059669; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem;">1 New</span>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <div style="background: #1e293b; border: 1px solid #059669; border-radius: 0.5rem; padding: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <p style="font-weight: 600;">BankSecure</p>
+                            <span style="font-size: 0.75rem; color: #94a3b8;">Just now</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #94a3b8;">Your verification code</p>
+                    </div>
+                </div>
+                
+                <div style="background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1.5rem;">
+                    <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #334155;">
+                        <p style="font-size: 0.875rem; color: #94a3b8;"><strong>From:</strong> BankSecure (555-0100)</p>
+                        <p style="font-size: 0.875rem; color: #94a3b8;"><strong>To:</strong> {{ username }} (***-***-1234)</p>
+                    </div>
+                    
+                    <div style="line-height: 1.8;">
+                        <p style="margin-bottom: 1rem;">Hello <strong>{{ username }}</strong>,</p>
+                        <p style="margin-bottom: 1rem;">Your BankSecure verification code is:</p>
+                        
+                        <div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 1.5rem; border-radius: 0.5rem; text-align: center; margin: 1.5rem 0;">
+                            <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">Verification Code</p>
+                            <div style="font-size: 2rem; font-weight: bold; letter-spacing: 0.5rem;">
+                                {{ code }}
+                            </div>
+                        </div>
+                        
+                        <p style="font-size: 0.875rem; color: #94a3b8;">Valid for 10 minutes. Do not share this code.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RIGHT: Verification Form -->
+            <div>
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
+                    <h3 style="margin-bottom: 1rem; color: #059669;">Enter Verification Code</h3>
+                    <p style="color: #94a3b8; margin-bottom: 2rem;">
+                        Check your SMS messages on the left.
+                    </p>
+                    
+                    {% if error %}
+                    <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="POST" action="{{ url_for('lab3_2b_verify_post') }}">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; text-align: left; font-weight: 600;">Verification Code</label>
+                            <input type="text" name="code" required maxlength="4" pattern="\d{4}" 
+                                   placeholder="Enter 4-digit code"
+                                   style="width: 100%; padding: 1rem; background: #0f172a; border: 2px solid #334155; color: white; border-radius: 0.5rem; text-align: center; font-size: 1.75rem; letter-spacing: 0.75rem; font-weight: bold;">
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: #059669; font-size: 1rem; font-weight: 600;">
+                            ✓ Verify & Continue
+                        </button>
+                    </form>
+                    
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #334155;">
+                        <p style="font-size: 0.875rem; color: #94a3b8;">Didn't receive the code?</p>
+                        <button class="btn" style="margin-top: 0.5rem; background: #334155; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                            Resend Code
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-error" style="margin-top: 2rem; font-size: 0.875rem;">
+                    <strong>💡 Lab Hint:</strong> 
+                    <ol style="margin-left: 1.5rem; margin-top: 0.5rem; text-align: left;">
+                        <li>Login with <code>alice:alice123</code></li>
+                        <li>Complete 2FA verification</li>
+                        <li>Note the dashboard URL: <code>/lab3/2b/dashboard</code></li>
+                        <li>Logout</li>
+                        <li>Login with <code>bob:bob456</code></li>
+                        <li>When prompted for 2FA, <strong>manually navigate</strong> to <code>/lab3/2b/dashboard</code></li>
+                        <li>Access Bob's account without completing 2FA!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

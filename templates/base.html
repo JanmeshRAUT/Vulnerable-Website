@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vulnerable Labs{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+    {% block header %}
+        <header>
+            <div class="logo">
+                <h1><a href="{{ url_for('home') }}" style="color:var(--text-primary);">Vulnerable E-Shop</a></h1>
+            </div>
+            <nav>
+                <a href="{{ url_for('home') }}" class="btn">Home</a>
+                <a href="{{ url_for('product_list') }}" class="btn">Products</a>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('orders') }}" class="btn">Orders</a>
+                    <span style="margin: 0 1rem;">Welcome, {{ session.get('username') }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn">Register</a>
+                {% endif %}
+            </nav>
+        </header>
+    {% endblock %}
+        
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer style="margin-top: 4rem; text-align: center; color: var(--text-secondary); border-top: 1px solid var(--border); padding-top: 2rem;">
+            <p>&copy; 2026 Vulnerable E-Shop. Creating insecure apps since 2024.</p>
+        </footer>
+    </div>
+</body>
+</html>

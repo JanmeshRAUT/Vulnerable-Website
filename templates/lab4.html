@@ -1,0 +1,31 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 4: SSRF{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+
+    <h2>Lab 4: Server-Side Request Forgery</h2>
+    <div class="banner">
+        ⚠️ This application makes requests on your behalf.
+    </div>
+
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <h3>Product Stock Checker</h3>
+        <p>Check availability from our supplier API.</p>
+        
+        <form action="{{ url_for('lab4_check_stock') }}" method="POST">
+            <label for="stock_api">Supplier API URL:</label>
+            <input type="text" id="stock_api" name="stock_api" value="http://example.com" required>
+            <small>Default: http://example.com (Simulated API)</small>
+            <br><br>
+            
+            <button type="submit" class="btn">Check Stock</button>
+        </form>
+    </div>
+
+    <div class="alert alert-error" style="margin-top: 2rem;">
+        Hint: Can you modify the URL to access internal services?
+        <br>Try: <code>http://localhost:5000/lab2/admin</code>
+    </div>
+{% endblock %}

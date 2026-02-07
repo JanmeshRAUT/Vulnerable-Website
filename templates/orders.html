@@ -1,0 +1,56 @@
+
+{% extends 'base.html' %}
+{% block title %}Order History{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Back to Home</a>
+
+    <h2>Order History</h2>
+    <div class="card">
+        {% if orders %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.date }}</td>
+                    <td><span class="badge">{{ order.status }}</span></td>
+                    <td>${{ order.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No orders found.</p>
+        {% endif %}
+    </div>
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: var(--bg-color);
+        }
+        .badge {
+            background-color: #334155;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+    </style>
+{% endblock %}

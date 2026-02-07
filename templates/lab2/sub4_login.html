@@ -1,0 +1,18 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 2.4: Login{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
+
+    <h2>Lab 2.4: Parameter Tampering</h2>
+    <div class="banner">
+        Login first to access your profile.
+    </div>
+
+    <form method="POST">
+        <label>Username:</label>
+        <input type="text" name="username" value="Janmesh" required>
+        <button type="submit" class="btn">Login</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,47 @@
+
+{% extends 'base.html' %}
+{% block title %}Sign In - SuperShop{% endblock %}
+
+{% block content %}
+    <div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--accent); font-size: 2rem; margin-bottom: 0.5rem;">SuperShop</h2>
+                <p style="color: var(--text-secondary);">Welcome back! Please sign in.</p>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-error" style="margin-bottom: 1.5rem; text-align: center;">
+                    {{ error }}
+                </div>
+            {% endif %}
+            
+            <form method="POST">
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="username" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required 
+                           style="width: 100%; padding: 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border); background-color: #0f172a; color: white;">
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <label for="password" style="font-weight: 500;">Password</label>
+                        <a href="#" style="font-size: 0.875rem; color: var(--accent);">Forgot password?</a>
+                    </div>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required
+                           style="width: 100%; padding: 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border); background-color: #0f172a; color: white;">
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; padding: 0.875rem; font-size: 1rem; font-weight: 600;">Sign In</button>
+            </form>
+
+            <div style="margin-top: 2rem; text-align: center; font-size: 0.875rem; color: var(--text-secondary);">
+                Don't have an account? <a href="#" style="color: var(--accent); font-weight: 500;">Sign up</a>
+                <br><br>
+                <div style="font-size: 0.75rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    Demo Credentials: <code>user</code> / <code>password</code>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

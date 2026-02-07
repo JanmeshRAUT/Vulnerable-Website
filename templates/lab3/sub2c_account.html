@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}My Files - CloudDrive{% endblock %}
+
+{% block header %}
+    <header style="background: #dc2626; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab3_2_menu') }}" style="color: #fecaca; font-size: 0.875rem; text-decoration: none;">&larr; Back to Variations</a>
+            <div style="font-weight: 700; font-size: 1.5rem;">☁️ CloudDrive</div>
+        </div>
+        <div>
+            <span style="margin-right: 1rem; color: #fecaca;">👤 {{ username }}</span>
+            <a href="{{ url_for('lab3_2c_logout') }}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Sign Out</a>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <h2 style="margin-bottom: 2rem;">My Files</h2>
+        
+        {% if flag %}
+            <script>
+                alert("Congratulations! {{ flag }}");
+            </script>
+            <div class="alert alert-success" style="margin-bottom: 2rem;">
+                <strong>🎉 FLAG CAPTURED!</strong> {{ flag }}
+            </div>
+            <div class="alert alert-error" style="margin-bottom: 2rem;">
+                <strong>Vulnerability Exploited:</strong> You bypassed two-factor authentication!
+                <br><br>
+                <strong>How it worked:</strong>
+                <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Logged in as <code>admin:admin2024</code></li>
+                    <li>Redirected to 2FA verification page</li>
+                    <li>Instead of entering the code, you manually navigated to <code>/lab3/2c/files</code></li>
+                    <li>The application only checked if you were logged in, NOT if you completed 2FA!</li>
+                </ol>
+            </div>
+        {% endif %}
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="card" style="background: linear-gradient(135deg, #1e293b, #334155);">
+                <h3 style="color: #dc2626;">Storage Used</h3>
+                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">8.5 GB</p>
+                <div style="background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div style="background: #dc2626; height: 100%; width: 42.5%;"></div>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.5rem;">of 20 GB</p>
+            </div>
+            <div class="card" style="background: linear-gradient(135deg, #1e293b, #334155);">
+                <h3 style="color: #dc2626;">Total Files</h3>
+                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">247</p>
+                <p style="color: #94a3b8; font-size: 0.875rem;">Across all folders</p>
+            </div>
+            <div class="card" style="background: linear-gradient(135deg, #1e293b, #334155);">
+                <h3 style="color: #dc2626;">Shared</h3>
+                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">12</p>
+                <p style="color: #94a3b8; font-size: 0.875rem;">Files shared with others</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Account Information</h3>
+            <div style="margin-top: 1.5rem;">
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Username:</strong>
+                    <span>{{ username }}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Email:</strong>
+                    <span>{{ username }}@clouddrive.com</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>2FA Status:</strong>
+                    <span style="color: {% if verified %}#10b981{% else %}#ef4444{% endif %};">
+                        {% if verified %}✅ Verified{% else %}⚠️ Not Verified (Bypassed!){% endif %}
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <strong>Plan:</strong>
+                    <span style="color: {% if username == 'admin' %}#fbbf24{% else %}#94a3b8{% endif %};">
+                        {% if username == 'admin' %}Enterprise Plan{% else %}Free Plan{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 2rem;">
+            <h3>Recent Files</h3>
+            <div style="margin-top: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #334155;">
+                    <div style="font-size: 2rem;">📄</div>
+                    <div style="flex: 1;">
+                        <p style="font-weight: 600;">Project_Proposal.pdf</p>
+                        <p style="font-size: 0.875rem; color: #94a3b8;">2.4 MB • Modified 2 hours ago</p>
+                    </div>
+                    <button class="btn" style="background: #334155; padding: 0.5rem 1rem; font-size: 0.875rem;">Download</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #334155;">
+                    <div style="font-size: 2rem;">🖼️</div>
+                    <div style="flex: 1;">
+                        <p style="font-weight: 600;">Team_Photo.jpg</p>
+                        <p style="font-size: 0.875rem; color: #94a3b8;">1.8 MB • Modified yesterday</p>
+                    </div>
+                    <button class="btn" style="background: #334155; padding: 0.5rem 1rem; font-size: 0.875rem;">Download</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+                    <div style="font-size: 2rem;">📊</div>
+                    <div style="flex: 1;">
+                        <p style="font-weight: 600;">Q4_Report.xlsx</p>
+                        <p style="font-size: 0.875rem; color: #94a3b8;">856 KB • Modified 3 days ago</p>
+                    </div>
+                    <button class="btn" style="background: #334155; padding: 0.5rem 1rem; font-size: 0.875rem;">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Lab 2.1: Robots.txt Variations{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
+
+    <h2>Lab 2.1: Robots.txt Disclosure - Choose a Variation</h2>
+    <div class="banner">
+        ⚠️ Find the hidden admin page disclosed in robots.txt - Same vulnerability, different themes!
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #3b82f6, #60a5fa); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">💻</div>
+            <h3>Variation A: TechStore</h3>
+            <p style="color: #94a3b8;">Tech e-commerce platform</p>
+            <a href="{{ url_for('lab2_1') }}" class="btn" style="background: #3b82f6;">Start Variation A</a>
+        </div>
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #8b5cf6, #a78bfa); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">👗</div>
+            <h3>Variation B: FashionHub</h3>
+            <p style="color: #94a3b8;">Fashion marketplace (Same vulnerability)</p>
+            <a href="{{ url_for('lab2_1') }}" class="btn" style="background: #8b5cf6;">Practice Again</a>
+        </div>
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #10b981, #34d399); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">🍔</div>
+            <h3>Variation C: FoodMart</h3>
+            <p style="color: #94a3b8;">Food delivery service (Same vulnerability)</p>
+            <a href="{{ url_for('lab2_1') }}" class="btn" style="background: #10b981;">Practice Again</a>
+        </div>
+    </div>
+{% endblock %}

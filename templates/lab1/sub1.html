@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}DocuVault - Document Management{% endblock %}
+
+{% block header %}
+    <!-- Custom Header for Lab 1 -->
+    <header style="background: #0ea5e9; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('home') }}" style="color: #bae6fd; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+            <div style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.025em;">📁 DocuVault</div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <nav style="display: flex; gap: 1.5rem; font-size: 0.9rem;">
+                <a href="#" style="color: white; text-decoration: none;">My Documents</a>
+                <a href="#" style="color: white; text-decoration: none;">Shared</a>
+                <a href="#" style="color: white; text-decoration: none;">Recent</a>
+            </nav>
+            <button class="btn" style="background: white; color: #0ea5e9; padding: 0.5rem 1rem; font-size: 0.875rem;">Upload</button>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <div style="background: linear-gradient(135deg, #0ea5e9, #38bdf8); border-radius: 1rem; padding: 2.5rem; color: white; margin-bottom: 2rem; text-align: center;">
+        <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">📂 Your Documents</h1>
+        <p style="font-size: 1rem; opacity: 0.9;">Secure cloud storage for all your important files</p>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 1.5rem; color: #94a3b8; font-size: 0.875rem;">
+        <span>Home</span> / <span>Documents</span> / <span style="color: var(--text-primary);">Invoices 2024</span>
+    </div>
+
+    <!-- Document Grid -->
+    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span style="color: #0ea5e9;">📄</span> Invoice Documents
+    </h2>
+    
+    <div class="card-grid">
+        {% for file in files %}
+        <div class="card" style="transition: transform 0.2s, box-shadow 0.2s;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #0ea5e9, #38bdf8); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    📄
+                </div>
+                <div style="flex: 1;">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">{{ file }}</h3>
+                    <p style="color: #94a3b8; font-size: 0.8rem;">PDF Document • 2024</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('lab1_1_download', file=file) }}" class="btn" style="flex: 1; background: #0ea5e9; padding: 0.5rem; font-size: 0.875rem; text-align: center;">
+                    ⬇️ Download
+                </a>
+                <button class="btn" style="background: #334155; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                    ⋮
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Info Section -->
+    <div class="card" style="margin-top: 2rem; background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569;">
+        <div style="display: flex; align-items: start; gap: 1rem;">
+            <div style="font-size: 2rem;">💡</div>
+            <div>
+                <h3 style="margin-bottom: 0.5rem; color: #38bdf8;">Storage Information</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+                    Your documents are securely stored in our cloud infrastructure. All files are encrypted and backed up daily.
+                    <br>Current storage path: <code style="background: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem;">/data/storage/2024/</code>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📤</div>
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">Upload Files</h4>
+            <p style="color: #94a3b8; font-size: 0.8rem;">Add new documents</p>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔗</div>
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">Share</h4>
+            <p style="color: #94a3b8; font-size: 0.8rem;">Share with team</p>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗂️</div>
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">Organize</h4>
+            <p style="color: #94a3b8; font-size: 0.8rem;">Create folders</p>
+        </div>
+    </div>
+{% endblock %}

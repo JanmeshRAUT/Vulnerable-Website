@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Lab 3.2: 2FA Bypass Variations{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab3') }}" class="btn">Back to Lab 3</a>
+
+    <h2>Lab 3.2: 2FA Bypass - Choose a Variation</h2>
+    <div class="banner">
+        ⚠️ All variations have the same vulnerability but different themes. Practice with different perspectives!
+    </div>
+
+    <div class="card-grid">
+        <!-- Variation A: SecureShop -->
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #6366f1, #818cf8); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+                🔒
+            </div>
+            <h3>Variation A: SecureShop</h3>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">E-commerce platform with 2FA protection</p>
+            <p style="font-size: 0.875rem; margin-bottom: 1rem;">
+                <strong>Credentials:</strong><br>
+                Your account: <code>wiener:peter</code><br>
+                Victim account: <code>carlos:montoya</code>
+            </p>
+            <a href="{{ url_for('lab3_2') }}" class="btn" style="background: #6366f1;">Start Variation A</a>
+        </div>
+        
+        <!-- Variation B: BankSecure -->
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #059669, #10b981); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+                🏦
+            </div>
+            <h3>Variation B: BankSecure</h3>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">Online banking with 2FA authentication</p>
+            <p style="font-size: 0.875rem; margin-bottom: 1rem;">
+                <strong>Credentials:</strong><br>
+                Your account: <code>alice:alice123</code><br>
+                Victim account: <code>bob:bob456</code>
+            </p>
+            <a href="{{ url_for('lab3_2b') }}" class="btn" style="background: #059669;">Start Variation B</a>
+        </div>
+        
+        <!-- Variation C: CloudDrive -->
+        <div class="card">
+            <div style="height: 100px; background: linear-gradient(135deg, #dc2626, #ef4444); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+                ☁️
+            </div>
+            <h3>Variation C: CloudDrive</h3>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">Cloud storage with 2FA security</p>
+            <p style="font-size: 0.875rem; margin-bottom: 1rem;">
+                <strong>Credentials:</strong><br>
+                Your account: <code>user1:pass1</code><br>
+                Victim account: <code>admin:admin2024</code>
+            </p>
+            <a href="{{ url_for('lab3_2c') }}" class="btn" style="background: #dc2626;">Start Variation C</a>
+        </div>
+    </div>
+{% endblock %}

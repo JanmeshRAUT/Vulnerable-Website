@@ -1,0 +1,66 @@
+
+{% extends 'base.html' %}
+{% block title %}Vulnerable E-Shop - Labs{% endblock %}
+
+{% block content %}
+    <div class="banner">
+        ⚠️ This application is intentionally vulnerable for educational purposes. Do not use this in production.
+    </div>
+
+    <h1>Security Labs Menu</h1>
+    <p>Select a lab to practice your hacking skills. Each lab is isolated with specific vulnerabilities.</p>
+    
+    <div class="card-grid">
+        <!-- Lab 1: Path Traversal -->
+        <div class="card">
+            <div style="position: absolute; top: 1rem; right: 1rem; background: #6366f1; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">3 Variations</div>
+            <h3>Lab 1: Path Traversal</h3>
+            <p>Access files outside the intended directory - 3 themed variations available!</p>
+            <a href="{{ url_for('lab1') }}" class="btn">View Variations</a>
+        </div>
+
+        <!-- Lab 2: Access Control -->
+        <div class="card">
+            <div style="position: absolute; top: 1rem; right: 1rem; background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">5 Sub-Labs</div>
+            <h3>Lab 2: Access Control</h3>
+            <p>Broken Access Control & IDOR - 5 different vulnerability types to practice!</p>
+            <a href="{{ url_for('lab2') }}" class="btn">View Sub-Labs</a>
+        </div>
+
+        <!-- Lab 3: Authentication -->
+        <div class="card">
+            <div style="position: absolute; top: 1rem; right: 1rem; background: #f59e0b; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">2 Types</div>
+            <h3>Lab 3: Authentication</h3>
+            <p>Weak authentication mechanisms - Brute Force & 2FA Bypass (3 variations)!</p>
+            <a href="{{ url_for('lab3') }}" class="btn">View Sub-Labs</a>
+        </div>
+        
+        <!-- Lab 4: SSRF -->
+        <div class="card">
+            <h3>Lab 4: SSRF</h3>
+            <p>Server-Side Request Forgery via stock checker. Access internal services.</p>
+            <a href="{{ url_for('lab4') }}" class="btn">Start Lab 4</a>
+        </div>
+
+        <!-- Lab 5: File Upload -->
+        <div class="card">
+            <h3>Lab 5: File Upload</h3>
+            <p>Unrestricted file upload. Upload a webshell to execute code on the server.</p>
+            <a href="{{ url_for('lab5') }}" class="btn">Start Lab 5</a>
+        </div>
+
+        <!-- Lab 6: OS Command Injection -->
+        <div class="card">
+            <h3>Lab 6: Command Injection</h3>
+            <p>Execute system commands via the order tracking feature.</p>
+            <a href="{{ url_for('lab6') }}" class="btn">Start Lab 6</a>
+        </div>
+
+        <!-- Lab 7: SQL Injection -->
+        <div class="card">
+            <h3>Lab 7: SQL Injection</h3>
+            <p>Bypass authentication or extract data from the database using SQL queries.</p>
+            <a href="{{ url_for('lab7') }}" class="btn">Start Lab 7</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,30 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 5: File Upload{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+
+    <h2>Lab 5: File Upload</h2>
+    <div class="banner">
+        ⚠️ This lab allows unrestricted file uploads.
+    </div>
+
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+        <h3>Upload Profile Image</h3>
+        <p>Allowed formats: Any (Oops!).</p>
+        
+        <form action="{{ url_for('lab5_upload') }}" method="POST" enctype="multipart/form-data">
+            <label for="file">Select File:</label>
+            <input type="file" id="file" name="file" required>
+            <br><br>
+            
+            <button type="submit" class="btn">Upload Avatar</button>
+        </form>
+    </div>
+    
+    <div class="alert alert-error" style="margin-top: 2rem;">
+        Hint: Can you upload a malicious file (e.g., .py, .php, .html) and execute it?
+        <br>Or simply upload an HTML file with XSS payload.
+    </div>
+{% endblock %}

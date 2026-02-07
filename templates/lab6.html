@@ -1,0 +1,30 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 6: Command Injection{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+
+    <h2>Lab 6: Command Injection</h2>
+    <div class="banner">
+        ⚠️ This application executes user input directly in a system shell.
+    </div>
+
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+        <h3>Track Order Delivery</h3>
+        <p>Check the status of your shipment by entering the server address.</p>
+        
+        <form action="{{ url_for('lab6_track') }}" method="POST">
+            <label for="address">Delivery Server IP:</label>
+            <input type="text" id="address" name="address" required placeholder="e.g. 8.8.8.8">
+            <br><br>
+            
+            <button type="submit" class="btn">Track Order</button>
+        </form>
+    </div>
+    
+    <div class="alert alert-error" style="margin-top: 2rem;">
+        Hint: Use command separators like <code>&&</code> or <code>|</code> to execute arbitrary commands.
+        <br>Try: <code>8.8.8.8 && dir</code> (Windows) or <code>8.8.8.8 ; ls</code> (Linux/Mac)
+    </div>
+{% endblock %}

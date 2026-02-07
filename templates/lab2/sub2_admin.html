@@ -1,0 +1,26 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 2.2: Admin{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab2_2') }}" class="btn">Back to Lab 2.2</a>
+
+    <h2>Admin Dashboard (Hidden Logic)</h2>
+    
+    {% if flag %}
+        <div class="alert alert-success">
+            <strong>FLAG: </strong> {{ flag }}
+        </div>
+        <p>User deleted successfully.</p>
+    {% else %}
+        <div class="card">
+            <h3>Registered Users</h3>
+            {% for user in users %}
+            <p>User: {{ user.username }} (ID: {{ user.id }})</p>
+            <form method="POST">
+                <button type="submit" class="btn btn-danger">Delete User</button>
+            </form>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

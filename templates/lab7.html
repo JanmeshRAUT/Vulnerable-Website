@@ -1,0 +1,44 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 7: SQL Injection{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+
+    <h2>Lab 7: SQL Injection</h2>
+    <div class="banner">
+        ⚠️ This search box constructs a raw SQL query.
+    </div>
+
+    <div class="card" style="max-width: 600px; margin: 0 auto; margin-bottom: 2rem;">
+        <h3>Product Search</h3>
+        <p>Find the products you love.</p>
+        
+        <form method="POST">
+            <label for="search">Product Name:</label>
+            <input type="text" id="search" name="search" required placeholder="e.g. Mug">
+            <br><br>
+            
+            <button type="submit" class="btn">Search</button>
+        </form>
+    </div>
+
+    {% if products %}
+    <h3>Search Results:</h3>
+    <div class="card-grid">
+        {% for product in products %}
+        <div class="card">
+            <h4>{{ product.name }}</h4>
+            <p>{{ product.description }}</p>
+            <p><strong>Price:</strong> ${{ product.price }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="alert alert-error" style="margin-top: 2rem;">
+        Hint: Use <code>' UNION SELECT ... --</code> to extract data from other tables.
+        <br>Try: <code>' UNION SELECT 1, username, password, 4, 5, 6 FROM users --</code>
+        <br>(Note: Adjust column count to match `products` table).
+    </div>
+{% endblock %}

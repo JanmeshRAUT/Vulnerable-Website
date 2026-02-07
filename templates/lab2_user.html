@@ -1,0 +1,22 @@
+
+{% extends 'base.html' %}
+{% block title %}Lab 2: User Profile{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
+
+    <h2>User Profile</h2>
+    <div class="card">
+        <h3>User ID: {{ user.id }}</h3>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Full Name:</strong> {{ user.full_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Role:</strong> {{ user.role }}</p>
+
+        {% if user.role == "admin" %}
+        <div class="alert alert-error">
+            <strong>ADMIN ACCESS GRANTED!</strong> You are viewing an Admin profile.
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
