@@ -2,15 +2,25 @@
 {% block title %}My Profile - ShopHub{% endblock %}
 
 {% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='lab2/5/style.css') }}">
     <!-- Custom Header -->
-    <header style="background: #7c3aed; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab2_5') }}" style="color: #c4b5fd; font-size: 0.875rem; text-decoration: none;">&larr; Back to Store</a>
-            <div style="font-weight: 700; font-size: 1.5rem;">ShopHub</div>
-        </div>
-        <div>
-            <span style="margin-right: 1rem;">{{ user.username }}</span>
-            <a href="{{ url_for('lab2_5_logout') }}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Logout</a>
+    <header class="shophub-header">
+        <div class="header-container">
+            <div class="brand-section">
+                <a href="{{ url_for('lab2_5') }}" class="back-link">&larr; Back to Store</a>
+                <div class="brand-logo">ShopHub</div>
+                <nav class="nav-links">
+                    <a href="#" class="nav-item">Settings</a>
+                    <a href="#" class="nav-item">Orders</a>
+                    <a href="#" class="nav-item">Security</a>
+                </nav>
+            </div>
+            
+            <div class="profile-header">
+                <div class="user-avatar">{{ user.username[0]|upper }}</div>
+                <span style="font-weight: 600;">{{ user.username }}</span>
+                <a href="{{ url_for('lab2_5_logout') }}" class="btn-logout">Logout</a>
+            </div>
         </div>
     </header>
 {% endblock %}
@@ -25,50 +35,69 @@
         <input type="hidden" id="debug_role" value="{{ user.role }}">
     </div>
     
-    <div style="max-width: 900px; margin: 0 auto;">
-        <h2 style="margin-bottom: 2rem;">My Profile</h2>
+    <div class="main-container">
         
         {% if flag %}
             <script>
                 alert("Congratulations! {{ flag }}");
             </script>
-            <div class="alert alert-success" style="margin-bottom: 2rem;">
-                <strong>🎉 FLAG FOUND!</strong> {{ flag }}
+            <div class="alert-box alert-success">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">🎉 FLAG FOUND!</h3>
+                <p>{{ flag }}</p>
             </div>
-            <div class="alert alert-error" style="margin-bottom: 2rem;">
-                <strong>Vulnerability Exploited:</strong> You discovered the admin password by changing the <code>username</code> parameter in the URL from <code>user</code> to <code>admin</code>. The password was exposed in hidden HTML fields!
-                <br><br>
-                <strong>Admin Username:</strong> <code>{{ user.username }}</code><br>
-                <strong>Admin Password:</strong> <code>{{ user.password }}</code>
+            <div class="alert-box alert-info">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem; color: #93c5fd;">Vulnerability Exploited</h3>
+                <p>You discovered the admin password by changing the <code>username</code> parameter in the URL from <code>user</code> to <code>admin</code>. The password was exposed in hidden HTML fields!</p>
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
+                    <strong>Admin Username:</strong> <code>{{ user.username }}</code><br>
+                    <strong>Admin Password:</strong> <code style="color: #fca5a5;">{{ user.password }}</code>
+                </div>
             </div>
         {% endif %}
         
-        <div class="card">
-            <h3>Account Information</h3>
-            <div style="margin-top: 1.5rem;">
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>Email:</strong>
-                    <span>{{ user.email or 'Not set' }}</span>
+        <div class="profile-card">
+            <h2 class="section-title">👤 Account Security</h2>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value">{{ user.email or 'Not set' }}</span>
                 </div>
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>Full Name:</strong>
-                    <span>{{ user.full_name or 'Not set' }}</span>
+                <div class="info-item">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{ user.full_name or 'Not set' }}</span>
                 </div>
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>Account Type:</strong>
-                    <span style="color: {% if user.role == 'admin' %}#fbbf24{% else %}#94a3b8{% endif %};">{{ user.role|capitalize }}</span>
+                <div class="info-item">
+                    <span class="info-label">Account Role</span>
+                    <div>
+                        <span class="badge-role {% if user.role == 'admin' %}role-admin{% else %}role-user{% endif %}">
+                            {{ user.role|upper }}
+                        </span>
+                    </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>Member Since:</strong>
-                    <span>January 2024</span>
+                <div class="info-item">
+                    <span class="info-label">Member Since</span>
+                    <span class="info-value">January 2024</span>
                 </div>
+                <div class="info-item" style="border: none;">
+                    <span class="info-label">Password</span>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="color: var(--text-muted);">•••••••••••••••</span>
+                        <button style="background: none; border: none; color: var(--primary-light); cursor: pointer; font-size: 0.9rem;">Change</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn-action" style="background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-muted);">Cancel</button>
+                <button class="btn-action">Save Changes</button>
             </div>
         </div>
         
-        <div class="card" style="margin-top: 2rem;">
-            <h3>Security Settings</h3>
-            <p style="color: #94a3b8; margin-top: 1rem;">Manage your password and security preferences</p>
-            <button class="btn" style="margin-top: 1rem; background: #7c3aed;">Change Password</button>
+        <div class="profile-card" style="opacity: 0.7;">
+            <h3 class="section-title" style="font-size: 1.25rem;">🔒 Two-Factor Authentication</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Add an extra layer of security to your account by enabling 2FA.</p>
+            <button class="btn-action" style="background: var(--bg-dark); border: 1px solid var(--primary); color: var(--primary-light);">Configue 2FA</button>
         </div>
     </div>
 {% endblock %}

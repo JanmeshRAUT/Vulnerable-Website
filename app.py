@@ -729,9 +729,10 @@ def lab2_4_logout():
 @app.route('/lab2/5')
 def lab2_5():
     # Main store page for Lab 2.5
+    error = request.args.get('login_error')
     db = get_db()
     products = db.execute('SELECT * FROM products').fetchall()
-    return render_template('lab2/sub5.html', products=products)
+    return render_template('lab2/sub5.html', products=products, error=error)
 
 @app.route('/lab2/5/login', methods=['GET', 'POST'])
 def lab2_5_login():
@@ -793,42 +794,35 @@ def lab3():
     return render_template('lab3/index.html')
 
 # LAB 3.1: Brute Force Attack
+# LAB 3.1: Brute Force Attack
 @app.route('/lab3/1')
 def lab3_1():
-    # Clear previous session data to ensure fresh credentials each time
-    session.pop('lab3_1_admin_user', None)
-    session.pop('lab3_1_admin_pass', None)
-    session.pop('lab3_1_logged_in', None)
-    session.pop('lab3_1_username', None)
+    import random # Local import to ensure it's available
     
-    # Generate random credentials from wordlists each time lab is accessed
-    import random
-    
+    # 3. Pick Random Credentials from Wordlists
     usernames_file = os.path.join('data', 'wordlists', 'usernames.txt')
     passwords_file = os.path.join('data', 'wordlists', 'passwords.txt')
     
-    # Read wordlists
     with open(usernames_file, 'r') as f:
         usernames = [line.strip() for line in f if line.strip()]
     with open(passwords_file, 'r') as f:
         passwords = [line.strip() for line in f if line.strip()]
+
+    target_user = random.choice(usernames)
+    target_password = random.choice(passwords)
     
-    # Select random credentials
-    admin_username = random.choice(usernames)
-    admin_password = random.choice(passwords)
+    # 4. Store in Session (So we can verify later)
+    session['lab3_1_target_user'] = target_user
+    session['lab3_1_target_pass'] = target_password
     
-    # Store in session for this lab instance
-    session['lab3_1_admin_user'] = admin_username
-    session['lab3_1_admin_pass'] = admin_password
-    
-    # Log to console for testing (with timestamp for clarity)
-    from datetime import datetime
-    timestamp = datetime.now().strftime("%H:%M:%S")
-    print(f"[LAB 3.1 - {timestamp}] New credentials generated: {admin_username} / {admin_password}")
+    # 5. Log for learning/debugging
+    print(f"\n[LAB 3.1 START] Integrity Check:")
+    print(f" -> Target User: {target_user}")
+    print(f" -> Target Pass: {target_password}")
+    print(f"----------------------------------------\n")
     
     db = get_db()
     products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
-    
     return render_template('lab3/sub1.html', products=products)
 
 
@@ -837,19 +831,32 @@ def lab3_1_login():
     username = request.form.get('username')
     password = request.form.get('password')
     
-    correct_user = session.get('lab3_1_admin_user')
-    correct_pass = session.get('lab3_1_admin_pass')
+    target_user = session.get('lab3_1_target_user')
+    target_pass = session.get('lab3_1_target_pass')
     
-
-    if username == correct_user and password == correct_pass:
+    # Scenario 1: Correct Credentials
+    if username == target_user and password == target_pass:
         session['lab3_1_logged_in'] = True
+        # SUCCESS: Redirect (Status 302) - Easy to spot in Burp
         return redirect(url_for('lab3_1_admin'))
-    
-    # Failure case - Render template with error
-    # We need to fetch products again to render the template correctly
+
+    # Scenario 2: Correct Username, Wrong Password
+    if username == target_user:
+        # VULNERABILITY: User Enumeration
+        # Different error message allows attacker to know user exists
+        error_msg = "Incorrect password."
+        # Optional: Add padding if you want length difference to be huge
+        # error_msg += " " * 100 
+        
+        db = get_db()
+        products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+        return render_template('lab3/sub1.html', products=products, error=error_msg), 200
+
+    # Scenario 3: Invalid Username
+    # Default generic error message
     db = get_db()
     products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
-    return render_template('lab3/sub1.html', products=products, error="Invalid credentials"), 200
+    return render_template('lab3/sub1.html', products=products, error="Invalid username or password"), 200
 
 @app.route('/lab3/1/admin')
 def lab3_1_admin():
