@@ -26,117 +26,7 @@
 {% endblock %}
 
 {% block content %}
-<style>
-    body {
-        background-color: #fafafa !important;
-        font-family: 'Georgia', serif;
-        color: #333;
-    }
-
-    .hero-section {
-        background: #f8f5f2;
-        padding: 4rem 2rem;
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .book-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 3rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-
-    .book-card {
-        background: transparent;
-        transition: transform 0.3s ease;
-        cursor: pointer;
-    }
-
-    .book-card:hover {
-        transform: translateY(-8px);
-    }
-
-    .book-cover-art {
-        height: 320px;
-        background: #fff;
-        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 4rem;
-        margin-bottom: 1.5rem;
-        position: relative;
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    .book-spine {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 12px;
-        background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.1));
-        z-index: 2;
-    }
-
-    .book-info {
-        text-align: center;
-    }
-
-    .book-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-        color: #2c3e50;
-        line-height: 1.4;
-    }
-
-    .book-author {
-        color: #7f8c8d;
-        font-style: italic;
-        font-size: 0.95rem;
-        margin-bottom: 0.8rem;
-    }
-
-    .book-price {
-        color: #c0392b;
-        font-weight: bold;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-size: 1.1rem;
-    }
-
-    .section-title {
-        text-align: center;
-        font-size: 2rem;
-        margin-bottom: 3rem;
-        position: relative;
-        display: inline-block;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .section-title:after {
-        content: '';
-        display: block;
-        width: 60px;
-        height: 3px;
-        background: #c0392b;
-        margin: 15px auto 0;
-    }
-
-    .footer-elegant {
-        margin-top: 6rem;
-        background: #2c3e50;
-        padding: 4rem 2rem;
-        text-align: center;
-        color: #ecf0f1;
-        font-family: 'Helvetica Neue', sans-serif;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='lab2/2/b/style.css') }}">
 
 <!-- Lab Context -->
 <div style="max-width: 1200px; margin: 1rem auto; padding: 0 2rem;">
@@ -151,8 +41,18 @@
         curated collection of eternal classics and modern masterpieces. Find your next great adventure today.</p>
 </div>
 
-<!-- VULNERABILITY: Hidden Admin Link -->
-<div style="display:none;"><a href="{{ url_for('lab2_2_admin') }}">Admin Panel</a></div>
+<script>
+    // Developer Note: Use toggleAdmin() in console to reveal dashboard
+    const config = {
+        'version': '2.1.0',
+        'theme': 'classic',
+        'adminPath': "{{ url_for('lab2_2_admin') }}" 
+    };
+    
+    function toggleAdmin() {
+        console.log("Admin Dashboard: " + config.adminPath);
+    }
+</script>
 
 <h2 class="section-title">Editor's Picks</h2>
 

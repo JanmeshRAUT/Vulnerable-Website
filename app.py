@@ -814,18 +814,19 @@ def lab3_1_login():
     username = request.form.get('username')
     password = request.form.get('password')
     
-    # Get the correct credentials from session
-    correct_user = session.get('lab3_1_admin_user', 'admin')
-    correct_pass = session.get('lab3_1_admin_pass', 'password')
+    correct_user = session.get('lab3_1_admin_user')
+    correct_pass = session.get('lab3_1_admin_pass')
     
-    # VULNERABILITY: No rate limiting, allows brute force
+
     if username == correct_user and password == correct_pass:
         session['lab3_1_logged_in'] = True
-        session['lab3_1_username'] = username
         return redirect(url_for('lab3_1_admin'))
-    else:
-        # Return JSON for easier brute forcing
-        return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+    
+    # Failure case - Render template with error
+    # We need to fetch products again to render the template correctly
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    return render_template('lab3/sub1.html', products=products, error="Invalid credentials"), 200
 
 @app.route('/lab3/1/admin')
 def lab3_1_admin():
