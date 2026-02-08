@@ -1,36 +1,35 @@
-
 {% extends 'base.html' %}
 {% block title %}Lab 2.3: Admin{% endblock %}
 
 {% block content %}
-    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-        <a href="{{ url_for('lab2') }}" class="btn">← Back to Lab 2 Menu</a>
-        <a href="{{ url_for('lab2_3_logout') }}" class="btn btn-danger">Logout & Reset</a>
-    </div>
+<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+    <a href="{{ url_for('lab2') }}" class="btn">← Back to Lab 2 Menu</a>
+    <a href="{{ url_for('lab2_3_logout') }}" class="btn btn-danger">Logout & Reset</a>
+</div>
 
-    <h2>Admin Console (Cookie Access)</h2>
+<h2>Admin Console (Cookie Access)</h2>
 
-    {% if flag %}
-        <script>
-            alert("Congratulations! {{ flag }}");
-        </script>
-        <div class="alert alert-success">
-            <strong>🎉 SUCCESS!</strong> {{ flag }}
-        </div>
-        <p>User account deleted successfully.</p>
-        <div style="margin-top: 2rem;">
-            <a href="{{ url_for('lab2_3') }}" class="btn">Continue Shopping</a>
-            <a href="{{ url_for('lab2') }}" class="btn">Back to Lab Menu</a>
-        </div>
-    {% else %}
-        <div class="card">
-            <h3>Registered Users</h3>
-            {% for user in users %}
-            <p>User: {{ user.username }} (ID: {{ user.id }})</p>
-            <form method="POST">
-                <button type="submit" class="btn btn-danger">Delete User</button>
-            </form>
-            {% endfor %}
-        </div>
-    {% endif %}
+{% if flag %}
+<script>
+    alert("Congratulations! {{ flag }}");
+</script>
+<div class="alert alert-success">
+    <strong>🎉 SUCCESS!</strong> {{ flag }}
+</div>
+<p>User account deleted successfully.</p>
+<div style="margin-top: 2rem;">
+    <a href="{{ url_for('lab2_3_menu') }}" class="btn">Continue Shopping</a>
+    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab Menu</a>
+</div>
+{% else %}
+<div class="card">
+    <h3>Registered Users</h3>
+    {% for user in users %}
+    <p>User: {{ user.username }} (ID: {{ user.id }})</p>
+    <form method="POST">
+        <button type="submit" class="btn btn-danger">Delete User</button>
+    </form>
+    {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

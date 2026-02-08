@@ -520,42 +520,88 @@ def lab2_2c():
 
 
 # LAB 2.3: Cookie Manipulation
-@app.route('/lab2/3', methods=['GET', 'POST'])
-def lab2_3():
+
+
+# Shared Helper for Lab 2.3 Cookie Logic
+def handle_lab2_3_request(template_name, products):
     # CHECK ADMIN COOKIE - If true, show admin page
     is_admin_cookie = request.cookies.get('Admin')
     
     if is_admin_cookie == 'true':
         # Show admin page directly
         db = get_db()
-        
-        # Handle user deletion (POST request)
-        if request.method == 'POST':
-            # User clicked delete - show flag
-            return render_template('lab2/sub3_admin.html', users=[], flag="FLAG{cookie_manipulation_is_sweet}")
-        
-        # GET request - show users
         users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
-        return render_template('lab2/sub3_admin.html', users=users, flag=None)
+        
+        # Handle user deletion (POST request simulation)
+        flag = None
+        if request.method == 'POST':
+            flag = "FLAG{cookie_manipulation_is_sweet}"
+            users = [] # Clear users to simulate deletion
+            
+        return render_template('lab2/sub3_admin.html', users=users, flag=flag)
     
     # Otherwise, show regular store page
-    db = get_db()
-    products = db.execute('SELECT * FROM products').fetchall()
-    
-    current_user = request.cookies.get('session')  # Can be any identifier
-    return render_template('lab2/sub3.html', products=products, username=current_user)
+    current_user = request.cookies.get('session')
+    return render_template(template_name, products=products, username=current_user)
 
+# Variation A: MusicStore
+@app.route('/lab2/3/music', methods=['GET', 'POST'])
+def lab2_3_music():
+    products = [
+        {'id': 1, 'name': 'Vinyl Classic: Abbey Road', 'price': 35, 'description': 'The Beatles masterpiece.'},
+        {'id': 2, 'name': 'Sony WH-1000XM5', 'price': 349, 'description': 'Industry leading noise canceling.'},
+        {'id': 3, 'name': 'Fender Stratocaster', 'price': 899, 'description': 'Electric guitar in sunburst.'},
+        {'id': 4, 'name': 'Marshall Stanmore III', 'price': 379, 'description': 'Legendary sound at home.'},
+    ]
+    return handle_lab2_3_request('lab2/sub3_music.html', products)
+
+# Variation B: SportsGear
+@app.route('/lab2/3/sports', methods=['GET', 'POST'])
+def lab2_3_sports():
+    products = [
+        {'id': 1, 'name': 'Pro Match Football', 'price': 45, 'description': 'FIFA quality certified.'},
+        {'id': 2, 'name': 'Tennis Racket Elite', 'price': 189, 'description': 'Carbon fiber lightweight frame.'},
+        {'id': 3, 'name': 'NBA Jersey - Lakers', 'price': 110, 'description': 'Authentic player edition.'},
+        {'id': 4, 'name': 'Running Shoes zoom', 'price': 130, 'description': 'Marathon ready cushioning.'},
+    ]
+    return handle_lab2_3_request('lab2/sub3_sports.html', products)
+
+# Variation C: PetShop
+@app.route('/lab2/3/pets', methods=['GET', 'POST'])
+def lab2_3_pets():
+    products = [
+        {'id': 1, 'name': 'Premium Dog Food', 'price': 55, 'description': 'Grain-free nutrition.'},
+        {'id': 2, 'name': 'Cat Tree Tower', 'price': 85, 'description': 'Multi-level play area.'},
+        {'id': 3, 'name': 'Aquarium Kit 20G', 'price': 120, 'description': 'Complete starter set with filter.'},
+        {'id': 4, 'name': 'Hamster Wheel Silent', 'price': 25, 'description': 'No squeak running wheel.'},
+    ]
+    return handle_lab2_3_request('lab2/sub3_pets.html', products)
+
+# Generic Lab 2.3 Login (Redirects based on referrer or param)
 @app.route('/lab2/3/login', methods=['GET', 'POST'])
 def lab2_3_login_page():
-    # If GET, just redirect to store (modal should be used)
+    # Helper to determine where to redirect back
+    # In a real app we'd use 'next' param, here we'll check the referrer or default to Music
+    referrer = request.referrer or ''
+    if 'sports' in referrer:
+        target_route = 'lab2_3_sports'
+    elif 'pets' in referrer:
+        target_route = 'lab2_3_pets'
+    else:
+        target_route = 'lab2_3_music' # Default
+
     if request.method == 'GET':
-        return redirect(url_for('lab2_3'))
+        return redirect(url_for(target_route))
 
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        target_theme = request.form.get('theme', 'music') # Hidden field in login form
         
-        # Simple check 
+        if target_theme == 'sports': target_route = 'lab2_3_sports'
+        elif target_theme == 'pets': target_route = 'lab2_3_pets'
+        else: target_route = 'lab2_3_music'
+
         db = get_db()
         user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
         
@@ -565,63 +611,34 @@ def lab2_3_login_page():
             if user['role'] == 'admin':
                 is_admin_val = 'true'
             
-            # If admin, redirect to admin page directly
-            if is_admin_val == 'true':
-                resp = redirect(url_for('lab2_3_admin'))
-            else:
-                # Regular user goes to my-account page
-                resp = redirect(url_for('lab2_3_my_account', id=username))
+            # If admin, redirect to admin page directly? 
+            # Actually, standard flow checks cookie on the main page.
+            # So we redirect back to the store main page.
+            
+            resp = redirect(url_for(target_route))
             
             resp.set_cookie('Admin', is_admin_val)
             resp.set_cookie('session', '5i06DbK0e5AUWufFfpCk8BnxM1sU81Me')
             return resp
         else:
-            return redirect(url_for('lab2_3', login_error="Invalid Credentials"))
+             return redirect(url_for(target_route, login_error="Invalid Credentials"))
 
-@app.route('/lab2/3/my-account', methods=['GET', 'POST'])
-def lab2_3_my_account():
-    # This acts as the "Store" or "Account" page
-    # It takes ?id=username
-    user_id = request.args.get('id')
-    
-    # CHECK ADMIN COOKIE - If true, show admin page
-    is_admin_cookie = request.cookies.get('Admin')
-    
-    if is_admin_cookie == 'true':
-        # Show admin page directly
-        db = get_db()
-        
-        # Handle user deletion (POST request)
-        if request.method == 'POST':
-            # User clicked delete - show flag
-            return render_template('lab2/sub3_admin.html', users=[], flag="FLAG{cookie_manipulation_is_sweet}")
-        
-        # GET request - show users
-        users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
-        return render_template('lab2/sub3_admin.html', users=users, flag=None)
-    
-    # Otherwise, show regular store page
-    db = get_db()
-    products = db.execute('SELECT * FROM products').fetchall()
-    
-    return render_template('lab2/sub3.html', products=products, username=user_id)
 
 @app.route('/lab2/3/logout')
 def lab2_3_logout():
-    resp = redirect(url_for('lab2_3'))
-    # Clear the NEW cookie names we set in login
+    # Redirect back to where they came from
+    referrer = request.referrer or ''
+    if 'sports' in referrer:
+        target_route = 'lab2_3_sports'
+    elif 'pets' in referrer:
+        target_route = 'lab2_3_pets'
+    else:
+        target_route = 'lab2_3_music'
+
+    resp = redirect(url_for(target_route))
     resp.set_cookie('Admin', '', expires=0)
     resp.set_cookie('session', '', expires=0)
-    # Also clear old ones just in case
-    resp.set_cookie('lab2_admin', '', expires=0)
-    resp.set_cookie('lab2_user', '', expires=0)
     return resp
-
-# New API to check admin status (explicit request for Burp analysis)
-@app.route('/lab2/3/api/check_privileges')
-def lab2_3_check_privileges():
-    is_admin = request.cookies.get('Admin') == 'true'
-    return {"is_admin": is_admin, "user": request.args.get('id')} # simplified
 
 @app.route('/lab2/3/admin', methods=['GET', 'POST'])
 def lab2_3_admin():
@@ -629,10 +646,16 @@ def lab2_3_admin():
     is_admin_cookie = request.cookies.get('Admin')
     
     if is_admin_cookie == 'true':
-        users = [{'id': 303, 'username': 'cookie_monster'}]
+        db = get_db()
+        users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+        
+        # Handle user deletion (POST request simulation)
+        flag = None
         if request.method == 'POST':
-             return render_template('lab2/sub3_admin.html', users=[], flag="FLAG{cookie_manipulation_is_sweet}")
-        return render_template('lab2/sub3_admin.html', users=users, flag=None)
+            flag = "FLAG{cookie_manipulation_is_sweet}"
+            users = [] # Clear users to simulate deletion
+            
+        return render_template('lab2/sub3_admin.html', users=users, flag=flag)
     else:
         return "<h1>403 Forbidden</h1><p>Admin access required. Cookie 'Admin' is false.</p>", 403
 

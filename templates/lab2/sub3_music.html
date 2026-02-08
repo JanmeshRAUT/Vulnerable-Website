@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% block title %}NeonBeats - Music Store{% endblock %}
+
+{% block header %}
+<header
+    style="background: #000; border-bottom: 2px solid #b026ff; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Courier New', monospace;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="font-size: 2rem; color: #b026ff; text-shadow: 0 0 10px #b026ff;">🎵</div>
+        <a href="{{ url_for('lab2_3_music') }}"
+            style="text-decoration: none; color: #fff; font-size: 1.8rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase;">
+            Neon<span style="color: #b026ff;">Beats</span>
+        </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        {% if username %}
+        <div style="color: #fff; font-family: monospace;">Logged in as: <span style="color: #b026ff;">{{ username
+                }}</span></div>
+        <a href="{{ url_for('lab2_3_logout') }}"
+            style="color: #fff; text-decoration: none; border: 1px solid #b026ff; padding: 0.5rem 1rem; border-radius: 4px; transition: all 0.3s;">Logout</a>
+        {% else %}
+        <button onclick="document.getElementById('loginModal').style.display='flex'"
+            style="background: transparent; color: #b026ff; border: 1px solid #b026ff; padding: 0.5rem 1rem; cursor: pointer; font-family: monospace; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+            Login
+        </button>
+        {% endif %}
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #121212 !important;
+        font-family: 'Courier New', monospace;
+        color: #e0e0e0;
+    }
+
+    .hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        border-bottom: 1px solid #333;
+        margin-bottom: 3rem;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .product-card {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        padding: 1rem;
+        transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        border-color: #b026ff;
+        box-shadow: 0 0 15px rgba(176, 38, 255, 0.2);
+    }
+
+    .product-image {
+        height: 200px;
+        background: #2a2a2a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #555;
+    }
+
+    .product-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #fff;
+    }
+
+    .product-price {
+        color: #b026ff;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: #1a1a1a;
+        border: 2px solid #b026ff;
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+        position: relative;
+        box-shadow: 0 0 20px rgba(176, 38, 255, 0.4);
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #fff;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+        background: #000;
+        border: 1px solid #333;
+        color: #fff;
+        font-family: monospace;
+    }
+
+    input:focus {
+        border-color: #b026ff;
+        outline: none;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 0.8rem;
+        background: #b026ff;
+        color: #fff;
+        border: none;
+        font-family: monospace;
+        font-weight: bold;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    /* Vulnerability Hint */
+    .admin-link {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid #333;
+        color: #555;
+        font-size: 0.8rem;
+    }
+</style>
+
+<!-- Lab Context -->
+<a href="{{ url_for('lab2_3_menu') }}"
+    style="position: absolute; top: 120px; left: 20px; color: #b026ff; text-decoration: none; border: 1px solid #b026ff; padding: 0.5rem;">&larr;
+    LAB MENU</a>
+
+<div class="hero">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px #b026ff;">SOUND OF FULLY FUTURE</h1>
+    <p>Curated audio equipment for the discerning audiophile.</p>
+</div>
+
+<div class="product-grid">
+    {% for product in products %}
+    <div class="product-card">
+        <div class="product-image">💿</div>
+        <div class="product-title">{{ product.name }}</div>
+        <p style="font-size: 0.9rem; margin-bottom: 1rem; color: #aaa;">{{ product.description }}</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="product-price">${{ product.price }}</div>
+            <button
+                style="background: transparent; border: 1px solid #fff; color: #fff; padding: 0.2rem 0.8rem; cursor: pointer;">ADD</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="admin-link">
+    &copy; 2026 NeonBeats Inc. <br>
+    <a href="{{ url_for('lab2_3_admin') }}" style="color: #333; text-decoration: none; cursor: default;">[ Staff Portal
+        ]</a>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
+        <h2 style="text-align: center; color: #b026ff; margin-bottom: 1.5rem;">MEMBER ACCESS</h2>
+        <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
+            <input type="hidden" name="theme" value="music">
+            <input type="text" name="username" placeholder="USERNAME" required>
+            <input type="password" name="password" placeholder="PASSWORD" required>
+            <button type="submit" class="btn-login">ENTER</button>
+        </form>
+        <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #555;">Try: user / password</p>
+    </div>
+</div>
+{% endblock %}

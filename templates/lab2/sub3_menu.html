@@ -2,31 +2,37 @@
 {% block title %}Lab 2.3: Cookie Manipulation Variations{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
+<a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
 
-    <h2>Lab 2.3: Cookie Manipulation - Choose a Variation</h2>
-    <div class="banner">
-        ⚠️ Modify cookies to gain admin access - Same vulnerability, different themes!
-    </div>
+<h2>Lab 2.3: Cookie Manipulation - Choose a Variation</h2>
+<div class="banner">
+    ⚠️ Modify cookies to gain admin access - Same vulnerability, different themes!
+</div>
 
-    <div class="card-grid">
-        <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #6366f1, #818cf8); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">🎵</div>
-            <h3>Variation A: MusicStore</h3>
-            <p style="color: #94a3b8;">Music marketplace</p>
-            <a href="{{ url_for('lab2_3') }}" class="btn" style="background: #6366f1;">Start Variation A</a>
-        </div>
-        <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #f97316, #fb923c); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">⚽</div>
-            <h3>Variation B: SportsGear</h3>
-            <p style="color: #94a3b8;">Sports equipment (Same vulnerability)</p>
-            <a href="{{ url_for('lab2_3') }}" class="btn" style="background: #f97316;">Practice Again</a>
-        </div>
-        <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #ec4899, #f472b6); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">🐾</div>
-            <h3>Variation C: PetShop</h3>
-            <p style="color: #94a3b8;">Pet supplies (Same vulnerability)</p>
-            <a href="{{ url_for('lab2_3') }}" class="btn" style="background: #ec4899;">Practice Again</a>
-        </div>
+<div class="card-grid">
+    <div class="card">
+        <div
+            style="height: 100px; background: linear-gradient(135deg, #6366f1, #818cf8); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+            🎵</div>
+        <h3>Variation A: MusicStore</h3>
+        <p style="color: #94a3b8;">Music marketplace</p>
+        <a href="{{ url_for('lab2_3_music') }}" class="btn" style="background: #6366f1;">Start Variation A</a>
     </div>
+    <div class="card">
+        <div
+            style="height: 100px; background: linear-gradient(135deg, #f97316, #fb923c); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+            ⚡</div>
+        <h3>Variation B: SportsGear</h3>
+        <p style="color: #94a3b8;">Sports equipment (Same vulnerability)</p>
+        <a href="{{ url_for('lab2_3_sports') }}" class="btn" style="background: #f97316;">Start Variation B</a>
+    </div>
+    <div class="card">
+        <div
+            style="height: 100px; background: linear-gradient(135deg, #ec4899, #f472b6); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+            🐾</div>
+        <h3>Variation C: PetShop</h3>
+        <p style="color: #94a3b8;">Pet supplies (Same vulnerability)</p>
+        <a href="{{ url_for('lab2_3_pets') }}" class="btn" style="background: #ec4899;">Start Variation C</a>
+    </div>
+</div>
 {% endblock %}
