@@ -1,101 +1,183 @@
 {% extends 'base.html' %}
-{% block title %}BookStore - Literary Escape{% endblock %}
+{% block title %}The Literary Corner - Premium Bookstore{% endblock %}
 
 {% block header %}
-    <header style="background: #fdf6e3; border-bottom: 2px solid #e1dcc9; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Georgia', serif;">
-        <a href="{{ url_for('lab2_2b') }}" style="text-decoration: none; color: #5d4037; font-size: 1.8rem; font-weight: bold;">
-            📚 BookStore
+<header
+    style="background: #fff; border-bottom: 1px solid #eaeaea; padding: 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Georgia', serif; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="font-size: 2rem;">🦉</div>
+        <a href="{{ url_for('lab2_2b') }}"
+            style="text-decoration: none; color: #2c3e50; font-size: 1.8rem; font-weight: bold; letter-spacing: -0.5px;">
+            The Literary Corner
         </a>
-        <nav style="display: flex; gap: 1.5rem;">
-            <a href="#" style="color: #6b4226; text-decoration: none;">Fiction</a>
-            <a href="#" style="color: #6b4226; text-decoration: none;">Science</a>
-            <a href="#" style="color: #6b4226; text-decoration: none;">History</a>
-        </nav>
-    </header>
+    </div>
+    <nav style="display: flex; gap: 2rem; font-family: 'Helvetica Neue', sans-serif; font-size: 0.95rem;">
+        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">Bestsellers</a>
+        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">New Arrivals</a>
+        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">Fiction</a>
+        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">Non-Fiction</a>
+    </nav>
+    <div style="display: flex; gap: 1.5rem; color: #2c3e50;">
+        <span>🔍</span>
+        <span>👤</span>
+        <span>🛒</span>
+    </div>
+</header>
 {% endblock %}
 
 {% block content %}
-    <style>
-        body { background-color: #fcfbf9 !important; font-family: 'Merriweather', 'Book Antiqua', serif; color: #2b2b2b; }
-        
-        .book-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
+<style>
+    body {
+        background-color: #fafafa !important;
+        font-family: 'Georgia', serif;
+        color: #333;
+    }
 
-        .book-card {
-            background: white;
-            box-shadow: 2px 4px 12px rgba(0,0,0,0.08);
-            border-radius: 4px;
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
+    .hero-section {
+        background: #f8f5f2;
+        padding: 4rem 2rem;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
 
-        .book-card:hover {
-            transform: translateY(-5px);
-        }
+    .book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
 
-        .book-cover {
-            height: 280px;
-            background: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-        }
+    .book-card {
+        background: transparent;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
 
-        .book-info {
-            padding: 1rem;
-        }
+    .book-card:hover {
+        transform: translateY(-8px);
+    }
 
-        .book-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-        }
+    .book-cover-art {
+        height: 320px;
+        background: #fff;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        border-radius: 2px;
+        overflow: hidden;
+    }
 
-        .book-price {
-            color: #b91c1c;
-            font-weight: bold;
-        }
+    .book-spine {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 12px;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.1));
+        z-index: 2;
+    }
 
-        .footer-cozy {
-            margin-top: 4rem;
-            border-top: 1px solid #e5e7eb;
-            padding: 2rem 0;
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-    </style>
+    .book-info {
+        text-align: center;
+    }
 
-    <!-- Lab Context -->
-    <a href="{{ url_for('lab2_2_menu') }}" style="display: block; margin-bottom: 1.5rem; color: #8b6b61; text-decoration: none;">&larr; Switch Theme</a>
+    .book-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+        line-height: 1.4;
+    }
 
-    <div style="text-align: center; padding: 2rem 0;">
-        <h1 style="color: #4a3b32;">Curated for the Curious</h1>
-        <p style="color: #7d6e66;">Discover worlds within pages.</p>
-    </div>
+    .book-author {
+        color: #7f8c8d;
+        font-style: italic;
+        font-size: 0.95rem;
+        margin-bottom: 0.8rem;
+    }
 
-    <!-- VULNERABILITY: Hidden Admin Link -->
-    <!-- Developer Note: Admin dashboard moved to /lab2/2/admin_dashboard_hidden_abc123 to avoid bot indexing -->
-    <div style="display:none;"><a href="{{ url_for('lab2_2_admin') }}">Admin Panel</a></div>
+    .book-price {
+        color: #c0392b;
+        font-weight: bold;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-size: 1.1rem;
+    }
 
-    <div class="book-grid">
-        {% for product in products %}
-        <div class="book-card">
-            <div class="book-cover">📖</div>
-            <div class="book-info">
-                <div class="book-title">{{ product.name }}</div>
-                <div class="book-price">${{ product.price }}</div>
-            </div>
+    .section-title {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 3rem;
+        position: relative;
+        display: inline-block;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .section-title:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 3px;
+        background: #c0392b;
+        margin: 15px auto 0;
+    }
+
+    .footer-elegant {
+        margin-top: 6rem;
+        background: #2c3e50;
+        padding: 4rem 2rem;
+        text-align: center;
+        color: #ecf0f1;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+</style>
+
+<!-- Lab Context -->
+<div style="max-width: 1200px; margin: 1rem auto; padding: 0 2rem;">
+    <a href="{{ url_for('lab2_2_menu') }}"
+        style="color: #7f8c8d; text-decoration: none; font-family: 'Helvetica Neue', sans-serif; font-size: 0.9rem;">&larr;
+        Back to Lab Menu</a>
+</div>
+
+<div class="hero-section">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #2c3e50;">Stories That Matter</h1>
+    <p style="font-size: 1.2rem; color: #7f8c8d; max-width: 600px; margin: 0 auto; line-height: 1.6;">Explore our
+        curated collection of eternal classics and modern masterpieces. Find your next great adventure today.</p>
+</div>
+
+<!-- VULNERABILITY: Hidden Admin Link -->
+<div style="display:none;"><a href="{{ url_for('lab2_2_admin') }}">Admin Panel</a></div>
+
+<h2 class="section-title">Editor's Picks</h2>
+
+<div class="book-grid">
+    {% for product in products %}
+    <div class="book-card">
+        <div class="book-cover-art">
+            <div class="book-spine"></div>
+            <!-- Placeholder for cover image -->
+            {% if loop.index == 1 %}🎩{% elif loop.index == 2 %}👁️{% elif loop.index == 3 %}🐦{% elif loop.index == 4
+            %}💕{% elif loop.index == 5 %}🐋{% else %}⚔️{% endif %}
         </div>
-        {% endfor %}
+        <div class="book-info">
+            <div class="book-title">{{ product.name }}</div>
+            <div class="book-author">by {{ product.author }}</div>
+            <div class="book-price">${{ product.price }}</div>
+        </div>
     </div>
+    {% endfor %}
+</div>
 
-    <footer class="footer-cozy">
-        &copy; 2026 BookStore. Reading is dreaming with eyes open.
-    </footer>
+<footer class="footer-elegant">
+    &copy; 2026 The Literary Corner. All rights reserved.<br>
+    <div style="margin-top: 1rem; font-size: 0.85rem; color: #bdc3c7;">
+        Privacy Policy | Terms of Service | Store Locations
+    </div>
+</footer>
 {% endblock %}

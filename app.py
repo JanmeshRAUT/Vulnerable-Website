@@ -491,20 +491,30 @@ def lab2_2_admin():
     return render_template('lab2/sub2_admin.html', users=users, flag=None)
 
 # LAB 2.2 Variation B: BookStore
-@app.route('/lab2/2/b')
+@app.route('/lab2/2/bookstore')
 def lab2_2b():
     products = [
-        {'id': 1, 'name': 'The Great Gatsby', 'price': 15},
-        {'id': 2, 'name': '1984', 'price': 12},
+        {'id': 1, 'name': 'The Great Gatsby', 'price': 15, 'author': 'F. Scott Fitzgerald', 'image': 'gatsby.jpg'},
+        {'id': 2, 'name': '1984', 'price': 12, 'author': 'George Orwell', 'image': '1984.jpg'},
+        {'id': 3, 'name': 'To Kill a Mockingbird', 'price': 14, 'author': 'Harper Lee', 'image': 'mockingbird.jpg'},
+        {'id': 4, 'name': 'Pride and Prejudice', 'price': 10, 'author': 'Jane Austen', 'image': 'pride.jpg'},
+        {'id': 5, 'name': 'Moby Dick', 'price': 18, 'author': 'Herman Melville', 'image': 'moby.jpg'},
+        {'id': 6, 'name': 'War and Peace', 'price': 25, 'author': 'Leo Tolstoy', 'image': 'war.jpg'},
     ]
     return render_template('lab2/sub2_b.html', products=products)
 
 # LAB 2.2 Variation C: GameZone
-@app.route('/lab2/2/c')
+@app.route('/lab2/2/gamezone')
 def lab2_2c():
     products = [
-        {'id': 1, 'name': 'Elden Ring', 'price': 60},
-        {'id': 2, 'name': 'Cyberpunk 2077', 'price': 50},
+        {'id': 1, 'name': 'Elden Ring', 'price': 59.99, 'platform': 'PC, PS5, Xbox', 'image': 'elden.jpg'},
+        {'id': 2, 'name': 'Cyberpunk 2077', 'price': 49.99, 'platform': 'PC, PS5, Xbox', 'image': 'cyberpunk.jpg'},
+        {'id': 3, 'name': 'God of War Ragnarok', 'price': 69.99, 'platform': 'PS5', 'image': 'gow.jpg'},
+        {'id': 4, 'name': 'The Legend of Zelda', 'price': 59.99, 'platform': 'Switch', 'image': 'zelda.jpg'},
+        {'id': 5, 'name': 'Red Dead Redemption 2', 'price': 39.99, 'platform': 'PC, PS5, Xbox', 'image': 'rdr2.jpg'},
+        {'id': 6, 'name': 'Minecraft', 'price': 29.99, 'platform': 'Multiplatform', 'image': 'minecraft.jpg'},
+        {'id': 7, 'name': 'Hollow Knight', 'price': 14.99, 'platform': 'PC, Switch', 'image': 'hollow.jpg'},
+        {'id': 8, 'name': 'Hades', 'price': 24.99, 'platform': 'PC, Switch', 'image': 'hades.jpg'},
     ]
     return render_template('lab2/sub2_c.html', products=products)
 

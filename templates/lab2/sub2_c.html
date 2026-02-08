@@ -1,118 +1,239 @@
 {% extends 'base.html' %}
-{% block title %}GameZone - Play Beyond Limits{% endblock %}
+{% block title %}GameZone - The Ultimate Gaming Hub{% endblock %}
 
 {% block header %}
-    <header style="background: #1a1a2e; border-bottom: 3px solid #e94560; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Press Start 2P', 'Courier New', monospace;">
-        <a href="{{ url_for('lab2_2c') }}" style="text-decoration: none; color: #e94560; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px;">
-            👾 GameZone
+<header
+    style="background: #0b0c10; border-bottom: 2px solid #66fcf1; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="font-size: 2rem; color: #66fcf1; text-shadow: 0 0 10px rgba(102, 252, 241, 0.7);">👾</div>
+        <a href="{{ url_for('lab2_2c') }}"
+            style="text-decoration: none; color: #fff; font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
+            Game<span style="color: #66fcf1;">Zone</span>
         </a>
-        <nav style="display: flex; gap: 2rem;">
-            <a href="#" style="color: #0f3460; text-decoration: none; font-weight: bold; background: #e94560; padding: 0.5rem 1rem; border-radius: 4px;">STORE</a>
-            <a href="#" style="color: #e94560; text-decoration: none; font-weight: bold; border: 1px solid #e94560; padding: 0.5rem 1rem; border-radius: 4px;">LIBRARY</a>
-        </nav>
-    </header>
+    </div>
+    <nav style="display: flex; gap: 2rem; font-weight: 600;">
+        <a href="#"
+            style="color: #c5c6c7; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Store</a>
+        <a href="#"
+            style="color: #c5c6c7; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Library</a>
+        <a href="#"
+            style="color: #c5c6c7; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Community</a>
+        <a href="#"
+            style="color: #66fcf1; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Profile</a>
+    </nav>
+    <div style="background: #1f2833; padding: 0.5rem 1rem; border-radius: 4px; color: #66fcf1; font-family: monospace;">
+        WALLET: $120.50
+    </div>
+</header>
 {% endblock %}
 
 {% block content %}
-    <style>
-        body { background-color: #16213e !important; font-family: 'Roboto Mono', monospace; color: #e94560; }
-        
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
+<style>
+    body {
+        background-color: #1a1a1d !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #c5c6c7;
+    }
 
-        .game-card {
-            background: #0f3460;
-            border: 2px solid #533483;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: all 0.3s;
-            position: relative;
-        }
+    .hero-banner {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://placehold.co/1200x400/1f2833/66fcf1?text=LEVEL+UP+YOUR+EXPERIENCE');
+        background-size: cover;
+        background-position: center;
+        height: 350px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        border-bottom: 2px solid #45a29e;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .game-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
-            border-color: #e94560;
-        }
+    .hero-banner::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle, transparent 20%, #1a1a1d 150%);
+        pointer-events: none;
+    }
 
-        .game-cover {
-            height: 200px;
-            background: linear-gradient(45deg, #1f4068, #162447);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-        }
+    .game-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: -3rem;
+        position: relative;
+        z-index: 10;
+        padding: 0 2rem;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-        .game-info {
-            padding: 1.5rem;
-            text-align: center;
-        }
+    .game-card {
+        background: #0b0c10;
+        border: 1px solid #1f2833;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
 
-        .game-title {
-            font-size: 1.2rem;
-            color: white;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    .game-card:hover {
+        transform: scale(1.03) translateY(-5px);
+        border-color: #66fcf1;
+        box-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+        z-index: 20;
+    }
 
-        .game-price {
-            background: #e94560;
-            color: #1a1a2e;
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-weight: bold;
-        }
+    .game-cover {
+        height: 180px;
+        background: #1f2833;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
 
-        /* VULNERABILITY: Hidden Admin Link in Footer (Commented out visually but present in DOM) */
-        .hidden-admin {
-            display: none; 
-            /* visibility: hidden; */ 
-        }
+    .game-cover::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+    }
 
-        .footer-neon {
-            margin-top: 5rem;
-            border-top: 2px solid #533483;
-            padding: 2rem;
-            text-align: center;
-            color: #533483;
-            font-size: 0.8rem;
-        }
-    </style>
+    .platform-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 2px;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
 
-    <!-- Lab Context -->
-    <a href="{{ url_for('lab2_2_menu') }}" style="display: inline-block; margin-bottom: 2rem; color: #533483; text-decoration: none; border: 1px solid #533483; padding: 0.5rem 1rem; border-radius: 4px;">&larr; SELECT LEVEL</a>
+    .game-info {
+        padding: 1.2rem;
+    }
 
-    <div style="text-align: center; margin-bottom: 3rem;">
-        <h1 style="color: white; text-shadow: 2px 2px #e94560;">NEXT LEVEL GAMING</h1>
-        <p style="color: #533483;">Immersion starts here.</p>
-    </div>
+    .game-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-    <!-- Hidden element containing the admin link -->
-    <div id="debug-tools" style="display:none;">
-        <a href="{{ url_for('lab2_2_admin') }}">Dev Console</a>
-    </div>
+    .game-price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
 
-    <div class="game-grid">
-        {% for product in products %}
-        <div class="game-card">
-            <div class="game-cover">🎮</div>
-            <div class="game-info">
-                <div class="game-title">{{ product.name }}</div>
-                <div class="game-price">${{ product.price }}</div>
+    .game-price {
+        background: transparent;
+        color: #66fcf1;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .btn-buy {
+        background: linear-gradient(45deg, #45a29e, #66fcf1);
+        border: none;
+        color: #0b0c10;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: filter 0.2s;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+
+    .btn-buy:hover {
+        filter: brightness(1.2);
+    }
+
+    /* VULNERABILITY: Hidden Admin Link in Footer */
+    .hidden-admin {
+        display: none;
+    }
+
+    #debug-tools {
+        display: none;
+    }
+
+    .footer-neon {
+        margin-top: 5rem;
+        border-top: 1px solid #1f2833;
+        background: #0b0c10;
+        padding: 3rem;
+        text-align: center;
+        color: #45a29e;
+        font-size: 0.9rem;
+    }
+
+    .glow-text {
+        color: #fff;
+        text-shadow: 0 0 5px #66fcf1, 0 0 10px #66fcf1;
+    }
+</style>
+
+<!-- Lab Context -->
+<a href="{{ url_for('lab2_2_menu') }}"
+    style="position: absolute; top: 110px; left: 20px; z-index: 100; color: #c5c6c7; text-decoration: none; background: rgba(0,0,0,0.5); padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #45a29e;">&larr;
+    SELECT LEVEL</a>
+
+<div class="hero-banner">
+    <h1 class="glow-text" style="font-size: 3.5rem; margin-bottom: 0.5rem;">NEXT GEN GAMING</h1>
+    <p style="font-size: 1.2rem; color: #45a29e;">Immerse yourself in new worlds.</p>
+</div>
+
+<!-- Hidden element containing the admin link -->
+<div id="debug-tools" style="display:none;">
+    <a href="{{ url_for('lab2_2_admin') }}">Dev Console</a>
+</div>
+
+<div class="game-grid">
+    {% for product in products %}
+    <div class="game-card">
+        <div class="game-cover">
+            🎮
+            <div class="platform-badge">{{ product.platform }}</div>
+        </div>
+        <div class="game-info">
+            <div class="game-title">{{ product.name }}</div>
+            <div class="game-price-row">
+                <span class="game-price">${{ product.price }}</span>
+                <button class="btn-buy">Add to Cart</button>
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
 
-    <footer class="footer-neon">
-        GAMEZONE SYSTEMS v2.0 // EST. 2026
-        <!-- TODO: Remove debug link before production deployment -->
-    </footer>
+<footer class="footer-neon">
+    <div style="margin-bottom: 1rem;">
+        <span style="margin: 0 10px; cursor: pointer;">About</span> •
+        <span style="margin: 0 10px; cursor: pointer;">Support</span> •
+        <span style="margin: 0 10px; cursor: pointer;">Partners</span>
+    </div>
+    GAMEZONE SYSTEMS v2.0 // POWERED BY PURE ADRENALINE
+    <!-- TODO: Remove debug link before production deployment -->
+</footer>
 {% endblock %}

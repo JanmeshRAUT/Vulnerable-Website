@@ -2,117 +2,132 @@
 {% block title %}GadgetShop - Premium Electronics{% endblock %}
 
 {% block header %}
-    <header style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; padding: 1rem 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 2rem;">
-                <a href="{{ url_for('lab2_2_menu') }}" style="color: #cffafe; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
-                <div style="font-weight: 700; font-size: 1.75rem; letter-spacing: -0.025em;">📱 GadgetShop</div>
-                <nav style="display: flex; gap: 1.5rem; font-size: 0.95rem;">
-                    <a href="#" style="color: white; text-decoration: none;">Products</a>
-                    <a href="#" style="color: white; text-decoration: none;">Deals</a>
-                    <a href="#" style="color: white; text-decoration: none;">Support</a>
-                </nav>
-            </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <input type="search" placeholder="Search products..." style="padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; width: 200px;">
-                <button class="btn" style="background: white; color: #06b6d4; padding: 0.5rem 1rem;">🛒 Cart (0)</button>
-            </div>
+<header
+    style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; padding: 1rem 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <a href="{{ url_for('lab2_2_menu') }}"
+                style="color: #cffafe; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+            <div style="font-weight: 700; font-size: 1.75rem; letter-spacing: -0.025em;">📱 GadgetShop</div>
+            <nav style="display: flex; gap: 1.5rem; font-size: 0.95rem;">
+                <a href="#" style="color: white; text-decoration: none;">Products</a>
+                <a href="#" style="color: white; text-decoration: none;">Deals</a>
+                <a href="#" style="color: white; text-decoration: none;">Support</a>
+            </nav>
         </div>
-    </header>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <input type="search" placeholder="Search products..."
+                style="padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; width: 200px;">
+            <button class="btn" style="background: white; color: #06b6d4; padding: 0.5rem 1rem;">🛒 Cart (0)</button>
+        </div>
+    </div>
+</header>
 {% endblock %}
 
 {% block content %}
-    <!-- Hero Banner -->
-    <div style="background: linear-gradient(135deg, #0891b2, #06b6d4); color: white; padding: 3rem 2rem; text-align: center; margin-bottom: 3rem; border-radius: 1rem;">
-        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Summer Sale - Up to 50% Off!</h1>
-        <p style="font-size: 1.125rem; opacity: 0.9;">Premium electronics at unbeatable prices</p>
-        <button class="btn" style="background: white; color: #06b6d4; padding: 0.75rem 2rem; margin-top: 1rem; font-size: 1rem;">Shop Now</button>
-    </div>
+<!-- Hero Banner -->
+<div
+    style="background: linear-gradient(135deg, #0891b2, #06b6d4); color: white; padding: 3rem 2rem; text-align: center; margin-bottom: 3rem; border-radius: 1rem;">
+    <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Summer Sale - Up to 50% Off!</h1>
+    <p style="font-size: 1.125rem; opacity: 0.9;">Premium electronics at unbeatable prices</p>
+    <button class="btn"
+        style="background: white; color: #06b6d4; padding: 0.75rem 2rem; margin-top: 1rem; font-size: 1rem;">Shop
+        Now</button>
+</div>
 
-    <!-- Featured Categories -->
-    <h2 style="margin-bottom: 1.5rem;">Featured Categories</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-        <div class="card" style="text-align: center; cursor: pointer;">
-            <div style="font-size: 3rem; margin-bottom: 0.5rem;">📱</div>
-            <h3 style="font-size: 1rem;">Smartphones</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">Latest models</p>
-        </div>
-        <div class="card" style="text-align: center; cursor: pointer;">
-            <div style="font-size: 3rem; margin-bottom: 0.5rem;">💻</div>
-            <h3 style="font-size: 1rem;">Laptops</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">High performance</p>
-        </div>
-        <div class="card" style="text-align: center; cursor: pointer;">
-            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎧</div>
-            <h3 style="font-size: 1rem;">Audio</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">Premium sound</p>
-        </div>
-        <div class="card" style="text-align: center; cursor: pointer;">
-            <div style="font-size: 3rem; margin-bottom: 0.5rem;">⌚</div>
-            <h3 style="font-size: 1rem;">Wearables</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">Smart devices</p>
-        </div>
+<!-- Featured Categories -->
+<h2 style="margin-bottom: 1.5rem;">Featured Categories</h2>
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+    <div class="card" style="text-align: center; cursor: pointer;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">📱</div>
+        <h3 style="font-size: 1rem;">Smartphones</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">Latest models</p>
     </div>
+    <div class="card" style="text-align: center; cursor: pointer;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">💻</div>
+        <h3 style="font-size: 1rem;">Laptops</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">High performance</p>
+    </div>
+    <div class="card" style="text-align: center; cursor: pointer;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎧</div>
+        <h3 style="font-size: 1rem;">Audio</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">Premium sound</p>
+    </div>
+    <div class="card" style="text-align: center; cursor: pointer;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">⌚</div>
+        <h3 style="font-size: 1rem;">Wearables</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">Smart devices</p>
+    </div>
+</div>
 
-    <!-- Products Grid -->
-    <h2 style="margin-bottom: 1.5rem;">Trending Products</h2>
-    <div class="card-grid">
-        <div class="card">
-            <div style="height: 200px; background: linear-gradient(135deg, #06b6d4, #22d3ee); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">📱</div>
-            <h3>iPhone 15 Pro</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">Latest flagship smartphone</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$999</span>
-                <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div style="height: 200px; background: linear-gradient(135deg, #0891b2, #06b6d4); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">💻</div>
-            <h3>MacBook Pro M3</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">Professional laptop</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$2,499</span>
-                <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div style="height: 200px; background: linear-gradient(135deg, #22d3ee, #67e8f9); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">🎧</div>
-            <h3>AirPods Pro</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">Noise cancellation</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$249</span>
-                <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div style="height: 200px; background: linear-gradient(135deg, #0e7490, #0891b2); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">⌚</div>
-            <h3>Apple Watch Ultra</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem;">Advanced fitness tracking</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$799</span>
-                <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
-            </div>
+<!-- Products Grid -->
+<h2 style="margin-bottom: 1.5rem;">Trending Products</h2>
+<div class="card-grid">
+    <div class="card">
+        <div
+            style="height: 200px; background: linear-gradient(135deg, #06b6d4, #22d3ee); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+            📱</div>
+        <h3>iPhone 15 Pro</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">Latest flagship smartphone</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+            <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$999</span>
+            <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
         </div>
     </div>
 
-    <!-- Hidden Admin Link (Vulnerability) -->
-    <script>
-        // Hidden logic for Lab 2.2
-        var isAdmin = false; 
-        // Admin panel hidden in conditional logic
-        if (isAdmin) {
-             window.location.href = "/lab2/2/admin_dashboard_hidden_abc123";
-        } else {
-             console.log("Not admin - check the source code!");
-        }
-    </script>
+    <div class="card">
+        <div
+            style="height: 200px; background: linear-gradient(135deg, #0891b2, #06b6d4); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+            💻</div>
+        <h3>MacBook Pro M3</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">Professional laptop</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+            <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$2,499</span>
+            <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
+        </div>
+    </div>
 
-    <!-- Footer -->
-    <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #334155; text-align: center; color: #94a3b8;">
-        <p>&copy; 2026 GadgetShop. Premium electronics since 2020.</p>
-        <p style="font-size: 0.875rem; margin-top: 0.5rem;">Free shipping on orders over $50 | 30-day returns</p>
-    </footer>
+    <div class="card">
+        <div
+            style="height: 200px; background: linear-gradient(135deg, #22d3ee, #67e8f9); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+            🎧</div>
+        <h3>AirPods Pro</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">Noise cancellation</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+            <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$249</span>
+            <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div
+            style="height: 200px; background: linear-gradient(135deg, #0e7490, #0891b2); border-radius: 0.5rem; margin: -1.5rem -1.5rem 1rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+            ⌚</div>
+        <h3>Apple Watch Ultra</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem;">Advanced fitness tracking</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+            <span style="font-size: 1.5rem; font-weight: 700; color: #06b6d4;">$799</span>
+            <button class="btn" style="background: #06b6d4; padding: 0.5rem 1rem;">Add to Cart</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Admin Link (Vulnerability) -->
+<script>
+    // Hidden logic for Lab 2.2
+    var isAdmin = false;
+    // Admin panel hidden in conditional logic
+    if (isAdmin) {
+        window.location.href = "/lab2/2/admin_dashboard_hidden_abc123";
+    } else {
+        console.log("Not admin - check the source code!");
+    }
+</script>
+
+<!-- Footer -->
+<footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #334155; text-align: center; color: #94a3b8;">
+    <p>&copy; 2026 GadgetShop. Premium electronics since 2020.</p>
+    <p style="font-size: 0.875rem; margin-top: 0.5rem;">Free shipping on orders over $50 | 30-day returns</p>
+</footer>
 {% endblock %}
