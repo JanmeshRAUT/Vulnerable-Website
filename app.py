@@ -3,7 +3,7 @@ import os
 import sqlite3
 import subprocess
 import requests
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, g
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_that_is_not_secure_at_all'
@@ -212,7 +212,23 @@ def create_lab1_files(subdir, files):
 # LAB 1.1: DocuVault (Document Management)
 @app.route('/lab1/1')
 def lab1_1():
-    files = ['invoice1.txt', 'invoice2.txt', 'readme.txt']
+    files = [
+        'Invoice_2024_001.pdf', 
+        'Invoice_2024_002.pdf', 
+        'Project_Alpha_Specs.docx', 
+        'Q1_Financial_Report.xlsx', 
+        'Meeting_Minutes_Jan.txt',
+        'Employee_Handbook_v2.pdf',
+        'Architecture_Diagram_Final.png',
+        'Client_Contract_AcmeCorp.pdf',
+        'Budget_Allocation_2024.xlsx',
+        'Security_Policy_Draft.docx',
+        'Server_Logs_Backup.txt',
+        'Marketing_Assets.zip',
+        'Team_Photo_Retreat.jpg',
+        'Vendor_List.csv',
+        'readme.txt'
+    ]
     create_lab1_files('docuvault/invoices', files)
     return render_template('lab1/sub1.html', files=files)
 
@@ -234,37 +250,107 @@ def lab1_1_download():
     except Exception as e:
         return str(e), 500
 
-# LAB 1.2: ShopExpress (E-commerce Receipts)
+# LAB 1.2: ShopExpress (Coffee Shop Theme - Path Traversal in Image Loading)
 @app.route('/lab1/2')
 def lab1_2():
-    files = ['order_12345.pdf', 'order_12346.pdf', 'receipt_001.pdf']
-    create_lab1_files('shopexpress/receipts/2024', files)
-    return render_template('lab1/sub2.html', files=files)
+    # E-commerce Product List
+    products = [
+        {
+            'id': 1,
+            'name': 'Eco-Friendly Bamboo Coffee Cup',
+            'description': 'Sustainable bamboo cup with silicone lid and grip. Perfect for your daily brew.',
+            'price': 12.99,
+            'image': 'prod_1.png'
+        },
+        {
+            'id': 2,
+            'name': 'Recycled Plastic Travel Mug',
+            'description': 'Made from 100% recycled plastics. Durable and leak-proof.',
+            'price': 15.50,
+            'image': 'prod_2.png'
+        },
+        {
+            'id': 3,
+            'name': 'Ceramic Artisan Mug',
+            'description': 'Hand-crafted ceramic mug with unique glaze patterns.',
+            'price': 18.00,
+            'image': 'prod_3.png'
+        },
+        {
+            'id': 4,
+            'name': 'Stainless Steel Thermal Flask',
+            'description': 'Keeps your coffee hot for up to 6 hours. Double-walled insulation.',
+            'price': 24.99,
+            'image': 'prod_4.png'
+        },
+         {
+            'id': 5,
+            'name': 'Glass Coffee Cup with Cork Band',
+            'description': 'Elegant glass design with a heat-resistant cork band.',
+            'price': 14.95,
+            'image': 'prod_5.png'
+        },
+        {
+            'id': 6,
+            'name': 'Compostable Takeaway Cup (Pack of 50)',
+            'description': 'Fully compostable cups for events or office use.',
+            'price': 29.99,
+            'image': 'prod_6.png'
+        }
+    ]
+    return render_template('lab1/sub2.html', products=products)
 
-@app.route('/lab1/2/download')
-def lab1_2_download():
-    filename = request.args.get('file')
+@app.route('/lab1/2/image')
+def lab1_2_image():
+    filename = request.args.get('filename')
     if not filename:
-        return "No file specified", 400
+        return "No filename specified", 400
     
-    try:
-        base_dir = os.getcwd()
-        intended_dir = os.path.join(base_dir, 'data', 'shopexpress', 'receipts', '2024')
-        file_path = os.path.join(intended_dir, filename)
-        
-        if os.path.exists(file_path):
-            return send_file(file_path, as_attachment=False, mimetype='text/plain')
-        else:
-            return f"File not found: {file_path}", 404
-    except Exception as e:
-        return str(e), 500
+    # VULNERABILITY: Path Traversal
+    # Intended directory is 'img' folder in root
+    base_dir = os.getcwd()
+    intended_dir = os.path.join(base_dir, 'img')
+    file_path = os.path.join(intended_dir, filename)
+    
+    # We should normalize path to check if it's safe (which we WON'T do for the vulnerability)
+    # But we will check if it exists
+    
+    if os.path.exists(file_path):
+        return send_file(file_path, mimetype='image/png')
+    else:
+        return f"Image not found: {file_path}", 404
 
-# LAB 1.3: MediaHub (Image Gallery)
+# LAB 1.3: MediaHub (Stock Photo Marketplace Theme)
 @app.route('/lab1/3')
 def lab1_3():
-    files = ['photo_001.jpg', 'photo_002.jpg', 'photo_003.jpg']
-    create_lab1_files('mediahub/gallery/uploads', files)
-    return render_template('lab1/sub3.html', files=files)
+    # Rich media objects for a "Real Website" look
+    # Using files that exist in the 'img' folder
+    media_items = [
+        {'file': 'summer_vacation_001.jpg', 'title': 'Golden Hour Beach', 'author': 'Sarah Jenkins', 'tags': ['Nature', 'Travel'], 'views': '2.4k', 'price': 29},
+        {'file': 'office_party_2023.jpg', 'title': 'Corporate Celebration', 'author': 'TechLife Media', 'tags': ['Business', 'Events'], 'views': '1.1k', 'price': 49},
+        {'file': 'product_launch.jpg', 'title': 'Minimalist Product Shot', 'author': 'Studio 54', 'tags': ['Product', 'Minimal'], 'views': '8.5k', 'price': 99},
+        {'file': 'hiking_adventure.jpg', 'title': 'Mountain Summit', 'author': 'Alex Climbs', 'tags': ['Adventure', 'Nature'], 'views': '5k', 'price': 35},
+        {'file': 'design_mockup_v2.jpg', 'title': 'UI/UX Dashboard Kit', 'author': 'Creative UI', 'tags': ['Tech', 'Design'], 'views': '12k', 'price': 59},
+        {'file': 'city_skyline.jpg', 'title': 'Urban Nightlife', 'author': 'City Lights', 'tags': ['City', 'Travel'], 'views': '3.2k', 'price': 45},
+        {'file': 'abstract_background.jpg', 'title': 'Neon Abstract 4K', 'author': 'Digital Dreams', 'tags': ['Abstract', 'Art'], 'views': '900', 'price': 15},
+        {'file': 'coffee_break.jpg', 'title': 'Morning Espresso', 'author': 'Barista Daily', 'tags': ['Food', 'Lifestyle'], 'views': '4.1k', 'price': 25},
+        
+    ]
+    
+    # Extract just filenames for file creation (backend logic)
+    filenames = [item['file'] for item in media_items]
+    create_lab1_files('mediahub/gallery/uploads', filenames)
+    
+    # Pass full objects to template
+    return render_template('lab1/sub3.html', files=media_items)
+
+# Helper route to serve images for Lab 1.3 preview
+@app.route('/lab1/3/preview/<path:filename>')
+def lab1_3_preview(filename):
+    # Serve directly from the 'img' folder in the root directory
+    base_dir = os.getcwd()
+    img_dir = os.path.join(base_dir, 'img')
+    return send_from_directory(img_dir, filename)
 
 @app.route('/lab1/3/download')
 def lab1_3_download():
@@ -314,15 +400,65 @@ def lab2_5_menu():
     return render_template('lab2/sub5_menu.html')
 
 # LAB 2.1: Robots.txt
+# LAB 2.1: Robots.txt (Shared vulnerability, but accessed via specific paths in a real scenario)
+# Variation A Robots.txt
 @app.route('/lab2/1/robots.txt')
-def robots_txt():
-    # Only relevant for Lab 2.1 context
-    content = "User-agent: *\nDisallow: /lab2/1/super_secret_admin_panel_xyz"
-    return content, 200, {'Content-Type': 'text/plain'}
+def robots_txt_a():
+    # Serve real static file
+    base_dir = os.getcwd()
+    file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'a')
+    return send_from_directory(file_dir, 'robots.txt')
+
+# Variation B Robots.txt
+@app.route('/lab2/1/b/robots.txt')
+def robots_txt_b():
+    # Serve real static file
+    base_dir = os.getcwd()
+    file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'b')
+    return send_from_directory(file_dir, 'robots.txt')
+
+# Variation C Robots.txt
+@app.route('/lab2/1/c/robots.txt')
+def robots_txt_c():
+    # Serve real static file
+    base_dir = os.getcwd()
+    file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'c')
+    return send_from_directory(file_dir, 'robots.txt')
 
 @app.route('/lab2/1')
 def lab2_1():
-    return render_template('lab2/sub1.html')
+    # TechStore Products (Theme A)
+    products = [
+        {'id': 101, 'name': 'Quantum X1 Laptop', 'price': 1299, 'desc': 'Next-gen processing power.', 'badge': 'New'},
+        {'id': 102, 'name': 'Nebula Phone 5G', 'price': 899, 'desc': 'Capture the universe in your pocket.', 'badge': 'Bestseller'},
+        {'id': 103, 'name': 'Void Cancelling Headphones', 'price': 249, 'desc': 'Silence the world around you.', 'badge': ''},
+        {'id': 104, 'name': 'SmartHome Hub', 'price': 149, 'desc': 'Control your reality with voice.', 'badge': 'Sale'},
+        {'id': 105, 'name': 'CyberWatch Pro', 'price': 399, 'desc': 'Health monitoring from the future.', 'badge': ''},
+        {'id': 106, 'name': 'Holographic Drone', 'price': 599, 'desc': '4K recording in 3D space.', 'badge': ''},
+    ]
+    return render_template('lab2/sub1.html', products=products)
+
+@app.route('/lab2/1/b')
+def lab2_1b():
+    # FashionHub Products (Theme B)
+    products = [
+        {'id': 201, 'name': 'Velvet Evening Gown', 'price': 299, 'desc': 'Elegant and timeless.', 'badge': 'Trending'},
+        {'id': 202, 'name': 'Urban Street Hoodie', 'price': 89, 'desc': 'Comfort meets style.', 'badge': 'New'},
+        {'id': 203, 'name': 'Designer Leather Bag', 'price': 450, 'desc': 'Italian craftsmanship.', 'badge': ''},
+        {'id': 204, 'name': 'Silk Scarf Collection', 'price': 55, 'desc': '100% pure silk.', 'badge': 'Sale'},
+    ]
+    return render_template('lab2/sub1_b.html', products=products)
+
+@app.route('/lab2/1/c')
+def lab2_1c():
+    # FoodMart Products (Theme C)
+    products = [
+        {'id': 301, 'name': 'Organic Avocado Box', 'price': 15, 'desc': 'Fresh from the farm.', 'badge': 'Organic'},
+        {'id': 302, 'name': 'Artisan Sourdough', 'price': 8, 'desc': 'Baked fresh daily.', 'badge': ''},
+        {'id': 303, 'name': 'Gourmet Cheese Platter', 'price': 45, 'desc': 'Selection of fine cheeses.', 'badge': 'Best Value'},
+        {'id': 304, 'name': 'Cold Pressed Juice Kit', 'price': 30, 'desc': 'Detox and refresh.', 'badge': ''},
+    ]
+    return render_template('lab2/sub1_c.html', products=products)
 
 @app.route('/lab2/1/super_secret_admin_panel_xyz', methods=['GET', 'POST'])
 def lab2_1_admin():
@@ -336,11 +472,15 @@ def lab2_1_admin():
     return render_template('lab2/sub1_admin.html', users=users, flag=None)
 
 
-# LAB 2.2: Hidden Link / Conditional Logic
+# LAB 2.2: Hidden Link / Conditional Logic (Variation A: GadgetShop)
 @app.route('/lab2/2')
 def lab2_2():
     # Admin URL is hidden in the source code logic
-    return render_template('lab2/sub2.html')
+    products = [
+        {'id': 1, 'name': 'Smartphone X', 'price': 999},
+        {'id': 2, 'name': 'Tablet Pro', 'price': 699},
+    ]
+    return render_template('lab2/sub2.html', products=products)
 
 @app.route('/lab2/2/admin_dashboard_hidden_abc123', methods=['GET', 'POST'])
 def lab2_2_admin():
@@ -349,6 +489,24 @@ def lab2_2_admin():
         # "Deleting" user
         return render_template('lab2/sub2_admin.html', users=[], flag="FLAG{source_code_logic_bypass_mastered}")
     return render_template('lab2/sub2_admin.html', users=users, flag=None)
+
+# LAB 2.2 Variation B: BookStore
+@app.route('/lab2/2/b')
+def lab2_2b():
+    products = [
+        {'id': 1, 'name': 'The Great Gatsby', 'price': 15},
+        {'id': 2, 'name': '1984', 'price': 12},
+    ]
+    return render_template('lab2/sub2_b.html', products=products)
+
+# LAB 2.2 Variation C: GameZone
+@app.route('/lab2/2/c')
+def lab2_2c():
+    products = [
+        {'id': 1, 'name': 'Elden Ring', 'price': 60},
+        {'id': 2, 'name': 'Cyberpunk 2077', 'price': 50},
+    ]
+    return render_template('lab2/sub2_c.html', products=products)
 
 
 # LAB 2.3: Cookie Manipulation
@@ -1004,7 +1162,8 @@ def lab6_track():
     # VULNERABILITY: Command Injection
     # In a real scenario this might be a tracking ID, but we ping an IP here.
     # User can enter: 127.0.0.1 && dir
-    command = f"ping -n 1 {address}" 
+    ping_param = "-c" if os.name != "nt" else "-n"
+    command = f"ping {ping_param} 1 {address}" 
     
     try:
         # shell=True allows command chaining

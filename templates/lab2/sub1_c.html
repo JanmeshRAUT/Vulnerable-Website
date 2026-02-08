@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% block title %}FoodMart - Fresh Delivered{% endblock %}
+
+{% block header %}
+    <!-- Custom Header for Lab 2.1 C (FoodMart Theme) -->
+    <header style="background: #eef2f3; border-bottom: 2px solid #27ae60; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 3rem;">
+            <!-- Brand -->
+            <a href="{{ url_for('lab2_1c') }}" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                <span style="font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; font-weight: 700; font-size: 2rem; color: #27ae60;">FoodMart</span>
+                <span style="font-size: 2rem;">🥑</span>
+            </a>
+            
+            <!-- Navigation -->
+            <nav style="display: flex; gap: 2rem; display: none; margin-left:1rem; display:md:flex;">
+                <a href="#" style="color: #2c3e50; text-decoration: none; font-size: 1.1rem; font-weight: 600;">Groceries</a>
+                <a href="#" style="color: #2c3e50; text-decoration: none; font-size: 1.1rem; font-weight: 600;">Fresh Produce</a>
+                <a href="#" style="color: #e67e22; text-decoration: none; font-size: 1.1rem; font-weight: 700;">Deals</a>
+            </nav>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="background: white; border: 2px solid #bdc3c7; border-radius: 20px; padding: 0.5rem 1rem; display: flex; align-items: center;">
+                <span style="margin-right: 0.5rem;">📍</span>
+                <span style="color: #7f8c8d; font-size: 0.9rem;">My Location</span>
+            </div>
+            <button style="background: #27ae60; color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 20px; font-weight: 600; font-size: 1rem; cursor: pointer;">Basket (0)</button>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <style>
+        body { background-color: #fcfcfc !important; font-family: 'Open Sans', sans-serif; color: #2c3e50; }
+        
+        .hero-banner {
+            background: #2ecc71;
+            border-radius: 1rem;
+            padding: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .hero-banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .hero-btn {
+            background: white;
+            color: #27ae60;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .category-scroll {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-pill {
+            background: white;
+            border: 2px solid #ecf0f1;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            white-space: nowrap;
+            font-weight: 600;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-pill.active {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #bdc3c7;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-img {
+            height: 180px;
+            background: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .product-details {
+            padding: 1rem;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .product-desc {
+            font-size: 0.85rem;
+            color: #95a5a6;
+            margin-bottom: 1rem;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+
+        .add-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+    </style>
+
+    <!-- Lab Context -->
+    <a href="{{ url_for('lab2_1_menu') }}" style="display: block; margin-bottom: 1.5rem; color: #7f8c8d; text-decoration: none; font-weight: 600;">&larr; Switch Theme</a>
+
+    <div class="hero-banner">
+        <div>
+            <h1>Organic & Fresh<br>Straight to Door</h1>
+            <p>Get $20 off your first order with code FRESH20</p>
+            <a href="#" class="hero-btn">Shop Now</a>
+        </div>
+        <div style="font-size: 6rem; padding-right: 2rem;">🥗</div>
+    </div>
+
+    <!-- Categories -->
+    <div class="category-scroll">
+        <div class="category-pill active">All Items</div>
+        <div class="category-pill">Fruits & Veg</div>
+        <div class="category-pill">Bakery</div>
+        <div class="category-pill">Dairy</div>
+        <div class="category-pill">Beverages</div>
+        <div class="category-pill">Snacks</div>
+    </div>
+
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            {% if product.badge %}
+            <div class="badge">{{ product.badge }}</div>
+            {% endif %}
+            <div class="product-img">
+                {% if 'Avocado' in product.name %}🥑{% elif 'Bread' in product.name %}🍞{% elif 'Cheese' in product.name %}🧀{% else %}🧃{% endif %}
+            </div>
+            <div class="product-details">
+                <div class="product-title">{{ product.name }}</div>
+                <div class="product-desc">{{ product.desc }}</div>
+                <div class="price-row">
+                    <div class="price">${{ product.price }}</div>
+                    <button class="add-btn">+</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Footer -->
+    <footer style="margin-top: 4rem; text-align: center; color: #95a5a6; padding-bottom: 2rem;">
+        <p>Delivering happiness since 2015.</p>
+        <div style="margin-top: 1rem;">
+            <a href="#" style="color: #bdc3c7; margin: 0 0.5rem; text-decoration: none;">Help</a>
+            <a href="#" style="color: #bdc3c7; margin: 0 0.5rem; text-decoration: none;">Privacy</a>
+        </div>
+    </footer>
+{% endblock %}

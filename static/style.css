@@ -20,9 +20,9 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 98%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem 2rem;
 }
 
 header {

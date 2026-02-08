@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /lab2/1/super_secret_admin_panel_xyz
+Disallow: /orders/
+Disallow: /receipts/
+
+Sitemap: /sitemap_v2.xml

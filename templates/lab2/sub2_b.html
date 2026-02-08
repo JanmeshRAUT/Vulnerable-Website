@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}BookStore - Literary Escape{% endblock %}
+
+{% block header %}
+    <header style="background: #fdf6e3; border-bottom: 2px solid #e1dcc9; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Georgia', serif;">
+        <a href="{{ url_for('lab2_2b') }}" style="text-decoration: none; color: #5d4037; font-size: 1.8rem; font-weight: bold;">
+            📚 BookStore
+        </a>
+        <nav style="display: flex; gap: 1.5rem;">
+            <a href="#" style="color: #6b4226; text-decoration: none;">Fiction</a>
+            <a href="#" style="color: #6b4226; text-decoration: none;">Science</a>
+            <a href="#" style="color: #6b4226; text-decoration: none;">History</a>
+        </nav>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <style>
+        body { background-color: #fcfbf9 !important; font-family: 'Merriweather', 'Book Antiqua', serif; color: #2b2b2b; }
+        
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .book-card {
+            background: white;
+            box-shadow: 2px 4px 12px rgba(0,0,0,0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .book-cover {
+            height: 280px;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .book-info {
+            padding: 1rem;
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .book-price {
+            color: #b91c1c;
+            font-weight: bold;
+        }
+
+        .footer-cozy {
+            margin-top: 4rem;
+            border-top: 1px solid #e5e7eb;
+            padding: 2rem 0;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+    </style>
+
+    <!-- Lab Context -->
+    <a href="{{ url_for('lab2_2_menu') }}" style="display: block; margin-bottom: 1.5rem; color: #8b6b61; text-decoration: none;">&larr; Switch Theme</a>
+
+    <div style="text-align: center; padding: 2rem 0;">
+        <h1 style="color: #4a3b32;">Curated for the Curious</h1>
+        <p style="color: #7d6e66;">Discover worlds within pages.</p>
+    </div>
+
+    <!-- VULNERABILITY: Hidden Admin Link -->
+    <!-- Developer Note: Admin dashboard moved to /lab2/2/admin_dashboard_hidden_abc123 to avoid bot indexing -->
+    <div style="display:none;"><a href="{{ url_for('lab2_2_admin') }}">Admin Panel</a></div>
+
+    <div class="book-grid">
+        {% for product in products %}
+        <div class="book-card">
+            <div class="book-cover">📖</div>
+            <div class="book-info">
+                <div class="book-title">{{ product.name }}</div>
+                <div class="book-price">${{ product.price }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <footer class="footer-cozy">
+        &copy; 2026 BookStore. Reading is dreaming with eyes open.
+    </footer>
+{% endblock %}

@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /lab2/1/super_secret_admin_panel_xyz
+Disallow: /tmp/
+Disallow: /private/
+Disallow: /logs/
+
+User-agent: Googlebot
+Disallow: /no-google/
+
+Sitemap: /sitemap.xml

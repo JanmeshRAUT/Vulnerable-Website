@@ -32,28 +32,80 @@
         <span>Home</span> / <span>Documents</span> / <span style="color: var(--text-primary);">Invoices 2024</span>
     </div>
 
+    <style>
+        .card-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+        .file-icon {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            margin-right: 1rem;
+        }
+        .icon-pdf { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .icon-doc { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .icon-xls { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+        .icon-img { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
+        .icon-zip { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .icon-txt { background: rgba(148, 163, 184, 0.1); color: #94a3b8; }
+    </style>
+
     <!-- Document Grid -->
-    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-        <span style="color: #0ea5e9;">📄</span> Invoice Documents
-    </h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+            <span style="color: #0ea5e9;">📑</span> Corporate Repository
+        </h2>
+        <div style="font-size: 0.9rem; color: #94a3b8;">
+            Showing {{ files|length }} documents
+        </div>
+    </div>
     
     <div class="card-grid">
         {% for file in files %}
-        <div class="card" style="transition: transform 0.2s, box-shadow 0.2s;">
-            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #0ea5e9, #38bdf8); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                    📄
+            {% set icon_class = 'icon-txt' %}
+            {% set icon_char = '📄' %}
+            {% if file.endswith('.pdf') %}
+                {% set icon_class = 'icon-pdf' %}
+                {% set icon_char = '📕' %}
+            {% elif file.endswith('.docx') %}
+                {% set icon_class = 'icon-doc' %}
+                {% set icon_char = '📘' %}
+            {% elif file.endswith('.xlsx') or file.endswith('.csv') %}
+                {% set icon_class = 'icon-xls' %}
+                {% set icon_char = '📗' %}
+            {% elif file.endswith('.jpg') or file.endswith('.png') %}
+                {% set icon_class = 'icon-img' %}
+                {% set icon_char = '🖼️' %}
+            {% elif file.endswith('.zip') %}
+                {% set icon_class = 'icon-zip' %}
+                {% set icon_char = '📦' %}
+            {% endif %}
+
+        <div class="card" style="transition: all 0.2s ease; border: 1px solid #334155; position: relative; overflow: hidden;">
+            <div style="display: flex; align-items: start; margin-bottom: 1rem;">
+                <div class="file-icon {{ icon_class }}">
+                    {{ icon_char }}
                 </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">{{ file }}</h3>
-                    <p style="color: #94a3b8; font-size: 0.8rem;">PDF Document • 2024</p>
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ file }}">
+                        {{ file }}
+                    </h3>
+                    <p style="color: #94a3b8; font-size: 0.8rem; margin: 0;">
+                        {% if '2024' in file %}Modified: Today{% else %}Archived{% endif %}
+                    </p>
                 </div>
             </div>
-            <div style="display: flex; gap: 0.5rem;">
-                <a href="{{ url_for('lab1_1_download', file=file) }}" class="btn" style="flex: 1; background: #0ea5e9; padding: 0.5rem; font-size: 0.875rem; text-align: center;">
-                    ⬇️ Download
+            
+            <div style="display: flex; gap: 0.5rem; margin-top: auto;">
+                <a href="{{ url_for('lab1_1_download', file=file) }}" class="btn" style="flex: 1; background: #0f172a; border: 1px solid #0ea5e9; color: #0ea5e9; padding: 0.5rem; font-size: 0.85rem; text-align: center; transition: all 0.2s;">
+                    Download
                 </a>
-                <button class="btn" style="background: #334155; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                <button class="btn" style="background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 0.5rem 0.75rem;">
                     ⋮
                 </button>
             </div>
@@ -69,7 +121,6 @@
                 <h3 style="margin-bottom: 0.5rem; color: #38bdf8;">Storage Information</h3>
                 <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
                     Your documents are securely stored in our cloud infrastructure. All files are encrypted and backed up daily.
-                    <br>Current storage path: <code style="background: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.85rem;">/data/storage/2024/</code>
                 </p>
             </div>
         </div>

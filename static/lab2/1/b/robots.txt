@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /lab2/1/super_secret_admin_panel_xyz
+Disallow: /admin/
+Disallow: /config/
+
+User-agent: Bingbot
+Disallow: /private/
