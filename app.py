@@ -719,6 +719,11 @@ def lab2_4_myaccount():
                          account=account_user, 
                          products=products)
 
+@app.route('/lab2/4/logout')
+def lab2_4_logout():
+    # No session to clear - just redirect
+    return redirect(url_for('lab2_4'))
+
 # LAB 2.4 Variation B: JewelryStore (Parameter Tampering)
 @app.route('/lab2/4b')
 def lab2_4b():
