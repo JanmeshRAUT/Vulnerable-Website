@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}ElectroMart - Variation C{% endblock %}
+
+{% block header %}
+    <header style="background: #2563eb; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab2_4_menu') }}" style="color: #bfdbfe; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+            <div style="font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="background: white; color: #2563eb; padding: 2px 8px; border-radius: 4px;">E</span> ElectroMart
+            </div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div style="position: relative;">
+                <input type="text" placeholder="Search tech..." style="padding: 0.5rem 1rem 0.5rem 2.5rem; border-radius: 8px; border: 1px solid #3b82f6; background: #1e40af; color: white; width: 300px;">
+                <span style="position: absolute; left: 10px; top: 8px;">🔍</span>
+            </div>
+            <button onclick="document.getElementById('loginModal').style.display='flex'" style="background: white; color: #2563eb; border: none; padding: 0.5rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Login</button>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="display: flex; gap: 2rem; margin-top: 2rem;">
+        <!-- Sidebar Navigation -->
+        <div style="width: 250px; flex-shrink: 0;">
+            <div class="card" style="padding: 1.5rem; background: #f8fafc; border: 1px solid #e2e8f0;">
+                <h3 style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">Categories</h3>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem; font-weight: 500;">
+                    <li><a href="#" style="color: #2563eb; text-decoration: none;">All Products</a></li>
+                    <li><a href="#" style="color: #334155; text-decoration: none;">Computing</a></li>
+                    <li><a href="#" style="color: #334155; text-decoration: none;">Mobile Devices</a></li>
+                    <li><a href="#" style="color: #334155; text-decoration: none;">Home Audio</a></li>
+                    <li><a href="#" style="color: #334155; text-decoration: none;">Gaming</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="flex-grow: 1;">
+            <div style="background: #1e293b; color: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Next-Gen Tech is Here</h2>
+                    <p style="color: #94a3b8;">Save up to 40% on 2026 models this week.</p>
+                </div>
+                <button style="background: #2563eb; color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Shop Sale</button>
+            </div>
+
+            <div class="card-grid">
+                {% for product in products %}
+                <div class="card" style="padding: 1rem; border: 1px solid #efeff1;">
+                    <div style="height: 150px; background: #f1f5f9; border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                        ⚡
+                    </div>
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">{{ product.name }}</h4>
+                    <p style="color: #64748b; font-size: 0.8rem; margin-bottom: 1rem;">{{ product.description }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                        <span style="color: #2563eb; font-weight: 800;">${{ product.price }}</span>
+                        <button style="background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 4px; color: #2563eb; font-weight: 600;">+</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem; border-radius: 16px;">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #1e293b;">ElectroMart Auth</h2>
+            <form action="{{ url_for('lab2_4c_login') }}" method="POST">
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Username</label>
+                    <input type="text" name="username" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Password</label>
+                    <input type="password" name="password" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; outline: none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
+                <button type="submit" style="width: 100%; background: #2563eb; color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1rem;">Sign In</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: #94a3b8;">Default: user / password</p>
+        </div>
+    </div>
+{% endblock %}

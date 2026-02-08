@@ -719,10 +719,65 @@ def lab2_4_myaccount():
                          account=account_user, 
                          products=products)
 
-@app.route('/lab2/4/logout')
-def lab2_4_logout():
-    # No session to clear - just redirect
-    return redirect(url_for('lab2_4'))
+# LAB 2.4 Variation B: JewelryStore (Parameter Tampering)
+@app.route('/lab2/4b')
+def lab2_4b():
+    db = get_db()
+    products = db.execute('SELECT * FROM products WHERE description LIKE "%necklace%" OR description LIKE "%watch%" OR id > 10 LIMIT 6').fetchall()
+    return render_template('lab2/sub4_b.html', products=products)
+
+@app.route('/lab2/4b/login', methods=['POST'])
+def lab2_4b_login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
+    if user:
+        # VULNERABILITY: IDOR via 'user' parameter
+        return redirect(url_for('lab2_4b_account', user=user['username']))
+    return redirect(url_for('lab2_4b', login_error="Invalid Credentials"))
+
+@app.route('/lab2/4b/account')
+def lab2_4b_account():
+    username_param = request.args.get('user')
+    if not username_param: return redirect(url_for('lab2_4b'))
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+    if not user: return "User not found", 404
+    
+    if user['role'] == 'admin':
+        return render_template('lab2/sub4_b_admin.html', account=user, flag="FLAG{jewelry_tampering_gold}")
+    return render_template('lab2/sub4_b_account.html', account=user)
+
+# LAB 2.4 Variation C: ElectroMart (Parameter Tampering)
+@app.route('/lab2/4c')
+def lab2_4c():
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    return render_template('lab2/sub4_c.html', products=products)
+
+@app.route('/lab2/4c/login', methods=['POST'])
+def lab2_4c_login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
+    if user:
+        # VULNERABILITY: IDOR via 'username' parameter
+        return redirect(url_for('lab2_4c_account', username=user['username']))
+    return redirect(url_for('lab2_4c', login_error="Invalid Credentials"))
+
+@app.route('/lab2/4c/account')
+def lab2_4c_account():
+    username_param = request.args.get('username')
+    if not username_param: return redirect(url_for('lab2_4c'))
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+    if not user: return "User not found", 404
+    
+    if user['role'] == 'admin':
+        return render_template('lab2/sub4_c_admin.html', account=user, flag="FLAG{electro_tampering_volt}")
+    return render_template('lab2/sub4_c_account.html', account=user)
 
 
 # LAB 2.5: Password Disclosure via IDOR
@@ -755,26 +810,42 @@ def lab2_5_login():
 
 @app.route('/lab2/5/profile')
 def lab2_5_profile():
+    import random
+    import string
+    
     # VULNERABILITY: Trusts username parameter and exposes password in HTML comment
     username_param = request.args.get('username')
     
     if not username_param:
         return redirect(url_for('lab2_5'))
-    
-    # Fetch user data based on username parameter (IDOR vulnerability)
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
-    
-    if not user:
-        return "User not found", 404
-    
-    # Check if admin accessed
-    if user['role'] == 'admin':
-        flag = "FLAG{password_disclosure_idor_master}"
+
+    # Generate a random password for the admin if accessed
+    # In a real app, this would be in the DB, but for the lab we simulate it
+    # to ensure it's different every time and requires checking the vulnerability
+    if username_param == 'admin':
+        # Generate random password
+        chars = string.ascii_letters + string.digits + "!@#$%"
+        random_password = ''.join(random.choice(chars) for _ in range(12))
+        
+        # Create a mock user object with the random password
+        user = {
+            'username': 'admin',
+            'password': random_password, # The secret!
+            'email': 'admin@shophub.com',
+            'role': 'admin',
+            'full_name': 'System Administrator'
+        }
+        flag = f"FLAG{{shophub_admin_password_{random_password}}}"
     else:
+        # Fetch regular user data/mock data
+        db = get_db()
+        user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
         flag = None
-    
-    # VULNERABILITY: Password is exposed in the template (hidden in HTML comment)
+        
+        if not user:
+             return "User not found", 404
+
+    # VULNERABILITY: Password is exposed in the template (hidden in HTML comment or hidden input)
     return render_template('lab2/sub5_profile.html', 
                          user=user, 
                          flag=flag)
@@ -782,6 +853,103 @@ def lab2_5_profile():
 @app.route('/lab2/5/logout')
 def lab2_5_logout():
     return redirect(url_for('lab2_5'))
+
+# Variation B: CloudMart (Same vuln, different theme)
+@app.route('/lab2/5b')
+def lab2_5b():
+    error = request.args.get('login_error')
+    return render_template('lab2/sub5_b.html', error=error)
+
+@app.route('/lab2/5b/login', methods=['POST'])
+def lab2_5b_login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    # Use mock check for variation
+    if username == "guest" and password == "guest123":
+        return redirect(url_for('lab2_5b_profile', username=username))
+    return redirect(url_for('lab2_5b', login_error="Invalid Credentials"))
+
+@app.route('/lab2/5b/profile')
+def lab2_5b_profile():
+    import random
+    import string
+    
+    # VULNERABILITY: IDOR via 'username' parameter
+    username_param = request.args.get('username')
+    
+    if not username_param:
+        return redirect(url_for('lab2_5b'))
+
+    if username_param == 'root':
+        # Generate random password for the challenge
+        chars = string.ascii_letters + string.digits
+        random_password = ''.join(random.choice(chars) for _ in range(12))
+        
+        user = {
+            'username': 'root',
+            'password': random_password,
+            'email': 'infrastructure@cloudmart.io',
+            'role': 'super_admin',
+            'full_name': 'Cloud Infrastructure Root'
+        }
+        flag = f"FLAG{{cloudmart_root_access_{random_password}}}"
+    else:
+        db = get_db()
+        user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+        flag = None
+        if not user:
+             return "User not found", 404
+
+    return render_template('lab2/sub5_b_profile.html', user=user, flag=flag)
+
+# Variation C: DataVault
+@app.route('/lab2/5c')
+def lab2_5c():
+    error = request.args.get('login_error')
+    return render_template('lab2/sub5_c.html', error=error)
+
+@app.route('/lab2/5c/login', methods=['POST'])
+def lab2_5c_login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    # Use mock check for variation
+    if username == "viewer" and password == "view123":
+        return redirect(url_for('lab2_5c_profile', username=username))
+    return redirect(url_for('lab2_5c', login_error="Invalid Credentials"))
+
+@app.route('/lab2/5c/profile')
+def lab2_5c_profile():
+    import random
+    import string
+    
+    # VULNERABILITY: IDOR via 'username' parameter
+    username_param = request.args.get('username')
+    
+    if not username_param:
+        return redirect(url_for('lab2_5c'))
+
+    if username_param == 'owner':
+        # Generate random password for the challenge
+        chars = string.ascii_letters + string.digits + "_-*"
+        random_password = ''.join(random.choice(chars) for _ in range(12))
+        
+        user = {
+            'username': 'owner',
+            'password': random_password,
+            'email': 'security@datavault_internal.net',
+            'role': 'system_owner',
+            'full_name': 'DataVault System Owner'
+        }
+        flag = f"FLAG{{datavault_owner_override_{random_password}}}"
+    else:
+        db = get_db()
+        user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+        flag = None
+        if not user:
+             return "User not found", 404
+
+    # VULNERABILITY: Password exposed in template comment
+    return render_template('lab2/sub5_c_profile.html', user=user, flag=flag)
 
 # End Lab 2
 

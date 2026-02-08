@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Luxe Jewelry - Variation B{% endblock %}
+
+{% block header %}
+    <header style="background: #0f172a; color: #fbbf24; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #fbbf24;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab2_4_menu') }}" style="color: #94a3b8; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+            <div style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.75rem; letter-spacing: 0.05em;">LUXE JEWELRY</div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <nav style="display: flex; gap: 1.5rem; font-size: 0.9rem; font-weight: 500;">
+                <a href="#" style="color: #f8fafc; text-decoration: none;">COLLECTIONS</a>
+                <a href="#" style="color: #f8fafc; text-decoration: none;">WATCHES</a>
+                <a href="#" style="color: #f8fafc; text-decoration: none;">GIFTS</a>
+            </nav>
+            <button onclick="document.getElementById('loginModal').style.display='flex'" style="background: #fbbf24; color: #0f172a; border: none; padding: 0.5rem 1.5rem; font-weight: bold; cursor: pointer; border-radius: 2px;">SIGN IN</button>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="background: #1e293b; padding: 4rem 2rem; margin-bottom: 3rem; text-align: center; border: 1px solid #334155;">
+        <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: #fbbf24; margin-bottom: 1rem;">Timeless Elegance</h1>
+        <p style="color: #94a3b8; font-size: 1.125rem; max-width: 600px; margin: 0 auto 2rem;">Discover our hand-crafted collection of ethical diamonds and luxury Swiss timepieces.</p>
+        <button style="background: transparent; border: 1px solid #fbbf24; color: #fbbf24; padding: 0.75rem 2.5rem; letter-spacing: 0.1em; cursor: pointer;">VIEW CATALOG</button>
+    </div>
+
+    <h2 style="text-align: center; font-family: 'Playfair Display', serif; color: #fbbf24; margin-bottom: 2rem;">Exquisite Pieces</h2>
+    
+    <div class="card-grid">
+        {% for product in products %}
+        <div class="card" style="background: #0f172a; border: 1px solid #334155; padding: 0; overflow: hidden;">
+            <div style="height: 250px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #fbbf24;">
+                💎
+            </div>
+            <div style="padding: 1.5rem;">
+                <h3 style="color: #fbbf24; font-family: 'Playfair Display', serif; margin-bottom: 0.5rem;">{{ product.name }}</h3>
+                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1.5rem;">{{ product.description }}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 700; color: white;">${{ product.price }}</span>
+                    <button style="background: #fbbf24; color: #0f172a; border: none; padding: 0.4rem 1rem; font-size: 0.8rem; font-weight: bold;">SHOP</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 400px; background: #0f172a; border: 2px solid #fbbf24; padding: 2.5rem;">
+            <h2 style="color: #fbbf24; text-align: center; font-family: 'Playfair Display', serif; margin-bottom: 2rem;">MEMBER ACCESS</h2>
+            <form action="{{ url_for('lab2_4b_login') }}" method="POST">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="color: #94a3b8; display: block; font-size: 0.8rem; margin-bottom: 0.5rem;">USER ID</label>
+                    <input type="text" name="username" required style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 0.75rem;">
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <label style="color: #94a3b8; display: block; font-size: 0.8rem; margin-bottom: 0.5rem;">PASSKEY</label>
+                    <input type="password" name="password" required style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 0.75rem;">
+                </div>
+                <button type="submit" style="width: 100%; background: #fbbf24; color: #0f172a; border: none; padding: 0.75rem; font-weight: bold; cursor: pointer;">ENTER VAULT</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #64748b;">GUEST: user / password</p>
+        </div>
+    </div>
+{% endblock %}

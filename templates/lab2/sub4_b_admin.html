@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}VIP VAULT ACCESS - Luxe Jewelry{% endblock %}
+
+{% block header %}
+    <header style="background: #0f172a; color: #fbbf24; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #fbbf24;">
+        <div style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.75rem; letter-spacing: 0.05em;">LUXE JEWELRY - <span style="color: white;">ADMIN_VAULT</span></div>
+        <a href="{{ url_for('lab2_4b') }}" style="color: #fbbf24; text-decoration: none; font-weight: 600;">LOGOUT</a>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div style="max-width: 1000px; margin: 3rem auto;">
+        <div style="background: #fbbf24; color: #0f172a; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h2 style="margin: 0;">UNAUTHORIZED VAULT ACCESS DETECTED</h2>
+            <p style="font-weight: 600;">FLAG FOUND: <span style="background: #111; color: #fbbf24; padding: 5px 15px; border-radius: 4px; border: 1px dashed white;">{{ flag }}</span></p>
+        </div>
+
+        <div class="card" style="background: #0f172a; border: 1px solid #fbbf24; color: white; padding: 2rem;">
+            <h3 style="font-family: 'Playfair Display', serif; color: #fbbf24; border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 2rem;">VAULT OVERVIEW ({{ account.full_name }})</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+                <div style="border: 1px solid #334155; padding: 1.5rem; text-align: center;">
+                    <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.5rem;">GLOBAL SALES</span>
+                    <span style="font-size: 1.5rem; font-weight: 700;">$2.4M</span>
+                </div>
+                <div style="border: 1px solid #334155; padding: 1.5rem; text-align: center;">
+                    <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.5rem;">SYSTEM STATUS</span>
+                    <span style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">SECURE</span>
+                </div>
+                <div style="border: 1px solid #334155; padding: 1.5rem; text-align: center;">
+                    <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.5rem;">REPORTS</span>
+                    <span style="font-size: 1.5rem; font-weight: 700;">42</span>
+                </div>
+            </div>
+
+            <h4 style="color: #fbbf24; margin-bottom: 1rem;">LATEST VIP NOTIFICATIONS</h4>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-left: 2px solid #fbbf24;">
+                    <p style="margin: 0; font-size: 0.9rem;">New shipment of rare Sapphire arrived in London warehouse.</p>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-left: 2px solid #fbbf24;">
+                    <p style="margin: 0; font-size: 0.9rem;">Audit request for the royal collection scheduled for May 15th.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

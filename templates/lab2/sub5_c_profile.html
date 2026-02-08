@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}DataVault // SESSION_ACTIVE{% endblock %}
+
+{% block header %}
+<style>
+    :root {
+        --dv-primary: #dc2626;
+        --dv-bg: #0a0a0c;
+        --dv-surface: #121216;
+        --dv-text: #e2e8f0;
+        --dv-muted: #64748b;
+        --dv-border: #26262e;
+    }
+    body { background-color: var(--dv-bg); color: var(--dv-text); font-family: 'Courier New', monospace; line-height: 1.5; }
+    .dv-header {
+        background: var(--dv-surface);
+        border-bottom: 2px solid var(--dv-primary);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .dv-brand { color: var(--dv-primary); font-weight: 800; font-size: 1.25rem; }
+    .terminal-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .terminal-window {
+        background: var(--dv-surface);
+        border: 1px solid var(--dv-border);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .terminal-header {
+        background: #1e1e24;
+        padding: 0.5rem 1rem;
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        border-bottom: 1px solid var(--dv-border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    .terminal-body { padding: 2rem; }
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+    .data-item {
+        background: rgba(255,255,255,0.02);
+        border-left: 2px solid var(--dv-primary);
+        padding: 1rem;
+    }
+    .label { color: var(--dv-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.25rem; }
+    .value { font-size: 1rem; color: #fff; }
+    .status-active { color: #10b981; }
+    .flag-banner {
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px dashed var(--dv-primary);
+        padding: 1rem;
+        margin-bottom: 2rem;
+        color: var(--dv-primary);
+    }
+    .btn-exit {
+        color: var(--dv-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        border: 1px solid var(--dv-border);
+        padding: 0.3rem 0.8rem;
+        transition: color 0.2s;
+    }
+    .btn-exit:hover { color: #fff; border-color: var(--dv-primary); }
+</style>
+<header class="dv-header">
+    <div class="dv-brand">DATA_VAULT // CORE_ACCESS</div>
+    <a href="{{ url_for('lab2_5c') }}" class="btn-exit">TERMINATE_SESSION</a>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="terminal-container">
+    {% if flag %}
+    <div class="flag-banner">
+        [NOTIFICATION]: ELEVATED PRIVILEGES DETECTED.
+        <br>
+        [DECRYPTED_FLAG]: {{ flag }}
+    </div>
+    {% endif %}
+
+    <div class="terminal-window">
+        <div class="terminal-header">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <div style="margin-left: 1rem; font-size: 0.75rem; color: var(--dv-muted);">user@vault:~/records/{{ user.username }}</div>
+        </div>
+        <div class="terminal-body">
+            <h2 style="margin-bottom: 1.5rem; color: #fff;">>> FETCHING USER_PROFILE...</h2>
+            
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="label">Identity</div>
+                    <div class="value">{{ user.full_name }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="label">Access_Node</div>
+                    <div class="value">{{ user.username }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="label">Comm_Channel</div>
+                    <div class="value">{{ user.email }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="label">Security_Clearance</div>
+                    <div class="value" style="color: var(--dv-primary);">LVL_{{ "9" if user.role == 'admin' else "1" }} ({{ user.role.upper() }})</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem;">
+                <h3 style="color: #fff; margin-bottom: 1rem;">>> SYSTEM_LOGS</h3>
+                <div style="color: var(--dv-muted); font-size: 0.85rem; border: 1px solid var(--dv-border); padding: 1rem; background: #000;">
+                    [2026-02-08 14:46:12] SESSION_INIT SUCCESSFUL
+                    <br>
+                    [2026-02-08 14:46:13] RSA_KEY_VERIFIED
+                    <br>
+                    [2026-02-08 14:46:15] LOADING_USER_DATA...
+                    <br>
+                    [2026-02-08 14:46:15] READY.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 
+    VULNERABILITY: 
+    Developers left sensitive credentials in HTML comments during debugging.
+    Username: {{ user.username }}
+    Password: {{ user.password }}
+-->
+{% endblock %}

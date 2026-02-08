@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}DataVault - Secure Storage{% endblock %}
+
+{% block header %}
+<style>
+    :root {
+        --dv-primary: #dc2626;
+        --dv-dark: #1e1e24;
+        --dv-accent: #fca5a5;
+    }
+    .dv-header {
+        background: var(--dv-dark);
+        color: white;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid var(--dv-primary);
+    }
+    .dv-hero {
+        background: #111;
+        color: #ddd;
+        padding: 5rem 2rem;
+        text-align: center;
+        border-bottom: 1px solid #333;
+    }
+    .dv-btn {
+        background: var(--dv-primary);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 2px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    .dv-input {
+        background: #333;
+        border: 1px solid #444;
+        color: white;
+        padding: 0.75rem;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+</style>
+<header class="dv-header">
+    <div style="font-family: 'Courier New', monospace; font-size: 1.5rem; color: var(--dv-primary);">
+        <a href="{{ url_for('lab2_5_menu') }}" style="color: #666; font-size: 0.8rem; text-decoration: none; margin-right: 1rem; vertical-align: middle;">&lt; BACK</a>
+        [DATA_VAULT]
+    </div>
+    <button onclick="document.getElementById('dvModal').style.display='flex'" style="background: transparent; border: 1px solid var(--dv-primary); color: var(--dv-primary); padding: 0.5rem 1rem;">ACCESS_TERMINAL</button>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="dv-hero">
+    <h1 style="font-family: 'Courier New', monospace; color: var(--dv-primary); margin-bottom: 1rem;">SECURE_ARCHIVE_SYSTEM_V.9</h1>
+    <p style="font-family: 'Courier New', monospace; color: #888; margin-bottom: 3rem;">ENCRYPTED STORAGE FOR SENSITIVE ASSETS.</p>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; max-width: 800px; margin: 0 auto; opacity: 0.5;">
+        <div style="border: 1px solid #333; padding: 2rem; color: #555;">BLOCK_01</div>
+        <div style="border: 1px solid #333; padding: 2rem; color: #555;">BLOCK_02</div>
+        <div style="border: 1px solid #333; padding: 2rem; color: #555;">BLOCK_03</div>
+        <div style="border: 1px solid #333; padding: 2rem; color: #555;">BLOCK_04</div>
+    </div>
+</div>
+
+<div id="dvModal" style="display: {% if error %}flex{% else %}none{% endif %}; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 1000;">
+    <div style="background: #1e1e24; border: 1px solid var(--dv-primary); padding: 3rem; width: 100%; max-width: 450px; position: relative; box-shadow: 0 0 20px rgba(220, 38, 38, 0.2);">
+        <button onclick="document.getElementById('dvModal').style.display='none'" style="position: absolute; top: 0.5rem; right: 1rem; background: none; border: none; color: #555; font-size: 2rem; cursor: pointer;">&times;</button>
+        <h2 style="color: var(--dv-primary); font-family: 'Courier New', monospace; margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem;">/AUTHENTICATE</h2>
+        
+        {% if error %}
+        <div style="background: rgba(220, 38, 38, 0.1); color: var(--dv-primary); padding: 0.5rem; margin-bottom: 1rem; font-family: 'Courier New', monospace; border-left: 3px solid var(--dv-primary);">
+            [ERROR]: {{ error }}
+        </div>
+        {% endif %}
+        
+        <form action="{{ url_for('lab2_5c_login') }}" method="POST"> <!-- Route needs to be created, using placeholder -->
+             <!-- Note: lab2_5c_login route not created yet in python snippet above but assuming pattern -->
+             <!-- Wait, I only created lab2_5b login. Let me fix python file first or just make form action generic? 
+                  Ah, I haven't made lab2_5c_login route yet. I should add it.
+                  Correction: I will use a dummy action or assume the Python update included it.
+                  Wait, the Python update I did previously (Step 643) only included lab2_5b routes.
+                  I need to add lab2_5c routes in next step.
+                  For now I will point to '#' and use JS or just point to expected route.
+             -->
+             <label style="color: #888; font-family: 'Courier New', monospace; font-size: 0.8rem; display: block; margin-bottom: 0.5rem;">USER_ID</label>
+             <input type="text" name="username" class="dv-input" placeholder="viewer">
+             
+             <label style="color: #888; font-family: 'Courier New', monospace; font-size: 0.8rem; display: block; margin-bottom: 0.5rem;">ACCESS_CODE</label>
+             <input type="password" name="password" class="dv-input" placeholder="view123">
+             
+             <button type="submit" class="dv-btn" style="width: 100%; margin-top: 1rem;">INITIATE_SESSION</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
