@@ -167,9 +167,10 @@
         }
 
         // Auto-open modal if error exists
-        {% if error %}
-        openLoginModal();
-        {% endif %}
+        const errorMsg = document.getElementById('errorMsg');
+        if (errorMsg && errorMsg.textContent.trim()) {
+            openLoginModal();
+        }
 
         // Close on outside click
         document.getElementById('loginModal').addEventListener('click', function(e) {

@@ -42,77 +42,37 @@ a {
 }
 
 /* --- Header --- */
-.cyber-header {
+/* --- Header --- */
+.pv-header {
+    display: block;
+    width: 100%;
     background: rgba(9, 9, 11, 0.98);
     border-bottom: 1px solid var(--luxury-border);
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 1.75rem 0;
-    /* Significantly Increased */
+    padding: 1rem 0;
     backdrop-filter: blur(12px);
 }
 
-.header-container {
+.pv-header-container {
+    width: 100%;
     max-width: 1400px;
-    /* Wider */
     margin: 0 auto;
-    padding: 0 3rem;
+    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-sizing: border-box;
 }
 
-.nav-logo-section {
+.pv-header-left {
     display: flex;
     align-items: center;
-    gap: 5rem;
-    /* Massive gap for luxury spacing */
+    gap: 2rem;
 }
 
-.nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    text-decoration: none;
-}
-
-.brand-icon {
-    font-size: 2.5rem;
-    color: var(--gold-primary);
-    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-}
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.brand-name {
-    font-family: 'Cinzel', serif;
-    font-size: 1.8rem;
-    /* Larger */
-    letter-spacing: 0.15em;
-    font-weight: 400;
-    text-transform: uppercase;
-    background: linear-gradient(to right, #d4af37, #f3e5ab, #d4af37);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0;
-}
-
-.brand-subtitle {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold-light);
-    opacity: 0.8;
-    margin: 0.5rem 0 0 0;
-}
-
-.nav-back-btn {
+.pv-nav-back-btn {
     font-family: 'Inter', sans-serif;
     color: var(--luxury-muted);
     font-size: 1.5rem;
@@ -120,31 +80,81 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem;
+    padding: 0.5rem;
     border: 1px solid rgba(212, 175, 55, 0.1);
+    border-radius: 4px;
+    width: 2.5rem;
+    height: 2.5rem;
 }
 
-.nav-back-btn:hover {
+.pv-nav-back-btn:hover {
     color: var(--gold-primary);
     border-color: var(--gold-primary);
 }
 
-.btn-nav-signup {
+.pv-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+}
+
+.pv-brand-icon {
+    font-size: 2rem;
+    color: var(--gold-primary);
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.pv-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.pv-brand-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    text-transform: uppercase;
+    background: linear-gradient(to right, #d4af37, #f3e5ab, #d4af37);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.pv-brand-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    opacity: 0.8;
+    margin: 0.25rem 0 0 0;
+}
+
+.pv-header-right {
+    display: flex;
+    align-items: center;
+}
+
+.pv-btn-signup {
     font-family: 'Inter', sans-serif;
     background: transparent;
     border: 1px solid var(--gold-primary);
     color: var(--gold-primary);
-    padding: 0.8rem 2.5rem;
-    /* Larger button */
-    font-size: 0.9rem;
+    padding: 0.6rem 2rem;
+    font-size: 0.85rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     transition: all 0.3s ease;
     cursor: pointer;
     border-radius: 2px;
+    font-weight: 600;
 }
 
-.btn-nav-signup:hover {
+.pv-btn-signup:hover {
     background: var(--gold-primary);
     color: var(--luxury-bg);
     box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);

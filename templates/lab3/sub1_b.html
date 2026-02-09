@@ -4,25 +4,25 @@
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/premium-vault.css') }}">
     <!-- Professional Header Navigation - Luxury Theme -->
-    <header class="cyber-header">
-        <div class="header-container">
-            <!-- Logo & Brand Section (Left) -->
-            <div class="nav-logo-section">
-                <a href="{{ url_for('lab3') }}" class="nav-back-btn" title="Back to Lab 3">
-                    <span class="back-icon">←</span>
+    <header class="pv-header">
+        <div class="pv-header-container">
+            <!-- Left Section: Back Btn + Logo -->
+            <div class="pv-header-left">
+                <a href="{{ url_for('lab3') }}" class="pv-nav-back-btn" title="Back to Lab 3">
+                    ←
                 </a>
-                <a href="#" class="nav-brand">
-                    <span class="brand-icon">✦</span>
-                    <div class="brand-text">
-                        <h1 class="brand-name">PremiumVault</h1>
-                        <p class="brand-subtitle">Elite Asset Protection</p>
+                <div class="pv-brand">
+                    <span class="pv-brand-icon">✦</span>
+                    <div class="pv-brand-text">
+                        <h1 class="pv-brand-name">PremiumVault</h1>
+                        <p class="pv-brand-subtitle">Elite Asset Protection</p>
                     </div>
-                </a>
+                </div>
             </div>
 
-            <!-- Right Section: Single Button -->
-            <div class="nav-actions">
-                <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-nav-signup">Access Portal</button>
+            <!-- Right Section: Login -->
+            <div class="pv-header-right">
+                <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="pv-btn-signup">Access Portal</button>
             </div>
         </div>
     </header>
@@ -37,7 +37,7 @@
             <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-hero">Enter Portal</button>
         </div>
         <div class="hero-image">
-            <img src="https://images.unsplash.com/photo-1516321318423-f06f70504c3f?w=400&q=80" alt="Luxury Security" class="hero-img">
+            <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?w=600&q=80" alt="Luxury Security" class="hero-img">
         </div>
     </section>
 
@@ -77,7 +77,16 @@
             {% for product in products %}
             <div class="product-card">
                 <div class="product-image-wrapper">
-                    <img src="https://picsum.photos/300/200?random={{ loop.index }}" alt="{{ product.name }}" class="product-image">
+                    <!-- Dynamic images based on index -->
+                    {% set img_urls = [
+                        'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&q=80',
+                        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80',
+                        'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&q=80',
+                        'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80',
+                        'https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=400&q=80',
+                        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80'
+                    ] %}
+                    <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" class="product-image">
                     <div class="product-overlay">
                         <button class="btn-secondary">View Asset</button>
                     </div>
@@ -213,10 +222,12 @@
         }
 
         // Auto-open modal if error exists
-        {% if error %}
-        document.getElementById('loginModal').style.display = 'flex';
-        setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10);
-        {% endif %}
+        const errorMsg = document.getElementById('errorMsg');
+        if (errorMsg && errorMsg.textContent.trim()) {
+            const loginModal = document.getElementById('loginModal');
+            loginModal.style.display = 'flex';
+            setTimeout(() => loginModal.classList.add('active'), 10);
+        }
 
         // Close on outside click
         document.getElementById('loginModal').addEventListener('click', function(e) {

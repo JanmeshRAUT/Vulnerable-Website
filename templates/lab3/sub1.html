@@ -4,27 +4,27 @@
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/secure-vault.css') }}">
 <!-- Professional Header Navigation -->
-<header class="cyber-header">
-    <div class="header-container">
-        <!-- Logo & Brand Section (Left) -->
-        <div class="nav-logo-section">
-            <a href="{{ url_for('lab3') }}" class="nav-back-btn" title="Back to Lab 3">
-                <span class="back-icon">←</span>
+<header class="sv-header">
+    <div class="sv-header-container">
+        <!-- Left Section: Back Btn + Logo -->
+        <div class="sv-header-left">
+            <a href="{{ url_for('lab3') }}" class="sv-back-link" title="Back to Lab 3">
+                ←
             </a>
-            <a href="#" class="nav-brand">
-                <span class="brand-icon">🔐</span>
-                <div class="brand-text">
-                    <h1 class="brand-name">SecureVault</h1>
-                    <p class="brand-subtitle">Enterprise Asset Management</p>
+            <div class="sv-logo-group">
+                <span class="sv-logo-icon">🔐</span>
+                <div class="sv-logo-text">
+                    <h1 class="sv-logo-title">SecureVault</h1>
+                    <p class="sv-logo-subtitle">Enterprise Asset Management</p>
                 </div>
-            </a>
+            </div>
         </div>
 
-        <!-- Right Section: Single Button -->
-        <div class="nav-actions">
+        <!-- Right Section: Login -->
+        <div class="sv-header-right">
             <button
                 onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)"
-                class="btn-nav-signup">Sign In</button>
+                class="sv-btn-login">Sign In</button>
         </div>
     </div>
 </header>
@@ -81,9 +81,16 @@
     <div class="products-grid">
         {% for product in products %}
         <div class="product-card">
-            <div class="product-image-wrapper">
-                <img src="https://picsum.photos/300/200?random={{ loop.index }}" alt="{{ product.name }}"
-                    class="product-image">
+                <!-- Dynamic images based on index -->
+                {% set img_urls = [
+                    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&q=80',
+                    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80',
+                    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80',
+                    'https://images.unsplash.com/photo-1496096265110-f83ad7f96608?w=400&q=80',
+                    'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&q=80',
+                    'https://images.unsplash.com/photo-1562813733-b31f71025d54?w=400&q=80'
+                ] %}
+                <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" class="product-image">
                 <div class="product-overlay">
                     <button class="btn-secondary">Preview</button>
                 </div>
