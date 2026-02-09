@@ -1,31 +1,49 @@
-
 {% extends 'base.html' %}
-{% block title %}Lab 2.1: Admin{% endblock %}
+{% block title %}Restricted Management Console - TechStore{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_admin.css') }}">
+<div class="security-header" style="background: linear-gradient(135deg, #0ea5e9, #0c4a6e);">
+    <div class="container">
+        <h1 class="security-title">Admin Interface</h1>
+        <p class="security-subtitle">Internal node: <code>super_secret_admin_panel_xyz</code></p>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('lab2_1') }}" class="btn">Back to Lab 2.1</a>
-
-    <h2>Admin Panel (Secret)</h2>
-    <p>Good job finding this page!</p>
-
+<div class="container">
     {% if flag %}
-        <script>
-            alert("Congratulations! {{ flag }}");
-        </script>
-        <div class="alert alert-success">
-            <strong>FLAG: </strong> {{ flag }}
+        <div class="alert alert-success admin-success-alert">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎯 Access Level: ROOT</div>
+            <p>Verification successful. Your research token:</p>
+            <code class="admin-flag-code">{{ flag }}</code>
         </div>
-        <p>User deleted successfully.</p>
+        <div style="margin-top: 2rem;">
+            <a href="{{ url_for('lab2_1') }}" class="btn">&larr; Return to Dashboard</a>
+        </div>
     {% else %}
-        <div class="card">
-            <h3>Registered Users</h3>
-            {% for user in users %}
-            <p>User: {{ user.username }} (ID: {{ user.id }})</p>
-            <form method="POST">
-                <input type="hidden" name="user_id" value="{{ user.id }}">
-                <button type="submit" class="btn btn-danger">Delete User</button>
-            </form>
-            {% endfor %}
+        <div class="security-card">
+            <h3 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                <span style="color: #0ea5e9;">👥</span> Registered Identities
+            </h3>
+            
+            <div style="display: grid; gap: 1rem;">
+                {% for user in users %}
+                <div class="user-identity-card">
+                    <div>
+                        <div class="user-name-admin">{{ user.username }}</div>
+                        <div class="user-id-admin">System ID: USR-{{ user.id }}</div>
+                    </div>
+                    <form method="POST">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <button type="submit" class="btn btn-danger btn-purge">Purge User</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     {% endif %}
+</div>
 {% endblock %}

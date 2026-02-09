@@ -3,7 +3,10 @@ import os
 import sqlite3
 import subprocess
 import requests
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g
+import string
+import random
+import re
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g, jsonify
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_that_is_not_secure_at_all'
@@ -188,6 +191,23 @@ def product_detail(product_id):
         return render_template('product_detail.html', product=product)
     else:
         return "Product not found", 404
+
+@app.route('/cart')
+def cart():
+    # Shopping cart page
+    return render_template('cart.html')
+
+@app.route('/checkout')
+def checkout():
+    # Checkout page
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('checkout.html')
+
+@app.route('/help')
+def help():
+    # Help and FAQ page
+    return render_template('help.html')
 
 
 # -------------------------
@@ -815,9 +835,6 @@ def lab2_5_login():
 
 @app.route('/lab2/5/profile')
 def lab2_5_profile():
-    import random
-    import string
-    
     # VULNERABILITY: Trusts username parameter and exposes password in HTML comment
     username_param = request.args.get('username')
     
@@ -924,9 +941,6 @@ def lab2_5c_login():
 
 @app.route('/lab2/5c/profile')
 def lab2_5c_profile():
-    import random
-    import string
-    
     # VULNERABILITY: IDOR via 'username' parameter
     username_param = request.args.get('username')
     
@@ -966,8 +980,12 @@ def lab2_5c_profile():
 def lab3():
     return render_template('lab3/index.html')
 
-# LAB 3.1: Brute Force Attack
-# LAB 3.1: Brute Force Attack
+# LAB 3.1: Brute Force Attack Menu
+@app.route('/lab3/1/menu')
+def lab3_1_menu():
+    return render_template('lab3/menu.html')
+
+# LAB 3.1.1: Brute Force Attack - SecureVault
 @app.route('/lab3/1')
 def lab3_1():
     import random # Local import to ensure it's available
@@ -1010,6 +1028,7 @@ def lab3_1_login():
     # Scenario 1: Correct Credentials
     if username == target_user and password == target_pass:
         session['lab3_1_logged_in'] = True
+        session['lab3_1_username'] = username
         # SUCCESS: Redirect (Status 302) - Easy to spot in Burp
         return redirect(url_for('lab3_1_admin'))
 
@@ -1043,6 +1062,7 @@ def lab3_1_admin():
     return render_template('lab3/sub1_admin.html', 
                          users=users, 
                          admin_username=admin_user,
+                         variant='1',
                          flag=None)
 
 @app.route('/lab3/1/admin/delete', methods=['POST'])
@@ -1055,7 +1075,176 @@ def lab3_1_delete_user():
     return render_template('lab3/sub1_admin.html', 
                          users=[], 
                          admin_username=admin_user,
+                         variant='1',
                          flag="FLAG{brute_force_authentication_master}")
+
+# LAB 3.1.2: Brute Force Attack - Luxury Variant
+@app.route('/lab3/1/2')
+def lab3_1_2():
+    import random
+    
+    usernames_file = os.path.join('data', 'wordlists', 'usernames.txt')
+    passwords_file = os.path.join('data', 'wordlists', 'passwords.txt')
+    
+    with open(usernames_file, 'r') as f:
+        usernames = [line.strip() for line in f if line.strip()]
+    with open(passwords_file, 'r') as f:
+        passwords = [line.strip() for line in f if line.strip()]
+
+    target_user = random.choice(usernames)
+    target_password = random.choice(passwords)
+    
+    session['lab3_1_2_target_user'] = target_user
+    session['lab3_1_2_target_pass'] = target_password
+    
+    print(f"\n[LAB 3.1.2 START] Integrity Check:")
+    print(f" -> Target User: {target_user}")
+    print(f" -> Target Pass: {target_password}")
+    print(f"----------------------------------------\n")
+    
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    return render_template('lab3/sub1_b.html', products=products)
+
+@app.route('/lab3/1/2/login', methods=['POST'])
+def lab3_1_2_login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    target_user = session.get('lab3_1_2_target_user')
+    target_pass = session.get('lab3_1_2_target_pass')
+    
+    if username == target_user and password == target_pass:
+        session['lab3_1_2_logged_in'] = True
+        session['lab3_1_2_username'] = username
+        return redirect(url_for('lab3_1_2_admin'))
+
+    if username == target_user:
+        error_msg = "Incorrect password."
+        db = get_db()
+        products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+        return render_template('lab3/sub1_b.html', products=products, error=error_msg), 200
+
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    return render_template('lab3/sub1_b.html', products=products, error="Invalid username or password"), 200
+
+@app.route('/lab3/1/2/admin')
+def lab3_1_2_admin():
+    if not session.get('lab3_1_2_logged_in'):
+        return redirect(url_for('lab3_1_2'))
+    
+    db = get_db()
+    users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+    admin_user = session.get('lab3_1_2_username', 'admin')
+    
+    return render_template('lab3/sub1_admin.html', 
+                         users=users, 
+                         admin_username=admin_user,
+                         variant='2',
+                         flag=None)
+
+@app.route('/lab3/1/2/admin/delete', methods=['POST'])
+def lab3_1_2_delete_user():
+    if not session.get('lab3_1_2_logged_in'):
+        return redirect(url_for('lab3_1_2'))
+    
+    admin_user = session.get('lab3_1_2_username', 'admin')
+    return render_template('lab3/sub1_admin.html', 
+                         users=[], 
+                         admin_username=admin_user,
+                         variant='2',
+                         flag="FLAG{brute_force_premium_variant}")
+
+@app.route('/lab3/1/2/logout')
+def lab3_1_2_logout():
+    session.pop('lab3_1_2_logged_in', None)
+    session.pop('lab3_1_2_username', None)
+    return redirect(url_for('lab3_1_2'))
+
+# LAB 3.1.3: Brute Force Attack - Corporate Variant
+@app.route('/lab3/1/3')
+def lab3_1_3():
+    import random
+    
+    usernames_file = os.path.join('data', 'wordlists', 'usernames.txt')
+    passwords_file = os.path.join('data', 'wordlists', 'passwords.txt')
+    
+    with open(usernames_file, 'r') as f:
+        usernames = [line.strip() for line in f if line.strip()]
+    with open(passwords_file, 'r') as f:
+        passwords = [line.strip() for line in f if line.strip()]
+
+    target_user = random.choice(usernames)
+    target_password = random.choice(passwords)
+    
+    session['lab3_1_3_target_user'] = target_user
+    session['lab3_1_3_target_pass'] = target_password
+    
+    print(f"\n[LAB 3.1.3 START] Integrity Check:")
+    print(f" -> Target User: {target_user}")
+    print(f" -> Target Pass: {target_password}")
+    print(f"----------------------------------------\n")
+    
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    return render_template('lab3/sub1_c.html', products=products)
+
+@app.route('/lab3/1/3/login', methods=['POST'])
+def lab3_1_3_login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    target_user = session.get('lab3_1_3_target_user')
+    target_pass = session.get('lab3_1_3_target_pass')
+    
+    if username == target_user and password == target_pass:
+        session['lab3_1_3_logged_in'] = True
+        session['lab3_1_3_username'] = username
+        return redirect(url_for('lab3_1_3_admin'))
+
+    if username == target_user:
+        error_msg = "Incorrect password."
+        db = get_db()
+        products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+        return render_template('lab3/sub1_c.html', products=products, error=error_msg), 200
+
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    return render_template('lab3/sub1_c.html', products=products, error="Invalid username or password"), 200
+
+@app.route('/lab3/1/3/admin')
+def lab3_1_3_admin():
+    if not session.get('lab3_1_3_logged_in'):
+        return redirect(url_for('lab3_1_3'))
+    
+    db = get_db()
+    users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+    admin_user = session.get('lab3_1_3_username', 'admin')
+    
+    return render_template('lab3/sub1_admin.html', 
+                         users=users, 
+                         admin_username=admin_user,
+                         variant='3',
+                         flag=None)
+
+@app.route('/lab3/1/3/admin/delete', methods=['POST'])
+def lab3_1_3_delete_user():
+    if not session.get('lab3_1_3_logged_in'):
+        return redirect(url_for('lab3_1_3'))
+    
+    admin_user = session.get('lab3_1_3_username', 'admin')
+    return render_template('lab3/sub1_admin.html', 
+                         users=[], 
+                         admin_username=admin_user,
+                         variant='3',
+                         flag="FLAG{brute_force_corporate_variant}")
+
+@app.route('/lab3/1/3/logout')
+def lab3_1_3_logout():
+    session.pop('lab3_1_3_logged_in', None)
+    session.pop('lab3_1_3_username', None)
+    return redirect(url_for('lab3_1_3'))
 
 @app.route('/lab3/1/logout')
 def lab3_1_logout():
@@ -1182,7 +1371,6 @@ def lab3_2b_login():
     
     if username in valid_users and valid_users[username] == password:
         session['lab3_2b_username'] = username
-        import random
         code = str(random.randint(1000, 9999))
         session['lab3_2b_code'] = code
         print(f"[LAB 3.2B] 2FA code for {username}: {code}")
@@ -1258,7 +1446,6 @@ def lab3_2c_login():
     
     if username in valid_users and valid_users[username] == password:
         session['lab3_2c_username'] = username
-        import random
         code = str(random.randint(1000, 9999))
         session['lab3_2c_code'] = code
         print(f"[LAB 3.2C] 2FA code for {username}: {code}")
@@ -1322,20 +1509,109 @@ def lab3_2c_logout():
 # -------------------------
 # LAB 4: SSRF
 # -------------------------
+
 @app.route('/lab4')
 def lab4():
-    return render_template('lab4.html')
+    return render_template('lab4/index.html')
 
-@app.route('/lab4/check_stock', methods=['POST'])
-def lab4_check_stock():
-    stock_api = request.form.get('stock_api')
-    # VULNERABILITY: Fetches any URL provided by user
-    # Try http://localhost:5000/lab2/admin 
+# Lab 4.1: Basic SSRF against the local server
+@app.route('/lab4/1')
+def lab4_1():
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 3').fetchall()
+    return render_template('lab4/sub1.html', products=products)
+
+@app.route('/lab4/1/product/<int:product_id>')
+def lab4_1_product(product_id):
+    db = get_db()
+    product = db.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
+    if not product: return "Product not found", 404
+    return render_template('lab4/sub1_product.html', product=product)
+
+@app.route('/lab4/1/stock', methods=['POST'])
+def lab4_1_stock():
+    stock_api = request.form.get('stockApi')
+    if not stock_api:
+        return "Missing stockApi parameter", 400
+    
+    # VULNERABILITY: SSRF
+    import requests
     try:
-        resp = requests.get(stock_api, timeout=2)
-        return f"Stock Status from {stock_api}: <br><pre>{resp.text}</pre>"
+        # We use a trick to allow requests to localhost/127.0.0.1 if it's targeted
+        # In a real scenario, this would just be requests.get(stock_api)
+        # But we need to make sure 'localhost' refers to THIS app instance.
+        # If the URL is http://localhost/admin, we internally redirect or 
+        # just use requests if the app is actually running on 80.
+        # Since we are on port 5000, we should expect http://localhost:5000/admin 
+        # or simulate it.
+        
+        # Helper to handle internal routing for simulation
+        if "localhost" in stock_api or "127.0.0.1" in stock_api:
+            # Re-route to our own server if port is missing or 80
+            if ":5000" not in stock_api:
+                stock_api = stock_api.replace("localhost", "localhost:5000").replace("127.0.0.1", "127.0.0.1:5000")
+        
+        resp = requests.get(stock_api, timeout=5)
+        return resp.text
     except Exception as e:
-        return f"Error fetching stock: {e}"
+        return f"Internal Server Error: {str(e)}", 500
+
+# Simulated External Admin for 4.1
+@app.route('/admin')
+def admin_panel():
+    # Simulate restriction: Only accessible from loopback
+    # In a real SSRF lab, the admin panel is blocked by a WAF/Firewall 
+    # for external IPs but allowed for internal ones.
+    if request.remote_addr != '127.0.0.1' and '127.0.0.1' not in request.host:
+        return "<h1>403 Forbidden</h1><p>Admin interface only accessible from local network.</p>", 403
+    
+    return render_template('lab4/admin_panel.html', user_to_delete="carlos")
+
+@app.route('/admin/delete')
+def admin_delete_user():
+    if request.remote_addr != '127.0.0.1' and '127.0.0.1' not in request.host:
+        return "403 Forbidden", 403
+        
+    username = request.args.get('username')
+    if username == "carlos":
+        return f"<h1>Success</h1><p>User {username} deleted successfully!</p><p>FLAG{{ssrf_local_admin_pwned}}</p>"
+    return f"User {username} not found."
+
+# Lab 4.2: Basic SSRF against another back-end system
+@app.route('/lab4/2')
+def lab4_2():
+    db = get_db()
+    products = db.execute('SELECT * FROM products LIMIT 3').fetchall()
+    return render_template('lab4/sub2.html', products=products)
+
+@app.route('/lab4/2/product/<int:product_id>')
+def lab4_2_product(product_id):
+    db = get_db()
+    product = db.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
+    if not product: return "Product not found", 404
+    return render_template('lab4/sub2_product.html', product=product)
+
+@app.route('/lab4/2/stock', methods=['POST'])
+def lab4_2_stock():
+    stock_api = request.form.get('stockApi')
+    
+    # Simulation: One specific IP in 192.168.0.x range has the admin panel
+    # In PortSwigger labs, it's often a random one, but we'll fix it to 154
+    target_ip = "192.168.0.154"
+    
+    if f"http://{target_ip}:8080/admin" in stock_api:
+        if "/delete?username=carlos" in stock_api:
+             return "<h1>Success</h1><p>User carlos deleted!</p><p>FLAG{{ssrf_backend_system_found_154}}</p>"
+        return render_template('lab4/admin_panel_internal.html', ip=target_ip)
+    
+    # For other IPs, return 404 or connection error to simulate backend
+    ip_match = re.search(r'http://(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):8080', stock_api)
+    if ip_match:
+        ip = ip_match.group(1)
+        if ip.startswith("192.168.0."):
+            return "Error: Internal Server Error (Connection Refused)", 500
+            
+    return "Invalid stock API", 400
 
 
 # -------------------------

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}SSRF Command Center - SecureNet{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+<div class="security-header">
+    <div class="container">
+        <h1 class="security-title">SSRF Mastery Track</h1>
+        <p class="security-subtitle">Master the art of Server-Side Request Forgery. Bypass perimeter security and access internal infrastructure.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+    <div class="card-grid">
+        <!-- Lab 4.1 -->
+        <div class="card" style="display: flex; flex-direction: column;">
+            <div style="font-size: 3rem; margin-bottom: 1.5rem;">🏢</div>
+            <h3 style="font-size: 1.25rem;">4.1: Internal Loopback Access</h3>
+            <p style="flex-grow: 1;">Target the application's own local loopback interface. Exploit a vulnerable stock checking API to access the protected admin panel at <code>/admin</code>.</p>
+            <div style="margin-top: 2rem;">
+                <a href="{{ url_for('lab4_1') }}" class="btn" style="width: 100%;">Initialize Lab</a>
+            </div>
+        </div>
+
+        <!-- Lab 4.2 -->
+        <div class="card" style="display: flex; flex-direction: column;">
+            <div style="font-size: 3rem; margin-bottom: 1.5rem;">🌐</div>
+            <h3 style="font-size: 1.25rem;">4.2: Backend Network Discovery</h3>
+            <p style="flex-grow: 1;">Identify and exploit vulnerabilities in the backend network. Scan the <code>192.168.0.x</code> range to discover internal management consoles.</p>
+            <div style="margin-top: 2rem;">
+                <a href="{{ url_for('lab4_2') }}" class="btn" style="width: 100%; background: #3b82f6;">Start Network Scan</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h4>System Operations Manual</h4>
+        <p>Current Security Posture: <strong>VULNERABLE</strong></p>
+        <p>Note: Security researchers are encouraged to use intercepting proxies like Burp Suite or OWASP ZAP to manipulate cross-service communication parameters.</p>
+    </div>
+{% endblock %}

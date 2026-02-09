@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Lab 4.2: Stock Checker (External){% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab4') }}" class="btn">Back to Lab Menu</a>
+    
+    <div style="margin-top: 2rem;">
+        <h2 style="margin-bottom: 2rem;">Lab 4.2: Global Inventory (External Network Scan)</h2>
+        <div class="banner" style="background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #3b82f6;">
+            💡 Tip: This variation fetches stock from an internal back-end system in the 192.168.0.x range. Use an intruder attack to find the correct active backend.
+        </div>
+        
+        <div class="card-grid" style="margin-top: 2rem;">
+            {% for product in products %}
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div style="height: 150px; background: #334155; margin: -1.5rem -1.5rem 1.5rem -1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                    🌎
+                </div>
+                <h3>{{ product.name }}</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem; flex-grow: 1;">{{ product.description }}</p>
+                <div style="margin-top: 1rem; border-top: 1px solid #334155; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 700;">${{ product.price }}</span>
+                    <a href="{{ url_for('lab4_2_product', product_id=product.id) }}" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background: #3b82f6;">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

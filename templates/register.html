@@ -1,16 +1,54 @@
-
 {% extends 'base.html' %}
-{% block title %}Register - E-Shop{% endblock %}
+{% block title %}Create Account - RESEARCH_OPS{% endblock %}
 
 {% block content %}
-    <h2>Register</h2>
-    <form method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        
-        <button type="submit" class="btn">Register</button>
-    </form>
+<div class="register-form-container">
+    <div class="register-form-content card">
+        <div class="register-form-header">
+            <h1>Join RESEARCH_OPS</h1>
+            <p>Start your security research journey</p>
+        </div>
+
+        {% if error %}
+        <div class="auth-error">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            <div class="auth-form-field">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+                <p class="auth-form-help">Between 3-20 characters</p>
+            </div>
+
+            <div class="auth-form-field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <p class="auth-form-help">Must be at least 8 characters</p>
+            </div>
+
+            <div class="form-requirements">
+                <h4>Password Requirements</h4>
+                <ul>
+                    <li>At least 8 characters</li>
+                    <li>Mix of letters and numbers</li>
+                    <li>One special character (!@#$%)</li>
+                </ul>
+            </div>
+
+            <button type="submit" class="btn auth-submit-btn">Create Account</button>
+        </form>
+
+        <div class="auth-form-footer">
+            <p>Already have an account?
+                <a href="{{ url_for('login') }}">Sign in</a>
+            </p>
+        </div>
+
+        <div class="auth-terms-box">
+            <p>By creating an account, you agree to our Terms of Service and Privacy Policy</p>
+        </div>
+    </div>
+</div>
 {% endblock %}

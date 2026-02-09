@@ -1,0 +1,39 @@
+/* Lab 2.1 Admin Styles */
+.admin-success-alert {
+    padding: 2rem;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.admin-flag-code {
+    font-size: 1.25rem;
+    background: rgba(0,0,0,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    display: block;
+}
+
+.user-identity-card {
+    background: #020617;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-name-admin {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.user-id-admin {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.btn-purge {
+    background: #dc2626 !important;
+}

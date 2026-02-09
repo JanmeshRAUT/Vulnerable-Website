@@ -1,26 +1,49 @@
-
 {% extends 'base.html' %}
-{% block title %}Lab 2.2: Admin{% endblock %}
+{% block title %}System Core - GadgetShop Internal{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub2_admin.css') }}">
+<div class="security-header" style="background: linear-gradient(135deg, #1e293b, #000);">
+    <div class="container">
+        <h1 class="security-title">Hidden Management Node</h1>
+        <p class="security-subtitle">Internal Routing: <code>/admin_dashboard_hidden_abc123</code></p>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('lab2_2') }}" class="btn">Back to Lab 2.2</a>
-
-    <h2>Admin Dashboard (Hidden Logic)</h2>
-    
+<div class="container">
     {% if flag %}
-        <div class="alert alert-success">
-            <strong>FLAG: </strong> {{ flag }}
+        <div class="alert alert-success admin-success-bypass">
+            <div>
+                <h2 style="margin-bottom: 1rem; color: #10b981;">✅ Logic Bypass Confirmed</h2>
+                <p>You successfully discovered the hidden administrative routing through source code analysis.</p>
+                <div class="admin-flag-display">
+                    {{ flag }}
+                </div>
+            </div>
         </div>
-        <p>User deleted successfully.</p>
     {% else %}
-        <div class="card">
-            <h3>Registered Users</h3>
-            {% for user in users %}
-            <p>User: {{ user.username }} (ID: {{ user.id }})</p>
-            <form method="POST">
-                <button type="submit" class="btn btn-danger">Delete User</button>
-            </form>
-            {% endfor %}
+        <div class="security-card">
+            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">User Database Access</h3>
+            
+            <div style="display: grid; gap: 1.5rem;">
+                {% for user in users %}
+                <div class="user-node-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div class="user-node-name">{{ user.username }}</div>
+                            <div class="user-node-id">Identifier: NODE_{{ user.id }}</div>
+                        </div>
+                        <form method="POST">
+                            <button type="submit" class="btn btn-danger btn-terminate">Terminate Account</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     {% endif %}
+</div>
 {% endblock %}

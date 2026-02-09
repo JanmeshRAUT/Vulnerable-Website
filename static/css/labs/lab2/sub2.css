@@ -1,0 +1,224 @@
+/* Lab 2.2 GadgetShop Styles */
+.gadget-header {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gadget-brand {
+    font-weight: 700;
+    font-size: 1.75rem;
+    letter-spacing: -0.025em;
+}
+
+.gadget-hero {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    border-radius: 1rem;
+}
+
+.gadget-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.category-card-gadget {
+    text-align: center;
+    cursor: pointer;
+}
+
+.category-card-gadget div {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.category-card-gadget h3 {
+    font-size: 1rem;
+}
+
+.category-card-gadget p {
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+.product-image-gadget {
+    height: 200px;
+    border-radius: 0.5rem;
+    margin: -1.5rem -1.5rem 1rem -1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.product-price-gadget {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #06b6d4;
+}
+
+.footer-gadget {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid #334155;
+    text-align: center;
+    color: #94a3b8;
+}
+
+/* Header Layout */
+.gadget-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gadget-header-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.gadget-back-link {
+    color: #cffafe;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.gadget-back-link:hover {
+    color: white;
+}
+
+.gadget-header-nav {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.gadget-header-nav a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.gadget-header-nav a:hover {
+    color: #cffafe;
+}
+
+.gadget-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.gadget-search-input {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    width: 200px;
+    background: rgba(255, 255, 255, 0.9);
+    font-family: inherit;
+}
+
+.gadget-search-input::placeholder {
+    color: #9ca3af;
+}
+
+.gadget-cart-button {
+    background: white;
+    color: #06b6d4;
+    padding: 0.5rem 1rem;
+}
+
+.gadget-cart-button:hover {
+    opacity: 0.9;
+}
+
+/* Hero Section */
+.gadget-hero-subtitle {
+    font-size: 1.125rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.gadget-hero-button {
+    background: white;
+    color: #06b6d4;
+    padding: 0.75rem 2rem;
+    margin-top: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.gadget-hero-button:hover {
+    opacity: 0.95;
+}
+
+/* Category Grid */
+.gadget-category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+/* Product Styling */
+.gadget-product-description {
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+.gadget-product-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.gadget-add-to-cart-btn {
+    background: #06b6d4;
+    padding: 0.5rem 1rem;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.gadget-add-to-cart-btn:hover {
+    background: #0891b2;
+}
+
+/* Footer Additional Text */
+.gadget-footer-subtext {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    color: #94a3b8;
+}
+
+/* Section Headings */
+.gadget-section-heading {
+    margin-bottom: 1.5rem;
+}
+
+/* Product Image Gradients */
+.gadget-product-gradient-1 {
+    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+}
+
+.gadget-product-gradient-2 {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+}
+
+.gadget-product-gradient-3 {
+    background: linear-gradient(135deg, #22d3ee, #67e8f9);
+}
+
+.gadget-product-gradient-4 {
+    background: linear-gradient(135deg, #0e7490, #0891b2);
+}

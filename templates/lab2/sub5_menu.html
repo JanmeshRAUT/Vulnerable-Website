@@ -12,47 +12,47 @@
     <div class="card-grid">
         <!-- Variation A: ShopHub -->
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #8b5cf6, #a78bfa); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+            <div class="variation-preview preview-shophub">
                 🛍️
             </div>
             <h3>Variation A: ShopHub</h3>
-            <p style="color: #94a3b8; margin-bottom: 1rem;">E-commerce platform with user profiles</p>
-            <p style="font-size: 0.875rem; margin-bottom: 1rem;">
+            <p class="variation-desc">E-commerce platform with user profiles</p>
+            <p class="variation-meta">
                 <strong>Credentials:</strong><br>
                 Login: <code>user:password</code><br>
                 Target: <code>admin</code> (find password in profile)
             </p>
-            <a href="{{ url_for('lab2_5') }}" class="btn" style="background: #8b5cf6;">Start Variation A</a>
+            <a href="{{ url_for('lab2_5') }}" class="btn btn-shophub">Start Variation A</a>
         </div>
         
         <!-- Variation B: CloudMart -->
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #14b8a6, #2dd4bf); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+            <div class="variation-preview preview-cloudmart">
                 ☁️
             </div>
             <h3>Variation B: CloudMart</h3>
-            <p style="color: #94a3b8; margin-bottom: 1rem;">Cloud marketplace with account system</p>
-            <p style="font-size: 0.875rem; margin-bottom: 1rem;">
+            <p class="variation-desc">Cloud marketplace with account system</p>
+            <p class="variation-meta">
                 <strong>Credentials:</strong><br>
                 Login: <code>guest:guest123</code><br>
                 Target: <code>root</code> (find password in account)
             </p>
-            <a href="{{ url_for('lab2_5b') }}" class="btn" style="background: #14b8a6;">Start Variation B</a>
+            <a href="{{ url_for('lab2_5b') }}" class="btn btn-cloudmart">Start Variation B</a>
         </div>
         
         <!-- Variation C: DataVault -->
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #dc2626, #ef4444); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
+            <div class="variation-preview preview-datavault">
                 🗄️
             </div>
             <h3>Variation C: DataVault</h3>
-            <p style="color: #94a3b8; margin-bottom: 1rem;">Data storage with user information</p>
-            <p style="font-size: 0.875rem; margin-bottom: 1rem;">
+            <p class="variation-desc">Data storage with user information</p>
+            <p class="variation-meta">
                 <strong>Credentials:</strong><br>
                 Login: <code>viewer:view123</code><br>
                 Target: <code>owner</code> (find password in info page)
             </p>
-            <a href="{{ url_for('lab2_5c') }}" class="btn" style="background: #dc2626;">Start Variation C</a>
+            <a href="{{ url_for('lab2_5c') }}" class="btn btn-datavault">Start Variation C</a>
         </div>
     </div>
 {% endblock %}

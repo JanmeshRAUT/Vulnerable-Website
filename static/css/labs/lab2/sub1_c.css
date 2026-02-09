@@ -1,0 +1,155 @@
+/* Lab 2.1 Variation C FoodMart Styles */
+.food-header {
+    background: #eef2f3;
+    border-bottom: 2px solid #27ae60;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.food-brand {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: #27ae60;
+}
+
+.hero-banner-food {
+    background: #2ecc71;
+    border-radius: 1rem;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    margin-bottom: 3rem;
+}
+
+.hero-banner-food h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+}
+
+.hero-btn-food {
+    background: white;
+    color: #27ae60;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    display: inline-block;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.category-scroll-food {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+}
+
+.category-pill-food {
+    background: white;
+    border: 2px solid #ecf0f1;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #7f8c8d;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-pill-food.active {
+    background: #27ae60;
+    color: white;
+    border-color: #27ae60;
+}
+
+.product-grid-food {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.product-card-food {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid #bdc3c7;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-img-food {
+    height: 180px;
+    background: #ecf0f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.product-details-food {
+    padding: 1rem;
+}
+
+.product-title-food {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.product-desc-food {
+    font-size: 0.85rem;
+    color: #95a5a6;
+    margin-bottom: 1rem;
+}
+
+.price-row-food {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-food {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #2c3e50;
+}
+
+.add-btn-food {
+    background: #e67e22;
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-food {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e74c3c;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.footer-food {
+    margin-top: 4rem;
+    text-align: center;
+    color: #95a5a6;
+    padding-bottom: 2rem;
+}

@@ -1,0 +1,39 @@
+/* Lab 2.2 Admin Styles */
+.admin-success-bypass {
+    padding: 2.5rem;
+    border-left: 8px solid #059669;
+}
+
+.admin-flag-display {
+    margin-top: 1.5rem;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: white;
+    background: #064e3b;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: inline-block;
+}
+
+.user-node-card {
+    background: #020617;
+    border: 1px solid var(--border);
+    padding: 2rem;
+    border-radius: 1rem;
+}
+
+.user-node-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+}
+
+.user-node-id {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.btn-terminate {
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.3);
+}

@@ -1,0 +1,221 @@
+/* Lab 2.5 Variation C - DataVault Styles */
+:root {
+    --dv-primary: #dc2626;
+    --dv-dark: #1e1e24;
+    --dv-accent: #fca5a5;
+    --dv-border: #333;
+    --dv-text-muted: #888;
+}
+
+.dv-header {
+    background: var(--dv-dark);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--dv-primary);
+}
+
+.dv-brand-container {
+    font-family: 'Courier New', monospace; 
+    font-size: 1.5rem; 
+    color: var(--dv-primary);
+}
+
+.dv-back-link {
+    color: #666; 
+    font-size: 0.8rem; 
+    text-decoration: none; 
+    margin-right: 1rem; 
+    vertical-align: middle;
+}
+
+.dv-terminal-btn {
+    background: transparent; 
+    border: 1px solid var(--dv-primary); 
+    color: var(--dv-primary); 
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dv-terminal-btn:hover {
+    background: var(--dv-primary);
+    color: white;
+}
+
+.dv-hero {
+    background: #111;
+    color: #ddd;
+    padding: 5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+
+.dv-hero-title {
+    font-family: 'Courier New', monospace; 
+    color: var(--dv-primary); 
+    margin-bottom: 1rem;
+}
+
+.dv-hero-sub {
+    font-family: 'Courier New', monospace; 
+    color: #888; 
+    margin-bottom: 3rem;
+}
+
+.dv-block-grid {
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 1rem; 
+    max-width: 800px; 
+    margin: 0 auto; 
+    opacity: 0.5;
+}
+
+.dv-block {
+    border: 1px solid #333; 
+    padding: 2rem; 
+    color: #555;
+    font-family: 'Courier New', monospace;
+}
+
+.dv-btn {
+    background: var(--dv-primary);
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.dv-input {
+    background: #333;
+    border: 1px solid #444;
+    color: white;
+    padding: 0.75rem;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.dv-modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.9); 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 1000;
+}
+
+.dv-modal-card {
+    background: #1e1e24; 
+    border: 1px solid var(--dv-primary); 
+    padding: 3rem; 
+    width: 100%; 
+    max-width: 450px; 
+    position: relative; 
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.2);
+}
+
+.dv-modal-close {
+    position: absolute; 
+    top: 0.5rem; 
+    right: 1rem; 
+    background: none; 
+    border: none; 
+    color: #555; 
+    font-size: 2rem; 
+    cursor: pointer;
+}
+
+.dv-modal-title {
+    color: var(--dv-primary); 
+    font-family: 'Courier New', monospace; 
+    margin-bottom: 2rem; 
+    border-bottom: 1px solid #333; 
+    padding-bottom: 1rem;
+}
+
+.dv-error {
+    background: rgba(220, 38, 38, 0.1); 
+    color: var(--dv-primary); 
+    padding: 0.5rem; 
+    margin-bottom: 1rem; 
+    font-family: 'Courier New', monospace; 
+    border-left: 3px solid var(--dv-primary);
+}
+
+.dv-label {
+    color: #888; 
+    font-family: 'Courier New', monospace; 
+    font-size: 0.8rem; 
+    display: block; 
+    margin-bottom: 0.5rem;
+}
+
+/* Profile Specifics */
+.dv-terminal-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.dv-terminal-window {
+    background: var(--dv-surface);
+    border: 1px solid var(--dv-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dv-terminal-header {
+    background: #1e1e24;
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    border-bottom: 1px solid var(--dv-border);
+}
+
+.dv-dot { width: 12px; height: 12px; border-radius: 50%; }
+.dv-dot-red { background: #ef4444; }
+.dv-dot-yellow { background: #f59e0b; }
+.dv-dot-green { background: #10b981; }
+
+.dv-terminal-body { padding: 2rem; }
+
+.dv-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+
+.dv-data-item {
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid var(--dv-primary);
+    padding: 1rem;
+}
+
+.dv-item-label { color: var(--dv-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.25rem; }
+.dv-item-value { font-size: 1rem; color: #fff; }
+
+.dv-flag-banner {
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px dashed var(--dv-primary);
+    padding: 1rem;
+    margin-bottom: 2rem;
+    color: var(--dv-primary);
+}
+
+.dv-btn-exit {
+    color: var(--dv-muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    border: 1px solid var(--dv-border);
+    padding: 0.3rem 0.8rem;
+    transition: color 0.2s;
+}
+
+.dv-btn-exit:hover { color: #fff; border-color: var(--dv-primary); }

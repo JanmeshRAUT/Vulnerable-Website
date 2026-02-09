@@ -11,28 +11,22 @@
 
 <div class="card-grid">
     <div class="card">
-        <div
-            style="height: 100px; background: linear-gradient(135deg, #06b6d4, #22d3ee); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
-            📱</div>
+        <div class="variation-preview preview-auto">📱</div>
         <h3>Variation A: GadgetShop</h3>
-        <p style="color: #94a3b8;">Electronics store</p>
-        <a href="{{ url_for('lab2_2') }}" class="btn" style="background: #06b6d4;">Start Variation A</a>
+        <p class="variation-desc">Cutting-edge mobile electronics and gadgets.</p>
+        <a href="{{ url_for('lab2_2') }}" class="btn">Start Variation A</a>
     </div>
     <div class="card">
-        <div
-            style="height: 100px; background: linear-gradient(135deg, #92400e, #b45309); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
-            📚</div>
+        <div class="variation-preview preview-security">📚</div>
         <h3>Variation B: BookStore</h3>
-        <p style="color: #94a3b8;">Online bookstore (Same vulnerability)</p>
-        <a href="{{ url_for('lab2_2b') }}" class="btn" style="background: #92400e;">Start Variation B</a>
+        <p class="variation-desc">Vibrant library of digital and physical books.</p>
+        <a href="{{ url_for('lab2_2b') }}" class="btn">Start Variation B</a>
     </div>
     <div class="card">
-        <div
-            style="height: 100px; background: linear-gradient(135deg, #dc2626, #ef4444); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
-            🎮</div>
+        <div class="variation-preview preview-food">🎮</div>
         <h3>Variation C: GameZone</h3>
-        <p style="color: #94a3b8;">Gaming marketplace (Same vulnerability)</p>
-        <a href="{{ url_for('lab2_2c') }}" class="btn" style="background: #dc2626;">Start Variation C</a>
+        <p class="variation-desc">Ultimate destination for gamers and enthusiasts.</p>
+        <a href="{{ url_for('lab2_2c') }}" class="btn">Start Variation C</a>
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block title %}Help & FAQ - RESEARCH_OPS{% endblock %}
+
+{% block content %}
+
+<div class="faq-container">
+    <!-- Header -->
+    <div class="faq-header help-header">
+        <h1 class="help-page-heading">Help Center</h1>
+        <p class="help-subtitle">Find answers to common questions about your account and orders</p>
+    </div>
+
+    <!-- Search -->
+    <div class="faq-search">
+        <input type="text" class="search-box" placeholder="Search help topics... (e.g., 'shipping', 'returns', 'account')">
+    </div>
+
+    <!-- Categories -->
+    <div class="faq-categories">
+        <button class="category-btn active">📦 All Topics</button>
+        <button class="category-btn">🚚 Shipping & Delivery</button>
+        <button class="category-btn">↩️ Returns & Refunds</button>
+        <button class="category-btn">👤 Account & Profile</button>
+        <button class="category-btn">💳 Payment</button>
+    </div>
+
+    <!-- FAQ Items -->
+    <div class="faq-section">
+        <h2 class="help-section-title">Frequently Asked Questions</h2>
+
+        <!-- FAQ Item 1 -->
+        <div class="faq-item open">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>How long does shipping take?</span>
+                <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>We offer three shipping options:</p>
+                    <ul>
+                        <li><strong>Standard Shipping:</strong> 5-7 business days (FREE)</li>
+                        <li><strong>Express Shipping:</strong> 2-3 business days ($14.99)</li>
+                        <li><strong>Overnight Shipping:</strong> Next business day ($34.99)</li>
+                    </ul>
+                    <p>Orders are processed within 1 business day and then handed off to our shipping partner. You'll receive a tracking number via email once your order ships.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>What is your return policy?</span>
+                <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>We offer a hassle-free 30-day money-back guarantee on all purchases. If you're not satisfied with your order for any reason, simply:</p>
+                    <ol>
+                        <li>Contact our support team within 30 days of purchase</li>
+                        <li>Return the item in its original condition</li>
+                        <li>We'll issue a full refund once we receive and inspect the item</li>
+                    </ol>
+                    <p>Return shipping is free for items that are defective or damaged. For other returns, the shipping cost is the customer's responsibility.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>How do I track my order?</span>
+                <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>Once your order has shipped, you'll receive an automated email with a tracking number. You can use this number to:</p>
+                    <ul>
+                        <li>Track your package in real-time</li>
+                        <li>Receive delivery notifications</li>
+                        <li>See estimated delivery dates</li>
+                    </ul>
+                    <p>You can also track your order from your account dashboard under "Order History" → "Track Shipment".</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 4 -->
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>Is my payment information secure?</span>
+                <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>Yes! Your payment information is completely secure. We use:</p>
+                    <ul>
+                        <li>256-bit SSL encryption for all transactions</li>
+                        <li>PCI DSS Level 1 compliance (the highest standard)</li>
+                        <li>Tokenization to protect card data</li>
+                        <li>Fraud detection and prevention systems</li>
+                    </ul>
+                    <p>We never store full credit card numbers on our servers. All payment processing is handled by trusted third-party providers.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 5 -->
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>How do I reset my password?</span>
+                <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>To reset your password:</p>
+                    <ol>
+                        <li>Go to the login page and click "Forgot Password"</li>
+                        <li>Enter the email address associated with your account</li>
+                        <li>Check your email for a password reset link (check spam folder if not found)</li>
+                        <li>Click the link and follow the instructions to set a new password</li>
+                    </ol>
+                    <p>For security reasons, password reset links expire after 24 hours. If yours has expired, you'll need to request a new one.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 6 -->
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>What payment methods do you accept?</span>
+                <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>We accept the following payment methods:</p>
+                    <ul>
+                        <li>Credit Cards: Visa, Mastercard, American Express, Discover</li>
+                        <li>PayPal</li>
+                        <li>Apple Pay</li>
+                        <li>Google Pay</li>
+                    </ul>
+                    <p>All payments are encrypted and processed securely. You don't need to create an account to make a purchase, though creating one helps you track orders and save your preferences.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 7 -->
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>Do you offer international shipping?</span>
+                <span class="faq-toggle">▼</span>
+            </div>
+            <div class="faq-answer">
+                <div class="faq-answer-content">
+                    <p>Yes! We ship to most countries worldwide. Shipping costs and delivery times vary by location. To check if we ship to your country:</p>
+                    <ol>
+                        <li>Add items to your cart</li>
+                        <li>Enter your shipping address at checkout</li>
+                        <li>Available shipping options and costs will be displayed</li>
+                    </ol>
+                    <p>International orders may be subject to customs duties or import taxes (not included in our shipping costs). The customer is responsible for any applicable taxes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="contact-section contact-support">
+        <h2>Couldn't find what you're looking for?</h2>
+        <p>Our support team is ready to help!</p>
+
+        <div class="contact-options">
+            <div class="contact-option">
+                <div class="contact-icon">💬</div>
+                <div class="contact-title">Live Chat</div>
+                <div class="contact-desc">Chat with our team in real-time</div>
+                <a href="#" class="contact-link">Start Chat →</a>
+            </div>
+            <div class="contact-option">
+                <div class="contact-icon">✉️</div>
+                <div class="contact-title">Email Us</div>
+                <div class="contact-desc">Response within 24 hours</div>
+                <a href="mailto:support@researchops.com" class="contact-link">Contact Email →</a>
+            </div>
+            <div class="contact-option">
+                <div class="contact-icon">📞</div>
+                <div class="contact-title">Phone Support</div>
+                <div class="contact-desc">Mon-Fri 9am-6pm EST</div>
+                <a href="tel:+18005551234" class="contact-link">1-800-555-1234 →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFAQ(element) {
+    const faqItem = element.parentElement;
+    faqItem.classList.toggle('open');
+}
+
+// Close other items when opening a new one (optional)
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', function() {
+        // Uncomment below to make only one FAQ item open at a time
+        // document.querySelectorAll('.faq-item').forEach(item => {
+        //     if (item !== this.parentElement) {
+        //         item.classList.remove('open');
+        //     }
+        // });
+    });
+});
+</script>
+{% endblock %}

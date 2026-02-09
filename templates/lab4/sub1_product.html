@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Product Detail - {{ product.name }}{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab4_1') }}" class="btn">&larr; Back to Shop</a>
+
+    <div style="max-width: 800px; margin: 3rem auto;">
+        <div class="card" style="padding: 2rem; display: flex; gap: 2rem;">
+            <div style="flex: 1; background: #334155; height: 300px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 5rem;">
+                📦
+            </div>
+            <div style="flex: 1.5;">
+                <h1 style="font-size: 2rem; margin-bottom: 1rem;">{{ product.name }}</h1>
+                <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">{{ product.description }}</p>
+                <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">${{ product.price }}</div>
+                
+                <div style="padding: 1.5rem; background: #1e293b; border-radius: 0.5rem; border: 1px solid #334155;">
+                    <form action="{{ url_for('lab4_1_stock') }}" method="POST" id="stockForm">
+                        <input type="hidden" name="stockApi" value="http://localhost/stock/check?id={{ product.id }}">
+                        <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; font-weight: 700;">Check Stock</button>
+                    </form>
+                    <div id="stockResult" style="margin-top: 1rem; font-size: 0.9rem; color: #10b981; min-height: 1.5rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('stockForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const resultDiv = document.getElementById('stockResult');
+            resultDiv.innerText = "Checking...";
+            resultDiv.style.color = "#94a3b8";
+            
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.text())
+            .then(data => {
+                if (data.includes('Success')) {
+                     resultDiv.innerHTML = data;
+                     resultDiv.style.color = "#10b981";
+                } else if (data.includes('403') || data.includes('Admin')) {
+                     // If SSRF returns the admin page content
+                     resultDiv.innerHTML = "<div style='color: #fbbf24; border: 1px solid #fbbf24; padding: 1rem; background: rgba(251, 191, 36, 0.1);'>" + data + "</div>";
+                } else {
+                     resultDiv.innerText = data;
+                     resultDiv.style.color = "#10b981";
+                }
+            })
+            .catch(err => {
+                resultDiv.innerText = "Error: " + err;
+                resultDiv.style.color = "#ef4444";
+            });
+        });
+    </script>
+{% endblock %}

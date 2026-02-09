@@ -2,179 +2,95 @@
 {% block title %}TechStore - The Future is Here{% endblock %}
 
 {% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1.css') }}">
     <!-- Custom Header for Lab 2.1 (TechStore Theme) -->
-    <header style="background: #0B1120; border-bottom: 1px solid #1E293B; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 3rem;">
+    <header class="tech-header">
+        <div class="tech-header-left">
             <!-- Brand -->
-            <a href="{{ url_for('lab2_1') }}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
-                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #06B6D4, #3B82F6); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);">
-                    <span style="color: white; font-weight: bold; font-size: 1.2rem;">T</span>
+            <a href="{{ url_for('lab2_1') }}" class="tech-brand-link">
+                <div class="tech-logo-circle">
+                    <span class="tech-logo-text">T</span>
                 </div>
-                <span style="font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.03em; background: linear-gradient(to right, white, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TechStore</span>
+                <span class="tech-brand">TechStore</span>
             </a>
-            
-            <!-- Navigation -->
-            <nav style="display: flex; gap: 2rem; display: none; margin-left:1rem; display:md:flex;">
-                <a href="#" style="color: #E2E8F0; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s;">Laptops</a>
-                <a href="#" style="color: #94A3B8; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s;">Smartphones</a>
-                <a href="#" style="color: #94A3B8; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s;">Wearables</a>
-                <a href="#" style="color: #94A3B8; text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s;">Accessories</a>
-            </nav>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <div style="position: relative;">
-                <input type="text" placeholder="Search devices..." style="background: #1E293B; border: 1px solid #334151; color: white; padding: 0.5rem 1rem 0.5rem 2.5rem; border-radius: 8px; font-size: 0.9rem; width: 240px; transition: all 0.2s;">
-                <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #64748B;">🔍</span>
+        <div class="tech-header-right">
+            <div class="tech-search-container">
+                <input type="text" placeholder="Search devices..." class="tech-search-input">
+                <span class="tech-search-icon">🔍</span>
             </div>
-            <button style="background: transparent; border: none; font-size: 1.25rem; cursor: pointer;">🛒</button>
-            <button style="background: #3B82F6; color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;">My Account</button>
+            <button class="tech-cart-btn">🛒</button>
+            <button class="tech-account-btn">My Account</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <style>
-        body { background-color: #0F172A !important; font-family: 'Inter', sans-serif; }
-        
-        .hero-section {
-            background: radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 60%);
-            border-radius: 1rem;
-            padding: 5rem 3rem;
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #1E293B;
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            max-width: 600px;
-        }
-        
-        .glow-effect {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: #06B6D4;
-            filter: blur(100px);
-            opacity: 0.15;
-            border-radius: 50%;
-            top: -50px;
-            right: -50px;
-        }
-        
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            padding-bottom: 4rem;
-        }
-        
-        .product-card {
-            background: #1E293B;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-8px);
-            border-color: #3B82F6;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-        }
-        
-        .badge {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background: linear-gradient(135deg, #06B6D4, #3B82F6);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-        
-        .footer-link {
-            color: #64748B;
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: color 0.2s;
-        }
-        .footer-link:hover {
-            color: #94A3B8;
-        }
-    </style>
 
     <!-- Lab Context -->
-    <a href="{{ url_for('lab2') }}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #94A3B8; text-decoration: none; margin-bottom: 2rem; font-size: 0.9rem; transition: color 0.2s;">
+    <a href="{{ url_for('lab2') }}" class="tech-back-link">
         <span>&larr;</span> Back to Modules
     </a>
 
     <!-- Hero -->
-    <div class="hero-section">
-        <div class="glow-effect"></div>
-        <div class="hero-content">
-            <h1 style="font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem; background: linear-gradient(to right, white, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Future Tech,<br>Available Today.</h1>
-            <p style="font-size: 1.25rem; color: #94A3B8; margin-bottom: 2.5rem; line-height: 1.6;">Discover cutting-edge gadgets engineered for the next generation of creators and innovators.</p>
-            <div style="display: flex; gap: 1rem;">
-                <button style="background: #3B82F6; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s;">Shop Latest</button>
-                <button style="background: rgba(255,255,255,0.05); color: white; border: 1px solid #334155; padding: 1rem 2rem; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;">View Catalog</button>
+    <div class="hero-section-tech">
+        <div class="glow-effect-tech"></div>
+        <div class="hero-content-tech">
+            <h1 class="tech-h1-gradient">Future Tech,<br>Available Today.</h1>
+            <p class="tech-hero-subtitle">Discover cutting-edge gadgets engineered for the next generation of creators and innovators.</p>
+            <div class="tech-hero-buttons">
+                <button class="btn btn-primary tech-btn-large">Shop Latest</button>
+                <button class="btn btn-outline tech-btn-large">View Catalog</button>
             </div>
         </div>
     </div>
 
     <!-- Features -->
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 4rem;">
-        <div style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid #334155;">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🚀</div>
-            <h3 style="color: white; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Quantum Speed</h3>
-            <p style="color: #94A3B8; font-size: 0.9rem;">Processors that think faster than you do.</p>
+    <div class="tech-features-grid">
+        <div class="feature-card-tech">
+            <div class="tech-feature-icon">🚀</div>
+            <h3 class="tech-feature-title">Quantum Speed</h3>
+            <p class="tech-feature-desc">Processors that think faster than you do.</p>
         </div>
-        <div style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid #334155;">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🛡️</div>
-            <h3 style="color: white; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Military Security</h3>
-            <p style="color: #94A3B8; font-size: 0.9rem;">Encryption standards that define the industry.</p>
+        <div class="feature-card-tech">
+            <div class="tech-feature-icon">🛡️</div>
+            <h3 class="tech-feature-title">Military Security</h3>
+            <p class="tech-feature-desc">Encryption standards that define the industry.</p>
         </div>
-        <div style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid #334155;">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🌍</div>
-            <h3 style="color: white; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Global Warranty</h3>
-            <p style="color: #94A3B8; font-size: 0.9rem;">Support anywhere on (or off) the planet.</p>
+        <div class="feature-card-tech">
+            <div class="tech-feature-icon">🌍</div>
+            <h3 class="tech-feature-title">Global Warranty</h3>
+            <p class="tech-feature-desc">Support anywhere on (or off) the planet.</p>
         </div>
     </div>
 
     <!-- Product Grid -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
-        <h2 style="font-size: 2rem; font-weight: 700; color: white; margin: 0;">New Arrivals</h2>
-        <a href="#" style="color: #3B82F6; text-decoration: none; font-weight: 600;">View All &rarr;</a>
+    <div class="tech-products-header">
+        <h2 class="tech-products-title">New Arrivals</h2>
+        <a href="#" class="tech-view-all-link">View All &rarr;</a>
     </div>
 
-    <div class="product-grid">
+    <div class="product-grid-tech">
         {% for product in products %}
-        <div class="product-card">
+        <div class="product-card-tech">
             <!-- Product Image Placeholder with Icon -->
-            <div style="height: 220px; background: #0F172A; display: flex; align-items: center; justify-content: center; position: relative;">
+            <div class="product-image-container-tech">
                 {% if product.badge %}
-                <div class="badge">{{ product.badge }}</div>
+                <div class="badge-tech">{{ product.badge }}</div>
                 {% endif %}
-                <div style="font-size: 4rem; opacity: 0.8;">
+                <div class="tech-product-emoji">
                     {% if 'Laptop' in product.name %}💻{% elif 'Phone' in product.name %}📱{% elif 'Headphones' in product.name %}🎧{% elif 'Watch' in product.name %}⌚{% elif 'Drone' in product.name %}🚁{% else %}🔌{% endif %}
                 </div>
             </div>
             
-            <div style="padding: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <h3 style="color: white; font-size: 1.1rem; font-weight: 600; margin: 0;">{{ product.name }}</h3>
-                    <span style="color: #3B82F6; font-weight: 700;">${{ product.price }}</span>
+            <div class="tech-product-content">
+                <div class="tech-product-header">
+                    <h3 class="tech-product-name">{{ product.name }}</h3>
+                    <span class="tech-product-price">${{ product.price }}</span>
                 </div>
-                <p style="color: #94A3B8; font-size: 0.9rem; margin-bottom: 1.5rem; height: 40px;">{{ product.desc }}</p>
-                <button style="width: 100%; background: #1E293B; color: white; border: 1px solid #334155; padding: 0.75rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <p class="tech-product-desc">{{ product.desc }}</p>
+                <button class="btn btn-outline tech-add-to-cart-btn">
                     <span>Add to Cart</span>
                 </button>
             </div>
@@ -183,34 +99,34 @@
     </div>
 
     <!-- Footer -->
-    <footer style="border-top: 1px solid #1E293B; padding-top: 4rem; margin-top: 4rem; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem;">
+    <footer class="tech-footer">
         <div>
-            <div style="font-weight: 800; font-size: 1.25rem; color: white; margin-bottom: 1rem;">TechStore</div>
-            <p style="color: #64748B; font-size: 0.9rem; line-height: 1.6; max-width: 300px;">
+            <div class="tech-footer-brand">TechStore</div>
+            <p class="tech-footer-desc">
                 Empowering the digital generation with tools that push the boundaries of what's possible.
             </p>
         </div>
         <div>
-            <h4 style="color: white; font-weight: 600; margin-bottom: 1.5rem;">Shop</h4>
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <a href="#" class="footer-link">Laptops</a>
-                <a href="#" class="footer-link">Phones</a>
-                <a href="#" class="footer-link">Accessories</a>
+            <h4 class="tech-footer-section-heading">Shop</h4>
+            <div class="tech-footer-links">
+                <a href="#" class="footer-link-tech">Laptops</a>
+                <a href="#" class="footer-link-tech">Phones</a>
+                <a href="#" class="footer-link-tech">Accessories</a>
             </div>
         </div>
         <div>
-            <h4 style="color: white; font-weight: 600; margin-bottom: 1.5rem;">Company</h4>
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <a href="#" class="footer-link">About Us</a>
-                <a href="#" class="footer-link">Careers</a>
-                <a href="#" class="footer-link">Contact</a>
+            <h4 class="tech-footer-section-heading">Company</h4>
+            <div class="tech-footer-links">
+                <a href="#" class="footer-link-tech">About Us</a>
+                <a href="#" class="footer-link-tech">Careers</a>
+                <a href="#" class="footer-link-tech">Contact</a>
             </div>
         </div>
         <div>
-            <h4 style="color: white; font-weight: 600; margin-bottom: 1.5rem;">Legal</h4>
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <a href="#" class="footer-link">Privacy</a>
-                <a href="#" class="footer-link">Terms</a>
+            <h4 class="tech-footer-section-heading">Legal</h4>
+            <div class="tech-footer-links">
+                <a href="#" class="footer-link-tech">Privacy</a>
+                <a href="#" class="footer-link-tech">Terms</a>
             </div>
         </div>
     </footer>

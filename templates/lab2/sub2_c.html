@@ -2,42 +2,34 @@
 {% block title %}GameZone - The Ultimate Gaming Hub{% endblock %}
 
 {% block header %}
-<header
-    style="background: #0b0c10; border-bottom: 2px solid #66fcf1; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <div style="font-size: 2rem; color: #66fcf1; text-shadow: 0 0 10px rgba(102, 252, 241, 0.7);">👾</div>
-        <a href="{{ url_for('lab2_2c') }}"
-            style="text-decoration: none; color: #fff; font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
-            Game<span style="color: #66fcf1;">Zone</span>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub2_c.css') }}">
+<header class="game-header">
+    <div class="game-header-brand-container">
+        <div class="game-emoji-icon">👾</div>
+        <a href="{{ url_for('lab2_2c') }}" class="game-brand">
+            Game<span class="game-brand-accent">Zone</span>
         </a>
     </div>
-    <nav style="display: flex; gap: 2rem; font-weight: 600;">
-        <a href="#"
-            style="color: #c5c6c7; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Store</a>
-        <a href="#"
-            style="color: #c5c6c7; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Library</a>
-        <a href="#"
-            style="color: #c5c6c7; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Community</a>
-        <a href="#"
-            style="color: #66fcf1; text-decoration: none; transition: color 0.3s; text-transform: uppercase;">Profile</a>
+    <nav class="game-nav">
+        <a href="#" class="game-nav-link">Store</a>
+        <a href="#" class="game-nav-link">Library</a>
+        <a href="#" class="game-nav-link">Community</a>
+        <a href="#" class="game-nav-link-accent">Profile</a>
     </nav>
-    <div style="background: #1f2833; padding: 0.5rem 1rem; border-radius: 4px; color: #66fcf1; font-family: monospace;">
+    <div class="game-wallet">
         WALLET: $120.50
     </div>
 </header>
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='lab2/2/c/style.css') }}">
-
 <!-- Lab Context -->
-<a href="{{ url_for('lab2_2_menu') }}"
-    style="position: absolute; top: 110px; left: 20px; z-index: 100; color: #c5c6c7; text-decoration: none; background: rgba(0,0,0,0.5); padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #45a29e;">&larr;
+<a href="{{ url_for('lab2_2_menu') }}" class="game-back-link">&larr;
     SELECT LEVEL</a>
 
-<div class="hero-banner">
-    <h1 class="glow-text" style="font-size: 3.5rem; margin-bottom: 0.5rem;">NEXT GEN GAMING</h1>
-    <p style="font-size: 1.2rem; color: #45a29e;">Immerse yourself in new worlds.</p>
+<div class="hero-banner-game">
+    <h1 class="glow-text game-hero-title">NEXT GEN GAMING</h1>
+    <p class="game-hero-subtitle">Immerse yourself in new worlds.</p>
 </div>
 
 <!-- VULNERABILITY: Hidden Admin Link in JavaScript Object -->
@@ -72,11 +64,11 @@
     {% endfor %}
 </div>
 
-<footer class="footer-neon">
-    <div style="margin-bottom: 1rem;">
-        <span style="margin: 0 10px; cursor: pointer;">About</span> •
-        <span style="margin: 0 10px; cursor: pointer;">Support</span> •
-        <span style="margin: 0 10px; cursor: pointer;">Partners</span>
+<footer class="footer-neon-game">
+    <div class="game-footer-links-container">
+        <span class="game-footer-link-item">About</span> •
+        <span class="game-footer-link-item">Support</span> •
+        <span class="game-footer-link-item">Partners</span>
     </div>
     GAMEZONE SYSTEMS v2.0 // POWERED BY PURE ADRENALINE
     <!-- TODO: Remove debug link before production deployment -->

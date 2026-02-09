@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% block title %}PremiumVault - Elite Digital Asset Management{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='lab3/1/style-luxury.css') }}">
+    <!-- Professional Header Navigation - Luxury Theme -->
+    <header class="cyber-header">
+        <div class="header-container">
+            <!-- Logo & Brand Section (Left) -->
+            <div class="nav-logo-section">
+                <a href="{{ url_for('lab3') }}" class="nav-back-btn" title="Back to Lab 3">
+                    <span class="back-icon">←</span>
+                </a>
+                <a href="#" class="nav-brand">
+                    <span class="brand-icon">✦</span>
+                    <div class="brand-text">
+                        <h1 class="brand-name">PremiumVault</h1>
+                        <p class="brand-subtitle">Elite Asset Protection</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Right Section: Single Button -->
+            <div class="nav-actions">
+                <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-nav-signup">Access Portal</button>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2 class="hero-title">Premium Asset Protection</h2>
+            <p class="hero-subtitle">Luxury-grade encryption and management for discerning clients</p>
+            <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-hero">Enter Portal</button>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1516321318423-f06f70504c3f?w=400&q=80" alt="Luxury Security" class="hero-img">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <h2 class="section-title">Premium Capabilities</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">👑</div>
+                <h3>Platinum Encryption</h3>
+                <p>Military-grade 512-bit encryption with quantum-resistant algorithms</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Ultra-Performance</h3>
+                <p>Microsecond response times with dedicated server infrastructure</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Strategic Global Network</h3>
+                <p>Redundancy across 50+ premium data centers in secure locations</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>White-Glove Support</h3>
+                <p>Dedicated security officers and 24/7 concierge-level support</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premium Collection Section -->
+    <section class="products-section">
+        <h2 class="section-title">Exclusive Collection</h2>
+        <p class="section-subtitle">Hand-curated premium digital assets for elite clients</p>
+        
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://picsum.photos/300/200?random={{ loop.index }}" alt="{{ product.name }}" class="product-image">
+                    <div class="product-overlay">
+                        <button class="btn-secondary">View Asset</button>
+                    </div>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">{{ product.name }}</h3>
+                    <p class="product-desc">{{ product.description }}</p>
+                    <div class="product-meta">
+                        <span class="product-category">{{ ['Wealth', 'Legacy', 'Heritage', 'Portfolio', 'Collection', 'Archive'][loop.index0 % 6] }}</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                        <button class="btn-primary btn-compact">Open</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Trust & Compliance Section -->
+    <section class="security-section" id="security">
+        <h2 class="section-title">Institutional Trust</h2>
+        <div class="security-grid">
+            <div class="security-card">
+                <h3>✓ Tier-1 Compliance</h3>
+                <p>ISO 27001, 27018, SOC 2 Type II certifications with annual audits</p>
+            </div>
+            <div class="security-card">
+                <h3>✓ Privacy Sovereignty</h3>
+                <p>Compliant with GDPR, CCPA, and international privacy frameworks</p>
+            </div>
+            <div class="security-card">
+                <h3>✓ Elite Monitoring</h3>
+                <p>Dedicated security team with AI-powered threat detection 24/7/365</p>
+            </div>
+            <div class="security-card">
+                <h3>✓ Zero-Trust Architecture</h3>
+                <p>Your data,your keys, your complete control and sovereignty</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready for Premium Protection?</h2>
+        <p>Join the world's most discerning clients protecting their most valuable digital assets</p>
+        <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-hero">Access Your Vault</button>
+    </section>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-card">
+            <button onclick="closeModal()" class="modal-close">&times;</button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">Secure Portal</h2>
+                <p class="modal-subtitle">Authenticate to your premium vault</p>
+            </div>
+            
+            {% if error %}
+            <div id="errorMsg" class="error-message alert-error" style="display: block;">
+                <span class="error-icon">⚠️</span>
+                <span>{{ error }}</span>
+            </div>
+            {% else %}
+            <div id="errorMsg" class="error-message alert-error"></div>
+            {% endif %}
+
+            <form id="loginForm" action="{{ url_for('lab3_1_2_login') }}" method="POST" class="login-form">
+                <div class="form-group">
+                    <label class="form-label">Account ID</label>
+                    <input type="text" name="username" id="username" required class="form-input" placeholder="Enter your account identifier" autofocus>
+                    <small class="form-hint">Can't access? <a href="#">Request assistance</a></small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Authentication Code</label>
+                    <input type="password" name="password" id="password" required class="form-input" placeholder="Enter your secure code">
+                    <small class="form-hint"><a href="#">Recover access</a></small>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember" class="checkbox-label">Trust this device</label>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block btn-large">Authenticate</button>
+            </form>
+
+            <div class="modal-footer">
+                <p>New to PremiumVault? <a href="#" class="link-primary">Apply for membership</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>PremiumVault</h4>
+                <p>Elite asset protection for the world's most valuable collections</p>
+            </div>
+            <div class="footer-column">
+                <h4>Portal</h4>
+                <ul>
+                    <li><a href="#features">Capabilities</a></li>
+                    <li><a href="#security">Trust</a></li>
+                    <li><a href="#">Knowledge Base</a></li>
+                    <li><a href="#">Premium Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Organization</h4>
+                <ul>
+                    <li><a href="#">About PremiumVault</a></li>
+                    <li><a href="#">Privacy Charter</a></li>
+                    <li><a href="#">Legal Framework</a></li>
+                    <li><a href="#">Executive Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 PremiumVault Holdings. Confidential. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function closeModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        // Auto-open modal if error exists
+        {% if error %}
+        document.getElementById('loginModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10);
+        {% endif %}
+
+        // Close on outside click
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Keyboard shortcut to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+{% endblock %}

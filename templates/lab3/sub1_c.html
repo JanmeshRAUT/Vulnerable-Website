@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% block title %}DataGuard Pro - Professional Data Security{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='lab3/1/style-corporate.css') }}">
+    <!-- Professional Header Navigation - Corporate Theme -->
+    <header class="cyber-header">
+        <div class="header-container">
+            <!-- Logo & Brand Section (Left) -->
+            <div class="nav-logo-section">
+                <a href="{{ url_for('lab3') }}" class="nav-back-btn" title="Back to Lab 3">
+                    <span class="back-icon">←</span>
+                </a>
+                <a href="#" class="nav-brand">
+                    <span class="brand-icon">📊</span>
+                    <div class="brand-text">
+                        <h1 class="brand-name">DataGuard Pro</h1>
+                        <p class="brand-subtitle">Enterprise Data Security</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Right Section: Single Button -->
+            <div class="nav-actions">
+                <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-nav-signup">Sign In</button>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2 class="hero-title">Professional Data Security Solution</h2>
+            <p class="hero-subtitle">Comprehensive data management and protection for modern enterprises</p>
+            <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-hero">Sign In</button>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=80" alt="Professional Security" class="hero-img">
+        </div>
+    </section>
+
+    <!-- Solutions Section -->
+    <section class="features-section" id="features">
+        <h2 class="section-title">Core Solutions</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <h3>Data Encryption & Protection</h3>
+                <p>Industry-standard AES-256 encryption with comprehensive key management</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Workflow Integration</h3>
+                <p>Seamless integration with your existing enterprise systems and workflows</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>Advanced Analytics</h3>
+                <p>Real-time insights and reporting on data access patterns and usage</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Enterprise Scalability</h3>
+                <p>Designed to grow with your organization from SMB to enterprise</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solutions Portfolio Section -->
+    <section class="products-section">
+        <h2 class="section-title">Solutions Portfolio</h2>
+        <p class="section-subtitle">Comprehensive data management solutions for enterprise needs</p>
+        
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://picsum.photos/300/200?random={{ loop.index }}" alt="{{ product.name }}" class="product-image">
+                    <div class="product-overlay">
+                        <button class="btn-secondary">Learn More</button>
+                    </div>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">{{ product.name }}</h3>
+                    <p class="product-desc">{{ product.description }}</p>
+                    <div class="product-meta">
+                        <span class="product-category">{{ ['Compliance', 'Operations', 'Integration', 'Reporting', 'Automation', 'Training'][loop.index0 % 6] }}</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                        <button class="btn-primary btn-compact">Details</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Governance & Compliance Section -->
+    <section class="security-section" id="security">
+        <h2 class="section-title">Governance & Compliance</h2>
+        <div class="security-grid">
+            <div class="security-card">
+                <h3>✓ Regulatory Compliance</h3>
+                <p>Certified compliance with ISO 27001, SOC 2, HIPAA, and PCI-DSS standards</p>
+            </div>
+            <div class="security-card">
+                <h3>✓ Data Protection</h3>
+                <p>Full GDPR, CCPA, and regional data protection regulatory compliance</p>
+            </div>
+            <div class="security-card">
+                <h3>✓ Continuous Monitoring</h3>
+                <p>Proactive security monitoring and automated threat response capabilities</p>
+            </div>
+            <div class="security-card">
+                <h3>✓ Audit & Logging</h3>
+                <p>Comprehensive audit trails and logging for compliance and investigations</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Start Your Enterprise Data Protection Journey</h2>
+        <p>Trusted by leading enterprises for secure data management and governance</p>
+        <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-hero">Access Dashboard</button>
+    </section>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-card">
+            <button onclick="closeModal()" class="modal-close">&times;</button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">DataGuard Pro Dashboard</h2>
+                <p class="modal-subtitle">Enterprise authentication portal</p>
+            </div>
+            
+            {% if error %}
+            <div id="errorMsg" class="error-message alert-error" style="display: block;">
+                <span class="error-icon">⚠️</span>
+                <span>{{ error }}</span>
+            </div>
+            {% else %}
+            <div id="errorMsg" class="error-message alert-error"></div>
+            {% endif %}
+
+            <form id="loginForm" action="{{ url_for('lab3_1_3_login') }}" method="POST" class="login-form">
+                <div class="form-group">
+                    <label class="form-label">Enterprise Username</label>
+                    <input type="text" name="username" id="username" required class="form-input" placeholder="your-username" autofocus>
+                    <small class="form-hint">Can't access your account? <a href="#">Contact IT Support</a></small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" id="password" required class="form-input" placeholder="••••••••">
+                    <small class="form-hint"><a href="#">Reset password</a></small>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember" class="checkbox-label">Keep me signed in</label>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block btn-large">Sign In to Dashboard</button>
+            </form>
+
+            <div class="modal-footer">
+                <p>New organization? <a href="#" class="link-primary">Request a demo</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>DataGuard Pro</h4>
+                <p>Professional data security and management platform for enterprises</p>
+            </div>
+            <div class="footer-column">
+                <h4>Solutions</h4>
+                <ul>
+                    <li><a href="#features">Solutions</a></li>
+                    <li><a href="#security">Governance</a></li>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 DataGuard Pro. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function closeModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        // Auto-open modal if error exists
+        {% if error %}
+        document.getElementById('loginModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10);
+        {% endif %}
+
+        // Close on outside click
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Keyboard shortcut to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+{% endblock %}

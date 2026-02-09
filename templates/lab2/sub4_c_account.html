@@ -2,8 +2,9 @@
 {% block title %}User Dashboard - ElectroMart{% endblock %}
 
 {% block header %}
-    <header style="background: #2563eb; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_c.css') }}">
+    <header class="electro-header">
+        <div class="electro-brand">
             [EM_SYSTEMS]
         </div>
         <a href="{{ url_for('lab2_4c') }}" style="color: white; text-decoration: none; font-weight: 600;">Sign Out</a>
@@ -15,15 +16,15 @@
     <!-- Sidebar -->
     <div style="width: 250px;">
         <div class="card" style="padding: 0; border: 1px solid #e2e8f0; overflow: hidden;">
-            <div style="background: #f1f5f9; padding: 1rem; border-bottom: 1px solid #e2e8f0; font-weight: 700; font-size: 0.8rem; color: #64748b;">
+            <div class="electro-account-header">
                 NAVIGATION_V1
             </div>
             <ul style="list-style: none; padding: 0;">
-                <li><a href="#" style="display: block; padding: 0.75rem 1rem; color: #2563eb; background: #eff6ff; text-decoration: none; border-left: 4px solid #2563eb; font-weight: 600;">Overview</a></li>
-                <li><a href="#" style="display: block; padding: 0.75rem 1rem; color: #475569; text-decoration: none;">Order History</a></li>
-                <li><a href="#" style="display: block; padding: 0.75rem 1rem; color: #475569; text-decoration: none;">Wishlist</a></li>
-                <li><a href="#" style="display: block; padding: 0.75rem 1rem; color: #475569; text-decoration: none;">Security Settings</a></li>
-                <li><a href="#" style="display: block; padding: 0.75rem 1rem; color: #475569; text-decoration: none;">API Access</a></li>
+                <li><a href="#" class="electro-nav-item active">Overview</a></li>
+                <li><a href="#" class="electro-nav-item">Order History</a></li>
+                <li><a href="#" class="electro-nav-item">Wishlist</a></li>
+                <li><a href="#" class="electro-nav-item">Security Settings</a></li>
+                <li><a href="#" class="electro-nav-item">API Access</a></li>
             </ul>
         </div>
     </div>
@@ -37,27 +38,27 @@
                     <p style="color: #64748b;">Manage your tech ecosystem and view orders.</p>
                 </div>
                 <div style="text-align: right;">
-                    <span style="display: inline-block; padding: 5px 12px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 700; font-size: 0.7rem; color: #475569; margin-bottom: 0.5rem;">STATUS: {{ account.role.upper() }}</span>
+                    <span class="electro-status-badge">STATUS: {{ account.role.upper() }}</span>
                     <p style="font-size: 0.8rem; color: #94a3b8;">Last login: {{ "now" | datetimeformat if datetimeformat else "2 mins ago" }}</p>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
+                <div class="electro-account-card">
                     <h4 style="font-size: 0.9rem; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">Personal Details</h4>
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                         <div>
-                            <span style="font-size: 0.7rem; color: #94a3b8; display: block;">FULL NAME</span>
-                            <span style="font-weight: 600;">{{ account.full_name }}</span>
+                            <span class="electro-label">FULL NAME</span>
+                            <span class="electro-value">{{ account.full_name }}</span>
                         </div>
                         <div>
-                            <span style="font-size: 0.7rem; color: #94a3b8; display: block;">REGISTERED EMAIL</span>
-                            <span style="font-weight: 600;">{{ account.email }}</span>
+                            <span class="electro-label">REGISTERED EMAIL</span>
+                            <span class="electro-value">{{ account.email }}</span>
                         </div>
                     </div>
                 </div>
                 
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
+                <div class="electro-account-card">
                     <h4 style="font-size: 0.9rem; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">Connected Infrastructure</h4>
                     <p style="font-size: 0.85rem; color: #64748b;">No active tech connections detected.</p>
                     <button style="margin-top: 1rem; background: #2563eb; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-size: 0.8rem;">Sync Device</button>

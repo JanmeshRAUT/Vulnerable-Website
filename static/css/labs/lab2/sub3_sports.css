@@ -1,0 +1,166 @@
+/* Lab 2.3 SportsGear Store Styles */
+body {
+    background-color: #f1f5f9 !important;
+    font-family: 'Open Sans', sans-serif;
+    color: #334155;
+}
+
+.sports-header {
+    background: #fff;
+    border-bottom: 4px solid #f97316;
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Arial Black', sans-serif;
+}
+
+.sports-brand {
+    text-decoration: none;
+    color: #0f172a;
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    font-style: italic;
+}
+
+.hero-sports {
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    color: white;
+    padding: 4rem 2rem;
+    text-align: center;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+    margin-bottom: 2rem;
+}
+
+.product-grid-sports {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.product-card-sports {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.product-card-sports:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.product-image-sports {
+    height: 220px;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.product-info-sports {
+    padding: 1.5rem;
+}
+
+.product-title-sports {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #0f172a;
+}
+
+.product-price-sports {
+    color: #f97316;
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+.btn-add-sports {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: #0f172a;
+    color: white;
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn-add-sports:hover {
+    background: #334155;
+}
+
+.modal-sports {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content-sports {
+    background: #fff;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    border-radius: 8px;
+}
+
+.close-btn-sports {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.login-input-sports {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 4px;
+    background: #f8fafc;
+}
+
+.login-input-sports:focus {
+    border-color: #f97316;
+    outline: none;
+}
+
+.btn-login-sports {
+    width: 100%;
+    padding: 0.8rem;
+    background: #f97316;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.footer-sports {
+    text-align: center;
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+    color: #94a3b8;
+}

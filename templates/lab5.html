@@ -1,30 +1,97 @@
-
 {% extends 'base.html' %}
-{% block title %}Lab 5: File Upload{% endblock %}
+{% block title %}Avatar Settings - CloudSync{% endblock %}
+
+{% block header %}
+<style>
+    :root {
+        --upload-primary: #8b5cf6;
+        --upload-bg: #0f172a;
+        --upload-card: #1e293b;
+    }
+    .profile-header {
+        background: linear-gradient(to bottom, #1e293b, #0f172a);
+        padding: 4rem 2rem;
+        text-align: center;
+        border-bottom: 1px solid #334155;
+    }
+    .avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        background: #334155;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        border: 4px solid #4f46e5;
+        position: relative;
+    }
+    .upload-zone {
+        border: 2px dashed #4b5563;
+        padding: 3rem;
+        border-radius: 1rem;
+        text-align: center;
+        transition: all 0.3s;
+        background: rgba(30, 41, 59, 0.5);
+    }
+    .upload-zone:hover {
+        border-color: var(--upload-primary);
+        background: rgba(139, 92, 246, 0.05);
+    }
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: 0; top: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%; height: 100%;
+    }
+</style>
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; position: relative; z-index: 20;">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
+        <h2 style="margin: 0; color: white;">Module 5: File Upload</h2>
+    </div>
+
+    <div class="profile-header glass-panel" style="border-radius: 2rem; margin-bottom: 4rem;">
+        <div class="avatar-placeholder" style="background: var(--card-bg); border-color: var(--upload-primary); box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);">👤</div>
+        <h1 style="color: white; margin-bottom: 0.5rem; font-size: 2.5rem;">CloudSync Identity</h1>
+        <p style="color: #94a3b8; max-width: 600px; margin: 0 auto;">Securely manage your global avatar across the CloudSync edge network.</p>
+    </div>
+{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
-
-    <h2>Lab 5: File Upload</h2>
-    <div class="banner">
-        ⚠️ This lab allows unrestricted file uploads.
-    </div>
-
-    <div class="card" style="max-width: 500px; margin: 0 auto;">
-        <h3>Upload Profile Image</h3>
-        <p>Allowed formats: Any (Oops!).</p>
+<div style="max-width: 700px; margin: -3rem auto 4rem; position: relative; z-index: 10;">
+    <div class="card" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span>📸</span> Avatar Management
+        </h2>
         
-        <form action="{{ url_for('lab5_upload') }}" method="POST" enctype="multipart/form-data">
-            <label for="file">Select File:</label>
-            <input type="file" id="file" name="file" required>
-            <br><br>
+        <div class="upload-zone" id="dropZone">
+            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">☁️</div>
+            <p style="margin-bottom: 1.5rem; color: #94a3b8;">Drag and drop your image here, or browse files</p>
             
-            <button type="submit" class="btn">Upload Avatar</button>
-        </form>
+            <form action="{{ url_for('lab5_upload') }}" method="POST" enctype="multipart/form-data">
+                <div class="file-input-wrapper">
+                    <button class="btn" type="button">Select Image</button>
+                    <input type="file" name="file" onchange="this.form.submit()">
+                </div>
+            </form>
+            
+            <p style="font-size: 0.75rem; color: #64748b; margin-top: 1.5rem;">
+                Supported types: .jpg, .png (System validation currently pending...)
+            </p>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(244, 63, 94, 0.1); border-radius: 0.5rem; border: 1px solid rgba(244, 63, 94, 0.2);">
+            <p style="font-size: 0.85rem; color: #fda4af;">
+                <strong>Security Alert:</strong> Internal file storage is publicly accessible. Ensure no sensitive data is uploaded.
+            </p>
+        </div>
     </div>
-    
-    <div class="alert alert-error" style="margin-top: 2rem;">
-        Hint: Can you upload a malicious file (e.g., .py, .php, .html) and execute it?
-        <br>Or simply upload an HTML file with XSS payload.
-    </div>
+</div>
 {% endblock %}

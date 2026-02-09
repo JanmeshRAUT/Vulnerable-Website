@@ -1,19 +1,43 @@
-
 {% extends 'base.html' %}
-{% block title %}Login - E-Shop{% endblock %}
+{% block title %}Sign In - RESEARCH_OPS{% endblock %}
 
 {% block content %}
-    <h2>Login</h2>
-    {% if error %}
-        <div class="alert alert-error">{{ error }}</div>
-    {% endif %}
-    <form method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        
-        <button type="submit" class="btn">Login</button>
-    </form>
+<div class="login-form-container">
+    <div class="login-form-content card">
+        <div class="login-form-header">
+            <h1>Welcome Back</h1>
+            <p>Sign in to your RESEARCH_OPS account</p>
+        </div>
+
+        {% if error %}
+        <div class="auth-error">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            <div class="auth-form-field">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="auth-form-field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn auth-submit-btn">Sign In</button>
+        </form>
+
+        <div class="auth-form-footer">
+            <p>Don't have an account?
+                <a href="{{ url_for('register') }}">Create one</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="test-accounts">
+        <p>Test accounts: <strong>admin</strong> / <strong>user</strong> / <strong>alice</strong></p>
+    </div>
+</div>
 {% endblock %}

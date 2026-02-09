@@ -1,58 +1,62 @@
 {% extends 'base.html' %}
-{% block title %}My Account - TechMart{% endblock %}
+{% block title %}TechMart - My Account{% endblock %}
 
 {% block header %}
-    <!-- Custom Header -->
-    <header style="background: #1e293b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4.css') }}">
+<header class="lab2-4-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="{{ url_for('lab2_4') }}" style="color: #64748b; font-size: 0.875rem; text-decoration: none;">&larr; Back to Shop</a>
+        <div class="brand">TechMart™</div>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab2_4') }}" style="color: #64748b; font-size: 0.875rem; text-decoration: none;">&larr; Back to Store</a>
-            <div style="font-weight: 700; font-size: 1.5rem; color: var(--accent);">TechMart™</div>
+            <span style="color: #94a3b8; font-size: 0.875rem;">Account: <strong>{{ account.username }}</strong></span>
+            <a href="{{ url_for('lab2_4_logout') }}" class="btn btn-danger" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Logout</a>
         </div>
-        <div>
-            <span style="margin-right: 1rem;">{{ account.username }}</span>
-            <a href="{{ url_for('lab2_4_logout') }}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Logout</a>
-        </div>
-    </header>
+    </div>
+</header>
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 1200px; margin: 0 auto;">
-        <h2 style="margin-bottom: 2rem;">My Account</h2>
-        
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-            <!-- Account Info -->
-            <div class="card">
-                <h3>Account Details</h3>
-                <div style="margin-top: 1rem;">
-                    <p><strong>User ID:</strong> {{ account.id }}</p>
-                    <p><strong>Username:</strong> {{ account.username }}</p>
-                    <p><strong>Email:</strong> {{ account.email or 'Not set' }}</p>
-                    <p><strong>Role:</strong> <span style="color: #94a3b8;">{{ account.role }}</span></p>
-                </div>
-            </div>
-            
-            <!-- Order History -->
-            <div class="card">
-                <h3>Recent Orders</h3>
-                <div style="margin-top: 1rem;">
-                    <p style="color: #94a3b8;">No orders yet. Start shopping!</p>
-                </div>
-            </div>
+<div class="account-container">
+    <div class="account-header">
+        <div class="account-avatar">
+            {{ account.username[0].upper() }}
         </div>
-        
-        <!-- Recommended Products -->
-        <h3 style="margin-top: 3rem; margin-bottom: 1.5rem;">Recommended for You</h3>
-        <div class="card-grid">
-            {% for product in products[:3] %}
-            <div class="card">
-                <h4>{{ product.name }}</h4>
-                <p style="color: #94a3b8; font-size: 0.875rem;">{{ product.description }}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                    <span style="font-weight: 700;">${{ product.price }}</span>
-                    <button class="btn" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Buy Now</button>
-                </div>
-            </div>
-            {% endfor %}
+        <div>
+            <h1 style="margin: 0; font-size: 2rem;">{{ account.full_name }}</h1>
+            <p style="color: var(--accent); font-weight: 600; margin: 0.25rem 0 0 0;">{{ account.role.upper() }} ACCOUNT</p>
         </div>
     </div>
+
+    <div class="card">
+        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 1rem;">Personal Information</h3>
+        
+        <div class="info-row">
+            <span class="label">Username</span>
+            <span>{{ account.username }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Email Address</span>
+            <span>{{ account.email }}</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Member ID</span>
+            <span style="font-family: monospace;">TM-{{ account.id }}</span>
+        </div>
+        <div class="info-row" style="border: none;">
+            <span class="label">Account Status</span>
+            <span style="color: #10b981;">● Active</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">Recent Orders</h3>
+        <div class="card" style="text-align: center; padding: 3rem; color: #64748b;">
+            <p>You haven't placed any orders yet.</p>
+            <a href="{{ url_for('lab2_4') }}" class="btn" style="display: inline-block; margin-top: 1rem;">Start Shopping</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

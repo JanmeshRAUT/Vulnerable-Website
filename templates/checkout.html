@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - RESEARCH_OPS Shop{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <h1 class="page-heading">Checkout</h1>
+
+    <!-- Checkout Steps -->
+    <div class="checkout-steps">
+        <div class="step completed">
+            <div class="step-number">✓</div>
+            <div class="step-label">Cart</div>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-label">Shipping</div>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-label">Payment</div>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-label">Confirmation</div>
+        </div>
+    </div>
+
+    <div class="checkout-content">
+        <!-- Checkout Form -->
+        <div>
+            <!-- Shipping Information -->
+            <div class="form-section">
+                <h2>📍 Shipping Address</h2>
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" placeholder="John Doe" required>
+                    </div>
+                </div>
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Email Address *</label>
+                        <input type="email" placeholder="john@example.com" required>
+                    </div>
+                </div>
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Street Address *</label>
+                        <input type="text" placeholder="123 Main Street" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City *</label>
+                        <input type="text" placeholder="San Francisco" required>
+                    </div>
+                    <div class="form-group">
+                        <label>State/Province *</label>
+                        <input type="text" placeholder="CA" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ZIP/Postal Code *</label>
+                        <input type="text" placeholder="94105" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Country *</label>
+                        <select required>
+                            <option value="">Select Country</option>
+                            <option value="us">United States</option>
+                            <option value="ca">Canada</option>
+                            <option value="uk">United Kingdom</option>
+                            <option value="au">Australia</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Method -->
+            <div class="form-section">
+                <h2>🚚 Shipping Method</h2>
+                <div class="shipping-method-list">
+                    <label class="shipping-option">
+                        <input type="radio" name="shipping" value="standard" checked>
+                        <div class="shipping-option-content">
+                            <div class="shipping-option-title">Standard Shipping</div>
+                            <div class="shipping-option-desc">5-7 business days</div>
+                            <div class="shipping-option-price">FREE</div>
+                        </div>
+                    </label>
+                    <label class="shipping-option">
+                        <input type="radio" name="shipping" value="express">
+                        <div class="shipping-option-content">
+                            <div class="shipping-option-title">Express Shipping</div>
+                            <div class="shipping-option-desc">2-3 business days</div>
+                            <div class="shipping-option-price">+$14.99</div>
+                        </div>
+                    </label>
+                    <label class="shipping-option">
+                        <input type="radio" name="shipping" value="overnight">
+                        <div class="shipping-option-content">
+                            <div class="shipping-option-title">Overnight Shipping</div>
+                            <div class="shipping-option-desc">Next business day</div>
+                            <div class="shipping-option-price">+$34.99</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="form-section">
+                <h2>💳 Payment Method</h2>
+                <div class="payment-methods">
+                    <div class="payment-method selected" onclick="selectPayment(this, 'credit')">
+                        <div class="payment-icon">💳</div>
+                        <div class="payment-label">Credit Card</div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment(this, 'paypal')">
+                        <div class="payment-icon">🅿️</div>
+                        <div class="payment-label">PayPal</div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment(this, 'apple')">
+                        <div class="payment-icon">🍎</div>
+                        <div class="payment-label">Apple Pay</div>
+                    </div>
+                </div>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Cardholder Name *</label>
+                        <input type="text" placeholder="John Doe" required>
+                    </div>
+                </div>
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Card Number *</label>
+                        <input type="text" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expiration Date *</label>
+                        <input type="text" placeholder="MM/YY" maxlength="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CVV *</label>
+                        <input type="text" placeholder="123" maxlength="4" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="terms-agreement">
+                <input type="checkbox" id="terms" checked>
+                <label for="terms">
+                    I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                </label>
+            </div>
+
+            <button class="btn complete-purchase">Complete Purchase</button>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div>
+            <div class="order-summary-box">
+                <h3>Order Summary</h3>
+
+                <div class="summary-item">
+                    <span>Vulnerable T-Shirt (1x)</span>
+                    <span>$29.99</span>
+                </div>
+
+                <div class="summary-item">
+                    <span>SQLi Mug (2x)</span>
+                    <span>$30.00</span>
+                </div>
+
+                <div class="summary-section">
+                    <div class="summary-item">
+                        <span>Subtotal</span>
+                        <span>$59.99</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Shipping</span>
+                        <span class="free-text">FREE</span>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Tax</span>
+                        <span>$4.80</span>
+                    </div>
+                </div>
+
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span>$64.79</span>
+                </div>
+
+                <!-- Trust Indicators -->
+                <div class="trust-indicators">
+                    <div class="trust-indicator">
+                        <span>🔒</span>
+                        <span>256-bit SSL Encrypted</span>
+                    </div>
+                    <div class="trust-indicator">
+                        <span>✓</span>
+                        <span>Verified by Trusted Site</span>
+                    </div>
+                    <div class="trust-indicator">
+                        <span>🛡️</span>
+                        <span>Buyer Protection Guarantee</span>
+                    </div>
+                    <div class="trust-indicator">
+                        <span>↩️</span>
+                        <span>30-Day Money Back</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectPayment(element, method) {
+    document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.remove('selected');
+    });
+    element.classList.add('selected');
+}
+</script>
+{% endblock %}

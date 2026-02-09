@@ -1,0 +1,39 @@
+/* ================================
+   BASE HEADER/FOOTER STYLING
+   ================================ */
+
+/* Header Navigation */
+.header-nav-flex {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Navigation Divider */
+.nav-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 1rem;
+}
+
+/* User ID Badge */
+.user-badge {
+    margin: 0 1rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.user-badge strong {
+    color: white;
+}
+
+/* Auth Button */
+.auth-btn {
+    padding: 0.4rem 1rem;
+}
+
+/* Container Padding */
+.container-padding-top {
+    padding-top: 2rem;
+}

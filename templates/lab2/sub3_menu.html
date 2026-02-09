@@ -11,28 +11,22 @@
 
 <div class="card-grid">
     <div class="card">
-        <div
-            style="height: 100px; background: linear-gradient(135deg, #6366f1, #818cf8); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
-            🎵</div>
+        <div class="variation-preview preview-shophub">🎵</div>
         <h3>Variation A: MusicStore</h3>
-        <p style="color: #94a3b8;">Music marketplace</p>
-        <a href="{{ url_for('lab2_3_music') }}" class="btn" style="background: #6366f1;">Start Variation A</a>
+        <p class="variation-desc">Premium marketplace for high-fidelity audio equipment.</p>
+        <a href="{{ url_for('lab2_3_music') }}" class="btn">Start Variation A</a>
     </div>
     <div class="card">
-        <div
-            style="height: 100px; background: linear-gradient(135deg, #f97316, #fb923c); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
-            ⚡</div>
+        <div class="variation-preview preview-food">⚡</div>
         <h3>Variation B: SportsGear</h3>
-        <p style="color: #94a3b8;">Sports equipment (Same vulnerability)</p>
-        <a href="{{ url_for('lab2_3_sports') }}" class="btn" style="background: #f97316;">Start Variation B</a>
+        <p class="variation-desc">Professional grade sports apparel and equipment.</p>
+        <a href="{{ url_for('lab2_3_sports') }}" class="btn">Start Variation B</a>
     </div>
     <div class="card">
-        <div
-            style="height: 100px; background: linear-gradient(135deg, #ec4899, #f472b6); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
-            🐾</div>
+        <div class="variation-preview preview-shophub">🐾</div>
         <h3>Variation C: PetShop</h3>
-        <p style="color: #94a3b8;">Pet supplies (Same vulnerability)</p>
-        <a href="{{ url_for('lab2_3_pets') }}" class="btn" style="background: #ec4899;">Start Variation C</a>
+        <p class="variation-desc">Curated selection of pet wellness and lifestyle products.</p>
+        <a href="{{ url_for('lab2_3_pets') }}" class="btn">Start Variation C</a>
     </div>
 </div>
 {% endblock %}

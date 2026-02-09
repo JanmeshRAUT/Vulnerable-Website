@@ -1,0 +1,90 @@
+/* Lab 1.2 Bean & Brew Styles */
+.coffee-header {
+    background: #3E2723;
+    color: #FFF8DC;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.coffee-header .brand {
+    font-family: 'Georgia', serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.coffee-hero {
+    background: linear-gradient(rgba(62, 39, 35, 0.8), rgba(62, 39, 35, 0.8)), url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80');
+    background-size: cover;
+    background-position: center;
+    border-radius: 1rem;
+    padding: 4rem 2rem;
+    color: white;
+    margin-bottom: 3rem;
+    text-align: center;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.coffee-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    font-family: 'Georgia', serif;
+}
+
+.coffee-section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3E2723;
+    margin-bottom: 0.5rem;
+}
+
+.product-card-coffee {
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+}
+
+.product-image-container {
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+    background: #f5f5f5;
+}
+
+.product-content-coffee {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.btn-coffee {
+    width: 100%;
+    background: #3E2723;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.price-tag-coffee {
+    background: #EFEBE9;
+    color: #5D4037;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}

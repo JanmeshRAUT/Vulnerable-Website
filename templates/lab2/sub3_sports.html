@@ -2,12 +2,11 @@
 {% block title %}SportsGear - Peak Performance{% endblock %}
 
 {% block header %}
-<header
-    style="background: #fff; border-bottom: 4px solid #f97316; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Arial Black', sans-serif;">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub3_sports.css') }}">
+<header class="sports-header">
     <div style="display: flex; align-items: center; gap: 1rem;">
         <div style="font-size: 2rem; color: #f97316;">⚡</div>
-        <a href="{{ url_for('lab2_3_sports') }}"
-            style="text-decoration: none; color: #0f172a; font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; font-style: italic;">
+        <a href="{{ url_for('lab2_3_sports') }}" class="sports-brand">
             Sports<span style="color: #f97316;">Gear</span>
         </a>
     </div>
@@ -28,199 +27,49 @@
 {% endblock %}
 
 {% block content %}
-<style>
-    body {
-        background-color: #f1f5f9 !important;
-        font-family: 'Open Sans', sans-serif;
-        color: #334155;
-    }
-
-    .hero {
-        background: linear-gradient(135deg, #f97316, #fb923c);
-        color: white;
-        padding: 4rem 2rem;
-        text-align: center;
-        clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-        margin-bottom: 2rem;
-    }
-
-    .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-
-    .product-card {
-        background: #fff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
-    }
-
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-
-    .product-image {
-        height: 220px;
-        background: #e2e8f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 4rem;
-    }
-
-    .product-info {
-        padding: 1.5rem;
-    }
-
-    .product-title {
-        font-size: 1.25rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-        color: #0f172a;
-    }
-
-    .product-price {
-        color: #f97316;
-        font-weight: 800;
-        font-size: 1.5rem;
-    }
-
-    .btn-add {
-        width: 100%;
-        margin-top: 1rem;
-        padding: 0.8rem;
-        background: #0f172a;
-        color: white;
-        border: none;
-        font-weight: bold;
-        text-transform: uppercase;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-
-    .btn-add:hover {
-        background: #334155;
-    }
-
-    /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(15, 23, 42, 0.8);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .modal-content {
-        background: #fff;
-        padding: 2.5rem;
-        width: 100%;
-        max-width: 400px;
-        position: relative;
-        border-radius: 8px;
-    }
-
-    .close-btn {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        color: #94a3b8;
-        font-size: 1.5rem;
-        cursor: pointer;
-    }
-
-    input {
-        width: 100%;
-        padding: 0.8rem;
-        margin-bottom: 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 4px;
-        background: #f8fafc;
-    }
-
-    input:focus {
-        border-color: #f97316;
-        outline: none;
-    }
-
-    .btn-login {
-        width: 100%;
-        padding: 0.8rem;
-        background: #f97316;
-        color: #fff;
-        border: none;
-        font-weight: bold;
-        cursor: pointer;
-        text-transform: uppercase;
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-
-    /* Vulnerability Hint */
-    .admin-link {
-        text-align: center;
-        margin-top: 5rem;
-        padding-top: 2rem;
-        border-top: 1px solid #e2e8f0;
-        color: #94a3b8;
-    }
-</style>
-
 <!-- Lab Context -->
 <a href="{{ url_for('lab2_3_menu') }}"
     style="position: absolute; top: 120px; left: 30px; color: #fff; text-decoration: none; font-weight: bold; background: rgba(0,0,0,0.2); padding: 0.5rem 1rem; border-radius: 99px;">&larr;
     Lab Menu</a>
 
-<div class="hero">
+<div class="hero-sports">
     <h1 style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 900; font-style: italic;">UNLEASH YOUR POTENTIAL
     </h1>
     <p style="font-size: 1.2rem; font-weight: 500;">Premium gear for elite athletes.</p>
 </div>
 
-<div class="product-grid">
+<div class="product-grid-sports">
     {% for product in products %}
-    <div class="product-card">
-        <div class="product-image">🏆</div>
-        <div class="product-info">
-            <div class="product-title">{{ product.name }}</div>
+    <div class="product-card-sports">
+        <div class="product-image-sports">🏆</div>
+        <div class="product-info-sports">
+            <div class="product-title-sports">{{ product.name }}</div>
             <p style="color: #64748b; margin-bottom: 1rem;">{{ product.description }}</p>
             <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                <div class="product-price">${{ product.price }}</div>
+                <div class="product-price-sports">${{ product.price }}</div>
             </div>
-            <button class="btn-add">Add to Cart</button>
+            <button class="btn-add-sports">Add to Cart</button>
         </div>
     </div>
     {% endfor %}
 </div>
 
-<div class="admin-link">
+<div class="footer-sports">
     &copy; 2026 SportsGear Inc. <br>
     <a href="{{ url_for('lab2_3_admin') }}" style="color: #cbd5e1; text-decoration: none; cursor: default;">[ Admin
         Panel ]</a>
 </div>
 
 <!-- LOGIN MODAL -->
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
+<div id="loginModal" class="modal-sports">
+    <div class="modal-content-sports">
+        <span class="close-btn-sports" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
         <h2 style="text-align: center; color: #0f172a; margin-bottom: 1.5rem; font-weight: 800;">MEMBER LOGIN</h2>
         <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
             <input type="hidden" name="theme" value="sports">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit" class="btn-login">Sign In</button>
+            <input type="text" name="username" placeholder="Username" required class="login-input-sports">
+            <input type="password" name="password" placeholder="Password" required class="login-input-sports">
+            <button type="submit" class="btn-login-sports">Sign In</button>
         </form>
         <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #64748b;">Try: user / password</p>
     </div>

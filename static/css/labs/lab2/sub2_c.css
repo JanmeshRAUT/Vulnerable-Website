@@ -1,0 +1,251 @@
+/* Lab 2.2 Variation C GameZone Styles */
+body {
+    background-color: #1a1a1d !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #c5c6c7;
+}
+
+.game-header {
+    background: #0b0c10;
+    border-bottom: 2px solid #66fcf1;
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.game-brand {
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.hero-banner-game {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://placehold.co/1200x400/1f2833/66fcf1?text=LEVEL+UP+YOUR+EXPERIENCE');
+    background-size: cover;
+    background-position: center;
+    height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    border-bottom: 2px solid #45a29e;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-banner-game::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, transparent 20%, #1a1a1d 150%);
+    pointer-events: none;
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: -3rem;
+    position: relative;
+    z-index: 10;
+    padding: 0 2rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.game-card {
+    background: #0b0c10;
+    border: 1px solid #1f2833;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-card:hover {
+    transform: scale(1.03) translateY(-5px);
+    border-color: #66fcf1;
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+    z-index: 20;
+}
+
+.game-cover {
+    height: 180px;
+    background: #1f2833;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-cover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+}
+
+.platform-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.game-info {
+    padding: 1.2rem;
+}
+
+.game-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.game-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.game-price {
+    background: transparent;
+    color: #66fcf1;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.btn-buy {
+    background: linear-gradient(45deg, #45a29e, #66fcf1);
+    border: none;
+    color: #0b0c10;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: filter 0.2s;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.btn-buy:hover {
+    filter: brightness(1.2);
+}
+
+.footer-neon-game {
+    margin-top: 5rem;
+    border-top: 1px solid #1f2833;
+    background: #0b0c10;
+    padding: 3rem;
+    text-align: center;
+    color: #45a29e;
+    font-size: 0.9rem;
+}
+
+.glow-text {
+    color: #fff;
+    text-shadow: 0 0 5px #66fcf1, 0 0 10px #66fcf1;
+}
+/* Header Components */
+.game-header-brand-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.game-emoji-icon {
+    font-size: 2rem;
+    color: #66fcf1;
+    text-shadow: 0 0 10px rgba(102, 252, 241, 0.7);
+}
+
+.game-brand-accent {
+    color: #66fcf1;
+}
+
+.game-nav {
+    display: flex;
+    gap: 2rem;
+    font-weight: 600;
+}
+
+.game-nav-link {
+    color: #c5c6c7;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.game-nav-link-accent {
+    color: #66fcf1;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.game-wallet {
+    background: #1f2833;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: #66fcf1;
+    font-family: monospace;
+}
+
+/* Navigation */
+.game-back-link {
+    position: absolute;
+    top: 110px;
+    left: 20px;
+    z-index: 100;
+    color: #c5c6c7;
+    text-decoration: none;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #45a29e;
+}
+
+/* Hero Section */
+.game-hero-title {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.game-hero-subtitle {
+    font-size: 1.2rem;
+    color: #45a29e;
+}
+
+/* Footer */
+.game-footer-links-container {
+    margin-bottom: 1rem;
+}
+
+.game-footer-link-item {
+    margin: 0 10px;
+    cursor: pointer;
+}

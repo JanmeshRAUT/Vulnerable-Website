@@ -1,0 +1,208 @@
+/* ================================
+   AUTHENTICATION PAGES STYLING
+   ================================ */
+
+/* Login Page */
+.login-form-container {
+    max-width: 450px;
+    margin: 4rem auto;
+}
+
+.login-form-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 2rem;
+}
+
+.login-form-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.login-form-header h1 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+}
+
+.login-form-header p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Register Page */
+.register-form-container {
+    max-width: 450px;
+    margin: 4rem auto;
+}
+
+.register-form-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 2rem;
+}
+
+.register-form-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.register-form-header h1 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+}
+
+.register-form-header p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Form */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Form Field */
+.auth-form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.auth-form-field input {
+    padding: 0.75rem;
+    background: var(--bg-color);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.auth-form-field input::placeholder {
+    color: var(--text-secondary);
+}
+
+.auth-form-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.auth-form-help {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0;
+}
+
+/* Submit Button */
+.auth-submit-btn {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Form Footer */
+.auth-form-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.auth-form-footer p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.auth-form-footer a {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Terms Box */
+.auth-terms-box {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.auth-terms-box p {
+    margin: 0;
+}
+
+/* Test Accounts Info */
+.test-accounts {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.test-accounts p {
+    margin: 0;
+    display: inline;
+}
+
+.test-accounts strong {
+    color: var(--text-primary);
+}
+
+/* Error Message */
+.auth-error {
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: #fca5a5;
+    font-size: 0.9rem;
+}
+
+.auth-error strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Success Message */
+.auth-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: #6ee7b7;
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-form-container,
+    .register-form-container {
+        margin: 2rem auto;
+        max-width: 90%;
+    }
+
+    .login-form-content,
+    .register-form-content {
+        padding: 1.5rem;
+    }
+}

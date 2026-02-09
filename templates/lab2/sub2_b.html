@@ -2,20 +2,19 @@
 {% block title %}The Literary Corner - Premium Bookstore{% endblock %}
 
 {% block header %}
-<header
-    style="background: #fff; border-bottom: 1px solid #eaeaea; padding: 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; font-family: 'Georgia', serif; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub2_b.css') }}">
+<header class="book-header">
     <div style="display: flex; align-items: center; gap: 1rem;">
         <div style="font-size: 2rem;">🦉</div>
-        <a href="{{ url_for('lab2_2b') }}"
-            style="text-decoration: none; color: #2c3e50; font-size: 1.8rem; font-weight: bold; letter-spacing: -0.5px;">
+        <a href="{{ url_for('lab2_2b') }}" class="book-brand">
             The Literary Corner
         </a>
     </div>
     <nav style="display: flex; gap: 2rem; font-family: 'Helvetica Neue', sans-serif; font-size: 0.95rem;">
-        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">Bestsellers</a>
-        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">New Arrivals</a>
-        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">Fiction</a>
-        <a href="#" style="color: #555; text-decoration: none; transition: color 0.3s;">Non-Fiction</a>
+        <a href="#" style="color: #555; text-decoration: none;">Bestsellers</a>
+        <a href="#" style="color: #555; text-decoration: none;">New Arrivals</a>
+        <a href="#" style="color: #555; text-decoration: none;">Fiction</a>
+        <a href="#" style="color: #555; text-decoration: none;">Non-Fiction</a>
     </nav>
     <div style="display: flex; gap: 1.5rem; color: #2c3e50;">
         <span>🔍</span>
@@ -26,8 +25,6 @@
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='lab2/2/b/style.css') }}">
-
 <!-- Lab Context -->
 <div style="max-width: 1200px; margin: 1rem auto; padding: 0 2rem;">
     <a href="{{ url_for('lab2_2_menu') }}"
@@ -35,7 +32,7 @@
         Back to Lab Menu</a>
 </div>
 
-<div class="hero-section">
+<div class="hero-section-book">
     <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #2c3e50;">Stories That Matter</h1>
     <p style="font-size: 1.2rem; color: #7f8c8d; max-width: 600px; margin: 0 auto; line-height: 1.6;">Explore our
         curated collection of eternal classics and modern masterpieces. Find your next great adventure today.</p>
@@ -74,7 +71,7 @@
     {% endfor %}
 </div>
 
-<footer class="footer-elegant">
+<footer class="footer-elegant-book">
     &copy; 2026 The Literary Corner. All rights reserved.<br>
     <div style="margin-top: 1rem; font-size: 0.85rem; color: #bdc3c7;">
         Privacy Policy | Terms of Service | Store Locations

@@ -3,52 +3,69 @@
 {% block title %}Lab 2: Access Control{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
-
-    <h2>Lab 2: Access Control Vulnerabilities</h2>
-    <div class="banner">
-        ⚠️ This lab contains 5 different vulnerabilities, each with 3 themed variations for practice!
+    <div class="lab-header">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
+        <h2 class="lab-title">Module 2: Broken Access Control</h2>
     </div>
 
-    <div class="card-grid">
+    <div class="banner">
+        ⚠️ Intentional Vulnerability: Exploration of vertical and horizontal privilege escalation.
+    </div>
+
+    <div class="card-grid lab-card-grid">
         <!-- Lab 2.1 -->
         <div class="card">
-            <div style="position: absolute; top: 1rem; right: 1rem; background: #3b82f6; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">3 Themes</div>
-            <h3>Lab 2.1: Robots.txt</h3>
-            <p>Find the hidden admin page disclosed in robots.txt</p>
-            <a href="{{ url_for('lab2_1_menu') }}" class="btn">View Variations</a>
+            <div class="card-header-flex">
+                <span class="card-icon">🤖</span>
+                <span class="badge-variation">3 Themes</span>
+            </div>
+            <h3>2.1: Robots.txt Disclosure</h3>
+            <p>Analyze search engine directives to discover hidden administrative endpoints and sensitive directories.</p>
+            <a href="{{ url_for('lab2_1_menu') }}" class="btn">Start Research</a>
         </div>
         
         <!-- Lab 2.2 -->
         <div class="card">
-            <div style="position: absolute; top: 1rem; right: 1rem; background: #8b5cf6; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">3 Themes</div>
-            <h3>Lab 2.2: Hidden Logic</h3>
-            <p>Trace conditional logic to find admin link</p>
-            <a href="{{ url_for('lab2_2_menu') }}" class="btn">View Variations</a>
+            <div class="card-header-flex">
+                <span class="card-icon">🕵️</span>
+                <span class="badge-variation">3 Themes</span>
+            </div>
+            <h3>2.2: Hidden Administrative Logic</h3>
+            <p>Trace application execution flow to find obfuscated links and unprotected control panels.</p>
+            <a href="{{ url_for('lab2_2_menu') }}" class="btn">Start Research</a>
         </div>
         
         <!-- Lab 2.3 -->
         <div class="card">
-            <div style="position: absolute; top: 1rem; right: 1rem; background: #ec4899; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">3 Themes</div>
-            <h3>Lab 2.3: Cookie Manipulation</h3>
-            <p>Analyze and modify cookies to gain access</p>
-            <a href="{{ url_for('lab2_3_menu') }}" class="btn">View Variations</a>
+            <div class="card-header-flex">
+                <span class="card-icon">🍪</span>
+                <span class="badge-variation">3 Themes</span>
+            </div>
+            <h3>2.3: Cookie-Based Escalation</h3>
+            <p>Manipulate stateless session tokens to elevate user privileges and bypass authentication checks.</p>
+            <a href="{{ url_for('lab2_3_menu') }}" class="btn">Start Research</a>
         </div>
         
         <!-- Lab 2.4 -->
         <div class="card">
-            <div style="position: absolute; top: 1rem; right: 1rem; background: #f59e0b; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">3 Themes</div>
-            <h3>Lab 2.4: Parameter Tampering (IDOR)</h3>
-            <p>Manipulate URL parameters to escalate privileges</p>
-            <a href="{{ url_for('lab2_4_menu') }}" class="btn">View Variations</a>
+            <div class="card-header-flex">
+                <span class="card-icon">🆔</span>
+                <span class="badge-variation">3 Themes</span>
+            </div>
+            <h3>2.4: Parameter Tampering (IDOR)</h3>
+            <p>Perform Insecure Direct Object Reference attacks by manipulating unique resource identifiers in requests.</p>
+            <a href="{{ url_for('lab2_4_menu') }}" class="btn">Start Research</a>
         </div>
         
         <!-- Lab 2.5 -->
         <div class="card">
-            <div style="position: absolute; top: 1rem; right: 1rem; background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">3 Themes</div>
-            <h3>Lab 2.5: Password Disclosure</h3>
-            <p>Discover passwords exposed in HTML via IDOR</p>
-            <a href="{{ url_for('lab2_5_menu') }}" class="btn">View Variations</a>
+            <div class="card-header-flex">
+                <span class="card-icon">🔑</span>
+                <span class="badge-variation">3 Themes</span>
+            </div>
+            <h3>2.5: Information Disclosure</h3>
+            <p>Utilize IDOR to exfiltrate sensitive user credentials exposed within secondary application views.</p>
+            <a href="{{ url_for('lab2_5_menu') }}" class="btn">Start Research</a>
         </div>
     </div>
 {% endblock %}

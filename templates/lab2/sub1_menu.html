@@ -11,22 +11,22 @@
 
     <div class="card-grid">
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #3b82f6, #60a5fa); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">💻</div>
+            <div class="variation-preview preview-auto">💻</div>
             <h3>Variation A: TechStore</h3>
-            <p style="color: #94a3b8;">Tech e-commerce platform</p>
-            <a href="{{ url_for('lab2_1') }}" class="btn" style="background: #3b82f6;">Start Variation A</a>
+            <p class="variation-desc">Premium technology electronics catalog.</p>
+            <a href="{{ url_for('lab2_1') }}" class="btn">Start Variation A</a>
         </div>
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #8b5cf6, #a78bfa); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">👗</div>
+            <div class="variation-preview preview-fashion">👗</div>
             <h3>Variation B: FashionHub</h3>
-            <p style="color: #94a3b8;">Fashion marketplace (Same vulnerability)</p>
-            <a href="{{ url_for('lab2_1b') }}" class="btn" style="background: #8b5cf6;">Start Variation B</a>
+            <p class="variation-desc">Modern clothing and accessories marketplace.</p>
+            <a href="{{ url_for('lab2_1b') }}" class="btn">Start Variation B</a>
         </div>
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #10b981, #34d399); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">🍔</div>
+            <div class="variation-preview preview-food">🍔</div>
             <h3>Variation C: FoodMart</h3>
-            <p style="color: #94a3b8;">Food delivery service (Same vulnerability)</p>
-            <a href="{{ url_for('lab2_1c') }}" class="btn" style="background: #10b981;">Start Variation C</a>
+            <p class="variation-desc">Local gourmet food delivery service.</p>
+            <a href="{{ url_for('lab2_1c') }}" class="btn">Start Variation C</a>
         </div>
     </div>
 {% endblock %}

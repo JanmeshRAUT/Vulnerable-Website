@@ -1,0 +1,227 @@
+/* ================================
+   FORMS & INPUTS STYLING
+   ================================ */
+
+/* Form Container */
+.form-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.form-section h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Form Rows */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-row.full {
+    grid-template-columns: 1fr;
+}
+
+/* Form Groups */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.75rem;
+    background: var(--bg-color);
+    border: 1px solid var(--border);
+    border-radius: 0.35rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.form-group input::placeholder {
+    color: var(--text-secondary);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Form Help Text */
+.form-help {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0;
+}
+
+/* Form Container with Header */
+.form-container {
+    max-width: 450px;
+    margin: 4rem auto;
+}
+
+.form-container .card {
+    padding: 2rem;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.form-header h1 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+}
+
+.form-header p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Form Dividers */
+.form-divider {
+    text-align: center;
+    margin: 2rem 0;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+}
+
+.form-divider p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.form-divider a {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Form Footer */
+.form-footer {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.form-footer p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.form-footer a {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Form Error Messages */
+.form-error {
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: #fca5a5;
+    font-size: 0.9rem;
+}
+
+.form-error strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Form Success Messages */
+.form-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: #6ee7b7;
+    font-size: 0.9rem;
+}
+
+/* Form Requirements Box */
+.form-requirements {
+    background: var(--bg-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.form-requirements h4 {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.form-requirements ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.form-requirements li {
+    margin-bottom: 0.25rem;
+}
+
+/* Checkbox Styling */
+.form-checkbox {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: flex-start;
+}
+
+.form-checkbox input {
+    margin-top: 0.25rem;
+}
+
+.form-checkbox label {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.form-checkbox a {
+    color: var(--accent);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-container {
+        margin: 2rem auto;
+        max-width: 90%;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+    }
+}

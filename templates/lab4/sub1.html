@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Lab 4.1: Stock Checker{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab4') }}" class="btn">Back to Lab Menu</a>
+    
+    <div style="margin-top: 2rem;">
+        <h2 style="margin-bottom: 2rem;">Lab 4.1: Store Inventory (Local Network)</h2>
+        
+        <div class="card-grid">
+            {% for product in products %}
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div style="height: 150px; background: #334155; margin: -1.5rem -1.5rem 1.5rem -1.5rem; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                    🛍️
+                </div>
+                <h3>{{ product.name }}</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem; flex-grow: 1;">{{ product.description }}</p>
+                <div style="margin-top: 1rem; border-top: 1px solid #334155; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 700;">${{ product.price }}</span>
+                    <a href="{{ url_for('lab4_1_product', product_id=product.id) }}" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

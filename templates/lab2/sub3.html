@@ -3,32 +3,34 @@
 {% block title %}SuperShop - Home{% endblock %}
 
 {% block header %}
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub3.css') }}">
     <!-- Fake Shop Header -->
-    <header style="background: #1e293b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab2') }}" style="color: #64748b; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
-            <div style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.025em; color: var(--accent);">SuperShop™</div>
+    <header class="supershop-header">
+        <div class="supershop-header-container">
+            <a href="{{ url_for('lab2') }}" class="supershop-back-link">&larr; Back</a>
+            <div class="supershop-brand">SuperShop™</div>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <input type="text" placeholder="Search for products..." style="padding: 0.5rem 1rem; border-radius: 9999px; border: none; background: #334155; color: #e2e8f0; font-size: 0.875rem; width: 250px;">
+        <div class="supershop-header-actions">
+            <input type="text" placeholder="Search for products..." class="supershop-search">
             
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <button class="btn" style="background: transparent; padding: 0.5rem;">
-                    🛒 <span style="font-size: 0.8rem; background: var(--accent); color: white; padding: 0 5px; border-radius: 9999px;">0</span>
+            <div class="supershop-header-container">
+                <button class="btn supershop-cart-btn">
+                    🛒 <span class="supershop-cart-badge">0</span>
                 </button>
                 
-                <div style="display: flex; align-items: center; gap: 0.5rem; border-left: 1px solid #475569; padding-left: 1rem;">
+                <div class="supershop-user-section">
                     {% if username %}
-                    <div style="width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">
+                    <div class="user-avatar-supershop">
                         {{ username[0]|upper }}
                     </div>
-                    <div style="font-size: 0.875rem;">
-                        <span style="display: block; font-weight: 500;">{{ username }}</span>
-                        <a href="{{ url_for('lab2_3_logout') }}" style="color: #94a3b8; font-size: 0.75rem;">Sign out</a>
+                    <div class="supershop-user-info">
+                        <span class="supershop-username">{{ username }}</span>
+                        <a href="{{ url_for('lab2_3_logout') }}" class="supershop-logout-link">Sign out</a>
                     </div>
                     {% else %}
-                    <button onclick="document.getElementById('loginModal').style.display='flex'" class="btn" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Login</button>
+                    <button onclick="document.getElementById('loginModal').style.display='flex'" class="btn supershop-login-btn">Login</button>
                     {% endif %}
                 </div>
             </div>
@@ -37,30 +39,30 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Promotional Banner -->
-        <div style="background: linear-gradient(to right, #2563eb, #7c3aed); border-radius: 1rem; padding: 3rem; color: white; margin-bottom: 3rem; text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
-            <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Summer Collection 2026</h1>
-            <p style="font-size: 1.25rem; opacity: 0.9; margin-bottom: 2rem;">Exclusive deals on vulnerable items. Shop now while stocks last!</p>
-            <button class="btn" style="background: white; color: #2563eb; font-weight: bold; border: none; padding: 0.75rem 2rem; border-radius: 0.5rem;">Browse Collection</button>
+    <main>
+        <!-- Promotional Banner -->
+        <div class="supershop-hero">
+            <h1>Summer Collection 2026</h1>
+            <p class="supershop-hero-subtitle">Exclusive deals on vulnerable items. Shop now while stocks last!</p>
+            <button class="supershop-hero-btn">Browse Collection</button>
         </div>
 
         <!-- Product Grid -->
-        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); padding-left: 1rem;">Latest Arrivals</h2>
+        <h2 class="supershop-section-title">Latest Arrivals</h2>
         
         <div class="card-grid">
             {% for product in products %}
-            <div class="card" style="display: flex; flex-direction: column; height: 100%; border: 1px solid #334155;">
-                <div style="height: 200px; background: #334155; margin: -1.5rem -1.5rem 1.5rem -1.5rem; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
-                    <img src="#" alt="Product Image" style="display: none;">
+            <div class="card product-card-supershop">
+                <div class="product-image-placeholder-supershop">
                     <span>[Image Placeholder]</span>
                 </div>
-                <div style="flex-grow: 1;">
-                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">{{ product.name }}</h3>
-                    <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">{{ product.description }}</p>
+                <div class="supershop-product-content">
+                    <h3 class="supershop-product-name">{{ product.name }}</h3>
+                    <p class="supershop-product-desc">{{ product.description }}</p>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 1rem; border-top: 1px solid #334155;">
-                    <span style="font-weight: 700; font-size: 1.25rem; color: var(--text-primary);">${{ product.price }}</span>
-                    <button class="btn" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Add to Cart</button>
+                <div class="supershop-product-footer">
+                    <span class="supershop-product-price">${{ product.price }}</span>
+                    <button class="btn supershop-add-to-cart">Add to Cart</button>
                 </div>
             </div>
             {% endfor %}
@@ -68,56 +70,56 @@
     </main>
 
     <!-- Footer with Vulnerable Admin Link -->
-    <footer style="background: #1e293b; padding: 4rem 2rem 2rem; margin-top: auto; border-top: 1px solid #334155;">
-        <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 3rem;">
+    <footer class="footer-supershop">
+        <div class="supershop-footer-grid">
             <div>
-                <div style="font-weight: 700; font-size: 1.25rem; color: white; margin-bottom: 1rem;">SuperShop</div>
-                <p style="color: #94a3b8; font-size: 0.875rem;">The world's most vulnerable marketplace.</p>
+                <div class="supershop-footer-brand">SuperShop</div>
+                <p class="supershop-footer-desc">The world's most vulnerable marketplace.</p>
             </div>
             <div>
-                <h4 style="color: white; font-weight: 600; margin-bottom: 1rem;">Shop</h4>
-                <ul style="list-style: none; padding: 0; color: #94a3b8; font-size: 0.875rem; line-height: 2;">
+                <h4 class="supershop-footer-heading">Shop</h4>
+                <ul class="supershop-footer-list">
                     <li>New Arrivals</li>
                     <li>Best Sellers</li>
                     <li>Sale</li>
                 </ul>
             </div>
             <div>
-                <h4 style="color: white; font-weight: 600; margin-bottom: 1rem;">Support</h4>
-                <ul style="list-style: none; padding: 0; color: #94a3b8; font-size: 0.875rem; line-height: 2;">
+                <h4 class="supershop-footer-heading">Support</h4>
+                <ul class="supershop-footer-list">
                     <li>Help Center</li>
                     <li>Returns</li>
                     <!-- Vulnerable Link -->
-                    <li><a href="{{ url_for('lab2_3_admin') }}" id="admin-link" style="color: var(--danger); font-weight: bold;">[ Employee Portal ]</a></li>
+                    <li><a href="{{ url_for('lab2_3_admin') }}" id="admin-link" class="supershop-admin-link">[ Employee Portal ]</a></li>
                 </ul>
             </div>
             <div>
-                <h4 style="color: white; font-weight: 600; margin-bottom: 1rem;">Newsletter</h4>
-                <input type="email" placeholder="Enter email" style="width: 100%; padding: 0.5rem; background: #334155; border: none; border-radius: 0.25rem; margin-bottom: 0.5rem;">
-                <button class="btn" style="width: 100%;">Subscribe</button>
+                <h4 class="supershop-footer-heading">Newsletter</h4>
+                <input type="email" placeholder="Enter email" class="supershop-newsletter-input">
+                <button class="btn supershop-subscribe-btn">Subscribe</button>
             </div>
         </div>
-        <div style="text-align: center; color: #64748b; font-size: 0.75rem; padding-top: 2rem; border-top: 1px solid #334155;">
+        <div class="supershop-footer-copyright">
             &copy; 2026 SuperShop Inc. All rights reserved.
         </div>
     </footer>
 
     <!-- LOGIN MODAL -->
-    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-        <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative; animation: fadeIn 0.2s;">
-            <button onclick="document.getElementById('loginModal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.5rem;">&times;</button>
-            <h2 style="text-align: center; margin-bottom: 1.5rem;">Sign In</h2>
+    <div id="loginModal" class="login-modal-supershop">
+        <div class="card supershop-login-modal-card">
+            <button onclick="document.getElementById('loginModal').style.display='none'" class="supershop-modal-close-btn">&times;</button>
+            <h2 class="supershop-signin-title">Sign In</h2>
             <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Username</label>
-                    <input type="text" name="username" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
+                <div class="supershop-form-group">
+                    <label class="supershop-form-label">Username</label>
+                    <input type="text" name="username" required class="login-input-supershop">
                 </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Password</label>
-                    <input type="password" name="password" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
+                <div class="supershop-password-group">
+                    <label class="supershop-form-label">Password</label>
+                    <input type="password" name="password" required class="login-input-supershop">
                 </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 0.75rem;">Login</button>
-                <div style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #64748b;">
+                <button type="submit" class="btn supershop-login-submit-btn">Login</button>
+                <div class="supershop-login-hint">
                     Try: <code>user</code> / <code>password</code>
                 </div>
             </form>

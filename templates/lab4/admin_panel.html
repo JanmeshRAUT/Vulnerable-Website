@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Administration Panel</title>
+    <style>
+        body { font-family: sans-serif; background: white; color: black; padding: 2rem; }
+        .admin-header { border-bottom: 2px solid #ef4444; padding-bottom: 1rem; margin-bottom: 1rem; }
+        .user-list { border: 1px solid #ddd; border-bottom: none; }
+        .user-row { padding: 1rem; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 0.3rem 0.6rem; text-decoration: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>Internal User Management Console</h1>
+        <p>System Version: 1.0.4-INTERNAL</p>
+    </div>
+
+    <h3>Active Users</h3>
+    <div class="user-list">
+        <div class="user-row">
+            <span>wiener</span>
+            <span>Regular User</span>
+        </div>
+        <div class="user-row">
+            <span>{{ user_to_delete }}</span>
+            <a href="http://localhost/admin/delete?username={{ user_to_delete }}" class="btn-delete">Delete</a>
+        </div>
+    </div>
+    
+    <div style="margin-top: 2rem; font-size: 0.8rem; color: #666;">
+        Notice: Use of this console is restricted to the localhost system administrator.
+    </div>
+</body>
+</html>

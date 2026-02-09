@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Lab 3.1: Brute Force Attack - Select Variant{% endblock %}
+
+{% block content %}
+    <div class="lab-header">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back to Modules</a>
+        <h2 class="lab-title">🔨 Lab 3.1: Brute Force Attack</h2>
+    </div>
+
+    <div class="banner">
+        ⚠️ Intentional Vulnerability: Brute Force Attack - No Rate Limiting, User Enumeration Enabled
+    </div>
+
+    <div class="lab3-menu-container">
+        <div class="menu-header">
+            <h3>Select Your Lab Variant</h3>
+            <p>Each variant demonstrates the same brute force vulnerability in different design contexts.</p>
+        </div>
+
+        <div class="variants-grid">
+            <!-- Variant 1: SecureVault -->
+            <div class="variant-card modern-variant">
+                <div class="variant-header">
+                    <span class="variant-number">3.1.1</span>
+                    <span class="variant-badge">Dark Modern</span>
+                </div>
+                
+                <div class="variant-content">
+                    <h3 class="variant-title">🔐 SecureVault</h3>
+                    <p class="variant-tagline">Enterprise Digital Asset Management</p>
+                    
+                    <div class="variant-details">
+                        <div class="detail-item">
+                            <strong>Theme:</strong> Dark Mode
+                        </div>
+                        <div class="detail-item">
+                            <strong>Colors:</strong> Emerald Green & Blue
+                        </div>
+                        <div class="detail-item">
+                            <strong>Design:</strong> Modern, Tech-Forward
+                        </div>
+                        <div class="detail-item">
+                            <strong>Use Case:</strong> Security Company
+                        </div>
+                    </div>
+                    
+                    <p class="variant-description">
+                        A modern dark-themed platform for secure digital asset management. Learn brute force attack fundamentals with no rate limiting protection.
+                    </p>
+                    
+                    <div class="variant-vulnerabilities">
+                        <strong>Vulnerabilities:</strong>
+                        <ul>
+                            <li>No brute force rate limiting</li>
+                            <li>User enumeration via error messages</li>
+                            <li>Weak password validation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('lab3_1') }}" class="btn btn-primary btn-block">Start Lab 3.1.1</a>
+            </div>
+
+            <!-- Variant 2: PremiumVault -->
+            <div class="variant-card luxury-variant">
+                <div class="variant-header">
+                    <span class="variant-number">3.1.2</span>
+                    <span class="variant-badge">Luxury Dark</span>
+                </div>
+                
+                <div class="variant-content">
+                    <h3 class="variant-title">👑 PremiumVault</h3>
+                    <p class="variant-tagline">Elite Asset Protection & Management</p>
+                    
+                    <div class="variant-details">
+                        <div class="detail-item">
+                            <strong>Theme:</strong> Dark Luxury
+                        </div>
+                        <div class="detail-item">
+                            <strong>Colors:</strong> Purple, Cyan & Gold
+                        </div>
+                        <div class="detail-item">
+                            <strong>Design:</strong> Exclusive, Premium
+                        </div>
+                        <div class="detail-item">
+                            <strong>Use Case:</strong> High-End Clients
+                        </div>
+                    </div>
+                    
+                    <p class="variant-description">
+                        A premium dark-themed platform targeting elite clientele. Same vulnerability, premium presentation - security ≠ beautiful UI.
+                    </p>
+                    
+                    <div class="variant-vulnerabilities">
+                        <strong>Vulnerabilities:</strong>
+                        <ul>
+                            <li>No brute force rate limiting</li>
+                            <li>User enumeration via error messages</li>
+                            <li>Weak password validation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('lab3_1_2') }}" class="btn btn-primary btn-block">Start Lab 3.1.2</a>
+            </div>
+
+            <!-- Variant 3: DataGuard Pro -->
+            <div class="variant-card corporate-variant">
+                <div class="variant-header">
+                    <span class="variant-number">3.1.3</span>
+                    <span class="variant-badge">Corporate Light</span>
+                </div>
+                
+                <div class="variant-content">
+                    <h3 class="variant-title">📊 DataGuard Pro</h3>
+                    <p class="variant-tagline">Professional Enterprise Data Security</p>
+                    
+                    <div class="variant-details">
+                        <div class="detail-item">
+                            <strong>Theme:</strong> Light Professional
+                        </div>
+                        <div class="detail-item">
+                            <strong>Colors:</strong> Professional Blue
+                        </div>
+                        <div class="detail-item">
+                            <strong>Design:</strong> Clean, Corporate
+                        </div>
+                        <div class="detail-item">
+                            <strong>Use Case:</strong> Enterprises
+                        </div>
+                    </div>
+                    
+                    <p class="variant-description">
+                        A professional light-themed platform for enterprises. Test if corporate design instills false sense of security.
+                    </p>
+                    
+                    <div class="variant-vulnerabilities">
+                        <strong>Vulnerabilities:</strong>
+                        <ul>
+                            <li>No brute force rate limiting</li>
+                            <li>User enumeration via error messages</li>
+                            <li>Weak password validation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('lab3_1_3') }}" class="btn btn-primary btn-block">Start Lab 3.1.3</a>
+            </div>
+        </div>
+
+        <div class="menu-footer">
+            <div class="learning-objectives">
+                <h4>🎯 Learning Objectives</h4>
+                <ul>
+                    <li>Understand brute force attack principles</li>
+                    <li>Identify missing rate limiting</li>
+                    <li>Exploit user enumeration vulnerabilities</li>
+                    <li>Test credential stuffing attacks</li>
+                    <li>Recognize that good design ≠ good security</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

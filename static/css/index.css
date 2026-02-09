@@ -1,0 +1,113 @@
+/* ================================
+   HOME/INDEX PAGE STYLING
+   ================================ */
+
+/* Hero Section */
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto 3rem;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.hero-actions .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+}
+
+/* Curriculum Section */
+.curriculum-header {
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.curriculum-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.curriculum-header p {
+    color: var(--text-secondary);
+}
+
+.curriculum-info {
+    background: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.environment-status {
+    color: var(--success);
+}
+
+/* Lab Card Section */
+.lab-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.lab-header {
+    flex: 1;
+}
+
+.lab-info {
+    text-align: right;
+}
+
+.lab-duration {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.lab-difficulty {
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+/* CTA Section */
+.cta-section {
+    margin-top: 6rem;
+    padding: 4rem;
+    text-align: center;
+    background: var(--card-bg);
+    border-radius: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.cta-section h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-section .highlight {
+    font-size: 0.8rem;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+/* Lab Card Header */
+.lab-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}

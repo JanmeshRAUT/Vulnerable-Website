@@ -1,30 +1,103 @@
-
 {% extends 'base.html' %}
-{% block title %}Lab 6: Command Injection{% endblock %}
+{% block title %}Track Shipment - GlobalLogix{% endblock %}
 
-{% block content %}
-    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+{% block header %}
+<style>
+    :root {
+        --gl-primary: #3b82f6;
+        --gl-dark: #020617;
+    }
+    .gl-hero {
+        background: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000') center/cover;
+        height: 300px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    .gl-hero::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(2, 6, 23, 0.8);
+    }
+    .gl-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+    }
+    .terminal-output {
+        background: #000;
+        color: #10b981;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid #1e293b;
+        margin-top: 2rem;
+        font-size: 0.85rem;
+        box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.1);
+    }
+</style>
+<div class="gl-hero">
+    <div class="gl-content">
+        <h1 style="color: white; font-size: 3rem; margin-bottom: 0.5rem;">Shipment Tracking</h1>
+        <p style="color: #60a5fa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">Real-time Global Logistics Infrastructure</p>
+    </div>
+</div>
+{% endblock %}
 
-    <h2>Lab 6: Command Injection</h2>
-    <div class="banner">
-        ⚠️ This application executes user input directly in a system shell.
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; position: relative; z-index: 20;">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
+        <h2 style="margin: 0; color: white;">Module 6: Command Injection</h2>
     </div>
 
-    <div class="card" style="max-width: 500px; margin: 0 auto;">
-        <h3>Track Order Delivery</h3>
-        <p>Check the status of your shipment by entering the server address.</p>
+    <div style="max-width: 850px; margin: 0 auto; position: relative; z-index: 10;">
+        <div class="card glass-panel" style="border-top: 4px solid var(--gl-primary);">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <span class="card-icon" style="margin-bottom: 0;">💻</span>
+                <h2 style="margin: 0;">Network Ping Tool</h2>
+            </div>
+            <p style="margin-bottom: 2rem; color: #94a3b8;">Verify connectivity to our regional tracking nodes. Enter the node IP or hostname to initiate a diagnostic sequence.</p>
         
-        <form action="{{ url_for('lab6_track') }}" method="POST">
-            <label for="address">Delivery Server IP:</label>
-            <input type="text" id="address" name="address" required placeholder="e.g. 8.8.8.8">
-            <br><br>
-            
-            <button type="submit" class="btn">Track Order</button>
+        <form action="{{ url_for('lab6_track') }}" method="POST" id="trackForm">
+            <div style="display: flex; gap: 1rem;">
+                <input type="text" name="address" placeholder="e.g. tracking-node-01.globallogix.net" required style="margin-bottom: 0;">
+                <button type="submit" class="btn" style="white-space: nowrap;">Run Diagnostics</button>
+            </div>
         </form>
+
+        <div id="outputContainer" style="display: none;">
+            <div style="margin-top: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #10b981;">LIVE OUTPUT</span>
+            </div>
+            <div class="terminal-output" id="terminalResult"></div>
+        </div>
     </div>
-    
-    <div class="alert alert-error" style="margin-top: 2rem;">
-        Hint: Use command separators like <code>&&</code> or <code>|</code> to execute arbitrary commands.
-        <br>Try: <code>8.8.8.8 && dir</code> (Windows) or <code>8.8.8.8 ; ls</code> (Linux/Mac)
-    </div>
+</div>
+
+<script>
+    document.getElementById('trackForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const outputContainer = document.getElementById('outputContainer');
+        const terminalResult = document.getElementById('terminalResult');
+        
+        outputContainer.style.display = 'block';
+        terminalResult.innerHTML = "> Initiating network handshake...\n> Resolving host...\n> Pinging...";
+        
+        const formData = new FormData(this);
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())
+        .then(data => {
+            terminalResult.innerHTML = data;
+        })
+        .catch(err => {
+            terminalResult.innerHTML = "> Error: Connection timeout.";
+        });
+    });
+</script>
 {% endblock %}

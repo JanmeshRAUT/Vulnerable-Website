@@ -1,56 +1,122 @@
-
 {% extends 'base.html' %}
-{% block title %}Order History{% endblock %}
+{% block title %}Order History - RESEARCH_OPS{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('home') }}" class="btn">Back to Home</a>
-
-    <h2>Order History</h2>
-    <div class="card">
-        {% if orders %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td>#{{ order.id }}</td>
-                    <td>{{ order.date }}</td>
-                    <td><span class="badge">{{ order.status }}</span></td>
-                    <td>${{ order.total }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>No orders found.</p>
-        {% endif %}
+<!-- Page Header -->
+<div class="orders-container">
+    <div class="orders-header">
+        <div>
+            <h1>Order History</h1>
+            <p>Manage and track your orders</p>
+        </div>
+        <a href="{{ url_for('product_list') }}" class="btn">📦 Continue Shopping</a>
     </div>
 
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        th {
-            background-color: var(--bg-color);
-        }
-        .badge {
-            background-color: #334155;
-            padding: 0.2rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-        }
-    </style>
+    <!-- Order Stats -->
+    <div class="order-stats">
+        <div class="stat-box">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Total Orders</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">1</div>
+            <div class="stat-label">Delivered</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">$89.99</div>
+            <div class="stat-label">Total Spent</div>
+        </div>
+    </div>
+
+    <!-- Orders List -->
+    {% if orders %}
+        {% for order in orders %}
+        <div class="order-item">
+            <div class="order-header-info">
+                <div class="order-header-item">
+                    <div class="order-header-label">Order ID</div>
+                    <div class="order-header-value">#{{ order.id }}</div>
+                </div>
+                <div class="order-header-item">
+                    <div class="order-header-label">Date</div>
+                    <div class="order-header-value">{{ order.date }}</div>
+                </div>
+                <div class="order-header-item">
+                    <div class="order-header-label">Status</div>
+                    <div class="order-header-value">
+                        <span class="status-badge status-{{ order.status|lower|replace(' ', '') }}">
+                            {{ order.status }}
+                        </span>
+                    </div>
+                </div>
+                <div class="order-header-item">
+                    <div class="order-header-label">Total</div>
+                    <div class="order-header-value order-total-price">${{ "%.2f"|format(order.total) }}</div>
+                </div>
+            </div>
+
+            <div class="order-items-list">
+                <div class="order-items-header">
+                    <strong>Item</strong>
+                    <strong>Qty</strong>
+                    <strong>Price</strong>
+                </div>
+                <div class="order-item-row">
+                    <span class="order-item-name">Sample Product</span>
+                    <span class="order-item-qty">1x</span>
+                    <span class="order-item-price">$59.99</span>
+                </div>
+            </div>
+
+            <div class="order-actions">
+                <button class="order-btn">📋 View Details</button>
+                <button class="order-btn">🚚 Track Shipment</button>
+                <button class="order-btn">💬 Contact Support</button>
+                <button class="order-btn">🔁 Reorder</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="order-item">
+        <div class="empty-orders">
+            <div class="empty-orders-icon">📦</div>
+            <h3>No orders yet</h3>
+            <p>Start shopping to create your first order</p>
+            <a href="{{ url_for('product_list') }}" class="btn">Browse Products</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Order Timeline Example -->
+    <div class="order-timeline">
+        <h3>📍 Order Tracking</h3>
+        <div class="timeline-container">
+            <div class="timeline-item">
+                <div class="timeline-icon completed">✓</div>
+                <div class="timeline-content">
+                    <h4>Order Confirmed</h4>
+                    <p>Feb 5, 2026 at 10:30 AM</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon completed">✓</div>
+                <div class="timeline-content">
+                    <h4>Shipped</h4>
+                    <p>Feb 6, 2026 at 2:15 PM</p>
+                </div>
+            </div>
+            <div class="timeline-item timeline-pending">
+                <div class="timeline-icon pending">❌</div>
+                <div class="timeline-content">
+                    <h4>Out for Delivery</h4>
+                    <p>Estimated Feb 8, 2026</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="orders-support">
+    <p>Need help? <a href="#">Contact Support</a> | <a href="#">View FAQ</a></p>
+</div>
 {% endblock %}

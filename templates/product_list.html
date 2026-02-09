@@ -1,17 +1,58 @@
-
 {% extends 'base.html' %}
-{% block title %}Products{% endblock %}
+{% block title %}Catalog - RESEARCH_OPS Shop{% endblock %}
 
 {% block content %}
-    <h2>Our Products</h2>
-    <div class="card-grid">
-        {% for product in products %}
-        <div class="card">
-            <h3><a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3>
-            <p>{{ product.description }}</p>
-            <p><strong>${{ product.price }}</strong></p>
-            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn">View Details</a>
-        </div>
-        {% endfor %}
+<!-- Header -->
+<div class="product-list-header">
+    <div>
+        <h1>Product Catalog</h1>
+        <p>Browse our security research collection</p>
     </div>
+    <div class="product-count">
+        <span>📦 {{ products|length }} products</span>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="product-filter">
+    <div class="filter-group">
+        <label>Sort by:</label>
+        <select>
+            <option value="">Price: Low to High</option>
+            <option value="">Price: High to Low</option>
+            <option value="">Newest</option>
+            <option value="">Most Popular</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>Search:</label>
+        <input type="text" placeholder="Find products...">
+    </div>
+</div>
+
+<!-- Products Grid -->
+<div class="card-grid">
+    {% for product in products %}
+    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-card">
+        <div class="card">
+            <div class="product-image">🛍️</div>
+            <div class="product-info">
+                <div class="product-name">{{ product.name }}</div>
+                <p class="product-desc">{{ product.description }}</p>
+                <div class="product-footer">
+                    <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                    <span class="product-stock">In Stock: {{ product.stock }}</span>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Empty State -->
+{% if not products %}
+<div class="products-empty">
+    <p>No products available. Check back soon!</p>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,349 @@
+/* Lab 2.1 TechStore Styles */
+.tech-header {
+    background: #0B1120;
+    border-bottom: 1px solid #1E293B;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tech-brand {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(to right, white, #94A3B8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-section-tech {
+    background: radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 60%);
+    border-radius: 1rem;
+    padding: 5rem 3rem;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #1E293B;
+}
+
+.hero-content-tech {
+    position: relative;
+    z-index: 10;
+    max-width: 600px;
+}
+
+.glow-effect-tech {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: #06B6D4;
+    filter: blur(100px);
+    opacity: 0.15;
+    border-radius: 50%;
+    top: -50px;
+    right: -50px;
+}
+
+.product-grid-tech {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding-bottom: 4rem;
+}
+
+.product-card-tech {
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.product-card-tech:hover {
+    transform: translateY(-8px);
+    border-color: #3B82F6;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+.badge-tech {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: linear-gradient(135deg, #06B6D4, #3B82F6);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.footer-link-tech {
+    color: #64748B;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+}
+
+.footer-link-tech:hover {
+    color: #94A3B8;
+}
+
+.tech-h1-gradient {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(to right, white, #94A3B8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.feature-card-tech {
+    background: rgba(30, 41, 59, 0.5);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #334155;
+}
+
+.product-image-container-tech {
+    height: 220px;
+    background: #0F172A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+/* Header Components */
+.tech-header-left {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+}
+
+.tech-brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.tech-logo-circle {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #06B6D4, #3B82F6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+}
+
+.tech-logo-text {
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.tech-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.tech-search-container {
+    position: relative;
+}
+
+.tech-search-input {
+    background: #1E293B;
+    border: 1px solid #334151;
+    color: white;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    width: 240px;
+}
+
+.tech-search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748B;
+}
+
+.tech-cart-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+}
+
+.tech-account-btn {
+    background: #3B82F6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* Navigation */
+.tech-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #94A3B8;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+/* Hero Section */
+.tech-hero-subtitle {
+    font-size: 1.25rem;
+    color: #94A3B8;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.tech-hero-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.tech-btn-large {
+    padding: 1rem 2rem;
+}
+
+/* Features Section */
+.tech-features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.tech-feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.tech-feature-title {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.tech-feature-desc {
+    color: #94A3B8;
+    font-size: 0.9rem;
+}
+
+/* Products Section */
+.tech-products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+}
+
+.tech-products-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.tech-view-all-link {
+    color: #3B82F6;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Product Cards */
+.tech-product-emoji {
+    font-size: 4rem;
+    opacity: 0.8;
+}
+
+.tech-product-content {
+    padding: 1.5rem;
+}
+
+.tech-product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.tech-product-name {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.tech-product-price {
+    color: #3B82F6;
+    font-weight: 700;
+}
+
+.tech-product-desc {
+    color: #94A3B8;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    height: 40px;
+}
+
+.tech-add-to-cart-btn {
+    width: 100%;
+}
+
+/* Footer */
+.tech-footer {
+    border-top: 1px solid #1E293B;
+    padding-top: 4rem;
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 4rem;
+}
+
+.tech-footer-brand {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.tech-footer-desc {
+    color: #64748B;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 300px;
+}
+
+.tech-footer-section-heading {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.tech-footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}

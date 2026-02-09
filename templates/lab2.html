@@ -3,29 +3,35 @@
 {% block title %}Lab 2: Access Control{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
-
-    <h2>Lab 2: Access Control</h2>
-    <div class="banner">
-        ⚠️ This lab is intentionally vulnerable to Broken Access Control.
+    <div class="lab-module-header">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
+        <h2>Module 2: Broken Access Control</h2>
     </div>
 
-    <p>Welcome to the Employee Portal. Please select an action:</p>
+    <div class="banner">
+        ⚠️ Intentional Vulnerability: Unauthorized data access and privilege escalation.
+    </div>
 
-    <div class="card-grid">
+    <div class="card-grid lab-card-container">
         <div class="card">
-            <h3>My Profile</h3>
-            <p>View your employee details.</p>
-            <!-- IDOR Vulnerability link -->
-            <a href="{{ url_for('lab2_user', id=2) }}" class="btn">View Profile (ID: 2)</a>
+            <span class="card-icon">👤</span>
+            <h3>Employee Profile</h3>
+            <p>Access your own employee records. A unique identifier is used to retrieve data from the backend.</p>
+            <a href="{{ url_for('lab2_user', id=2) }}" class="btn">View My Profile (ID: 2)</a>
         </div>
         
-        <div class="card" style="opacity: 0.5;">
-            <h3>Admin Panel</h3>
-            <p>(Authorized Personnel Only)</p>
-            <!-- Hidden Admin Link (Security through Obscurity) -->
-            <!-- In real world this might be removed from HTML but endpoint exists -->
-            <a href="{{ url_for('lab2_admin') }}" class="btn btn-danger">Admin Dashboard</a>
+        <div class="card lab-disabled-card">
+            <span class="card-icon">🔐</span>
+            <h3>Admin Console</h3>
+            <p>Restricted to system administrators. This link is usually hidden from non-privileged users.</p>
+            <a href="{{ url_for('lab2_admin') }}" class="btn btn-danger">Attempt Access</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">⚡</span>
+            <h3>Advanced Variations</h3>
+            <p>Practice parameter tampering and cookie-based access control across multiple themed environments.</p>
+            <a href="{{ url_for('lab2_1') }}" class="btn btn-secondary">Explore Variations</a>
         </div>
     </div>
     

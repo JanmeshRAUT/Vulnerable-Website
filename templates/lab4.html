@@ -3,28 +3,36 @@
 {% block title %}Lab 4: SSRF{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
+    <div class="lab-module-header">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
+        <h2>Module 4: SSRF</h2>
+    </div>
 
-    <h2>Lab 4: Server-Side Request Forgery</h2>
     <div class="banner">
-        ⚠️ This application makes requests on your behalf.
+        ⚠️ Intentional Vulnerability: Server-side identity theft and internal network probing.
     </div>
 
-    <div class="card" style="max-width: 600px; margin: 0 auto;">
-        <h3>Product Stock Checker</h3>
-        <p>Check availability from our supplier API.</p>
-        
-        <form action="{{ url_for('lab4_check_stock') }}" method="POST">
-            <label for="stock_api">Supplier API URL:</label>
-            <input type="text" id="stock_api" name="stock_api" value="http://example.com" required>
-            <small>Default: http://example.com (Simulated API)</small>
-            <br><br>
+    <div class="lab-max-width">
+        <div class="card glass-panel">
+            <span class="card-icon">📡</span>
+            <h3>Product Stock Checker</h3>
+            <p>Our distributed inventory system allows real-time stock verification with global suppliers.</p>
             
-            <button type="submit" class="btn">Check Stock</button>
-        </form>
+            <form action="{{ url_for('lab4_check_stock') }}" method="POST">
+                <div class="form-group">
+                    <label for="stock_api" class="form-label">Supplier API Connector</label>
+                    <input type="text" id="stock_api" name="stock_api" class="form-input" value="http://example.com" required>
+                    <small class="lab-form-hint">
+                        Default Endpoint: <code>http://example.com</code> (Internal Simulation)
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn lab-submit-btn">VALIDATE CONNECTIVITY</button>
+            </form>
+        </div>
     </div>
 
-    <div class="alert alert-error" style="margin-top: 2rem;">
+    <div class="alert alert-error lab-alert-box">
         Hint: Can you modify the URL to access internal services?
         <br>Try: <code>http://localhost:5000/lab2/admin</code>
     </div>

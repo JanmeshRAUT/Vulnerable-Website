@@ -2,32 +2,37 @@
 {% block title %}Lab 1: Path Traversal{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('home') }}" class="btn">Back to Labs</a>
-
-    <h2>Lab 1: Path Traversal Sub-Labs</h2>
-    <div class="banner">
-        ⚠️ This lab contains 3 variations testing path traversal vulnerabilities in different contexts.
+    <div class="lab-header">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
+        <h2 class="lab-title">Module 1: Path Traversal</h2>
     </div>
 
-    <div class="card-grid">
+    <div class="banner">
+        ⚠️ Intentional Vulnerability: Unauthorized directory browsing and sensitive file exfiltration.
+    </div>
+
+    <div class="card-grid lab-card-grid">
         <!-- Lab 1.1 -->
         <div class="card">
-            <h3>Lab 1.1: DocuVault</h3>
-            <p>Document management system with invoice downloads.</p>
+            <span class="card-icon">📂</span>
+            <h3>1.1: DocuVault</h3>
+            <p>Corporate document management system. Exploit direct file references in invoice delivery modules.</p>
             <a href="{{ url_for('lab1_1') }}" class="btn">Start Lab 1.1</a>
         </div>
         
         <!-- Lab 1.2 -->
         <div class="card">
-            <h3>Lab 1.2: Bean & Brew</h3>
-            <p>Coffee shop e-commerce site with product catalog.</p>
+            <span class="card-icon">☕</span>
+            <h3>1.2: Bean & Brew</h3>
+            <p>Boutique coffee e-commerce. Challenge backend image loaders that process external path parameters.</p>
             <a href="{{ url_for('lab1_2') }}" class="btn">Start Lab 1.2</a>
         </div>
         
         <!-- Lab 1.3 -->
         <div class="card">
-            <h3>Lab 1.3: PixelMarket</h3>
-            <p>Premium stock photography marketplace.</p>
+            <span class="card-icon">🖼️</span>
+            <h3>1.3: PixelMarket</h3>
+            <p>High-resolution asset marketplace. Bypass validation filters to access underlying system configuration.</p>
             <a href="{{ url_for('lab1_3') }}" class="btn">Start Lab 1.3</a>
         </div>
     </div>

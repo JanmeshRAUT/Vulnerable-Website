@@ -2,52 +2,53 @@
 {% block title %}SUPERUSER CONSOLE - ElectroMart{% endblock %}
 
 {% block header %}
-    <header style="background: #111827; color: #2563eb; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #2563eb;">
-        <div style="font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: white;">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_c.css') }}">
+    <header class="electro-admin-header">
+        <div class="electro-admin-logo">
             [ELECTRO_ROOT]
         </div>
-        <button onclick="window.location.href='{{ url_for('lab2_4c') }}'" style="background: #2563eb; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 700;">SYSTEM_SHUTDOWN</button>
+        <button onclick="window.location.href='{{ url_for('lab2_4c') }}';" class="btn-electro-shutdown">SYSTEM_SHUTDOWN</button>
     </header>
 {% endblock %}
 
 {% block content %}
 <div style="margin-top: 2rem;">
-    <div style="background: #2563eb; color: white; padding: 1.5rem 2rem; border-radius: 8px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);">
+    <div class="electro-admin-banner">
         <div>
-            <h2 style="margin: 0; font-family: monospace;">ACCESS_GRANTED::ADMIN_LAYER_ROOT</h2>
+            <h2 style="margin: 0;">ACCESS_GRANTED::ADMIN_LAYER_ROOT</h2>
             <p style="margin: 5px 0 0 0; font-size: 0.9rem; opacity: 0.9;">Credentials bypassed. System vulnerability exploited successfully.</p>
         </div>
-        <div style="font-family: monospace; text-align: right;">
+        <div style="text-align: right;">
             <div style="font-weight: 800; font-size: 1.25rem;">FLAG :: {{ flag }}</div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-        <div class="card" style="background: #111827; border: 1px solid #374151; color: #9ca3af; padding: 2rem; font-family: 'Courier New', monospace;">
-            <h3 style="color: #2563eb; border-bottom: 1px solid #374151; padding-bottom: 1rem; margin-bottom: 1.5rem;">CENTRAL_USER_DIRECTORY</h3>
+        <div class="card electro-admin-card">
+            <h3 class="electro-admin-title">CENTRAL_USER_DIRECTORY</h3>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px solid #1f2937;">
+                <div class="electro-directory-row">
                     <span>UID_001 :: user</span>
                     <span style="color: #22c55e;">ONLINE</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px solid #1f2937;">
+                <div class="electro-directory-row">
                     <span>UID_002 :: alice</span>
                     <span style="color: #4b5563;">OFFLINE</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px solid #1f2937;">
+                <div class="electro-directory-row">
                     <span>UID_003 :: bob</span>
                     <span style="color: #4b5563;">OFFLINE</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px solid #1f2937;">
+                <div class="electro-directory-row">
                     <span>UID_000 :: admin</span>
                     <span style="color: #22c55e;">ONLINE [YOU]</span>
                 </div>
             </div>
         </div>
 
-        <div class="card" style="background: #111827; border: 1px solid #374151; color: #9ca3af; padding: 2rem; font-family: 'Courier New', monospace;">
-            <h3 style="color: #2563eb; border-bottom: 1px solid #374151; padding-bottom: 1rem; margin-bottom: 1.5rem;">NETWORK_TRAFFIC</h3>
-            <div style="height: 200px; background: #000; border: 1px solid #374151; padding: 1rem; overflow-y: hidden; font-size: 0.8rem; line-height: 1.4;">
+        <div class="card electro-admin-card">
+            <h3 class="electro-admin-title">NETWORK_TRAFFIC</h3>
+            <div class="electro-terminal-box">
                 <p>> INCOMING: POST /api/v1/auth - 200 OK</p>
                 <p style="color: #22c55e;">> ALERT: GET /lab2/4c/account?username=admin</p>
                 <p>> STATUS: ADMIN_PRIVILEGES_ELEVATED</p>

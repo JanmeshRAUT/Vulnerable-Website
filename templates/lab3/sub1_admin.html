@@ -1,56 +1,100 @@
 {% extends 'base.html' %}
-{% block title %}Admin Panel - CyberMart{% endblock %}
+{% block title %}Administrator Portal - SecureVault{% endblock %}
 
 {% block header %}
-    <header style="background: #10b981; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab3') }}" style="color: #d1fae5; font-size: 0.875rem; text-decoration: none;">&larr; Back to Lab Menu</a>
-            <div style="font-weight: 700; font-size: 1.5rem;">🔐 CyberMart Admin</div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lab3/1/admin.css') }}">
+    <header class="admin-header">
+        <div class="admin-header-left">
+            <a href="{{ url_for('lab3') }}" class="admin-back-link">&larr; Lab Menu</a>
+            <div class="admin-title">
+                <span class="admin-icon">🔐</span>
+                <h1>SecureVault Admin</h1>
+            </div>
         </div>
-        <div>
-            <span style="margin-right: 1rem; color: #d1fae5;">👤 {{ admin_username }}</span>
-            <a href="{{ url_for('lab3_1_logout') }}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Logout</a>
+        <div class="admin-header-right">
+            <div class="admin-user-info">
+                <span class="admin-user-icon">👤</span>
+                <span class="admin-username">{{ admin_username }}</span>
+            </div>
+            <a href="{% if variant == '2' %}{{ url_for('lab3_1_2_logout') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_logout') }}{% else %}{{ url_for('lab3_1_logout') }}{% endif %}" class="btn-logout">Logout</a>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 1200px; margin: 0 auto;">
-        <h2 style="margin-bottom: 2rem;">🛡️ Administrator Dashboard</h2>
-        
+    <div class="admin-container">
         {% if flag %}
-            <script>
-                alert("Congratulations! {{ flag }}");
-            </script>
-            <div class="alert alert-success" style="margin-bottom: 2rem;">
-                <strong>🎉 FLAG CAPTURED!</strong> {{ flag }}
-            </div>
-            <p>You successfully brute forced the admin credentials and deleted a user!</p>
-            <div style="margin-top: 2rem;">
-                <a href="{{ url_for('lab3_1') }}" class="btn">Back to Store</a>
-                <a href="{{ url_for('lab3') }}" class="btn">Lab Menu</a>
+            <!-- Success State -->
+            <div class="success-banner">
+                <div class="success-content">
+                    <h2 class="success-title">🎉 Challenge Complete!</h2>
+                    <p class="success-message">You successfully brute forced the admin credentials</p>
+                    <div class="flag-box">
+                        <p class="flag-label">Congratulations</p>
+                        <code class="flag-text">{{ flag }}</code>
+                    </div>
+                    <p class="success-subtitle">You've demonstrated the dangers of weak authentication without rate limiting</p>
+                    <div class="success-actions">
+                        <a href="{{ url_for('lab3_1') }}" class="btn-primary">Return to Store</a>
+                        <a href="{{ url_for('lab3') }}" class="btn-secondary">Lab Menu</a>
+                    </div>
+                </div>
             </div>
         {% else %}
-            <div class="card">
-                <h3>User Management</h3>
-                <p style="color: #94a3b8; margin-top: 0.5rem;">Manage system users</p>
-                
-                <div style="margin-top: 2rem;">
+            <!-- Admin Panel -->
+            <div class="admin-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">User Management System</h2>
+                    <p class="panel-subtitle">Manage registered users and system accounts</p>
+                </div>
+
+                <div class="user-management-section">
                     {% if users %}
-                        {% for user in users %}
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #334155;">
-                            <div>
-                                <p style="font-weight: 600;">{{ user.username }}</p>
-                                <p style="font-size: 0.875rem; color: #94a3b8;">ID: {{ user.id }} | {{ user.email or 'No email' }}</p>
+                        <div class="users-list">
+                            <div class="list-header">
+                                <div class="col-username">Username</div>
+                                <div class="col-email">Email Address</div>
+                                <div class="col-id">User ID</div>
+                                <div class="col-action">Action</div>
                             </div>
-                            <form method="POST" action="{{ url_for('lab3_1_delete_user') }}" style="margin: 0;">
-                                <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Delete</button>
-                            </form>
+                            
+                            {% for user in users %}
+                            <div class="user-row">
+                                <div class="col-username">
+                                    <p class="user-name">{{ user.username }}</p>
+                                </div>
+                                <div class="col-email">
+                                    <p class="user-email">{{ user.email or 'No email registered' }}</p>
+                                </div>
+                                <div class="col-id">
+                                    <code class="user-id">{{ user.id }}</code>
+                                </div>
+                                <div class="col-action">
+                                    <form method="POST" action="{% if variant == '2' %}{{ url_for('lab3_1_2_delete_user') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_delete_user') }}{% else %}{{ url_for('lab3_1_delete_user') }}{% endif %}" class="delete-form">
+                                        <button type="submit" class="btn-danger btn-sm" onclick="return confirm('Delete this user?');">
+                                            ⛔ Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     {% else %}
-                        <p style="color: #94a3b8;">No users to display.</p>
+                        <div class="empty-state">
+                            <p class="empty-icon">👥</p>
+                            <p class="empty-text">No users to display</p>
+                        </div>
                     {% endif %}
+                </div>
+
+                <div class="admin-info-box">
+                    <h3>ℹ️ Administration Notes</h3>
+                    <ul>
+                        <li>You have full access to user management functions</li>
+                        <li>All deletions are permanent and cannot be undone</li>
+                        <li>Changes are logged in the system audit trail</li>
+                        <li>This interface demonstrates the risks of weak authentication</li>
+                    </ul>
                 </div>
             </div>
         {% endif %}

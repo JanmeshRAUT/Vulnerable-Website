@@ -11,22 +11,22 @@
 
     <div class="card-grid">
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #64748b, #94a3b8); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">🚗</div>
+            <div class="variation-preview preview-auto">🚗</div>
             <h3>Variation A: AutoParts</h3>
-            <p style="color: #94a3b8;">Auto parts store</p>
-            <a href="{{ url_for('lab2_4') }}" class="btn" style="background: #64748b;">Start Variation A</a>
+            <p class="variation-desc">Strategic distribution of automotive components.</p>
+            <a href="{{ url_for('lab2_4') }}" class="btn">Start Variation A</a>
         </div>
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #eab308, #fbbf24); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">💎</div>
+            <div class="variation-preview preview-shophub">💎</div>
             <h3>Variation B: JewelryStore</h3>
-            <p style="color: #94a3b8;">Jewelry marketplace (Same vulnerability)</p>
-            <a href="{{ url_for('lab2_4b') }}" class="btn" style="background: #eab308;">Start Variation B</a>
+            <p class="variation-desc">Exclusive collection of luxury gemstones and jewelry.</p>
+            <a href="{{ url_for('lab2_4b') }}" class="btn">Start Variation B</a>
         </div>
         <div class="card">
-            <div style="height: 100px; background: linear-gradient(135deg, #2563eb, #3b82f6); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">⚡</div>
+            <div class="variation-preview preview-tech">⚡</div>
             <h3>Variation C: ElectroMart</h3>
-            <p style="color: #94a3b8;">Electronics hub (Same vulnerability)</p>
-            <a href="{{ url_for('lab2_4c') }}" class="btn" style="background: #2563eb;">Start Variation C</a>
+            <p class="variation-desc">High-speed electronics and consumer hardware.</p>
+            <a href="{{ url_for('lab2_4c') }}" class="btn">Start Variation C</a>
         </div>
     </div>
 {% endblock %}

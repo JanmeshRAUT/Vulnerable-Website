@@ -2,173 +2,52 @@
 {% block title %}FashionHub - Style Redefined{% endblock %}
 
 {% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_b.css') }}">
     <!-- Custom Header for Lab 2.1 B (FashionHub Theme) -->
-    <header style="background: white; border-bottom: 1px solid #e5e5e5; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 3rem;">
+    <header class="fashion-header">
+        <div class="fashion-header-left">
             <!-- Brand -->
-            <a href="{{ url_for('lab2_1b') }}" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-                <span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.75rem; letter-spacing: 0.05em; color: #111;">FASHIONHUB</span>
+            <a href="{{ url_for('lab2_1b') }}" class="fashion-brand-link">
+                <span class="fashion-brand">FASHIONHUB</span>
             </a>
             
             <!-- Navigation -->
-            <nav style="display: flex; gap: 2rem; display: none; margin-left:1rem; display:md:flex;">
-                <a href="#" style="color: #111; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">New In</a>
-                <a href="#" style="color: #111; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Clothing</a>
-                <a href="#" style="color: #111; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Accessories</a>
-                <a href="#" style="color: #eb4d4b; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: bold;">Sale</a>
+            <nav class="fashion-nav">
+                <a href="#" class="fashion-nav-link">New In</a>
+                <a href="#" class="fashion-nav-link">Clothing</a>
+                <a href="#" class="fashion-nav-link">Accessories</a>
+                <a href="#" class="fashion-nav-link-sale">Sale</a>
             </nav>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <button style="background: transparent; border: none; font-size: 1.25rem; cursor: pointer; color: #111;">🔍</button>
-            <button style="background: transparent; border: none; font-size: 1.25rem; cursor: pointer; color: #111;">♥</button>
-            <button style="background: transparent; border: none; font-size: 1.25rem; cursor: pointer; color: #111;">🛍️</button>
+        <div class="fashion-header-right">
+            <button class="fashion-header-btn">🔍</button>
+            <button class="fashion-header-btn">♥</button>
+            <button class="fashion-header-btn">🛍️</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <style>
-        body { background-color: #f9f9f9 !important; font-family: 'Helvetica Neue', sans-serif; color: #333; }
-        
-        .hero-section {
-            background: #f3e5f5;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            margin: -2rem -2rem 3rem -2rem; /* Extend to edges */
-            position: relative;
-        }
-        
-        .hero-content h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            color: #4a148c;
-        }
-        
-        .hero-content p {
-            font-size: 1.1rem;
-            color: #6a1b9a;
-            margin-bottom: 2rem;
-            font-style: italic;
-        }
-        
-        .cta-btn {
-            background: #111;
-            color: white;
-            padding: 1rem 2.5rem;
-            text-decoration: none;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.1em;
-            transition: background 0.3s;
-        }
-        
-        .cta-btn:hover {
-            background: #333;
-        }
-        
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            padding: 0 1rem 4rem 1rem;
-        }
-        
-        .product-card {
-            background: white;
-            border: none;
-            transition: all 0.3s ease;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-        
-        .product-image {
-            height: 350px;
-            background: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .badge {
-            position: absolute;
-            top: 1rem;
-            left: 0;
-            background: #111;
-            color: white;
-            padding: 0.5rem 1rem;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        
-        .product-info {
-            padding: 1.5rem 0;
-            text-align: center;
-        }
-        
-        .product-name {
-            font-size: 1rem;
-            font-weight: 400;
-            margin-bottom: 0.5rem;
-            color: #111;
-        }
-        
-        .product-price {
-            font-weight: 700;
-            color: #111;
-        }
-        
-        .footer-minimal {
-            border-top: 1px solid #eee;
-            padding: 3rem 0;
-            text-align: center;
-            margin-top: 3rem;
-        }
-        
-        .footer-link {
-            color: #666;
-            margin: 0 1rem;
-            text-decoration: none;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .footer-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-
     <!-- Lab Context -->
-    <div style="padding: 1rem; text-align: center; background: #fff3e0; margin: -2rem -2rem 2rem -2rem; font-size: 0.9rem;">
-        <span>Lab 2.1 Variation B</span> • <a href="{{ url_for('lab2_1_menu') }}" style="color: #e65100; font-weight: bold;">Switch Theme</a>
+    <div class="fashion-context-banner">
+        <span>Lab 2.1 Variation B</span> • <a href="{{ url_for('lab2_1_menu') }}" class="fashion-context-link">Switch Theme</a>
     </div>
 
     <!-- Hero -->
-    <div class="hero-section">
-        <div class="hero-content">
+    <div class="hero-section-fashion">
+        <div class="hero-content-fashion">
             <h1>The Summer Collection</h1>
             <p>Effortless style for the modern muse.</p>
-            <a href="#" class="cta-btn">Shop Now</a>
+            <a href="#" class="cta-btn-fashion">Shop Now</a>
         </div>
     </div>
 
     <!-- Filter Bar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 0 1rem;">
-        <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">4 Products</div>
-        <div style="display: flex; gap: 1rem;">
-            <select style="border: none; background: transparent; font-size: 0.9rem; cursor: pointer;">
+    <div class="fashion-filter-bar">
+        <div class="fashion-filter-label">4 Products</div>
+        <div class="fashion-filter-controls">
+            <select class="fashion-sort-select">
                 <option>Sort by: Featured</option>
                 <option>Price: Low to High</option>
                 <option>Price: High to Low</option>
@@ -176,35 +55,35 @@
         </div>
     </div>
 
-    <div class="product-grid">
+    <div class="product-grid-fashion">
         {% for product in products %}
-        <div class="product-card">
-            <div class="product-image">
+        <div class="product-card-fashion">
+            <div class="product-image-fashion">
                 {% if product.badge %}
-                <div class="badge">{{ product.badge }}</div>
+                <div class="badge-fashion">{{ product.badge }}</div>
                 {% endif %}
-                <span style="opacity: 0.2;">
+                <span class="fashion-product-emoji">
                     {% if 'Gown' in product.name %}👗{% elif 'Hoodie' in product.name %}🧥{% elif 'Bag' in product.name %}👜{% else %}🧣{% endif %}
                 </span>
             </div>
-            <div class="product-info">
-                <h3 class="product-name">{{ product.name }}</h3>
-                <div class="product-price">${{ product.price }}</div>
-                <button style="margin-top: 1rem; background: transparent; border: 1px solid #111; padding: 0.5rem 2rem; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.1em; transition: all 0.2s;">Add to Bag</button>
+            <div class="product-info-fashion">
+                <h3 class="product-name-fashion">{{ product.name }}</h3>
+                <div class="product-price-fashion">${{ product.price }}</div>
+                <button class="fashion-add-to-bag-btn">Add to Bag</button>
             </div>
         </div>
         {% endfor %}
     </div>
 
     <!-- Footer -->
-    <footer class="footer-minimal">
-        <div style="margin-bottom: 2rem;">
-            <a href="#" class="footer-link">About</a>
-            <a href="#" class="footer-link">Stockists</a>
-            <a href="#" class="footer-link">FAQ</a>
-            <a href="#" class="footer-link">Contact</a>
+    <footer class="footer-minimal-fashion">
+        <div class="fashion-footer-links">
+            <a href="#" class="footer-link-fashion">About</a>
+            <a href="#" class="footer-link-fashion">Stockists</a>
+            <a href="#" class="footer-link-fashion">FAQ</a>
+            <a href="#" class="footer-link-fashion">Contact</a>
         </div>
-        <div style="color: #999; font-size: 0.8rem;">
+        <div class="fashion-footer-copyright">
             &copy; 2026 FashionHub. All rights reserved.
         </div>
     </footer>

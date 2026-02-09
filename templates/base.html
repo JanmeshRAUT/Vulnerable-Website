@@ -1,41 +1,127 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Vulnerable Labs{% endblock %}</title>
+    <title>{% block title %}Lab Center | Vulnerable E-Shop{% endblock %}</title>
+    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Component Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/orders.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/help.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/help-inline.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index-inline.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs-inline.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lab1.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lab-advanced.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base-inline.css') }}">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container">
-    {% block header %}
-        <header>
-            <div class="logo">
-                <h1><a href="{{ url_for('home') }}" style="color:var(--text-primary);">Vulnerable E-Shop</a></h1>
+    <div class="container-fluid">
+        {% block header %}
+        <header class="glass-header">
+            <div class="container header-container">
+                <div class="logo">
+                    <h1><a href="{{ url_for('home') }}">RESEARCH_OPS</a></h1>
+                </div>
+                <nav class="header-nav-flex">
+                    <a href="{{ url_for('home') }}" class="nav-link-custom">Modules</a>
+                    <a href="{{ url_for('product_list') }}" class="nav-link-custom">Catalog</a>
+                    <a href="{{ url_for('cart') }}" class="nav-link-custom">
+                        🛒 Cart
+                    </a>
+                    
+                    <div class="nav-divider"></div>
+                    
+                    {% if session.get('user_id') %}
+                        <a href="{{ url_for('orders') }}" class="nav-link-custom">Orders</a>
+                        <span class="user-badge">
+                            ID: <strong>{{ session.get('username') }}</strong>
+                        </span>
+                        <a href="{{ url_for('logout') }}" class="btn btn-danger auth-btn">Log Out</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-secondary auth-btn">Log In</a>
+                        <a href="{{ url_for('register') }}" class="btn auth-btn">Join</a>
+                    {% endif %}
+                </nav>
             </div>
-            <nav>
-                <a href="{{ url_for('home') }}" class="btn">Home</a>
-                <a href="{{ url_for('product_list') }}" class="btn">Products</a>
-                {% if session.get('user_id') %}
-                    <a href="{{ url_for('orders') }}" class="btn">Orders</a>
-                    <span style="margin: 0 1rem;">Welcome, {{ session.get('username') }}</span>
-                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="btn">Login</a>
-                    <a href="{{ url_for('register') }}" class="btn">Register</a>
-                {% endif %}
-            </nav>
         </header>
-    {% endblock %}
+        {% endblock %}
         
         <main>
-            {% block content %}{% endblock %}
+            {% block layout_container %}
+            <div class="container container-padding-top">
+                {% block content %}{% endblock %}
+            </div>
+            {% endblock %}
         </main>
 
-        <footer style="margin-top: 4rem; text-align: center; color: var(--text-secondary); border-top: 1px solid var(--border); padding-top: 2rem;">
-            <p>&copy; 2026 Vulnerable E-Shop. Creating insecure apps since 2024.</p>
+        <footer class="footer-main">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-section">
+                        <h4>Shopping</h4>
+                        <div class="footer-links">
+                            <a href="{{ url_for('product_list') }}" class="footer-link">Browse Products</a>
+                            <a href="{{ url_for('cart') }}" class="footer-link">Shopping Cart</a>
+                            <a href="{{ url_for('orders') if session.get('user_id') else url_for('login') }}" class="footer-link">Track Orders</a>
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <div class="footer-links">
+                            <a href="{{ url_for('help') }}" class="footer-link">Help Center</a>
+                            <a href="#contact" class="footer-link">Contact Support</a>
+                            <a href="#status" class="footer-link">System Status</a>
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Account</h4>
+                        <div class="footer-links">
+                            {% if session.get('user_id') %}
+                            <a href="{{ url_for('logout') }}" class="footer-link">Log Out</a>
+                            {% else %}
+                            <a href="{{ url_for('login') }}" class="footer-link">Sign In</a>
+                            <a href="{{ url_for('register') }}" class="footer-link">Create Account</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Legal</h4>
+                        <div class="footer-links">
+                            <a href="#privacy" class="footer-link">Privacy Policy</a>
+                            <a href="#terms" class="footer-link">Terms of Service</a>
+                            <a href="#cookies" class="footer-link">Cookie Policy</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <div class="footer-copyright">
+                        &copy; 2026 RESEARCH OPS. All rights reserved. Distributed Vulnerability Training Platform.
+                    </div>
+                    <div class="footer-social">
+                        <a href="#twitter">𝕏</a>
+                        <a href="#linkedin">in</a>
+                        <a href="#github">⚙</a>
+                    </div>
+                </div>
+            </div>
         </footer>
     </div>
 </body>
