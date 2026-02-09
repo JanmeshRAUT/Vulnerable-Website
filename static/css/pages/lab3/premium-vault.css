@@ -7,11 +7,14 @@
     --gold-primary: #d4af37;
     --gold-dark: #aa8c2c;
     --gold-light: #f3e5ab;
-    --luxury-bg: #09090b; /* Zinc 950 */
-    --luxury-surface: #18181b; /* Zinc 900 */
+    --luxury-bg: #09090b;
+    /* Zinc 950 */
+    --luxury-surface: #18181b;
+    /* Zinc 900 */
     --luxury-surface-hover: #27272a;
     --luxury-border: rgba(212, 175, 55, 0.2);
-    --luxury-text: #e4e4e7; /* Zinc 200 */
+    --luxury-text: #e4e4e7;
+    /* Zinc 200 */
     --luxury-muted: #a1a1aa;
     --luxury-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
@@ -40,19 +43,21 @@ a {
 
 /* --- Header --- */
 .cyber-header {
-    background: rgba(9, 9, 11, 0.95);
+    background: rgba(9, 9, 11, 0.98);
     border-bottom: 1px solid var(--luxury-border);
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 1rem 0;
-    backdrop-filter: blur(10px);
+    padding: 1.75rem 0;
+    /* Significantly Increased */
+    backdrop-filter: blur(12px);
 }
 
 .header-container {
-    max-width: 1200px;
+    max-width: 1400px;
+    /* Wider */
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 3rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -61,20 +66,21 @@ a {
 .nav-logo-section {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 5rem;
+    /* Massive gap for luxury spacing */
 }
 
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     text-decoration: none;
 }
 
 .brand-icon {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: var(--gold-primary);
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
 }
 
 .brand-text {
@@ -84,8 +90,9 @@ a {
 
 .brand-name {
     font-family: 'Cinzel', serif;
-    font-size: 1.5rem;
-    letter-spacing: 0.1em;
+    font-size: 1.8rem;
+    /* Larger */
+    letter-spacing: 0.15em;
     font-weight: 400;
     text-transform: uppercase;
     background: linear-gradient(to right, #d4af37, #f3e5ab, #d4af37);
@@ -96,27 +103,29 @@ a {
 
 .brand-subtitle {
     font-family: 'Inter', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--gold-light);
-    opacity: 0.7;
-    margin: 0.2rem 0 0 0;
+    opacity: 0.8;
+    margin: 0.5rem 0 0 0;
 }
 
 .nav-back-btn {
     font-family: 'Inter', sans-serif;
     color: var(--luxury-muted);
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     transition: color 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid rgba(212, 175, 55, 0.1);
 }
 
 .nav-back-btn:hover {
     color: var(--gold-primary);
+    border-color: var(--gold-primary);
 }
 
 .btn-nav-signup {
@@ -124,9 +133,10 @@ a {
     background: transparent;
     border: 1px solid var(--gold-primary);
     color: var(--gold-primary);
-    padding: 0.75rem 2rem;
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
+    padding: 0.8rem 2.5rem;
+    /* Larger button */
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -136,7 +146,7 @@ a {
 .btn-nav-signup:hover {
     background: var(--gold-primary);
     color: var(--luxury-bg);
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
 }
 
 /* --- Hero Section --- */
@@ -320,7 +330,7 @@ a {
     height: 100%;
     object-fit: cover;
     transition: transform 0.6s ease;
-    filter:  grayscale(20%);
+    filter: grayscale(20%);
 }
 
 .product-card:hover .product-image {
@@ -419,6 +429,8 @@ a {
     border-color: var(--gold-primary);
     color: black;
     font-weight: 600;
+    width: auto !important;
+    display: inline-block;
 }
 
 .btn-compact:hover {

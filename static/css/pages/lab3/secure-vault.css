@@ -4,7 +4,8 @@
    ========================================= */
 
 :root {
-    --sv-primary: #10b981; /* EMERALD-500 */
+    --sv-primary: #10b981;
+    /* EMERALD-500 */
     --sv-primary-dark: #059669;
     --sv-primary-light: #34d399;
     --sv-bg-dark: #0f172a;
@@ -41,19 +42,22 @@ a {
 
 /* --- Header --- */
 .cyber-header {
-    background: rgba(15, 23, 42, 0.9);
+    background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--sv-border);
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 1rem 0;
+    padding: 1.75rem 0;
+    /* Significantly Increased */
 }
 
 .header-container {
-    max-width: 1280px;
+    max-width: 1400px;
+    /* Wider container */
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 3rem;
+    /* More horizontal padding */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -62,68 +66,76 @@ a {
 .nav-logo-section {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 4rem;
+    /* Huge gap between back btn and brand */
 }
 
 .nav-back-btn {
     color: var(--sv-text-muted);
-    font-size: 1.25rem;
-    padding: 0.5rem;
-    border-radius: 8px;
+    font-size: 1.5rem;
+    /* Larger icon */
+    padding: 0.75rem;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .nav-back-btn:hover {
     color: var(--sv-primary);
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(16, 185, 129, 0.15);
 }
 
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    /* Increased icon-text gap */
 }
 
 .brand-icon {
-    font-size: 1.8rem;
-    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4));
+    font-size: 2.2rem;
+    /* Larger logo */
+    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.5));
 }
 
 .brand-text {
     display: flex;
     flex-direction: column;
+    justify-content: center;
 }
 
 .brand-name {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: white;
     margin: 0;
-    line-height: 1.1;
+    line-height: 1.2;
     letter-spacing: -0.01em;
 }
 
 .brand-subtitle {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--sv-primary);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     font-weight: 600;
-    margin: 0;
+    margin: 0.4rem 0 0 0;
+    opacity: 0.9;
 }
 
 .btn-nav-signup {
     background: var(--sv-primary);
     color: white;
     border: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.9rem;
+    padding: 0.75rem 2rem;
+    /* Larger button */
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.4);
     transition: all 0.2s ease;
 }
 
@@ -325,9 +337,12 @@ a {
     position: absolute;
     inset: 0;
     background: rgba(15, 23, 42, 0.7);
-    display: flex; /* Flexbox for centering */
-    align-items: center; /* Vertical center */
-    justify-content: center; /* Horizontal center */
+    display: flex;
+    /* Flexbox for centering */
+    align-items: center;
+    /* Vertical center */
+    justify-content: center;
+    /* Horizontal center */
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -407,6 +422,8 @@ a {
 .btn-compact {
     padding: 0.5rem 1.25rem;
     font-size: 0.85rem;
+    width: auto !important;
+    display: inline-block;
 }
 
 /* --- Security Section --- */
@@ -477,7 +494,8 @@ a {
     position: fixed;
     inset: 0;
     z-index: 2000;
-    display: none; /* Controlled by JS */
+    display: none;
+    /* Controlled by JS */
     align-items: center;
     justify-content: center;
     opacity: 0;
@@ -658,7 +676,7 @@ a {
     .cyber-header .header-container {
         padding: 0 1rem;
     }
-    
+
     .hero-section {
         grid-template-columns: 1fr;
         padding: 4rem 1.5rem;
@@ -668,7 +686,7 @@ a {
     .hero-title {
         font-size: 2.5rem;
     }
-    
+
     .hero-subtitle {
         margin-left: auto;
         margin-right: auto;
