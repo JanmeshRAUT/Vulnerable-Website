@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Asset {{ product.name }} - Lab 4.1C{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab4_1c.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
+{% endblock %}
+
+{% block content %}
+<div class="logi-body">
+    <div class="logi-header">
+        <div class="logi-brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path><line x1="12" y1="2" x2="12" y2="4"></line></svg>
+            LOGI-TRACK v4.0
+        </div>
+        <div>
+            <a href="{{ url_for('lab4_1c') }}" class="logi-btn"> Back to Fleet</a>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+        <div class="logi-detail">
+            <!-- Left: Map / Visual -->
+            <div class="logi-tracking-panel">
+                 <div style="font-size: 1.5rem; font-weight: 700; color: var(--logi-text); margin-bottom: 2rem; border-left: 3px solid var(--logi-accent); padding-left: 1rem;">
+                    {{ product.name }}
+                 </div>
+                 <div style="height: 300px; background: #0c0a09; display: flex; align-items: center; justify-content: center; color: var(--logi-sub); border: 1px solid var(--logi-border); position: relative; overflow: hidden; padding: 0;">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                 </div>
+                 <div style="display: flex; gap: 2rem; margin-top: 1.5rem; color: var(--logi-sub);">
+                     <div>
+                         <strong style="color: var(--logi-text); display: block; font-size: 0.8rem; text-transform: uppercase;">Current Zone</strong>
+                         Sector 7G (Transit)
+                     </div>
+                     <div>
+                         <strong style="color: var(--logi-text); display: block; font-size: 0.8rem; text-transform: uppercase;">Temperature</strong>
+                         -4°C (Optimal)
+                     </div>
+                     <div>
+                         <strong style="color: var(--logi-text); display: block; font-size: 0.8rem; text-transform: uppercase;">Last Ping</strong>
+                         14:02:59 UTC
+                     </div>
+                 </div>
+            </div>
+
+            <!-- Right: Vulnerable Console -->
+            <div class="logi-status-panel">
+                <div class="status-line">System Diagnostic Init... OK</div>
+                <div class="status-line">Connecting to Asset Node... OK</div>
+                <div class="status-line" style="color: #10b981;">Authentication: VALID</div>
+                
+                <div class="logi-form-group">
+                    <label style="display: block; color: var(--logi-sub); font-size: 0.8rem; margin-bottom: 0.5rem; text-transform: uppercase;">Execute Remote Diagnostics</label>
+                    <form action="{{ url_for('lab4_1_stock') }}" method="POST" id="diagForm">
+                        <input type="hidden" name="stockApi" value="http://localhost/stock/check?id={{ product.id }}">
+                        <!-- Mock visual input that doesn't actually do anything, the vulnerability is in the hidden field above which attackers manipulate -->
+                        <div class="logi-input-mock">target: internal_asset_api_v1</div>
+                        
+                        <button type="submit" class="logi-scan-btn">Run Diagnostic Scan</button>
+                    </form>
+                </div>
+
+                <div id="terminalOutput" class="logi-terminal" style="margin-top: 2rem; display: none;">
+                    <span style="color: var(--logi-sub);">root@logi-node:~# scan_asset -v</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('diagForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const term = document.getElementById('terminalOutput');
+        term.style.display = 'block';
+        term.innerHTML = "<span style='color: var(--logi-sub);'>root@logi-node:~#</span> Initiating handshake sequence...\n<span style='color: var(--logi-sub);'>root@logi-node:~#</span> Sending packets to internal bus...";
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())
+        .then(data => {
+            let output = data;
+            // Visual parsing for "hacker" feel
+            if (data.includes('Admin') || data.includes('FLAG')) {
+                 output = `\n<span style="color: #ef4444; font-weight: 700;">[CRITICAL ALERT] UNAUTHORIZED ADMIN ACCESS DETECTED</span>\n\n${data}`;
+            } else if (data.includes('Success')) {
+                 output = `\n<span style="color: #10b981;">[OK] DIAGNOSTIC COMPLETE. STATUS: NOMINAL</span>\n\n${data}`;
+            } else {
+                 output = `\n<span style="color: var(--logi-accent);">[INFO] DATA RECEIVED</span>\n\n${data}`;
+            }
+            term.innerHTML += output;
+            term.scrollTop = term.scrollHeight; // Auto scroll
+        })
+        .catch(err => {
+             term.innerHTML += `\n<span style="color: #ef4444;">[FATAL] CONNECTION DROPPED</span>\n${err}`;
+        });
+    });
+</script>
+{% endblock %}

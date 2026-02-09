@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Server Configuration - {{ product.name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab4_1b.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div class="lab-logo" onclick="window.location='{{ url_for('lab4_1b') }}'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+        <span>Cloud</span>Market
+    </div>
+    <div class="nav-links">
+        <a href="{{ url_for('lab4_1b') }}" class="nav-link">← Back to Catalog</a>
+    </div>
+</div>
+
+<div class="container detail-view">
+    <div class="product-detail-card" style="display: flex; gap: 3rem; background: var(--bg-card); border-radius: 16px; padding: 2rem; border: 1px solid var(--border-color);">
+        <div class="detail-left" style="flex: 1;">
+            <div class="detail-image" style="background: #020617; border-radius: 12px; height: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 0;">
+                <img src="{{ product.image }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+        </div>
+
+        <div class="detail-right" style="flex: 1.2; display: flex; flex-direction: column;">
+            <div class="product-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+                <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Enterprise Ready</span>
+                <h1 style="font-size: 2.5rem; margin: 0.5rem 0; font-weight: 700;">{{ product.name }}</h1>
+                <p style="color: var(--text-secondary); font-size: 1.1rem; line-height: 1.6;">{{ product.description }}</p>
+                <div class="price-block" style="margin-top: 1rem; font-size: 2rem; color: var(--accent-color); font-weight: 700;">
+                    ${{ product.price }} <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">/ unit</span>
+                </div>
+            </div>
+
+            <!-- Specs Grid -->
+            <div class="specs-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                <div class="spec-item" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span>High Availability</span>
+                </div>
+                <div class="spec-item" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <span>Secured Supply Chain</span>
+                </div>
+                 <div class="spec-item" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>24/7 Redundant Power</span>
+                </div>
+                 <div class="spec-item" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Global CDN Access</span>
+                </div>
+            </div>
+
+            <!-- Stock Checker Console -->
+            <div class="console-panel" style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; margin-top: auto;">
+                <div class="console-header" style="background: #1e293b; padding: 0.75rem 1rem; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;">
+                    <span style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;"></span>
+                        SYSTEM_STATUS: ONLINE
+                    </span>
+                    <span>v2.4.1-stable</span>
+                </div>
+                
+                <div class="console-body" style="padding: 1.5rem;">
+                    <form action="{{ url_for('lab4_1_stock') }}" method="POST" id="statusForm">
+                        <!-- VULNERABLE PARAMETER -->
+                        <input type="hidden" name="stockApi" value="http://localhost/stock/check?id={{ product.id }}">
+                        
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="display: block; color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem; font-family: 'Fira Code', monospace;">&gt; Execute Stock Check Request</label>
+                            <button type="submit" class="stock-btn" id="checkBtn">
+                                PING INVENTORY_API
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="consoleOutput" class="console-output" style="margin-top: 1rem; background: #020617; border: 1px solid #334155; border-radius: 4px; padding: 1rem; font-family: 'Fira Code', monospace; font-size: 0.85rem; min-height: 80px; color: #94a3b8;">
+                        <span style="opacity: 0.5;">// Awaiting command input...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('statusForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const output = document.getElementById('consoleOutput');
+        const btn = document.getElementById('checkBtn');
+        
+        output.innerHTML = "<span style='color: #38bdf8;'>&gt; Connecting to internal API...</span><br><span style='color: #38bdf8; animation: blink 1s infinite;'>_</span>";
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())
+        .then(data => {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            
+            let formattedData = data;
+            
+            // Highlight specific keywords in the response for "hacker" feel
+            if (data.includes('Admin') || data.includes('FLAG')) {
+                // Success/Admin access
+                formattedData = `<span style="color: #fbbf24;">[WARNING] SENSITIVE DATA DETECTED</span>\n\n${data}`;
+                output.style.border = "1px solid #fbbf24";
+            } else if (data.includes('Success')) {
+                 formattedData = `<span style="color: #10b981;">[SUCCESS] STOCK CONFIRMED</span>\n\n${data}`;
+                 output.style.border = "1px solid #10b981";
+            } else {
+                 formattedData = `<span style="color: #94a3b8;">[INFO] RESPONSE RECEIVED</span>\n\n${data}`;
+                 output.style.border = "1px solid #334155";
+            }
+            
+            // Typewriter effect simulation (simple fade in)
+            output.innerHTML = formattedData;
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            output.innerHTML = `<span style="color: #ef4444;">[ERROR] CONNECTION FAILED</span>\n${err}`;
+            output.style.border = "1px solid #ef4444";
+        });
+    });
+</script>
+
+<style>
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+</style>
+{% endblock %}

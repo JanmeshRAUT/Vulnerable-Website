@@ -1,25 +1,31 @@
 {% extends 'base.html' %}
 {% block title %}Product Detail - {{ product.name }}{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab4_1a.css') }}">
+{% endblock %}
+
 {% block content %}
     <a href="{{ url_for('lab4_1') }}" class="btn">&larr; Back to Shop</a>
 
-    <div style="max-width: 800px; margin: 3rem auto;">
-        <div class="card" style="padding: 2rem; display: flex; gap: 2rem;">
-            <div style="flex: 1; background: #334155; height: 300px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 5rem;">
-                📦
+    <div class="detail-container-a">
+        <div class="detail-card-a">
+            <div class="detail-image-box-a" style="padding: 0; background: #000; overflow: hidden;">
+                <img src="{{ product.image }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
-            <div style="flex: 1.5;">
-                <h1 style="font-size: 2rem; margin-bottom: 1rem;">{{ product.name }}</h1>
-                <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">{{ product.description }}</p>
-                <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">${{ product.price }}</div>
+            <div class="detail-content-a">
+                <div class="detail-header-a">
+                    <h1>{{ product.name }}</h1>
+                    <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">{{ product.description }}</p>
+                </div>
+                <div class="detail-price-a">${{ product.price }}</div>
                 
-                <div style="padding: 1.5rem; background: #1e293b; border-radius: 0.5rem; border: 1px solid #334155;">
+                <div class="stock-box-a">
                     <form action="{{ url_for('lab4_1_stock') }}" method="POST" id="stockForm">
                         <input type="hidden" name="stockApi" value="http://localhost/stock/check?id={{ product.id }}">
-                        <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; font-weight: 700;">Check Stock</button>
+                        <button type="submit" class="stock-btn-a">Check Stock</button>
                     </form>
-                    <div id="stockResult" style="margin-top: 1rem; font-size: 0.9rem; color: #10b981; min-height: 1.5rem;"></div>
+                    <div id="stockResult" class="stock-result-a"></div>
                 </div>
             </div>
         </div>

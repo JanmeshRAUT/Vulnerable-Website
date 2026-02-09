@@ -1,0 +1,298 @@
+/* Lab 4.1b Premium Styles - Cloud Infrastructure Theme */
+:root {
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-color: #38bdf8; /* Sky Blue */
+    --accent-hover: #0ea5e9;
+    --border-color: #334155;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --fw-regular: 400;
+    --fw-bold: 700;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* Header */
+.lab-header {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.lab-logo {
+    font-size: 1.5rem;
+    font-weight: var(--fw-bold);
+    color: var(--accent-color);
+    letter-spacing: -0.025em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.lab-logo span {
+    color: var(--text-primary);
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: var(--accent-color);
+}
+
+/* Main Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(to right, #f8fafc, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+/* Cards */
+.product-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border-color: var(--accent-color);
+}
+
+.card-image {
+    height: 200px;
+    background: #020617;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.1), transparent 70%);
+}
+
+.card-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: 1.25rem;
+    font-weight: var(--fw-bold);
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.product-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+    margin-top: auto;
+}
+
+.price-tag {
+    font-size: 1.25rem;
+    font-weight: var(--fw-bold);
+    color: var(--accent-color);
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: #0f172a;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+/* Detail View */
+.detail-container {
+    display: flex;
+    gap: 3rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 3rem;
+    border: 1px solid var(--border-color);
+    margin-top: 2rem;
+}
+
+.detail-image {
+    flex: 1;
+    background: #020617;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem;
+    border: 1px solid var(--border-color);
+    position: relative;
+    min-height: 400px;
+}
+
+.detail-content {
+    flex: 1.5;
+}
+
+.spec-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.spec-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.spec-item span {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Console/Stock Checker */
+.console-panel {
+    background: #0f172a;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-top: 2rem;
+    overflow: hidden;
+}
+
+.console-header {
+    background: #1e293b;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    font-family: 'Fira Code', monospace;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success-color);
+    display: inline-block;
+    box-shadow: 0 0 8px var(--success-color);
+}
+
+.console-body {
+    padding: 1.5rem;
+    font-family: 'Fira Code', monospace;
+}
+
+.stock-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 1rem;
+    font-family: 'Fira Code', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    border-radius: 4px;
+}
+
+.stock-btn:hover {
+    background: rgba(56, 189, 248, 0.1);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.console-output {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #020617;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    min-height: 60px;
+    color: var(--success-color);
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .detail-container {
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+}

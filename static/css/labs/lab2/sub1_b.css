@@ -1,175 +1,102 @@
 /* Lab 2.1 Variation B FashionHub Styles */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* --- Reset & Base --- */
+.fashion-header * {
+    box-sizing: border-box;
+}
+
+/* --- Header Layout --- */
 .fashion-header {
-    background: white;
-    border-bottom: 1px solid #e5e5e5;
-    padding: 1.5rem 2rem;
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1.5rem 3rem;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    font-family: 'Inter', sans-serif;
+}
+
+.fashion-header-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4rem; /* Space between Brand and Nav */
+}
+
+/* --- Brand --- */
+.fashion-brand-link {
+    text-decoration: none;
+    display: flex;
     align-items: center;
 }
 
 .fashion-brand {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 1.75rem;
-    letter-spacing: 0.05em;
-    color: #111;
-}
-
-.hero-section-fashion {
-    background: #f3e5f5;
-    height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin: -2rem -2rem 3rem -2rem;
-    position: relative;
-}
-
-.hero-content-fashion h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 3.5rem;
-    margin-bottom: 1rem;
-    color: #4a148c;
-}
-
-.hero-content-fashion p {
-    font-size: 1.1rem;
-    color: #6a1b9a;
-    margin-bottom: 2rem;
-    font-style: italic;
-}
-
-.cta-btn-fashion {
-    background: #111;
-    color: white;
-    padding: 1rem 2.5rem;
-    text-decoration: none;
-    text-transform: uppercase;
-    font-size: 0.8rem;
+    font-size: 1.8rem;
     letter-spacing: 0.1em;
-    transition: background 0.3s;
-}
-
-.cta-btn-fashion:hover {
-    background: #333;
-}
-
-.product-grid-fashion {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-    padding: 0 1rem 4rem 1rem;
-}
-
-.product-card-fashion {
-    background: white;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.product-card-fashion:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-}
-
-.product-image-fashion {
-    height: 350px;
-    background: #f5f5f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 4rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.badge-fashion {
-    position: absolute;
-    top: 1rem;
-    left: 0;
-    background: #111;
-    color: white;
-    padding: 0.5rem 1rem;
-    font-size: 0.7rem;
+    color: #000;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
 }
 
-.product-info-fashion {
-    padding: 1.5rem 0;
-    text-align: center;
+/* --- Navigation --- */
+.fashion-nav {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
 }
 
-.product-name-fashion {
-    font-size: 1rem;
-    font-weight: 400;
-    margin-bottom: 0.5rem;
-    color: #111;
-}
-
-.product-price-fashion {
-    font-weight: 700;
-    color: #111;
-}
-
-.footer-minimal-fashion {
-    border-top: 1px solid #eee;
-    padding: 3rem 0;
-    text-align: center;
-    margin-top: 3rem;
-}
-
-.footer-link-fashion {
-    color: #666;
-    margin: 0 1rem;
+.fashion-nav-link {
+    color: #333;
     text-decoration: none;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    position: relative;
 }
 
-.footer-link-fashion:hover {
-    text-decoration: underline;
-}
-/* Header Components */
-.fashion-header-left {
-    display: flex;
-    align-items: center;
-    gap: 3rem;
+.fashion-nav-link:hover {
+    color: #000;
 }
 
-.fashion-brand-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
+.fashion-nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -4px;
+    left: 0;
+    background-color: #000;
+    transition: width 0.3s ease;
 }
 
-.fashion-nav {
-    display: flex;
-    gap: 2rem;
-    margin-left: 1rem;
-}
-
-.fashion-nav-link {
-    color: #111;
-    text-decoration: none;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.fashion-nav-link:hover::after {
+    width: 100%;
 }
 
 .fashion-nav-link-sale {
-    color: #eb4d4b;
+    color: #d32f2f;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-weight: bold;
+    font-weight: 600;
+    transition: color 0.2s;
 }
 
+.fashion-nav-link-sale:hover {
+    color: #b71c1c;
+}
+
+/* --- Header Right (Icons) --- */
 .fashion-header-right {
     display: flex;
     align-items: center;
@@ -179,76 +106,205 @@
 .fashion-header-btn {
     background: transparent;
     border: none;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     cursor: pointer;
+    color: #333;
+    transition: transform 0.2s;
+    padding: 0.5rem;
+    line-height: 1;
+}
+
+.fashion-header-btn:hover {
+    transform: scale(1.1);
+    color: #000;
+}
+
+/* --- Context Banner --- */
+.fashion-context-banner {
+    padding: 0.8rem 1rem;
+    text-align: center;
+    background: #fff3e0;
+    border-bottom: 1px solid #ffe0b2;
+    margin: 0 -2rem 2rem -2rem; /* Negate container padding if needed */
+    font-size: 0.85rem;
+    color: #e65100;
+    letter-spacing: 0.02em;
+}
+
+/* --- Hero Section --- */
+.hero-section-fashion {
+    background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+    min-height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 4rem;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content-fashion {
+    max-width: 600px;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.hero-content-fashion h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: #4a148c;
+    line-height: 1.2;
+}
+
+.hero-content-fashion p {
+    font-size: 1.1rem;
+    color: #6a1b9a;
+    margin-bottom: 2.5rem;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+}
+
+.cta-btn-fashion {
+    display: inline-block;
+    background: #111;
+    color: white;
+    padding: 1rem 3rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    transition: all 0.3s ease;
+    border: 1px solid #111;
+}
+
+.cta-btn-fashion:hover {
+    background: transparent;
     color: #111;
 }
 
-/* Context Banner */
-.fashion-context-banner {
-    padding: 1rem;
-    text-align: center;
-    background: #fff3e0;
-    margin: -2rem -2rem 2rem -2rem;
-    font-size: 0.9rem;
-}
-
-.fashion-context-link {
-    color: #e65100;
-    font-weight: bold;
-}
-
-/* Filter Bar */
+/* --- Filter Bar --- */
 .fashion-filter-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
     padding: 0 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
 }
 
 .fashion-filter-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.fashion-filter-controls {
-    display: flex;
-    gap: 1rem;
+    letter-spacing: 0.1em;
+    color: #666;
 }
 
 .fashion-sort-select {
     border: none;
     background: transparent;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    color: #333;
+    font-family: inherit;
     cursor: pointer;
+    outline: none;
 }
 
-/* Product Image */
+/* --- Product Grid --- */
+.product-grid-fashion {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 3rem;
+    padding-bottom: 5rem;
+}
+
+.product-card-fashion {
+    group: hover;
+}
+
+.product-image-fashion {
+    height: 380px;
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+}
+
+.product-card-fashion:hover .product-image-fashion {
+    background: #f0f0f0;
+}
+
+.badge-fashion {
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    background: #111;
+    color: white;
+    padding: 0.4rem 1rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    z-index: 2;
+}
+
 .fashion-product-emoji {
-    opacity: 0.2;
+    transition: transform 0.5s ease;
 }
 
-/* Product Card Button */
+.product-card-fashion:hover .fashion-product-emoji {
+    transform: scale(1.1);
+}
+
+.product-info-fashion {
+    padding: 1.5rem 0;
+    text-align: center;
+}
+
+.product-name-fashion {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #111;
+}
+
+.product-price-fashion {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
 .fashion-add-to-bag-btn {
-    margin-top: 1rem;
     background: transparent;
-    border: 1px solid #111;
-    padding: 0.5rem 2rem;
+    border: 1px solid #ddd; /* Subtle border initially */
+    color: #333;
+    padding: 0.6rem 2rem;
+    width: 80%; /* Almost full width */
     cursor: pointer;
     text-transform: uppercase;
     font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    transition: all 0.2s;
+    letter-spacing: 0.15em;
+    transition: all 0.3s;
+    opacity: 0;
+    transform: translateY(10px);
 }
 
-/* Footer */
-.fashion-footer-links {
-    margin-bottom: 2rem;
+.product-card-fashion:hover .fashion-add-to-bag-btn {
+    opacity: 1;
+    transform: translateY(0);
+    border-color: #111;
 }
 
-.fashion-footer-copyright {
-    color: #999;
-    font-size: 0.8rem;
+.fashion-add-to-bag-btn:hover {
+    background: #111;
+    border-color: #111;
+    color: white;
 }

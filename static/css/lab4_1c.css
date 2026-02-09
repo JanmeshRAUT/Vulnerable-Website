@@ -1,0 +1,205 @@
+/* Lab 4.1c - Global Logistics Theme (Dark/Amber) */
+:root {
+    --logi-bg: #1c1917;
+    --logi-card: #292524;
+    --logi-accent: #f59e0b; /* Amber 500 */
+    --logi-accent-hover: #d97706;
+    --logi-text: #e7e5e4;
+    --logi-sub: #a8a29e;
+    --logi-border: #44403c;
+}
+
+.logi-body {
+    background-color: var(--logi-bg);
+    color: var(--logi-text);
+    font-family: 'Roboto Mono', monospace;
+}
+
+.logi-header {
+    border-bottom: 2px solid var(--logi-accent);
+    padding: 1.5rem 0;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logi-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--logi-accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.logi-card {
+    background: var(--logi-card);
+    border: 1px solid var(--logi-border);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.logi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--logi-accent);
+    opacity: 0.5;
+}
+
+.logi-card:hover {
+    border-color: var(--logi-accent);
+    transform: translateX(5px);
+}
+
+.logi-card:hover::before {
+    opacity: 1;
+}
+
+.logi-img {
+    height: 140px;
+    background: #0c0a09;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: var(--logi-sub);
+    border-bottom: 1px dashed var(--logi-border);
+}
+
+.logi-content {
+    padding: 1.5rem;
+}
+
+.logi-id {
+    font-size: 0.7rem;
+    color: var(--logi-accent);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.logi-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--logi-text);
+}
+
+.logi-desc {
+    font-size: 0.85rem;
+    color: var(--logi-sub);
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+.logi-btn {
+    display: inline-block;
+    background: transparent;
+    border: 1px solid var(--logi-accent);
+    color: var(--logi-accent);
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.logi-btn:hover {
+    background: var(--logi-accent);
+    color: #000;
+}
+
+/* Detail Spec CSS */
+.logi-detail {
+    background: var(--logi-card);
+    border: 1px solid var(--logi-border);
+    display: flex;
+    margin-top: 2rem;
+}
+
+.logi-tracking-panel {
+    flex: 1.5;
+    padding: 2rem;
+    border-right: 1px dashed var(--logi-border);
+}
+
+.logi-status-panel {
+    flex: 1;
+    background: #0c0a09;
+    padding: 2rem;
+    font-family: 'Courier New', monospace;
+    color: var(--logi-accent);
+    position: relative;
+}
+
+.status-line {
+    margin-bottom: 1rem;
+    border-left: 2px solid var(--logi-accent);
+    padding-left: 1rem;
+    position: relative;
+}
+
+.status-line::before {
+    content: '•';
+    position: absolute;
+    left: -6px;
+    top: 0;
+    color: var(--logi-accent);
+}
+
+.logi-form-group {
+    margin-top: 2rem;
+    border-top: 1px solid var(--logi-border);
+    padding-top: 2rem;
+}
+
+.logi-input-mock {
+    width: 100%;
+    background: #1c1917;
+    border: 1px solid var(--logi-border);
+    color: var(--logi-sub);
+    padding: 0.8rem;
+    font-family: monospace;
+    margin-bottom: 1rem;
+}
+
+.logi-scan-btn {
+    width: 100%;
+    background: var(--logi-accent);
+    color: #000;
+    border: none;
+    padding: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+}
+
+.logi-scan-btn:hover {
+    background: var(--logi-accent-hover);
+}
+
+.logi-terminal {
+    background: #000;
+    padding: 1rem;
+    border: 1px solid var(--logi-border);
+    min-height: 100px;
+    color: #10b981;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-y: auto;
+}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Lab 4.1: SSRF Variations{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('lab4') }}" class="btn">Back to Lab 4</a>
+
+    <div class="header-section">
+        <h2>Lab 4.1: Internal Loopback Access - Choose a Variation</h2>
+        <div class="banner">
+            ⚠️ Exploit the stock checker functionality to access the internal admin panel (SSRF). Same core vulnerability, different industries.
+        </div>
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏬</div>
+            <h3>Variation A: Retail Store</h3>
+            <p>Classic physical retail inventory management system.</p>
+            <a href="{{ url_for('lab4_1') }}" class="btn">Start Variation A</a>
+        </div>
+        <div class="card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">☁️</div>
+            <h3>Variation B: Cloud Infra</h3>
+            <p>Enterprise server infrastructure dashboard.</p>
+            <a href="{{ url_for('lab4_1b') }}" class="btn">Start Variation B</a>
+        </div>
+        <div class="card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+            <h3>Variation C: Global Logistics</h3>
+            <p>International shipping container tracking system.</p>
+            <a href="{{ url_for('lab4_1c') }}" class="btn">Start Variation C</a>
+        </div>
+    </div>
+{% endblock %}

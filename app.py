@@ -1514,17 +1514,36 @@ def lab3_2c_logout():
 def lab4():
     return render_template('lab4/index.html')
 
-# Lab 4.1: Basic SSRF against the local server
+# Lab 4.1: Basic SSRF against the local server (Variation A: Retail)
 @app.route('/lab4/1')
 def lab4_1():
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 3').fetchall()
+    # Mock data with images instead of DB
+    products = [
+        {'id': 1, 'name': 'Vulnerable T-Shirt', 'description': 'Limited edition vulnerable item.', 'price': 29.99, 'image': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80'},
+        {'id': 2, 'name': 'Insecure Hoodie', 'description': 'Keeps you warm, keeps your data exposed.', 'price': 49.99, 'image': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=600&q=80'},
+        {'id': 3, 'name': 'SQLi Mug', 'description': 'Select * from drinks.', 'price': 15.00, 'image': 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 4, 'name': 'Smart Watch X', 'description': 'Tracks your location... everywhere.', 'price': 199.99, 'image': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'},
+        {'id': 5, 'name': 'Urban Backpack', 'description': 'Fits all your stolen secrets.', 'price': 89.50, 'image': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80'},
+        {'id': 6, 'name': 'Running Sneakers', 'description': 'Run away from security audits.', 'price': 120.00, 'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80'},
+        {'id': 7, 'name': 'Aviator Sunglasses', 'description': 'Shade your eyes from the glare of pwned servers.', 'price': 145.00, 'image': 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80'},
+        {'id': 8, 'name': 'Designer Cap', 'description': 'Hat tip to the white hats.', 'price': 35.00, 'image': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=600&q=80'}
+    ]
     return render_template('lab4/sub1.html', products=products)
 
 @app.route('/lab4/1/product/<int:product_id>')
 def lab4_1_product(product_id):
-    db = get_db()
-    product = db.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
+    # Re-define products here for the detail view since we removed DB
+    products = [
+        {'id': 1, 'name': 'Vulnerable T-Shirt', 'description': 'Limited edition vulnerable item.', 'price': 29.99, 'image': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80'},
+        {'id': 2, 'name': 'Insecure Hoodie', 'description': 'Keeps you warm, keeps your data exposed.', 'price': 49.99, 'image': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=600&q=80'},
+        {'id': 3, 'name': 'SQLi Mug', 'description': 'Select * from drinks.', 'price': 15.00, 'image': 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 4, 'name': 'Smart Watch X', 'description': 'Tracks your location... everywhere.', 'price': 199.99, 'image': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'},
+        {'id': 5, 'name': 'Urban Backpack', 'description': 'Fits all your stolen secrets.', 'price': 89.50, 'image': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80'},
+        {'id': 6, 'name': 'Running Sneakers', 'description': 'Run away from security audits.', 'price': 120.00, 'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80'},
+        {'id': 7, 'name': 'Aviator Sunglasses', 'description': 'Shade your eyes from the glare of pwned servers.', 'price': 145.00, 'image': 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80'},
+        {'id': 8, 'name': 'Designer Cap', 'description': 'Hat tip to the white hats.', 'price': 35.00, 'image': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=600&q=80'}
+    ]
+    product = next((p for p in products if p['id'] == product_id), None)
     if not product: return "Product not found", 404
     return render_template('lab4/sub1_product.html', product=product)
 
@@ -1555,6 +1574,74 @@ def lab4_1_stock():
         return resp.text
     except Exception as e:
         return f"Internal Server Error: {str(e)}", 500
+
+# Lab 4.1 Menu
+@app.route('/lab4/1/menu')
+def lab4_1_menu():
+    return render_template('lab4/sub1_menu.html')
+
+# Update Lab 4.1 (Variation A) to use new template if needed, or just keep as is.
+# The user asked to "Restructure all follow Lab2 Structure".
+# In Lab 2, /lab2/1 is Variation A. We already have this.
+
+# Helper for Lab 4.1c (Logistics)
+def get_lab4_1c_products():
+    return [
+        {'id': 201, 'name': 'Container 40ft High Cube', 'description': 'Refrigerated transport unit. Origin: Shanghai.', 'price': 3500, 'image': 'https://images.unsplash.com/photo-1494412651409-ae1c4027d164?auto=format&fit=crop&w=600&q=80'},
+        {'id': 202, 'name': 'IoT Sensor Array', 'description': 'Real-time GPS and humidity tracking module.', 'price': 450, 'image': 'https://images.unsplash.com/photo-1566576912906-253c723f03b5?auto=format&fit=crop&w=600&q=80'},
+        {'id': 203, 'name': 'Automated Forklift Drone', 'description': 'Warehouse autonomous vehicle.', 'price': 15000, 'image': 'https://images.unsplash.com/photo-1506543730537-8051c72f778d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 204, 'name': 'Deep Sea Buoy', 'description': 'Weather monitoring station.', 'price': 8000, 'image': 'https://images.unsplash.com/photo-1518114674381-893bd558a27d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 205, 'name': 'Automated Warehouse System', 'description': 'Full stack inventory robotics.', 'price': 45000, 'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 206, 'name': 'Cargo Ship Transport', 'description': 'Heavy lift vessel capacity slot.', 'price': 12000, 'image': 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80'},
+        {'id': 207, 'name': 'Logistics Truck Fleet', 'description': 'Last mile delivery unit.', 'price': 85000, 'image': 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=80'},
+        {'id': 208, 'name': 'Industrial Control Panel', 'description': 'SCADA interface for facility management.', 'price': 2500, 'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80'}
+    ]
+
+# Lab 4.1 Variation C: Logistics
+@app.route('/lab4/1/c')
+def lab4_1c():
+    products = get_lab4_1c_products()
+    return render_template('lab4/sub1_c.html', products=products)
+
+@app.route('/lab4/1/c/product/<int:product_id>')
+def lab4_1c_product(product_id):
+    products = get_lab4_1c_products()
+    product = next((p for p in products if p['id'] == product_id), None)
+    if not product: return "Product not found", 404
+    return render_template('lab4/sub1_c_product.html', product=product)
+
+# Helper for Lab 4.1b products
+def get_lab4_1b_products():
+    return [
+        {'id': 101, 'name': 'Quantum Blade Server X1', 'description': 'High-density compute node with 128 cores.', 'price': 15000, 'image': 'https://images.unsplash.com/photo-1558494949-ef526b01201b?auto=format&fit=crop&w=600&q=80'},
+        {'id': 102, 'name': 'Nebula Storage Array', 'description': 'Petabyte-scale solid state storage.', 'price': 45000, 'image': 'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=600&q=80'},
+        {'id': 103, 'name': 'Vortex Network Switch', 'description': '400Gbps ultra-low latency fabric.', 'price': 8500, 'badge': 'High Perf', 'image': 'https://images.unsplash.com/photo-1544197150-b99a580bbc7c?auto=format&fit=crop&w=600&q=80'},
+        {'id': 104, 'name': 'AI Training Cluster', 'description': 'Dedicated GPU rack for ML workloads.', 'price': 120000, 'image': 'https://images.unsplash.com/photo-1551703652-8564730a845b?auto=format&fit=crop&w=600&q=80'},
+        {'id': 105, 'name': 'Secure Gateway Appliance', 'description': 'Military-grade firewall and VPN concentrator.', 'price': 12000, 'badge': 'Critical', 'image': 'https://images.unsplash.com/photo-1563770095128-42fa6112a83e?auto=format&fit=crop&w=600&q=80'},
+        {'id': 106, 'name': 'CoolCore Liquid Loop', 'description': 'Active cooling system for high-TDP racks.', 'price': 5500, 'image': 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?auto=format&fit=crop&w=600&q=80'},
+        {'id': 107, 'name': 'Biometric Access Panel', 'description': 'Retina scan entry system.', 'price': 2500, 'image': 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=600&q=80'},
+        {'id': 108, 'name': 'Encrypted Data Tape', 'description': 'Cold storage for long-term retention.', 'price': 150, 'image': 'https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?auto=format&fit=crop&w=600&q=80'}
+    ]
+
+# Lab 4.1 Variant B: Cloud Infrastructure Marketplace
+@app.route('/lab4/1/b')
+def lab4_1b():
+    products = get_lab4_1b_products()
+    return render_template('lab4/sub1_b.html', products=products)
+
+@app.route('/lab4/1/b/product/<int:product_id>')
+def lab4_1b_product(product_id):
+    products = get_lab4_1b_products()
+    product = next((p for p in products if p['id'] == product_id), None)
+    if not product: return "Product not found", 404
+    return render_template('lab4/sub1_b_product.html', product=product)
+
+# Dummy Stock Check API for realism
+@app.route('/stock/check')
+def stock_check_api():
+    product_id = request.args.get('id')
+    import random
+    return f"Success: {random.randint(10, 100)} units available for Item-{product_id}."
 
 # Simulated External Admin for 4.1
 @app.route('/admin')

@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}FashionHub - Style Redefined{% endblock %}
 
-{% block header %}
+{% block extra_head %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_b.css') }}">
+{% endblock %}
+
+{% block header %}
     <!-- Custom Header for Lab 2.1 B (FashionHub Theme) -->
     <header class="fashion-header">
         <div class="fashion-header-left">
@@ -21,9 +25,9 @@
         </div>
         
         <div class="fashion-header-right">
-            <button class="fashion-header-btn">🔍</button>
-            <button class="fashion-header-btn">♥</button>
-            <button class="fashion-header-btn">🛍️</button>
+            <button class="fashion-header-btn" aria-label="Search">🔍</button>
+            <button class="fashion-header-btn" aria-label="Wishlist">♥</button>
+            <button class="fashion-header-btn" aria-label="Cart">🛍️</button>
         </div>
     </header>
 {% endblock %}
@@ -74,17 +78,4 @@
         </div>
         {% endfor %}
     </div>
-
-    <!-- Footer -->
-    <footer class="footer-minimal-fashion">
-        <div class="fashion-footer-links">
-            <a href="#" class="footer-link-fashion">About</a>
-            <a href="#" class="footer-link-fashion">Stockists</a>
-            <a href="#" class="footer-link-fashion">FAQ</a>
-            <a href="#" class="footer-link-fashion">Contact</a>
-        </div>
-        <div class="fashion-footer-copyright">
-            &copy; 2026 FashionHub. All rights reserved.
-        </div>
-    </footer>
 {% endblock %}
