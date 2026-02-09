@@ -97,6 +97,7 @@ a {
     text-transform: uppercase;
     background: linear-gradient(to right, #d4af37, #f3e5ab, #d4af37);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin: 0;
 }
