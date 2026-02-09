@@ -4,14 +4,21 @@
 
 /* Product Card Base */
 .product-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 25px rgba(99, 102, 241, 0.15);
+    transform: translateY(-8px);
+    box-shadow: var(--card-shadow);
+    border-color: var(--accent-primary);
 }
 
 .product-card a {
@@ -22,45 +29,57 @@
 /* Product Image */
 .product-image {
     width: 100%;
-    height: 200px;
-    background: linear-gradient(135deg, var(--accent-glow), transparent);
+    height: 220px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(244, 63, 94, 0.05));
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-secondary);
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    color: var(--text-muted);
+    font-size: 3.5rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
 }
 
 /* Product Info */
 .product-info {
-    padding: 0;
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-main);
 }
 
 .product-desc {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    line-height: 1.4;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    flex-grow: 1;
 }
 
 .product-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .product-price {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--accent-primary);
 }
 
 /* Product Stock Badge */
@@ -73,64 +92,79 @@
 .product-list-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .product-list-header h1 {
-    font-size: 2rem;
-    margin: 0 0 0.25rem;
+    font-size: 2.5rem;
+    margin: 0 0 0.5rem;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .product-list-header p {
-    color: var(--text-secondary);
+    color: var(--text-muted);
     margin: 0;
 }
 
 .product-count {
-    display: flex;
+    display: inline-flex;
+    align-items: center;
     gap: 0.5rem;
-    background: var(--card-bg);
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
     font-size: 0.85rem;
+    color: var(--text-muted);
 }
 
 /* Product Filters */
 .product-filter {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
     align-items: center;
     flex-wrap: wrap;
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
 }
 
 .filter-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .filter-group label {
     font-weight: 600;
     font-size: 0.9rem;
+    color: var(--text-muted);
 }
 
 .filter-group input,
 .filter-group select {
-    padding: 0.5rem 0.75rem;
-    background: var(--bg-color);
-    border: 1px solid var(--border);
-    border-radius: 0.35rem;
-    color: var(--text-primary);
+    padding: 0.6rem 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-main);
     font-family: inherit;
+    transition: all 0.2s;
 }
 
 .filter-group input:focus,
 .filter-group select:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--glow-color);
 }
 
 .filter-group input[type="text"] {

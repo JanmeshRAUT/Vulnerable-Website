@@ -4,11 +4,12 @@
 
 /* Form Container */
 .form-section {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     padding: 2rem;
     margin-bottom: 2rem;
+    box-shadow: var(--card-shadow);
 }
 
 .form-section h2 {
@@ -42,28 +43,29 @@
     margin-bottom: 0.5rem;
     font-weight: 600;
     font-size: 0.9rem;
+    color: var(--text-muted);
 }
 
 .form-group input,
 .form-group select {
-    padding: 0.75rem;
-    background: var(--bg-color);
-    border: 1px solid var(--border);
-    border-radius: 0.35rem;
-    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-main);
     font-family: inherit;
     transition: all 0.2s;
 }
 
 .form-group input::placeholder {
-    color: var(--text-secondary);
+    color: #475569;
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--glow-color);
 }
 
 /* Form Help Text */
@@ -162,10 +164,10 @@
 
 /* Form Requirements Box */
 .form-requirements {
-    background: var(--bg-color);
+    background: rgba(255, 255, 255, 0.02);
     padding: 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
     margin-bottom: 1.5rem;
 }
 
