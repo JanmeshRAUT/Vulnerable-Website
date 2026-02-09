@@ -17,22 +17,31 @@
 
 {% block content %}
     <div class="theme-shop">
-        <div class="l3-hero">
+        <div class="l3-hero" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=1200&q=80') center/cover no-repeat; color: white; padding: 4rem 2rem; border-radius: 1rem; margin-bottom: 2rem;">
             <h1>Welcome to SecureShop</h1>
-            <p>Protected by advanced 2FA security</p>
+            <p style="font-size: 1.2rem; margin-top: 0.5rem; opacity: 0.9;">Protected by advanced 2FA security</p>
         </div>
 
         <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main);">Featured Products</h2>
         
         <div class="l3-grid">
             {% for product in products %}
-            <div class="l3-card">
-                <div class="l3-card-img-placeholder">
-                    🛍️
+            <div class="l3-card" style="overflow: hidden;">
+                <div class="l3-card-img-wrapper" style="height: 200px; width: 100%; overflow: hidden;">
+                    <!-- Dynamic images based on loop index -->
+                    {% set img_urls = [
+                        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80',
+                        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80',
+                        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
+                        'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80',
+                        'https://images.unsplash.com/photo-1572569028738-411a0977d4aa?w=400&q=80',
+                        'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&q=80'
+                    ] %}
+                    <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
                 </div>
                 <div class="l3-card-content">
-                    <h3>{{ product.name }}</h3>
-                    <p>{{ product.description }}</p>
+                    <h3 style="margin-bottom: 0.5rem;">{{ product.name }}</h3>
+                    <p style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">{{ product.description }}</p>
                     <div class="l3-card-footer">
                         <span class="l3-price">${{ product.price }}</span>
                         <button class="l3-btn l3-btn-primary" style="width: auto;">Buy Now</button>
