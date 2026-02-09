@@ -3,86 +3,137 @@
    ================================ */
 
 /* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 6rem 1rem 8rem;
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    filter: blur(60px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
 .hero-subtitle {
     font-size: 1.25rem;
-    color: var(--text-secondary);
-    max-width: 700px;
+    color: var(--text-muted);
+    max-width: 650px;
     margin: 0 auto 3rem;
+    line-height: 1.6;
 }
 
 .hero-actions {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     justify-content: center;
+    margin-bottom: 2rem;
 }
 
 .hero-actions .btn {
     padding: 1rem 2.5rem;
-    font-size: 1rem;
+    font-size: 1.05rem;
+    border-radius: 8px;
 }
 
 /* Curriculum Section */
+
+/* This section connects the hero to the labs */
 .curriculum-header {
     margin-bottom: 3rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1.5rem;
 }
 
 .curriculum-header h2 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     margin-bottom: 0.5rem;
+    color: var(--text-main);
 }
 
 .curriculum-header p {
-    color: var(--text-secondary);
+    color: var(--text-muted);
+    margin: 0;
 }
 
 .curriculum-info {
-    background: var(--card-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border);
-    font-size: 0.9rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 
 .environment-status {
-    color: var(--success);
+    color: #10b981; /* Success Green */
+    margin-right: 0.5rem;
 }
 
-/* Lab Card Section */
-.lab-section {
+/* Lab Card Grid Improvements */
+.lab-card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    margin-bottom: 1.5rem;
 }
 
-.lab-header {
-    flex: 1;
+.card-icon {
+    font-size: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
 }
 
-.lab-info {
-    text-align: right;
-}
-
-.lab-duration {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-.lab-difficulty {
+.badge-variation {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent-primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     font-weight: 600;
-    margin-top: 0.5rem;
 }
 
 /* CTA Section */
 .cta-section {
-    margin-top: 6rem;
-    padding: 4rem;
+    margin-top: 8rem;
+    padding: 5rem 2rem;
     text-align: center;
-    background: var(--card-bg);
-    border-radius: 1.5rem;
-    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(22, 27, 44, 0) 0%, rgba(22, 27, 44, 0.8) 100%);
+    border-top: 1px solid var(--border-color);
+    border-radius: 0;
 }
 
 .cta-section h3 {
@@ -91,23 +142,38 @@
 }
 
 .cta-section p {
-    color: var(--text-secondary);
-    margin-bottom: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: 3rem;
     max-width: 500px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .cta-section .highlight {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    opacity: 0.7;
 }
 
-/* Lab Card Header */
-.lab-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .curriculum-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .hero-actions .btn {
+        width: 100%;
+    }
 }

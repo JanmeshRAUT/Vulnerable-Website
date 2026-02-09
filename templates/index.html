@@ -1,121 +1,144 @@
-{% extends 'base.html' %}
-{% block title %}Vulnerable Labs - Professional Training Ground{% endblock %}
-
-{% block header %}
-    <div class="container">
-        <h1 class="hero-title">Vulnerability Research Labs</h1>
-        <p class="hero-subtitle">
-            A high-fidelity simulation environment for practicing advanced web security exploitation. 
-            No hints. No guidance. Just you and the code.
-        </p>
-        <div class="hero-actions">
-            <a href="#labs" class="btn">Explore Labs</a>
-            <a href="https://portswigger.net/web-security" target="_blank" class="btn btn-secondary">External Docs</a>
-        </div>
-    </div>
+{% extends 'base.html' %} {% block title %}Vulnerable Labs - Professional
+Training Ground{% endblock %} {# Removed header block override to preserve
+navigation #} {% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+  <h1 class="hero-title">Vulnerability Research Labs</h1>
+  <p class="hero-subtitle">
+    A high-fidelity simulation environment for practicing advanced web security
+    exploitation. No hints. No guidance. Just you and the code.
+  </p>
+  <div class="hero-actions">
+    <a href="#labs" class="btn">Explore Labs</a>
+    <a
+      href="https://portswigger.net/web-security"
+      target="_blank"
+      class="btn btn-secondary"
+      >External Docs</a
+    >
+  </div>
 </div>
-{% endblock %}
 
-{% block content %}
 <div id="labs">
-    <div class="curriculum-header">
-        <div>
-            <h2>Current Curriculum</h2>
-            <p>Select a module to begin your research.</p>
-        </div>
-        <div class="curriculum-info">
-            <span class="environment-status">●</span> Environment: <strong>Live</strong>
-        </div>
+  <div class="curriculum-header">
+    <div>
+      <h2>Current Curriculum</h2>
+      <p>Select a module to begin your research.</p>
+    </div>
+    <div class="curriculum-info">
+      <span class="environment-status">●</span> Environment:
+      <strong>Live</strong>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <!-- Lab 1: Path Traversal -->
+    <div class="card">
+      <div class="lab-card-header">
+        <span class="card-icon">📂</span>
+        <span class="badge-variation">3 Variations</span>
+      </div>
+      <h3>1. Path Traversal</h3>
+      <p>
+        Access unauthorized files by manipulating file paths. Tested across
+        different backend themes.
+      </p>
+      <a href="{{ url_for('lab1') }}" class="btn">View Module</a>
     </div>
 
-    <div class="card-grid">
-        <!-- Lab 1: Path Traversal -->
-        <div class="card">
-            <div class="lab-card-header">
-                <span class="card-icon">📂</span>
-                <span class="badge-variation">3 Variations</span>
-            </div>
-            <h3>1. Path Traversal</h3>
-            <p>Access unauthorized files by manipulating file paths. Tested across different backend themes.</p>
-            <a href="{{ url_for('lab1') }}" class="btn">View Module</a>
-        </div>
-
-        <!-- Lab 2: Access Control -->
-        <div class="card">
-            <div class="lab-card-header">
-                <span class="card-icon">🔑</span>
-                <span class="badge-variation">5 Modules</span>
-            </div>
-            <h3>2. Broken Access Control</h3>
-            <p>Exploit IDOR, parameter tampering, and unprotected admin interfaces in realistic scenarios.</p>
-            <a href="{{ url_for('lab2') }}" class="btn">View Module</a>
-        </div>
-
-        <!-- Lab 3: Authentication -->
-        <div class="card">
-            <div class="lab-card-header">
-                <span class="card-icon">🛡️</span>
-                <span class="badge-variation">2 Types</span>
-            </div>
-            <h3>3. Authentication</h3>
-            <p>Identify weak credential validation and multi-factor authentication bypasses.</p>
-            <a href="{{ url_for('lab3') }}" class="btn">View Module</a>
-        </div>
-        
-        <!-- Lab 4: SSRF -->
-        <div class="card">
-            <div class="lab-card-header">
-                <span class="card-icon">📡</span>
-                <span class="badge-variation">Local & Network</span>
-            </div>
-            <h3>4. SSRF</h3>
-            <p>Utilize the server's identity to probe internal networks and access loopback services.</p>
-            <a href="{{ url_for('lab4') }}" class="btn">View Module</a>
-        </div>
-
-        <!-- Lab 5: File Upload -->
-        <div class="card">
-            <div class="lab-card-header">
-                <span class="card-icon">☁️</span>
-                <span class="badge-variation">RCE Path</span>
-            </div>
-            <h3>5. File Upload</h3>
-            <p>Achieve remote code execution by exploiting unrestricted file upload functionality.</p>
-            <a href="{{ url_for('lab5') }}" class="btn">Initialize Lab</a>
-        </div>
-
-        <!-- Lab 6: OS Command Injection -->
-        <div class="card">
-            <div class="lab-card-header">
-                <span class="card-icon">💻</span>
-                <span class="badge-variation">OS Level</span>
-            </div>
-            <h3>6. Command Injection</h3>
-            <p>Inject system commands through application inputs to compromise the underlying host.</p>
-            <a href="{{ url_for('lab6') }}" class="btn">Initialize Lab</a>
-        </div>
-
-        <!-- Lab 7: SQL Injection -->
-        <div class="card">
-            <div class="lab-card-header">
-                <span class="card-icon">🗄️</span>
-                <span class="badge-variation">Database</span>
-            </div>
-            <h3>7. SQL Injection</h3>
-            <p>Exfiltrate database content or bypass authentication through poorly sanitized queries.</p>
-            <a href="{{ url_for('lab7') }}" class="btn">Initialize Lab</a>
-        </div>
+    <!-- Lab 2: Access Control -->
+    <div class="card">
+      <div class="lab-card-header">
+        <span class="card-icon">🔑</span>
+        <span class="badge-variation">5 Modules</span>
+      </div>
+      <h3>2. Broken Access Control</h3>
+      <p>
+        Exploit IDOR, parameter tampering, and unprotected admin interfaces in
+        realistic scenarios.
+      </p>
+      <a href="{{ url_for('lab2') }}" class="btn">View Module</a>
     </div>
 
-    <!-- Final CTA/Footer -->
-    <div class="cta-section">
-        <h3>Practice Makes Permanent</h3>
-        <p>
-            Our labs are designed to be challenging. If you get stuck, remember to check the source code and use professional security tools.
-        </p>
-        <div class="highlight">
-            Environment v2.5.0 • © 2026 RESEARCH OPS
-        </div>
+    <!-- Lab 3: Authentication -->
+    <div class="card">
+      <div class="lab-card-header">
+        <span class="card-icon">🛡️</span>
+        <span class="badge-variation">2 Types</span>
+      </div>
+      <h3>3. Authentication</h3>
+      <p>
+        Identify weak credential validation and multi-factor authentication
+        bypasses.
+      </p>
+      <a href="{{ url_for('lab3') }}" class="btn">View Module</a>
     </div>
+
+    <!-- Lab 4: SSRF -->
+    <div class="card">
+      <div class="lab-card-header">
+        <span class="card-icon">📡</span>
+        <span class="badge-variation">Local & Network</span>
+      </div>
+      <h3>4. SSRF</h3>
+      <p>
+        Utilize the server's identity to probe internal networks and access
+        loopback services.
+      </p>
+      <a href="{{ url_for('lab4') }}" class="btn">View Module</a>
+    </div>
+
+    <!-- Lab 5: File Upload -->
+    <div class="card">
+      <div class="lab-card-header">
+        <span class="card-icon">☁️</span>
+        <span class="badge-variation">RCE Path</span>
+      </div>
+      <h3>5. File Upload</h3>
+      <p>
+        Achieve remote code execution by exploiting unrestricted file upload
+        functionality.
+      </p>
+      <a href="{{ url_for('lab5') }}" class="btn">Initialize Lab</a>
+    </div>
+
+    <!-- Lab 6: OS Command Injection -->
+    <div class="card">
+      <div class="lab-card-header">
+        <span class="card-icon">💻</span>
+        <span class="badge-variation">OS Level</span>
+      </div>
+      <h3>6. Command Injection</h3>
+      <p>
+        Inject system commands through application inputs to compromise the
+        underlying host.
+      </p>
+      <a href="{{ url_for('lab6') }}" class="btn">Initialize Lab</a>
+    </div>
+
+    <!-- Lab 7: SQL Injection -->
+    <div class="card">
+      <div class="lab-card-header">
+        <span class="card-icon">🗄️</span>
+        <span class="badge-variation">Database</span>
+      </div>
+      <h3>7. SQL Injection</h3>
+      <p>
+        Exfiltrate database content or bypass authentication through poorly
+        sanitized queries.
+      </p>
+      <a href="{{ url_for('lab7') }}" class="btn">Initialize Lab</a>
+    </div>
+  </div>
+
+  <!-- Final CTA/Footer -->
+  <div class="cta-section">
+    <h3>Practice Makes Permanent</h3>
+    <p>
+      Our labs are designed to be challenging. If you get stuck, remember to
+      check the source code and use professional security tools.
+    </p>
+    <div class="highlight">Environment v2.5.0 • © 2026 RESEARCH OPS</div>
+  </div>
 </div>
 {% endblock %}
