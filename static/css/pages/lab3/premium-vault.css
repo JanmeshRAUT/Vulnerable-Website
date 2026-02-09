@@ -1,0 +1,273 @@
+/* =========================================
+   LAB 3.1 - PREMIUM VAULT (Luxury Theme)
+   Refined Layout (2025)
+   ========================================= */
+
+:root {
+    --gold-primary: #d4af37;
+    --gold-dark: #aa8c2c;
+    --gold-light: #f3e5ab;
+    --luxury-bg: #09090b; /* Zinc 950 */
+    --luxury-surface: #18181b; /* Zinc 900 */
+    --luxury-border: rgba(212, 175, 55, 0.15);
+}
+
+body {
+    background-color: var(--luxury-bg);
+    color: #e4e4e7; /* Zinc 200 */
+    font-family: 'Playfair Display', serif; /* Or system serif fallback */
+}
+
+/* Header */
+.cyber-header {
+    background: rgba(9, 9, 11, 0.95);
+    border-bottom: 1px solid var(--luxury-border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 1.25rem 0;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--gold-primary);
+}
+
+.brand-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.75rem;
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    text-transform: uppercase;
+    background: linear-gradient(to right, #d4af37, #f3e5ab, #d4af37);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.brand-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #a1a1aa;
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+.nav-back-btn {
+    font-family: 'Inter', sans-serif;
+    color: #71717a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    transition: color 0.3s;
+}
+
+.nav-back-btn:hover {
+    color: var(--gold-primary);
+}
+
+.btn-nav-signup {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.4s ease;
+    cursor: pointer;
+}
+
+.btn-nav-signup:hover {
+    background: var(--gold-primary);
+    color: var(--luxury-bg);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 8rem 0;
+    text-align: center;
+    background: radial-gradient(circle at center, rgba(212, 175, 55, 0.03), transparent 60%);
+}
+
+.hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: 4.5rem;
+    color: white;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: #a1a1aa;
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    line-height: 1.8;
+}
+
+.btn-hero {
+    background: linear-gradient(135deg, #d4af37, #aa8c2c);
+    color: #fff;
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -5px rgba(212, 175, 55, 0.4);
+}
+
+/* Features (Minimalist Grid) */
+.features-section {
+    padding: 6rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feature-card {
+    padding: 3rem 2rem;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: border-color 0.5s;
+}
+
+.feature-card:hover {
+    border-color: var(--luxury-border);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    color: var(--gold-primary);
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.feature-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.25rem;
+    color: #f4f4f5;
+    margin-bottom: 1rem;
+}
+
+.feature-card p {
+    color: #71717a;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* Modal (High End) */
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.85); /* Dark solid overlay */
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: grayscale(100%);
+}
+
+.modal-card {
+    background: #09090b;
+    border: 1px solid var(--gold-dark);
+    padding: 4rem;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+}
+
+.modal-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    text-align: center;
+    color: var(--gold-primary);
+    margin-bottom: 0.5rem;
+}
+
+.modal-subtitle {
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    color: #52525b;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 3rem;
+}
+
+.form-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #3f3f46;
+    border-radius: 0;
+    padding: 1rem 0;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 2rem;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--gold-primary);
+}
+
+.btn-primary {
+    background: #d4af37;
+    color: black;
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.3s;
+}
+
+.btn-primary:hover {
+    background: #f3e5ab;
+}
+
+.modal-close {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: none;
+    border: none;
+    color: #52525b;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-close:hover {
+    color: var(--gold-primary);
+}

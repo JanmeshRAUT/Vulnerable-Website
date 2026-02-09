@@ -2,63 +2,68 @@
 {% block title %}SecureShop - Lab 3.2{% endblock %}
 
 {% block header %}
-    <header style="background: #6366f1; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab3') }}" style="color: #c7d2fe; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
-            <div style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.025em;">🔒 SecureShop</div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/multi-factor.css') }}">
+    <header class="l3-header theme-shop">
+        <div class="l3-header-left">
+            <a href="{{ url_for('lab3') }}" class="l3-nav-back">&larr; Back</a>
+            <div class="l3-brand">🔒 SecureShop</div>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <button onclick="document.getElementById('loginModal').style.display='flex'" class="btn" style="background: white; color: #6366f1; padding: 0.5rem 1.5rem; font-size: 0.875rem;">Login</button>
+        <div class="l3-header-right">
+            <button onclick="document.getElementById('loginModal').style.display='flex'" class="l3-btn l3-btn-white">Login</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 1rem; padding: 3rem; color: white; margin-bottom: 3rem; text-align: center;">
-        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Welcome to SecureShop</h1>
-        <p style="font-size: 1.125rem; opacity: 0.9;">Protected by advanced 2FA security</p>
-    </div>
-
-    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Featured Products</h2>
-    
-    <div class="card-grid">
-        {% for product in products %}
-        <div class="card">
-            <div style="height: 150px; background: linear-gradient(135deg, #6366f1, #818cf8); margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0.5rem 0.5rem 0 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
-                🛍️
-            </div>
-            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">{{ product.name }}</h3>
-            <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">{{ product.description }}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 700; font-size: 1.25rem; color: #6366f1;">${{ product.price }}</span>
-                <button class="btn" style="background: #6366f1; padding: 0.5rem 1rem; font-size: 0.875rem;">Buy Now</button>
-            </div>
+    <div class="theme-shop">
+        <div class="l3-hero">
+            <h1>Welcome to SecureShop</h1>
+            <p>Protected by advanced 2FA security</p>
         </div>
-        {% endfor %}
-    </div>
 
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-        <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative;">
-            <button onclick="document.getElementById('loginModal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.5rem;">&times;</button>
-            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #6366f1;">🔒 Secure Login</h2>
-            <form id="loginForm">
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Username</label>
-                    <input type="text" name="username" id="username" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main);">Featured Products</h2>
+        
+        <div class="l3-grid">
+            {% for product in products %}
+            <div class="l3-card">
+                <div class="l3-card-img-placeholder">
+                    🛍️
                 </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Password</label>
-                    <input type="password" name="password" id="password" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
+                <div class="l3-card-content">
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description }}</p>
+                    <div class="l3-card-footer">
+                        <span class="l3-price">${{ product.price }}</span>
+                        <button class="l3-btn l3-btn-primary" style="width: auto;">Buy Now</button>
+                    </div>
                 </div>
-                <div id="errorMsg" style="color: #ef4444; margin-bottom: 1rem; display: none;"></div>
-                <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; background: #6366f1;">Login</button>
-                <div style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #64748b;">
-                    Test accounts:<br>
-                    <code>wiener:peter</code> or <code>carlos:montoya</code>
-                </div>
-            </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- LOGIN MODAL -->
+        <div id="loginModal" class="l3-modal-overlay">
+            <div class="l3-modal-card">
+                <button onclick="document.getElementById('loginModal').style.display='none'" class="l3-close-btn">&times;</button>
+                <h2 class="l3-modal-title">🔒 Secure Login</h2>
+                <form id="loginForm">
+                    <div class="l3-form-group">
+                        <label class="l3-label">Username</label>
+                        <input type="text" name="username" id="username" required class="l3-input">
+                    </div>
+                    <div class="l3-form-group last">
+                        <label class="l3-label">Password</label>
+                        <input type="password" name="password" id="password" required class="l3-input">
+                    </div>
+                    <div id="errorMsg" class="l3-error-msg"></div>
+                    <button type="submit" class="l3-btn l3-btn-primary">Login</button>
+                    <div class="l3-test-accounts">
+                        Test accounts:<br>
+                        <code>wiener:peter</code> or <code>carlos:montoya</code>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -92,3 +97,4 @@
         });
     </script>
 {% endblock %}
+

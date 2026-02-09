@@ -1,0 +1,283 @@
+/* =========================================
+   LAB 3.1 - DATA GUARD PRO (Corporate Theme)
+   Refined Layout (2025)
+   ========================================= */
+
+:root {
+    --corp-primary: #2563eb; /* BLUE-600 */
+    --corp-primary-dark: #1e40af;
+    --corp-bg: #f8fafc; /* SLATE 50 */
+    --corp-text: #1e293b; /* SLATE 800 */
+    --corp-border: #e2e8f0;
+}
+
+body {
+    background-color: var(--corp-bg);
+    color: var(--corp-text);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+}
+
+/* Header (Clean, Corporate) */
+.cyber-header {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--corp-border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 1rem 0;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--corp-primary-dark);
+    text-decoration: none;
+}
+
+.brand-icon {
+    font-size: 1.5rem;
+    color: var(--corp-primary);
+}
+
+.brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.brand-subtitle {
+    display: none; /* Hide subtitle for cleaner look */
+}
+
+.nav-back-btn {
+    display: none; /* Often hidden in corporate landing pages */
+}
+
+.btn-nav-signup {
+    background: var(--corp-primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-nav-signup:hover {
+    background: var(--corp-primary-dark);
+}
+
+/* Hero Section (Split Layout) */
+.hero-section {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #64748b;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.btn-hero {
+    background: var(--corp-primary);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.btn-hero:hover {
+    background: var(--corp-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+}
+
+.hero-image {
+    background: #e0f2fe; /* Light blue tint */
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.hero-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    mix-blend-mode: multiply;
+}
+
+/* Features Grid */
+.features-section {
+    background: #f1f5f9; /* Slate 100 */
+    padding: 6rem 2rem;
+}
+
+.features-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--corp-border);
+    transition: transform 0.2s;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--corp-primary);
+    background: #eff6ff;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.feature-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* Modal (Clean, Light) */
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: relative;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.modal-subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--corp-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-secondary {
+   background-color: transparent;
+   color: #334155;
+   border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+   background-color: #f8fafc;
+   border-color: #cbd5e1;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: #475569;
+}

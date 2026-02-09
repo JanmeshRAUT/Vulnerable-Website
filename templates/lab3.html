@@ -1,71 +1,51 @@
 
 {% extends 'base.html' %}
-{% block title %}Lab 3: Authentication{% endblock %}
+{% block title %}Module 3: Authentication{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('home') }}" class="btn btn-secondary mb-4">← Back to Dashboard</a>
-
     <!-- Link new CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lab3.css') }}">
-    
-    <div class="lab-header-flex">
-        <div class="lab-header-icon">🛡️</div>
-        <div class="lab-header">
-            <h2>Authentication Labs</h2>
-            <p class="text-muted">Master the art of identifying and exploiting weak authentication mechanisms.</p>
-        </div>
-    </div>
 
-    <div class="auth-labs-grid">
-        <!-- Lab 3.1 Card -->
-        <div class="auth-lab-card">
-            <div class="auth-icon-wrapper">
-                🔨
+    <div class="lab3-container">
+        <!-- Back Button -->
+        <a href="{{ url_for('home') }}" class="btn-back">← Back</a>
+
+        <!-- Module Header -->
+        <div class="lab-module-header">
+            <div class="lab-header-icon">🛡️</div>
+            <div>
+                <h1 class="lab-title">Module 3: Authentication</h1>
+                <p class="lab-subtitle">Master the art of identifying and exploiting weak authentication mechanisms.</p>
             </div>
-            
-            <div class="auth-content">
+        </div>
+
+        <!-- Warning Banner -->
+        <div class="lab-warning-banner">
+            <span class="warning-icon">⚠️</span>
+            <div class="warning-content">
+                <strong>Intentional Vulnerability:</strong> Identification and exploitation of weak authentication mechanisms.
+            </div>
+        </div>
+
+        <!-- Card Grid -->
+        <div class="lab-card-grid">
+            <!-- Lab 3.1: Brute Force -->
+            <div class="lab-card">
+                <div class="card-icon">🔨</div>
                 <h3>3.1: Brute Force Attack</h3>
-                <span class="auth-subtitle">Intentional Vulnerability</span>
-                <p class="auth-description">
-                    No rate limiting or account lockout mechanisms. Includes user enumeration flaws in the login response.
-                </p>
-                <div class="vuln-tags">
-                    <span class="vuln-tag warning">⚠️ No Rate Limit</span>
-                    <span class="vuln-tag">Multiple Design Variants</span>
-                    <span class="vuln-tag">User Enumeration</span>
-                </div>
+                <span class="card-subtitle">Multiple Design Variants</span>
+                <p>No rate limiting, user enumeration. Three themed variations: Modern, Luxury, Corporate.</p>
+                <a href="{{ url_for('lab3_1_menu') }}" class="btn btn-primary">Select Variant</a>
             </div>
             
-            <div class="auth-action">
-                <span class="variant-count">3 Themed Variations:<br>Modern, Luxury, Corporate</span>
-                <a href="{{ url_for('lab3_1') }}" class="btn btn-auth-lab">Select Variant</a>
-            </div>
-        </div>
-
-        <!-- Lab 3.2 Card -->
-        <div class="auth-lab-card">
-            <div class="auth-icon-wrapper">
-                📲
-            </div>
-            
-            <div class="auth-content">
+            <!-- Lab 3.2: 2FA Bypass -->
+            <div class="lab-card">
+                <div class="card-icon">📲</div>
                 <h3>3.2: 2FA Bypass</h3>
-                <span class="auth-subtitle">Multi-Factor Authentication</span>
-                <p class="auth-description">
-                    Challenge multi-factor implementations. Test logic flaws in code verification sequences.
-                </p>
-                <div class="vuln-tags">
-                    <span class="vuln-tag warning">⚠️ Logic Flaw</span>
-                    <span class="vuln-tag">MFA Bypass</span>
-                    <span class="vuln-tag">Code Verification</span>
-                </div>
-            </div>
-            
-            <div class="auth-action">
-                <span class="variant-count">3 Themed Variations:<br>E-commerce, Medical, Security</span>
-                <a href="{{ url_for('lab3_2') }}" class="btn btn-auth-lab">Explore 2FA Labs</a>
+                <span class="card-subtitle">Multi-Factor Authentication</span>
+                <p>Challenge multi-factor implementations. Includes 3 themed variations (E-commerce, Medical, Security).</p>
+                <a href="{{ url_for('lab3_2_menu') }}" class="btn btn-secondary">Explore 2FA Labs</a>
             </div>
         </div>
     </div>
-    
 {% endblock %}

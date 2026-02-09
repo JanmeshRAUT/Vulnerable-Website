@@ -2,63 +2,72 @@
 {% block title %}BankSecure - Online Banking{% endblock %}
 
 {% block header %}
-    <header style="background: #059669; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab3_2_menu') }}" style="color: #d1fae5; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
-            <div style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.025em;">🏦 BankSecure</div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/multi-factor.css') }}">
+    <header class="l3-header theme-bank">
+        <div class="l3-header-left">
+            <a href="{{ url_for('lab3_2_menu') }}" class="l3-nav-back">&larr; Back</a>
+            <div class="l3-brand">🏦 BankSecure</div>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <button onclick="document.getElementById('loginModal').style.display='flex'" class="btn" style="background: white; color: #059669; padding: 0.5rem 1.5rem; font-size: 0.875rem;">Login</button>
+        <div class="l3-header-right">
+            <button onclick="document.getElementById('loginModal').style.display='flex'" class="l3-btn l3-btn-white">Login</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="background: linear-gradient(135deg, #059669, #10b981); border-radius: 1rem; padding: 3rem; color: white; margin-bottom: 3rem; text-align: center;">
-        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Welcome to BankSecure</h1>
-        <p style="font-size: 1.125rem; opacity: 0.9;">Your trusted online banking partner</p>
-    </div>
+    <div class="theme-bank">
+        <div class="l3-hero">
+            <h1>Welcome to BankSecure</h1>
+            <p>Your trusted online banking partner</p>
+        </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
-        <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">💳</div>
-            <h3>Personal Banking</h3>
-            <p style="color: #94a3b8;">Manage your accounts securely</p>
+        <div class="l3-grid">
+            <div class="l3-card" style="text-align: center; padding-bottom: 2rem;">
+                <div class="l3-card-content">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">💳</div>
+                    <h3>Personal Banking</h3>
+                    <p>Manage your accounts securely</p>
+                </div>
+            </div>
+            <div class="l3-card" style="text-align: center; padding-bottom: 2rem;">
+                <div class="l3-card-content">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                    <h3>Investments</h3>
+                    <p>Grow your wealth with us</p>
+                </div>
+            </div>
+            <div class="l3-card" style="text-align: center; padding-bottom: 2rem;">
+                <div class="l3-card-content">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                    <h3>Secure Transfers</h3>
+                    <p>Protected by 2FA</p>
+                </div>
+            </div>
         </div>
-        <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
-            <h3>Investments</h3>
-            <p style="color: #94a3b8;">Grow your wealth with us</p>
-        </div>
-        <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-            <h3>Secure Transfers</h3>
-            <p style="color: #94a3b8;">Protected by 2FA</p>
-        </div>
-    </div>
 
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-        <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; position: relative;">
-            <button onclick="document.getElementById('loginModal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.5rem;">&times;</button>
-            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #059669;">🏦 Secure Login</h2>
-            <form id="loginForm">
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Account ID</label>
-                    <input type="text" name="username" id="username" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
-                </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Password</label>
-                    <input type="password" name="password" id="password" required style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 0.375rem;">
-                </div>
-                <div id="errorMsg" style="color: #ef4444; margin-bottom: 1rem; display: none;"></div>
-                <button type="submit" class="btn" style="width: 100%; padding: 0.75rem; background: #059669;">Login</button>
-                <div style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #64748b;">
-                    Test accounts:<br>
-                    <code>alice:alice123</code> or <code>bob:bob456</code>
-                </div>
-            </form>
+        <!-- LOGIN MODAL -->
+        <div id="loginModal" class="l3-modal-overlay">
+            <div class="l3-modal-card">
+                <button onclick="document.getElementById('loginModal').style.display='none'" class="l3-close-btn">&times;</button>
+                <h2 class="l3-modal-title">🏦 Secure Login</h2>
+                <form id="loginForm">
+                    <div class="l3-form-group">
+                        <label class="l3-label">Account ID</label>
+                        <input type="text" name="username" id="username" required class="l3-input">
+                    </div>
+                    <div class="l3-form-group last">
+                        <label class="l3-label">Password</label>
+                        <input type="password" name="password" id="password" required class="l3-input">
+                    </div>
+                    <div id="errorMsg" class="l3-error-msg"></div>
+                    <button type="submit" class="l3-btn l3-btn-primary">Login</button>
+                    <div class="l3-test-accounts">
+                        Test accounts:<br>
+                        <code>alice:alice123</code> or <code>bob:bob456</code>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -92,3 +101,4 @@
         });
     </script>
 {% endblock %}
+

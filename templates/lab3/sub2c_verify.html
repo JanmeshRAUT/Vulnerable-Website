@@ -2,51 +2,54 @@
 {% block title %}2FA Verification - CloudDrive{% endblock %}
 
 {% block header %}
-    <header style="background: #dc2626; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab3_2c') }}" style="color: #fecaca; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
-            <div style="font-weight: 700; font-size: 1.5rem;">☁️ CloudDrive</div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lab3/2/style.css') }}">
+    <header class="l3-header theme-cloud">
+        <div class="l3-header-left">
+            <a href="{{ url_for('lab3_2c') }}" class="l3-nav-back">&larr; Back</a>
+            <div class="l3-brand">☁️ CloudDrive</div>
         </div>
-        <div style="color: #fecaca; font-size: 0.875rem;">
+        <div class="l3-nav-back" style="color: var(--l3-primary-lighter);">
             User: <strong>{{ username }}</strong>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 1200px; margin: 2rem auto;">
-        <h2 style="margin-bottom: 2rem; text-align: center;">Two-Factor Authentication</h2>
+    <div class="theme-cloud">
+        <div style="text-align: center; margin: 2rem 0;">
+            <h2 style="color: white; font-size: 1.5rem; font-weight: 700;">Two-Factor Authentication</h2>
+        </div>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="l3-split-layout">
             <!-- LEFT: Authenticator App -->
-            <div class="card">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #334155;">
-                    <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <div class="l3-card" style="padding: 1.5rem; height: fit-content;">
+                <div class="l3-email-header">
+                    <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem; color: white; font-size: 1.25rem;">
                         <span style="font-size: 1.5rem;">🔑</span>
                         Authenticator App
                     </h3>
-                    <span style="background: #dc2626; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem;">Active</span>
+                    <span class="l3-badge">Active</span>
                 </div>
                 
-                <div style="background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1.5rem;">
+                <div class="l3-email-view">
                     <div style="text-align: center; margin-bottom: 1.5rem;">
                         <div style="background: white; padding: 1rem; border-radius: 0.5rem; display: inline-block;">
                             <div style="font-size: 3rem;">🔐</div>
                         </div>
-                        <p style="margin-top: 1rem; color: #94a3b8; font-size: 0.875rem;">CloudDrive Authenticator</p>
+                        <p style="margin-top: 1rem; color: var(--l3-text-muted); font-size: 0.875rem;">CloudDrive Authenticator</p>
                     </div>
                     
-                    <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #334155;">
-                        <p style="font-size: 0.875rem; color: #94a3b8;"><strong>Account:</strong> {{ username }}@clouddrive.com</p>
-                        <p style="font-size: 0.875rem; color: #94a3b8;"><strong>Type:</strong> Time-based OTP</p>
+                    <div class="l3-email-meta">
+                        <p style="font-size: 0.875rem; color: var(--l3-text-muted);"><strong>Account:</strong> {{ username }}@clouddrive.com</p>
+                        <p style="font-size: 0.875rem; color: var(--l3-text-muted);"><strong>Type:</strong> Time-based OTP</p>
                     </div>
                     
-                    <div style="line-height: 1.8;">
+                    <div style="line-height: 1.6; color: var(--l3-text-white);">
                         <p style="margin-bottom: 1rem; font-size: 0.875rem;">Your current verification code:</p>
                         
-                        <div style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 1.5rem; border-radius: 0.5rem; text-align: center; margin: 1.5rem 0;">
+                        <div class="l3-code-display">
                             <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">One-Time Password</p>
-                            <div style="font-size: 2rem; font-weight: bold; letter-spacing: 0.5rem;">
+                            <div class="l3-code-large">
                                 {{ code }}
                             </div>
                             <div style="margin-top: 1rem; font-size: 0.75rem; opacity: 0.8;">
@@ -57,47 +60,47 @@
                             </div>
                         </div>
                         
-                        <p style="font-size: 0.75rem; color: #94a3b8; text-align: center;">This code expires after 30 seconds</p>
+                        <p style="font-size: 0.75rem; color: var(--l3-text-muted); text-align: center;">This code expires after 30 seconds</p>
                     </div>
                 </div>
             </div>
             
             <!-- RIGHT: Verification Form -->
             <div>
-                <div class="card" style="text-align: center;">
+                <div class="l3-card" style="text-align: center; padding: 2rem;">
                     <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
-                    <h3 style="margin-bottom: 1rem; color: #dc2626;">Enter Verification Code</h3>
-                    <p style="color: #94a3b8; margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--l3-primary); font-size: 1.5rem;">Enter Verification Code</h3>
+                    <p style="color: var(--l3-text-muted); margin-bottom: 2rem;">
                         Use your authenticator app on the left.
                     </p>
                     
                     {% if error %}
-                    <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+                    <div class="l3-error-msg" style="display: block;">
                         {{ error }}
                     </div>
                     {% endif %}
                     
                     <form method="POST" action="{{ url_for('lab3_2c_verify_post') }}">
                         <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; text-align: left; font-weight: 600;">Verification Code</label>
+                            <label class="l3-label" style="text-align: left;">Verification Code</label>
                             <input type="text" name="code" required maxlength="4" pattern="\d{4}" 
-                                   placeholder="Enter 4-digit code"
-                                   style="width: 100%; padding: 1rem; background: #0f172a; border: 2px solid #334155; color: white; border-radius: 0.5rem; text-align: center; font-size: 1.75rem; letter-spacing: 0.75rem; font-weight: bold;">
+                                   placeholder="0000"
+                                   class="l3-input-code">
                         </div>
-                        <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: #dc2626; font-size: 1rem; font-weight: 600;">
+                        <button type="submit" class="l3-btn l3-btn-primary" style="font-size: 1rem;">
                             ✓ Verify & Continue
                         </button>
                     </form>
                     
-                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #334155;">
-                        <p style="font-size: 0.875rem; color: #94a3b8;">Lost your device?</p>
-                        <button class="btn" style="margin-top: 0.5rem; background: #334155; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--l3-border);">
+                        <p style="font-size: 0.875rem; color: var(--l3-text-muted);">Lost your device?</p>
+                        <button class="l3-btn l3-btn-white" style="margin-top: 0.5rem; background: var(--l3-bg-dark); border: 1px solid var(--l3-border); color: white;">
                             Use Backup Code
                         </button>
                     </div>
                 </div>
                 
-                <div class="alert alert-error" style="margin-top: 2rem; font-size: 0.875rem;">
+                <div class="l3-hint-box">
                     <strong>💡 Lab Hint:</strong> 
                     <ol style="margin-left: 1.5rem; margin-top: 0.5rem; text-align: left;">
                         <li>Login with <code>user1:pass1</code></li>

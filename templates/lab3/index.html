@@ -1,14 +1,30 @@
 {% extends 'base.html' %}
 {% block title %}Lab 3: Authentication{% endblock %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/lab-card.css') }}">
+{% endblock %}
+
 {% block content %}
+<div class="lab3-container">
     <div class="lab-header">
-        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
-        <h2 class="lab-title">Module 3: Authentication</h2>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary btn-back">&larr; Back to Modules</a>
+        <div class="lab-module-header">
+            <div class="lab-header-icon">🔐</div>
+            <div>
+                <h2 class="lab-title">Module 3: Authentication</h2>
+                <p class="lab-subtitle">Master the art of identity verification and access control</p>
+            </div>
+        </div>
     </div>
 
-    <div class="banner">
-        ⚠️ Intentional Vulnerability: Identification and exploitation of weak authentication mechanisms.
+    <div class="lab-warning-banner">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-content">
+            <strong>educational Purpose Only</strong><br>
+            These labs contain intentional vulnerabilities (Weak 2FA, Brute Force, Logic Flaws). Do not use these techniques on unauthorized systems.
+        </div>
     </div>
 
     <div class="card-grid lab-card-grid">
@@ -16,18 +32,23 @@
         <div class="card lab-card">
             <span class="card-icon">🔨</span>
             <h3>3.1: Brute Force Attack</h3>
-            <p class="card-subtitle">Multiple Design Variants</p>
-            <p>No rate limiting, user enumeration. Three themed variations: Modern, Luxury, Corporate.</p>
-            <a href="{{ url_for('lab3_1_menu') }}" class="btn btn-primary">Select Variant</a>
+            <span class="card-badge">Fundamental</span>
+            <p>Explore how weak rate limiting and user enumeration can lead to account compromise. Includes three realistic scenarios.</p>
+            <div class="card-actions">
+                <a href="{{ url_for('lab3_1_menu') }}" class="btn btn-primary">Start Lab 3.1</a>
+            </div>
         </div>
         
         <!-- Lab 3.2: 2FA Bypass -->
         <div class="card lab-card">
             <span class="card-icon">📲</span>
             <h3>3.2: 2FA Bypass</h3>
-            <p class="card-subtitle">Multi-Factor Authentication</p>
-            <p>Challenge multi-factor implementations. Includes 3 themed variations (E-commerce, Medical, Security).</p>
-            <a href="{{ url_for('lab3_2_menu') }}" class="btn btn-secondary">Explore 2FA Labs</a>
+            <span class="card-badge">Intermediate</span>
+            <p>Challenge multi-factor authentication systems. Learn to bypass SMS, Email, and Logic-based protections.</p>
+            <div class="card-actions">
+                <a href="{{ url_for('lab3_2_menu') }}" class="btn btn-primary">Start Lab 3.2</a>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}

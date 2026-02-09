@@ -1,0 +1,344 @@
+/* =========================================
+   LAB 3.2 - MULTI-FACTOR AUTHENTICATION LABS
+   Refined Layout (2025)
+   ========================================= */
+
+/* --- Variables & Themes --- */
+:root {
+    --l3-primary: #6366f1;
+    --l3-primary-light: #818cf8;
+    --l3-primary-lighter: #c7d2fe;
+    --l3-bg-dark: #0f172a;
+    --l3-border: rgba(255, 255, 255, 0.1);
+    --l3-text-white: #ffffff;
+    --l3-text-muted: #94a3b8;
+    --l3-surface: rgba(30, 41, 59, 0.6);
+}
+
+/* Theme: SecureShop (Default/Purple) */
+.theme-shop {
+    --l3-primary: #8b5cf6;
+    --l3-primary-light: #a78bfa;
+    --l3-primary-lighter: #ddd6fe;
+}
+
+/* Theme: BankSecure (Green) */
+.theme-bank {
+    --l3-primary: #10b981;
+    --l3-primary-light: #34d399;
+    --l3-primary-lighter: #d1fae5;
+}
+
+/* Theme: CloudDrive (Red) */
+.theme-cloud {
+    --l3-primary: #ef4444;
+    --l3-primary-light: #f87171;
+    --l3-primary-lighter: #fecaca;
+}
+
+/* --- Layout Components --- */
+
+/* Header */
+.l3-header {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--l3-border);
+    color: var(--l3-text-white);
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.l3-header-left, .l3-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.l3-nav-back {
+    color: var(--l3-text-muted);
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.l3-nav-back:hover {
+    color: var(--l3-primary);
+}
+
+.l3-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, white, var(--l3-text-muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Buttons */
+.l3-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+}
+
+.l3-btn-white {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.l3-btn-white:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.l3-btn-primary {
+    background: var(--l3-primary);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.l3-btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* Hero Section */
+.l3-hero {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%);
+    border: 1px solid var(--l3-border);
+    border-radius: 24px;
+    padding: 4rem 2rem;
+    color: white;
+    margin-bottom: 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.l3-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--l3-primary), transparent);
+}
+
+.l3-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+}
+
+.l3-hero p {
+    font-size: 1.25rem;
+    color: var(--l3-text-muted);
+    font-weight: 400;
+}
+
+/* Card Grid */
+.l3-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 3rem;
+    margin-bottom: 5rem;
+    padding: 0 2rem;
+}
+
+.l3-card {
+    background: var(--l3-surface);
+    border: 1px solid var(--l3-border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.l3-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--l3-primary);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
+.l3-card-img-placeholder {
+    height: 180px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--l3-primary);
+    font-size: 3rem;
+}
+
+.l3-card-content {
+    padding: 2.5rem;
+}
+
+.l3-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: white;
+}
+
+.l3-card p {
+    color: var(--l3-text-muted);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.l3-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--l3-border);
+}
+
+.l3-price {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--l3-primary-light);
+}
+
+/* Modal */
+.l3-modal-overlay {
+    background: rgba(15, 23, 42, 0.85); /* Darker backdrop */
+    backdrop-filter: blur(8px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* This class is added via JS/CSS when active to show it */
+.l3-modal-overlay[style*="display: flex"] {
+    opacity: 1;
+}
+
+.l3-modal-card {
+    background: #1e293b;
+    border: 1px solid var(--l3-border);
+    width: 100%;
+    max-width: 440px;
+    padding: 3rem;
+    border-radius: 24px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.l3-modal-overlay[style*="display: flex"] .l3-modal-card {
+    transform: scale(1);
+}
+
+.l3-close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: var(--l3-text-muted);
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: color 0.2s;
+}
+
+.l3-close-btn:hover {
+    color: white;
+}
+
+.l3-modal-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: white;
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+/* Form */
+.l3-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.l3-form-group.last {
+    margin-bottom: 2rem;
+}
+
+.l3-label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--l3-text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.l3-input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--l3-border);
+    color: white;
+    border-radius: 12px;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.l3-input:focus {
+    outline: none;
+    border-color: var(--l3-primary);
+    background: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.l3-error-msg {
+    color: #ef4444;
+    margin-bottom: 1.5rem;
+    display: none;
+    font-size: 0.9rem;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    text-align: center;
+}
+
+.l3-test-accounts {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: var(--l3-text-muted);
+    line-height: 1.6;
+}
+
+.l3-test-accounts code {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--l3-primary-light);
+}
