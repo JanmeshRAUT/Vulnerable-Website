@@ -2,41 +2,84 @@
 {% block title %}SSRF Command Center - SecureNet{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
-<div class="security-header">
-    <div class="container">
-        <h1 class="security-title">SSRF Mastery Track</h1>
-        <p class="security-subtitle">Master the art of Server-Side Request Forgery. Bypass perimeter security and access internal infrastructure.</p>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab4/secure-net.css') }}">
+<header class="sn-header">
+    <div class="container sn-header-content">
+        <div class="sn-brand">
+            <span class="sn-brand-icon">🛡️</span>
+            SecureNet
+        </div>
+        <div class="sn-status">
+            <div class="sn-status-dot"></div>
+            SYSTEM ONLINE
+        </div>
     </div>
-</div>
+</header>
 {% endblock %}
 
 {% block content %}
-    <div class="card-grid">
-        <!-- Lab 4.1 -->
-        <div class="card" style="display: flex; flex-direction: column;">
-            <div style="font-size: 3rem; margin-bottom: 1.5rem;">🏢</div>
-            <h3 style="font-size: 1.25rem;">4.1: Internal Loopback Access</h3>
-            <p style="flex-grow: 1;">Target the application's own local loopback interface. Exploit a vulnerable stock checking API to access the protected admin panel at <code>/admin</code>.</p>
-            <div style="margin-top: 2rem;">
-                <a href="{{ url_for('lab4_1_menu') }}" class="btn" style="width: 100%;">Initialize Lab</a>
+    <!-- Hero Section -->
+    <section class="sn-hero">
+        <div class="sn-hero-content">
+            <span class="sn-tag">Advanced Security Module</span>
+            <h1 class="sn-title">SSRF Command Center</h1>
+            <p class="sn-subtitle">Master the art of Server-Side Request Forgery. Bypass perimeter security and access internal infrastructure.</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Lab Grid -->
+        <div class="sn-grid">
+            <!-- Lab 4.1 -->
+            <div class="sn-card">
+                <div class="sn-card-header">
+                    <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&q=80" alt="Internal Access" class="sn-card-img">
+                </div>
+                <div class="sn-card-body">
+                    <h3 class="sn-card-title">
+                        <span>🏢</span> 4.1: Internal Loopback Access
+                    </h3>
+                    <p class="sn-card-desc">Target the application's own local loopback interface. Exploit a vulnerable stock checking API to access the protected admin panel at <code class="sn-code">/admin</code>.</p>
+                    <a href="{{ url_for('lab4_1_menu') }}" class="sn-btn">
+                        <span>⚡</span> Initialize Lab
+                    </a>
+                </div>
+            </div>
+
+            <!-- Lab 4.2 -->
+            <div class="sn-card">
+                <div class="sn-card-header">
+                    <img src="https://images.unsplash.com/photo-1551808525-51a943718d53?w=600&q=80" alt="Network Discovery" class="sn-card-img">
+                </div>
+                <div class="sn-card-body">
+                    <h3 class="sn-card-title">
+                        <span>🌐</span> 4.2: Backend Network Discovery
+                    </h3>
+                    <p class="sn-card-desc">Identify and exploit vulnerabilities in the backend network. Scan the <code class="sn-code">192.168.0.x</code> range to discover internal management consoles.</p>
+                    <a href="{{ url_for('lab4_2') }}" class="sn-btn sn-btn-accent">
+                        <span>📡</span> Start Network Scan
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Lab 4.2 -->
-        <div class="card" style="display: flex; flex-direction: column;">
-            <div style="font-size: 3rem; margin-bottom: 1.5rem;">🌐</div>
-            <h3 style="font-size: 1.25rem;">4.2: Backend Network Discovery</h3>
-            <p style="flex-grow: 1;">Identify and exploit vulnerabilities in the backend network. Scan the <code>192.168.0.x</code> range to discover internal management consoles.</p>
-            <div style="margin-top: 2rem;">
-                <a href="{{ url_for('lab4_2') }}" class="btn" style="width: 100%; background: #3b82f6;">Start Network Scan</a>
+        <!-- Terminal Hint -->
+        <div class="sn-terminal">
+            <div class="sn-terminal-line">
+                <span class="sn-prompt">root@securenet:~$</span>
+                <span class="sn-cmd">./check_security_posture.sh</span>
+            </div>
+            <div class="sn-terminal-line section-output">
+                <span class="sn-output">Analyzing network boundaries... [WARNING]</span>
+            </div>
+            <div class="sn-terminal-line section-output">
+                <span class="sn-output">Internal services exposed via public interface. Vulnerability detected.</span>
+            </div>
+            <div class="sn-terminal-line section-output">
+                <span class="sn-output">Recommendation: Use intercepting proxies (Burp Suite/OWASP ZAP) to manipulate request parameters.</span>
             </div>
         </div>
-    </div>
 
-    <div class="hint-box">
-        <h4>System Operations Manual</h4>
-        <p>Current Security Posture: <strong>VULNERABLE</strong></p>
-        <p>Note: Security researchers are encouraged to use intercepting proxies like Burp Suite or OWASP ZAP to manipulate cross-service communication parameters.</p>
+        <div style="height: 4rem;"></div>
     </div>
 {% endblock %}
