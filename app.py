@@ -1682,23 +1682,42 @@ def lab4_2_product(product_id):
 def lab4_2_stock():
     stock_api = request.form.get('stockApi')
     
-    # Simulation: One specific IP in 192.168.0.x range has the admin panel
-    # In PortSwigger labs, it's often a random one, but we'll fix it to 154
+    if not stock_api:
+        return "Missing stockApi parameter", 400
+
+    # SIMULATION: Mock Internal Network for SSRF
+    
+    # 1. Valid Stock Check (The "Happy Path")
+    # In the lab, the user sees a valid request to an internal IP (e.g., 192.168.0.1)
+    if "192.168.0.1:8080" in stock_api:
+        import random
+        return f"Success: {random.randint(10, 100)} units available."
+
+    # 2. Target Admin Panel (Hidden on .154)
     target_ip = "192.168.0.154"
+    if f"{target_ip}:8080" in stock_api:
+        # Check if they are trying to delete Carlos
+        if "/admin/delete?username=carlos" in stock_api:
+             return "<h1>Success</h1><p>User carlos deleted!</p><p>FLAG{ssrf_backend_system_found_154}</p>"
+        # Or just accessing the admin panel
+        elif "/admin" in stock_api:
+            return render_template('lab4/admin_panel_internal.html', ip=target_ip)
+        else:
+            return "404 Not Found", 404
     
-    if f"http://{target_ip}:8080/admin" in stock_api:
-        if "/delete?username=carlos" in stock_api:
-             return "<h1>Success</h1><p>User carlos deleted!</p><p>FLAG{{ssrf_backend_system_found_154}}</p>"
-        return render_template('lab4/admin_panel_internal.html', ip=target_ip)
-    
-    # For other IPs, return 404 or connection error to simulate backend
+    # 3. Internal Network Scanning Simulation
+    # If the user changes the IP byte to scan (Intruder), we need to simulate
+    # that other IPs are "down" or "refused connection"
     ip_match = re.search(r'http://(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):8080', stock_api)
     if ip_match:
         ip = ip_match.group(1)
+        # Check if it's in our simulated private range
         if ip.startswith("192.168.0."):
+             # Return error to signify "port closed" or "host unreachable"
+             # This allows the user to filter by status code in Intruder (500 vs 200)
             return "Error: Internal Server Error (Connection Refused)", 500
             
-    return "Invalid stock API", 400
+    return "Invalid stock API URL", 400
 
 
 # -------------------------
