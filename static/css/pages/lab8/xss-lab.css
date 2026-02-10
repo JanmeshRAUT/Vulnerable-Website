@@ -1,0 +1,344 @@
+:root {
+    --dir-bg: #0f172a;
+    --dir-surface: #1e293b;
+    --dir-border: #334155;
+    --dir-text: #f8fafc;
+    --dir-text-muted: #94a3b8;
+    --dir-accent: #3b82f6;
+    --dir-accent-hover: #2563eb;
+    --dir-danger: #ef4444;
+    --dir-success: #10b981;
+}
+
+body {
+    background-color: var(--dir-bg) !important;
+    color: var(--dir-text) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* LOGIN PAGE styles - kept for mode=login */
+.xss-real-wrapper {
+    width: 100%;
+    /* Default for login page standalone view */
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-mode-container {
+    padding: 2rem;
+    width: 100%;
+    max-width: 440px;
+}
+
+.login-card {
+    background: var(--dir-surface);
+    border: 1px solid var(--dir-border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* LANDING PAGE styles */
+.site-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.site-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--dir-border);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-logo span {
+    color: var(--dir-accent);
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--dir-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: white;
+}
+
+.btn-primary {
+    background: var(--dir-accent);
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: var(--dir-accent-hover);
+}
+
+.hero-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem;
+    background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+}
+
+.hero-content {
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--dir-text-muted);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: var(--dir-surface);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--dir-border);
+    transition: transform 0.2s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--dir-accent);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--dir-accent);
+}
+
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.75rem;
+}
+
+.feature-desc {
+    color: var(--dir-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.site-footer {
+    border-top: 1px solid var(--dir-border);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--dir-text-muted);
+    font-size: 0.9rem;
+    background: var(--dir-surface);
+}
+
+/* Helpers */
+.text-highlight { color: var(--dir-accent); }
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.brand-logo {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--dir-accent), #60a5fa);
+    border-radius: 10px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: white;
+}
+
+.login-subtitle {
+    color: var(--dir-text-muted);
+    font-size: 0.875rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--dir-text);
+}
+
+.form-input {
+    background: #0f172a;
+    border: 1px solid var(--dir-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--dir-accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.btn-submit {
+    background: var(--dir-accent);
+    color: white;
+    border: none;
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+}
+
+.btn-submit:hover {
+    background: var(--dir-accent-hover);
+}
+
+.alert-message {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.alert-icon {
+    font-size: 1.1rem;
+}
+
+.alert-content strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* Flag specific */
+.flag-container {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--dir-success);
+    color: #6ee7b7;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+.flag-header {
+    font-weight: 700;
+    color: var(--dir-success);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.flag-code {
+    font-family: monospace;
+    background: rgba(0,0,0,0.3);
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+    display: block;
+    border: 1px dashed var(--dir-success);
+    color: #fff;
+}

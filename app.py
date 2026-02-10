@@ -1794,6 +1794,149 @@ def lab7():
     return render_template('lab7.html', products=products)
 
 
+
+# -------------------------
+# LAB 8: Cross-Site Scripting (XSS)
+# -------------------------
+
+# Initial seed data for Lab 8.2 (Stored XSS)
+# Initial seed data for Lab 8.2 (Stored XSS)
+LAB8_COMMENTS = [
+    {
+        'author': 'System Admin', 
+        'date': '2024-03-01', 
+        'body': 'Welcome to the feedback board! Please identify any bugs you find. (Just kidding, keep it safe!)'
+    },
+    {
+        'author': 'Hacker101', 
+        'date': '2024-03-02', 
+        'body': 'Check out this cool feature! <img src=x onerror=alert("Stored_XSS_Executed")>'
+    },
+    {
+        'author': 'BugHunter99', 
+        'date': '2024-03-02', 
+        'body': 'Found a weird issue on the login page. Can we get a fix?'
+    }
+]
+
+@app.route('/lab8')
+def lab8():
+    return render_template('lab8/index.html')
+
+# Lab 8.1: Reflected XSS
+@app.route('/lab8/1', methods=['GET', 'POST'])
+def lab8_1():
+    username = None
+    flag = None
+    show_login = False
+    
+    # Check if we should show the login page (either via query param or if submitting form)
+    if request.args.get('mode') == 'login' or request.method == 'POST':
+        show_login = True
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        # VULNERABILITY: Reflecting username without sanitization
+        # Check for XSS payload in username
+        if username and ('<script>' in username.lower() or '%3cscript%3e' in username.lower()):
+            flag = "FLAG{reflected_xss_login_successful}"
+            
+    return render_template('lab8/sub1.html', username=username, flag=flag, show_login=show_login)
+
+# Lab 8.2: Stored XSS (Profile Scenario)
+# Simple in-memory storage for Lab 8.2
+LAB8_USERS_DB = {
+    'test': {
+        'password': 'test',
+        'full_name': 'Joan Smith',
+        'address': '123 Cyber Lane, Tech City',
+        'email': 'joan.smith@techfusion.corp',
+        'bio': 'Senior Analyst at TechFusion Dynamics. Love hiking and coding.'
+    }
+}
+
+@app.route('/lab8/2', methods=['GET', 'POST'])
+def lab8_2():
+    # Login Logic
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if username in LAB8_USERS_DB and LAB8_USERS_DB[username]['password'] == password:
+            session['lab8_2_user'] = username
+            return redirect(url_for('lab8_2_dashboard'))
+        else:
+            return render_template('lab8/sub2_login.html', error="Invalid credentials")
+            
+    # Default GET: Show Login Page if not logged in
+    if 'lab8_2_user' in session:
+        return redirect(url_for('lab8_2_dashboard'))
+        
+    return render_template('lab8/sub2_login.html')
+
+@app.route('/lab8/2/dashboard')
+def lab8_2_dashboard():
+    if 'lab8_2_user' not in session:
+        return redirect(url_for('lab8_2'))
+    
+    username = session['lab8_2_user']
+    user_data = LAB8_USERS_DB.get(username)
+    
+    # Check for Stored XSS Flag condition
+    # If any stored field contains a script tag, we consider the attack successful for the lab
+    flag = None
+    for key in ['full_name', 'address', 'email', 'bio']:
+        val = user_data.get(key, '')
+        if val and ('<script>' in val.lower() or '%3cscript%3e' in val.lower()):
+            flag = "FLAG{stored_xss_profile_pwned}"
+            break
+            
+    return render_template('lab8/sub2_dashboard.html', user=user_data, flag=flag)
+
+@app.route('/lab8/2/update', methods=['POST'])
+def lab8_2_update():
+    if 'lab8_2_user' not in session:
+        return redirect(url_for('lab8_2'))
+        
+    username = session['lab8_2_user']
+    
+    # VULNERABILITY: Storing input without sanitization
+    LAB8_USERS_DB[username]['full_name'] = request.form.get('full_name')
+    LAB8_USERS_DB[username]['email'] = request.form.get('email')
+    LAB8_USERS_DB[username]['address'] = request.form.get('address')
+    LAB8_USERS_DB[username]['bio'] = request.form.get('bio')
+    
+    return redirect(url_for('lab8_2_dashboard'))
+
+@app.route('/lab8/2/logout')
+def lab8_2_logout():
+    session.pop('lab8_2_user', None)
+    return redirect(url_for('lab8_2'))
+    
+# Clean up old stored comments route if it exists (not used anymore)
+# But keep the helper just in case
+def init_lab8_2_user():
+    # Helper to reset if needed
+    LAB8_USERS_DB['test'] = {
+        'password': 'test',
+        'full_name': 'Joan Smith',
+        'address': '123 Cyber Lane, Tech City',
+        'email': 'joan.smith@techfusion.corp',
+        'bio': 'Senior Analyst at TechFusion Dynamics.'
+    }
+    
+    return redirect(url_for('lab8_2'))
+
+# Endpoint to reset comments if they get too messy
+@app.route('/lab8/2/reset')
+def lab8_2_reset():
+    global LAB8_COMMENTS
+    LAB8_COMMENTS = [
+        {'author': 'System Admin', 'date': '2024-03-01', 'body': 'Welcome to the feedback board! Please identify any bugs you find.'}
+    ]
+    return redirect(url_for('lab8_2'))
+
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)

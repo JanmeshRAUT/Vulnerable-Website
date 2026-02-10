@@ -1,0 +1,58 @@
+{% extends 'base.html' %} 
+{% block title %}Lab 8.2 - Stored XSS{% endblock %} 
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+<div class="xss-header">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="xss-brand" data-text="<STORED/>"> <STORED/> </div>
+        <a href="{{ url_for('lab8') }}" style="color: #fff; text-decoration: none;">&larr; Modules</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="background:var(--xss-surface); padding:2rem; border-top: 3px solid var(--xss-primary);">
+        <h2 style="color:var(--xss-primary); margin-top:0;">COMMUNITY FEEDBACK</h2>
+        <p style="color:#aaa;">Leave your thoughts on our latest product release.</p>
+
+        <!-- New Comment Form -->
+        <div style="background:#111; padding:1.5rem; margin-bottom:2rem; border:1px solid #333;">
+            <h3 style="color:#fff; margin-top:0;">Post a Comment</h3>
+            <form action="{{ url_for('lab8_2_post') }}" method="POST">
+                <input type="text" name="author" placeholder="Name" required 
+                    style="display:block; width:100%; margin-bottom:1rem; padding:0.5rem; background:#222; border:1px solid #444; color:#fff;">
+                <textarea name="body" rows="4" placeholder="Share your experience..." required 
+                    style="display:block; width:100%; margin-bottom:1rem; padding:0.5rem; background:#222; border:1px solid #444; color:#fff;"></textarea>
+                <button type="submit" class="xss-btn xss-btn-danger">SUBMIT_FEEDBACK</button>
+            </form>
+        </div>
+
+        <!-- Comments List -->
+        <div class="browser-chrome">
+            <div class="browser-dot dot-red"></div>
+            <div class="browser-dot dot-yellow"></div>
+            <div class="browser-dot dot-green"></div>
+            <div class="url-bar">https://feedback.corp/comments</div>
+        </div>
+        <div class="browser-content" style="background:#fff; color:#333;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin-top:0;">Recent Activity ({{ comments|length }})</h3>
+                <a href="{{ url_for('lab8_2_reset') }}" style="color:#d00; font-size:0.8rem; text-decoration:none;">[RESET_DB]</a>
+            </div>
+            
+            {% for comment in comments %}
+            <div class="comment-box">
+                <div class="comment-author" style="color:#d00;">{{ comment.author | safe }}</div>
+                <div class="comment-date">{{ comment.date }}</div>
+                <!-- VULNERABILITY: Stored Content Rendered Unsafe -->
+                <div class="comment-body">{{ comment.body | safe }}</div>
+            </div>
+            {% else %}
+            <p style="color:#999; font-style:italic;">No comments yet. Be the first!</p>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

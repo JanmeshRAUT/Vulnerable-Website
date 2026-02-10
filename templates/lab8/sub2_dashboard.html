@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | TechFusion Dynamics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .profile-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+        }
+        
+        .profile-title h1 {
+            font-size: 2rem;
+            color: #fff;
+            margin: 0;
+        }
+        
+        .profile-title span {
+            color: var(--dir-text-muted);
+            font-size: 1rem;
+        }
+
+        .profile-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+        
+        .profile-sidebar {
+            background: var(--dir-surface);
+            border: 1px solid var(--dir-border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--dir-accent), #60a5fa);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            border: 4px solid var(--dir-bg);
+            box-shadow: 0 0 0 4px var(--dir-border);
+        }
+        
+        .profile-name-display {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-role {
+            color: var(--dir-accent);
+            font-size: 0.9rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .profile-content {
+            background: var(--dir-surface);
+            border: 1px solid var(--dir-border);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        
+        .section-header {
+            border-bottom: 1px solid var(--dir-border);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h2 {
+            font-size: 1.25rem;
+            color: #fff;
+            margin: 0;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .full-width {
+            grid-column: span 2;
+        }
+        
+        /* Vulnerable Display Area Styles */
+        .vulnerable-display {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--dir-text-muted);
+        }
+        
+        .vulnerable-display label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--dir-accent);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+        
+        .vulnerable-value {
+            color: #e2e8f0;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body style="display:block;"> <!-- Override flex center from generic css -->
+
+    <!-- Navbar -->
+    <nav class="site-nav">
+        <div class="nav-logo">
+            <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">T</div>
+            TechFusion <span>Dynamics</span>
+        </div>
+        <div class="nav-links">
+            <span style="color:#94a3b8; margin-right:1rem;">Welcome, {{ user.full_name | safe }}</span>
+            <a href="{{ url_for('lab8_2_logout') }}" class="btn-primary" style="background:#ef4444;">Logout</a>
+        </div>
+    </nav>
+
+    <div class="profile-wrapper">
+        <div class="profile-header">
+            <div class="profile-title">
+                <h1>Profile Settings</h1>
+                <span>Manage your personal information</span>
+            </div>
+            
+            {% if flag %}
+                <div class="flag-container" style="margin:0; max-width:400px;">
+                    <div class="flag-header">🚩 <strong>Stored XSS Executed!</strong></div>
+                    <div class="flag-code">{{ flag }}</div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-container">
+            <!-- Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-avatar">
+                   {{ user.full_name[0] | upper }}
+                </div>
+                <!-- VULNERABILITY: Name is reflected unsafely here -->
+                <div class="profile-name-display">{{ user.full_name | safe }}</div>
+                <div class="profile-role">Senior Analyst</div>
+                
+                <div style="margin-top:2rem; text-align:left;">
+                    <div style="color:#94a3b8; font-size:0.9rem; margin-bottom:0.5rem;">Member since</div>
+                    <div style="color:#fff;">Nov 2023</div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="profile-content">
+                <div class="section-header">
+                    <h2>Personal Information</h2>
+                    <span style="font-size:0.85rem; color:#94a3b8;">Updates are reflected immediately</span>
+                </div>
+                
+                <!-- Display Current Values (To show the vulnerability in effect) -->
+                <div style="margin-bottom:2rem;">
+                     <!-- VULNERABILITY: Bio is rendered unsafely -->
+                     <div class="vulnerable-display">
+                        <label>Current Bio</label>
+                        <div class="vulnerable-value">{{ user.bio | safe }}</div>
+                     </div>
+                </div>
+
+                <form action="{{ url_for('lab8_2_update') }}" method="POST">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="full_name" class="form-input" value="{{ user.full_name }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-input" value="{{ user.email }}" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label class="form-label">Address</label>
+                            <input type="text" name="address" class="form-input" value="{{ user.address }}">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label class="form-label">Bio / About Me</label>
+                            <textarea name="bio" class="form-input" rows="4" placeholder="Tell us about yourself...">{{ user.bio }}</textarea>
+                            <div style="font-size:0.8rem; color:#64748b; margin-top:0.5rem;">HTML is allowed for formatting (e.g. &lt;b&gt;, &lt;i&gt;)</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top:2rem; text-align:right;">
+                        <button type="submit" class="btn-submit" style="width:auto; padding:0.8rem 2rem;">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="site-footer" style="padding:2rem;">
+        &copy; 2025 TechFusion Dynamics. All rights reserved.
+    </footer>
+
+</body>
+</html>

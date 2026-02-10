@@ -1,0 +1,57 @@
+{% extends 'base.html' %} {% block title %}XSS Mastery Track - Cross Site
+Scripting{% endblock %} {% block header %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}"
+/>
+<div class="xss-header">
+  <div class="container">
+    <div class="xss-brand" data-text="<XSS/> LABS"> <XSS/> LABS</div>
+  </div>
+</div>
+{% endblock %} {% block content %}
+<div class="container">
+  <h1 class="xss-title">
+    Cross-Site Scripting (XSS) Modules
+    <span style="font-size: 0.8rem; opacity: 0.6">(Research Division)</span>
+  </h1>
+  <p class="xss-desc">
+    Inject malicious scripts into trusted web applications. Understand the
+    difference between Reflected and Stored execution contexts.
+  </p>
+
+  <!-- Module 8.1: Reflected XSS -->
+  <div class="xss-card">
+    <div class="xss-title">
+      <span style="color: var(--xss-secondary)">⚡</span>
+      8.1: Reflected XSS (Search)
+    </div>
+    <p class="xss-desc">
+      The application echoes user input immediately without sanitization. Typically
+      delivered via malicious links.
+      <br /><br />
+      <strong>Objective:</strong> Execute <code>alert(1)</code> by manipulating
+      the search parameter.
+    </p>
+    <a href="{{ url_for('lab8_1') }}" class="xss-btn">Launch Module</a>
+  </div>
+
+  <!-- Module 8.2: Stored XSS -->
+  <div class="xss-card" style="border-left-color: var(--xss-primary)">
+    <div class="xss-title">
+      <span style="color: var(--xss-primary)">💾</span>
+      8.2: Stored XSS (Comments)
+    </div>
+    <p class="xss-desc">
+      The application saves malicious input to the database, executing it for
+      anyone who views the page later.
+      <br /><br />
+      <strong>Objective:</strong> Leave a permanent comment that executes
+      JavaScript for every visitor.
+    </p>
+    <a href="{{ url_for('lab8_2') }}" class="xss-btn xss-btn-danger"
+      >Launch Module</a
+    >
+  </div>
+</div>
+{% endblock %}

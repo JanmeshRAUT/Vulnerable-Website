@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechFusion Dynamics | Enterprise Solutions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- LOGIC SWITCH -->
+{% if show_login %}
+    <!-- LOGIN PAGE VIEW -->
+    <div class="xss-real-wrapper">
+        <div class="login-mode-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="brand-logo">T</div>
+                    <h1 class="login-title">Employee Portal</h1>
+                    <p class="login-subtitle">Secure Access Gateway</p>
+                </div>
+                
+                <!-- Flag Logic -->
+                {% if flag %}
+                    <div class="flag-container">
+                        <div class="flag-header">
+                           🚩 <strong>Security Alert</strong>
+                        </div>
+                        <div>XSS Payload Detected & Executed</div>
+                        <div class="flag-code">{{ flag }}</div>
+                    </div>
+                {% endif %}
+
+                <!-- Vulnerable Reflection -->
+                {% if username and not flag %}
+                    <div class="alert-message">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            Login failed for user: <strong>{{ username | safe }}</strong>
+                            <br>Please check your credentials.
+                        </div>
+                    </div>
+                {% endif %}
+
+                <form action="{{ url_for('lab8_1') }}" method="POST" class="login-form">
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="username" autocomplete="off" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Sign In</button>
+                </form>
+                
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="{{ url_for('lab8_1') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Return to Home</a>
+                </div>
+            </div>
+            
+            <footer style="margin-top:2rem; text-align:center; color:#64748b; font-size:0.8rem;">
+                &copy; 2025 TechFusion Dynamics. Authorized Personnel Only.
+            </footer>
+        </div>
+    </div>
+
+{% else %}
+    <!-- HOMEPAGE VIEW -->
+    <div class="site-wrapper">
+        <!-- Add a distinct header-like wrapper for the nav to ensure it sits above content -->
+        <nav class="site-nav">
+            <div class="nav-logo">
+                <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">T</div>
+                TechFusion <span>Dynamics</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link">Solutions</a>
+                <a href="#" class="nav-link">Platform</a>
+                <a href="#" class="nav-link">About Us</a>
+                <a href="{{ url_for('lab8_1', mode='login') }}" class="btn-primary">Employee Login</a>
+            </div>
+        </nav>
+
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Accelerating Digital <br>Transformation</h1>
+                <p class="hero-subtitle">
+                    We provide enterprise-grade secure infrastructure for the modern web.
+                    Scalable, reliable, and built for the future.
+                </p>
+                <div style="display:flex; gap:1rem; justify-content:center;">
+                    <a href="#" class="btn-primary" style="padding:1rem 2rem; font-size:1.1rem;">Get Started</a>
+                    <a href="#" class="btn-primary" style="background:transparent; border:1px solid #334155; padding:1rem 2rem; font-size:1.1rem;">Learn More</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">☁️</div>
+                <h3 class="feature-title">Cloud Native</h3>
+                <p class="feature-desc">Deployed on cutting-edge serverless architecture for maximum uptime and minimal latency.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="feature-title">Zero Trust Security</h3>
+                <p class="feature-desc">Advanced identity management and granular access controls for your entire organization.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3 class="feature-title">Rapid Deployment</h3>
+                <p class="feature-desc">Go from code to production in minutes with our automated CI/CD pipelines.</p>
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <p>&copy; 2025 TechFusion Dynamics. All rights reserved.</p>
+            <p style="margin-top:0.5rem; opacity:0.6;">
+                <a href="{{ url_for('lab8') }}" style="color:inherit; text-decoration:none;">Research Lab Module 8.1</a>
+            </p>
+        </footer>
+    </div>
+{% endif %}
+
+</body>
+</html>

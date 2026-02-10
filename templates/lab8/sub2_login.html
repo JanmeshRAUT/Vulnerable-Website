@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Login | Lab 8.2</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="xss-real-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="brand-logo">T</div>
+                <h1 class="login-title">Stored XSS Lab 8.2</h1>
+                <p class="login-subtitle">Sign in to manage your profile</p>
+                <div style="margin-top:0.5rem; font-size:0.8rem; color:#64748b; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; display:inline-block;">
+                    Hint: test / test
+                </div>
+            </div>
+            
+            {% if error %}
+                <div class="alert-message">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <strong>Login Failed</strong>
+                        <br>{{ error }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <form action="{{ url_for('lab8_2') }}" method="POST" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="e.g. test" autocomplete="off" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-submit">Access Profile</button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="{{ url_for('lab8') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Back to Modules</a>
+            </div>
+        </div>
+        
+        <footer>
+            &copy; 2025 TechFusion Dynamics. Internal System.
+        </footer>
+    </div>
+</body>
+</html>
