@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - Lab 5.2{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+{% endblock %}
+
+{% block layout_container %}
+<div class="container animate-fade-in lab5-container-split">
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+        <div class="glass profile-card">
+            <div class="avatar-lg">
+                {% if avatar %}
+                <img src="{{ avatar }}" alt="User Avatar">
+                {% else %}
+                <div class="avatar-placeholder-icon">👤</div>
+                {% endif %}
+            </div>
+            
+            <h3 class="profile-name">{{ username }}</h3>
+            <p class="profile-badge">Verified User</p>
+            
+            <div class="profile-nav">
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline nav-sidemenu-item" style="color: #94a3b8; border-color: rgba(255,255,255,0.1);">
+                    <span class="menu-icon">⬅️</span> Exit Lab
+                </a>
+                <a href="{{ url_for('lab5_2') }}" class="btn-tech-outline nav-sidemenu-item">
+                    <span class="menu-icon">🏠</span> Store Home
+                </a>
+                <a href="#" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-active">
+                    <span class="menu-icon">⚙️</span> Settings
+                </a>
+                <a href="{{ url_for('lab5_2_logout') }}" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-danger">
+                    <span class="menu-icon">🚪</span> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-main">
+        <div class="glass content-card">
+            <div class="content-header">
+                <div>
+                    <h1 class="content-title">Lab 5.2 Profile</h1>
+                    <p class="auth-subtitle">Content-Type Restriction Bypass Challenge</p>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h3 class="section-title">
+                    <span class="section-icon">📸</span> 
+                    Avatar Upload
+                </h3>
+
+                {% if message %}
+                <div class="upload-message-success">
+                    {{ message }}
+                </div>
+                {% endif %}
+                
+                {% if error %}
+                <div class="upload-message-error">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('lab5_2_upload') }}" method="POST" enctype="multipart/form-data">
+                    <div class="upload-zone" onclick="document.getElementById('avatar-input').click()">
+                        <div class="upload-placeholder-icon">☁️</div>
+                        <p class="upload-text-main">Click to choose a file</p>
+                        <p class="upload-text-sub">Only Image files allowed (JPEG/PNG)</p>
+                        <input type="file" name="avatar" id="avatar-input" class="d-none" onchange="this.form.submit()">
+                    </div>
+                    
+                    <div class="upload-actions">
+                        <button type="button" class="btn-upload-primary" onclick="document.getElementById('avatar-input').click()">
+                            <span>⬆️</span> Upload Avatar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Personal Info (Read Only) -->
+            <div class="info-grid">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input input-readonly" value="Carlos Montoya" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input input-readonly" value="carlos@vulnerable-ecommerce.com" readonly>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

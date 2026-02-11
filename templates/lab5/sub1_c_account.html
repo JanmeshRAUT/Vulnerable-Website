@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - HireMinds{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override */
+    :root {
+        --primary: #059669;         
+        --primary-hover: #047857;   
+        --accent: #10b981;          
+    }
+    .profile-sidebar .profile-card {
+        border-top: 4px solid #34d399;
+    }
+    .btn-tech-primary {
+        background: #059669;
+    }
+    .btn-tech-primary:hover {
+        background: #047857;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="container animate-fade-in lab5-container-split">
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+        <div class="glass profile-card">
+            <div class="avatar-lg" style="box-shadow: 0 0 0 4px #10b981, 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                {% if avatar %}
+                <img src="{{ avatar }}" alt="User Avatar">
+                {% else %}
+                <div class="avatar-placeholder-icon">👨‍💼</div>
+                {% endif %}
+            </div>
+            
+            <h3 class="profile-name">{{ username }}</h3>
+            <p class="profile-badge" style="background:#ecfdf5; color:#059669; border-color:#6ee7b7;">Recruiter</p>
+            
+            <div class="profile-nav">
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline nav-sidemenu-item" style="color: #94a3b8; border-color: rgba(255,255,255,0.1);">
+                    <span class="menu-icon">⬅️</span> Exit Lab
+                </a>
+                <a href="{{ url_for('lab5_1_c') }}" class="btn-tech-outline nav-sidemenu-item">
+                    <span class="menu-icon">🏢</span> Jobs
+                </a>
+                <a href="#" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-active" style="border-color:#34d399; background:#ecfdf5; color:#059669;">
+                    <span class="menu-icon">🛠️</span> Profile
+                </a>
+                <a href="{{ url_for('lab5_1_c_logout') }}" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-danger">
+                    <span class="menu-icon">🚪</span> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-main">
+        <div class="glass content-card">
+            <div class="content-header">
+                <div>
+                    <h1 class="content-title">Recruiter Profile</h1>
+                    <p class="auth-subtitle">Verify your identity with a company badge.</p>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <h3 class="section-title">
+                    <span class="section-icon" style="color:#059669; background:#ecfdf5; border-color:#6ee7b7;">🆔</span> 
+                    Company ID / Badge
+                </h3>
+
+                {% if message %}
+                <div class="upload-message-success">
+                    {{ message }}
+                </div>
+                {% endif %}
+                
+                {% if error %}
+                <div class="upload-message-error">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('lab5_1_c_upload') }}" method="POST" enctype="multipart/form-data">
+                    <div class="upload-zone" onclick="document.getElementById('avatar-input').click()">
+                        <div class="upload-placeholder-icon" style="color:#6ee7b7;">☁️</div>
+                        <p class="upload-text-main">Click to upload ID Badge</p>
+                        <p class="upload-text-sub">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                        <input type="file" name="avatar" id="avatar-input" class="d-none" onchange="this.form.submit()">
+                    </div>
+                    
+                    <div class="upload-actions">
+                        <button type="button" class="btn-upload-primary" onclick="document.getElementById('avatar-input').click()">
+                            <span>⬆️</span> Upload Badge
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Personal Info (Read Only) -->
+            <div class="info-grid">
+                <div class="form-group">
+                    <label class="form-label">Position</label>
+                    <input type="text" class="form-input input-readonly" value="Senior Talent Scout" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Company</label>
+                    <input type="text" class="form-input input-readonly" value="TechGlobal Inc." readonly>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

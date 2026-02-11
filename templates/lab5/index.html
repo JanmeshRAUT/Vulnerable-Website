@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Lab 5: File Upload Vulnerabilities{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab5-hero">
+    <h1>File Upload Vulnerabilities</h1>
+    <p class="lab5-hero-desc">
+        Explore how insecure file upload mechanisms can lead to remote code execution and server compromise.
+    </p>
+</div>
+
+<div class="container lab5-grid-container">
+    <div class="grid lab5-grid">
+        
+        <!-- Lab 5.1 -->
+        <div class="lab5-card">
+            <div>
+                <span class="status-badge badge-critical">CRITICAL SEVERITY</span>
+            </div>
+            <div class="lab5-icon-wrapper">
+                <i style="font-style: normal;">🐚</i>
+            </div>
+            <h3 class="lab5-card-title">5.1: Remote Code Execution via Web Shell Upload</h3>
+            <p class="lab5-card-desc">
+                This lab contains a vulnerable image upload function. It doesn't perform any validation on the files users upload before storing them on the server filesystem.
+            </p>
+            <a href="{{ url_for('lab5_1_menu') }}" class="btn-lab5-primary">
+                Select Mission &rarr;
+            </a>
+        </div>
+
+        <!-- Lab 5.2 -->
+        <div class="lab5-card">
+            <div>
+                <span class="status-badge badge-critical">HIGH SEVERITY</span>
+            </div>
+            <div class="lab5-icon-wrapper">
+                <i style="font-style: normal;">🎭</i>
+            </div>
+            <h3 class="lab5-card-title">5.2: Content-Type Restriction Bypass</h3>
+            <p class="lab5-card-desc">
+                This lab implements a defense mechanism that checks the Content-Type header. However, it fails to validate if the file content matches the declared type.
+            </p>
+            <a href="{{ url_for('lab5_2_menu') }}" class="btn-lab5-primary">
+                Select Mission &rarr;
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

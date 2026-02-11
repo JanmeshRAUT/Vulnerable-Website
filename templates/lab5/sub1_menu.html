@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Lab 5.1: Select Operation{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
+<style>
+    .mission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+    .mission-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 1rem;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .mission-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+    .mission-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+    }
+    .mission-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+    .mission-desc {
+        color: #94a3b8;
+        margin-bottom: 2rem;
+        flex-grow: 1;
+    }
+    .btn-mission {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: block; /* Ensure block display */
+        box-sizing: border-box; /* Include padding in width */
+    }
+    
+    /* Theme A: TechZone */
+    .theme-a:hover { border-color: #6366f1; }
+    .btn-theme-a { background: #6366f1; color: white; border: none; }
+    .btn-theme-a:hover { background: #4f46e5; }
+    
+    /* Theme B: PixelArt */
+    .theme-b:hover { border-color: #ec4899; }
+    .btn-theme-b { background: #ec4899; color: white; border: none; }
+    .btn-theme-b:hover { background: #db2777; }
+    
+    /* Theme C: HireMinds */
+    .theme-c:hover { border-color: #10b981; }
+    .btn-theme-c { background: #10b981; color: white; border: none; }
+    .btn-theme-c:hover { background: #059669; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lab5-hero">
+    <h1>Select Target Environment</h1>
+    <p class="lab5-hero-desc">
+        Choose a simulation scenario to test the file upload vulnerability. The underlying mechanism is identical, but the context changes to test your adaptability.
+    </p>
+</div>
+
+<div class="container animate-fade-in lab5-container-max">
+    <div class="mission-grid">
+        <!-- Variation A -->
+        <div class="mission-card theme-a">
+            <div class="mission-icon">⚡</div>
+            <h3 class="mission-title">TechZone</h3>
+            <p class="mission-desc">
+                High-end electronics retailer. Vulnerability lies within the customer profile avatar upload system.
+            </p>
+            <a href="{{ url_for('lab5_1') }}" class="btn-mission btn-theme-a">Infiltrate TechZone &rarr;</a>
+        </div>
+
+        <!-- Variation B -->
+        <div class="mission-card theme-b">
+            <div class="mission-icon">🎨</div>
+            <h3 class="mission-title">PixelArt</h3>
+            <p class="mission-desc">
+                Exclusive NFT marketplace. Artists can upload portfolio pieces. Check the studio management panel.
+            </p>
+            <a href="{{ url_for('lab5_1_b') }}" class="btn-mission btn-theme-b">Access Gallery &rarr;</a>
+        </div>
+
+        <!-- Variation C -->
+        <div class="mission-card theme-c">
+            <div class="mission-icon">💼</div>
+            <h3 class="mission-title">HireMinds</h3>
+            <p class="mission-desc">
+                Professional recruitment network. Recruiters upload ID badges for verification. Target the verification process.
+            </p>
+            <a href="{{ url_for('lab5_1_c') }}" class="btn-mission btn-theme-c">Enter Portal &rarr;</a>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 4rem;">
+        <a href="{{ url_for('lab5') }}" style="color: #64748b; text-decoration: none;">&larr; Back to Lab 5 Overview</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}PixelArt Gallery - Digital Masterpieces{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: PixelArt (Pink/Violet) */
+    :root {
+        --primary: #ec4899;         /* Pink 500 */
+        --primary-hover: #db2777;   /* Pink 600 */
+        --accent: #d946ef;          /* Fuchsia 500 */
+    }
+    .tech-nav {
+        border-bottom: 1px solid #fbcfe8;
+    }
+    .tech-hero {
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        box-shadow: 0 10px 30px -10px rgba(236, 72, 153, 0.3);
+    }
+    .tech-brand span:first-child {
+        filter: hue-rotate(90deg);
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab5_1_b') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">🎨</span>
+            <span>PixelArt</span>
+        </a>
+        <div class="nav-actions">
+            {% if session.get('lab5_1_b_user') %}
+                <a href="{{ url_for('lab5_1_b_account') }}" class="btn-tech-primary">
+                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">👤</span> My Portfolio
+                </a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline">Exit Lab</a>
+            {% else %}
+                <a href="{{ url_for('lab5_1_b_login') }}" class="btn-tech-outline">Artist Login</a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline" style="border-color: transparent; color: #94a3b8;">Exit Lab</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Curated Digital Collection</span>
+        <h1>Art Beyond <br>Boundaries.</h1>
+        <p>Discover unique NFTs and digital assets created by the world's top pixel artists. Own a piece of the future.</p>
+        <div class="hero-actions">
+            <a href="#gallery" class="btn-tech-primary">Explore Gallery</a>
+            <a href="#" class="btn-tech-outline">Start Creating</a>
+        </div>
+    </div>
+</header>
+
+<main id="gallery" class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid">
+        {% for item in gallery %}
+        <div class="tech-card">
+            <div class="tech-card-img-wrapper" style="padding-top: 100%;">
+                <img src="{{ item.image }}" alt="{{ item.title }}" class="tech-card-img" style="image-rendering: pixelated;">
+            </div>
+            <div class="tech-card-body">
+                <h3 class="tech-title">{{ item.title }}</h3>
+                <p class="tech-desc">By {{ item.artist }}</p>
+                <div class="product-actions">
+                    <div class="tech-price">{{ item.price }} ETH</div>
+                    <button class="btn-tech-outline btn-cart-mini">Place Bid</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<footer class="tech-footer">
+    <p>&copy; 2025 PixelArt Gallery. All rights reserved.</p>
+    <p class="tech-footer-sub">Verified on Blockchain • Community Driven • Zero Gas Fees</p>
+</footer>
+{% endblock %}

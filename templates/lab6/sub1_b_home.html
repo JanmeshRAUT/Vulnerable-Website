@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}AutoParts Pro - Parts Catalog{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: AutoParts Pro (Red) */
+    :root {
+        --primary: #ef4444;
+        --primary-hover: #dc2626;
+        --accent: #f87171;
+    }
+    .tech-hero {
+        background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+    }
+    .stock-checker {
+        background: #fef2f2;
+        border: 2px solid #fca5a5;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    .stock-result {
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        font-family: 'Courier New', monospace;
+        white-space: pre-wrap;
+        color: #1f2937;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab6_1_b') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">🔧</span>
+            <span style="color: #dc2626;">AutoParts Pro</span>
+        </a>
+        <div class="nav-actions">
+            <a href="{{ url_for('lab6') }}" class="btn-tech-outline">Exit Lab</a>
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Professional Grade Parts</span>
+        <h1>Quality Parts.<br>Fast Delivery.</h1>
+        <p>OEM and aftermarket automotive components. Check warehouse inventory in real-time.</p>
+    </div>
+</header>
+
+<main class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid">
+        {% for product in products %}
+        <div class="tech-card">
+            <div class="tech-card-img-wrapper">
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="tech-card-img">
+            </div>
+            <div class="tech-card-body">
+                <h3 class="tech-title">{{ product.name }}</h3>
+                <p class="tech-desc">{{ product.description }}</p>
+                <div class="product-actions">
+                    <div class="tech-price">${{ product.price }}</div>
+                    <button class="btn-tech-outline btn-cart-mini" onclick="checkStock({{ product.id }})">Check Stock</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Stock Checker Section -->
+    <div class="stock-checker">
+        <h2 style="color: #991b1b; margin-bottom: 1rem;">📍 Warehouse Locator</h2>
+        <p style="color: #7f1d1d; margin-bottom: 1.5rem;">Query part availability by SKU and warehouse location.</p>
+        
+        <form id="stockForm" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <input type="number" id="productId" placeholder="SKU Number" 
+                   style="flex: 1; min-width: 150px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" required>
+            <input type="text" id="locationId" placeholder="Location ID (e.g., 1)" 
+                   style="flex: 1; min-width: 150px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" required>
+            <button type="submit" class="btn-tech-primary" style="background: #ef4444;">
+                Query Inventory
+            </button>
+        </form>
+
+        <div id="stockResult" class="stock-result" style="display: none;"></div>
+    </div>
+</main>
+
+<script>
+function checkStock(productId) {
+    document.getElementById('productId').value = productId;
+    document.getElementById('locationId').focus();
+}
+
+document.getElementById('stockForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const productId = document.getElementById('productId').value;
+    const locationId = document.getElementById('locationId').value;
+    
+    const resultDiv = document.getElementById('stockResult');
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = 'Querying warehouse system...';
+    
+    try {
+        const response = await fetch('/lab6/1/b/check-stock', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: `productId=${productId}&locationId=${encodeURIComponent(locationId)}`
+        });
+        
+        const data = await response.text();
+        resultDiv.textContent = data;
+    } catch (error) {
+        resultDiv.textContent = 'Error: ' + error.message;
+    }
+});
+</script>
+
+<footer class="tech-footer">
+    <p>&copy; 2025 AutoParts Pro LLC.</p>
+</footer>
+{% endblock %}

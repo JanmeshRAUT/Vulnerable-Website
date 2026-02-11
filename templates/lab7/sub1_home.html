@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}GiftShop - Premium Gifts{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+{% endblock %}
+
+{% block layout_container %}
+<div class="gift-main-content">
+<nav class="gift-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid gift-nav-content">
+        <a href="{{ url_for('lab7_1') }}" class="gift-brand">
+            <span style="font-size: 1.75rem;">🎁</span>
+            <span style="color: #9333ea;">GiftShop</span>
+        </a>
+        <div class="nav-actions">
+            <a href="{{ url_for('lab7') }}" class="btn-tech-outline">Exit Lab</a>
+        </div>
+    </div>
+</nav>
+
+<header class="gift-hero animate-fade-in">
+    <div class="gift-hero-content">
+        <span class="gift-hero-subtitle">Thoughtful Presents for Every Occasion</span>
+        <h1>Perfect Gifts.<br>Delivered with Love.</h1>
+        <p>Curated selection of unique gifts for birthdays, anniversaries, holidays, and special moments.</p>
+    </div>
+</header>
+
+<main class="container animate-fade-in lab5-container-max">
+    <!-- Category Filter -->
+    <div class="gift-filter-section">
+        <h2 class="gift-filter-title">🏷️ Browse by Category</h2>
+        <div class="gift-filter-buttons">
+            <a href="{{ url_for('lab7_1') }}" class="gift-filter-btn {% if not category %}active{% endif %}">All Products</a>
+            <a href="{{ url_for('lab7_1', category='Gifts') }}" class="gift-filter-btn {% if category == 'Gifts' %}active{% endif %}">Gifts</a>
+            <a href="{{ url_for('lab7_1', category='Accessories') }}" class="gift-filter-btn {% if category == 'Accessories' %}active{% endif %}">Accessories</a>
+            <a href="{{ url_for('lab7_1', category='Lifestyle') }}" class="gift-filter-btn {% if category == 'Lifestyle' %}active{% endif %}">Lifestyle</a>
+            <a href="{{ url_for('lab7_1', category='Tech') }}" class="gift-filter-btn {% if category == 'Tech' %}active{% endif %}">Tech</a>
+        </div>
+        {% if category %}
+        <p class="gift-filter-info">
+            Showing products in: <strong style="color: #7e22ce;">{{ category }}</strong>
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Products Grid -->
+    <div class="gift-products-grid">
+        {% if products %}
+            {% for product in products %}
+            <div class="gift-product-card">
+                <div class="gift-product-img-wrapper">
+                    <img src="{{ product[4] }}" alt="{{ product[1] }}" class="gift-product-img">
+                </div>
+                <div class="gift-product-body">
+                    <h3 class="gift-product-title">
+                        {{ product[1] }}
+                        {% if product[5] == 0 %}
+                        <span class="unreleased-badge">UNRELEASED</span>
+                        {% endif %}
+                    </h3>
+                    <p class="gift-product-desc">{{ product[2] }}</p>
+                    <div class="gift-product-actions">
+                        <div class="gift-price">${{ product[3] }}</div>
+                        <button class="gift-btn-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="gift-empty-state">
+                <p>No products found in this category.</p>
+            </div>
+        {% endif %}
+    </div>
+</main>
+
+<footer class="gift-footer">
+    <p>&copy; 2025 GiftShop Inc.</p>
+</footer>
+</div>
+{% endblock %}

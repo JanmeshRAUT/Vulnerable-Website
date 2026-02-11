@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Driver Login - Global Logistics{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: Global Logistics (Orange) */
+    :root {
+        --primary: #f97316;
+        --primary-hover: #ea580c;
+        --accent: #fb923c;
+    }
+    .auth-title {
+        color: #d97706; /* Amber 600 */
+    }
+    .btn-tech-primary {
+         background-color: var(--primary) !important;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="container animate-fade-in lab5-container-center">
+    <div class="nav-back-link">
+        <a href="{{ url_for('lab5_2_b') }}" class="btn-tech-outline" style="border: none; padding: 0.5rem 1rem;">&larr; Back to Tracking</a>
+    </div>
+
+    <div class="auth-container glass">
+        <div class="auth-header">
+            <div class="auth-icon">🚛</div>
+            <h2 class="auth-title">Driver Access</h2>
+            <p class="auth-subtitle">Upload delivery confirmations.</p>
+        </div>
+
+        {% if error %}
+        <div class="auth-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('lab5_2_b_login') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Driver ID</label>
+                <input type="text" name="username" class="form-input" placeholder="e.g. driver_wiener" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Route PIN</label>
+                <input type="password" name="password" class="form-input" placeholder="e.g. route_peter" required>
+            </div>
+            
+            <button type="submit" class="btn-tech-primary auth-submit-btn">Begin Shift</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p class="auth-hint">Default: wiener / peter</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

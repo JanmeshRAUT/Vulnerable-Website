@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Upload Error - Lab 5.2{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    .error-container {
+        max-width: 600px;
+        margin: 4rem auto;
+        padding: 3rem;
+        border-radius: 1.5rem;
+        background: white;
+        border: 1px solid #fee2e2; /* Red 100 */
+        box-shadow: 0 25px 50px -12px rgba(220, 38, 38, 0.15);
+        text-align: center;
+    }
+    .error-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        display: inline-block;
+        animation: shake 0.5s ease-in-out;
+    }
+    .error-title {
+        color: #dc2626; /* Red 600 */
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .error-message {
+        color: #4b5563;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+        background: #fef2f2;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px dashed #fca5a5;
+    }
+    .btn-error-back {
+        background: #4b5563;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-error-back:hover {
+        background: #374151;
+        transform: translateY(-2px);
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="container animate-fade-in lab5-container-center">
+    <div class="error-container glass">
+        <div class="error-icon">🚫</div>
+        <h1 class="error-title">Upload Rejected</h1>
+        
+        <p class="error-message">
+            {{ error }}
+        </p>
+        
+        <div style="margin-top: 1rem;">
+            <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 2rem;">
+                Security Policy Restriction: <br>
+                This server only accepts validated image formats (JPEG/PNG) to prevent malicious code execution.
+            </p>
+            
+            <a href="{{ url_for('lab5_2_account') }}" class="btn-error-back">
+                &larr; Return to Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

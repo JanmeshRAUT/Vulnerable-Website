@@ -1,0 +1,374 @@
+/* Lab 6 Specific Styles - Command Injection Theme */
+
+/* Main Content Wrapper */
+.cmd-main-content {
+    background: white;
+    min-height: 100vh;
+}
+
+/* MegaMart Theme (Green) */
+.cmd-megamart {
+    --cmd-primary: #10b981;
+    --cmd-primary-hover: #059669;
+    --cmd-accent: #34d399;
+}
+
+.cmd-megamart .cmd-hero {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+}
+
+/* AutoParts Theme (Red) */
+.cmd-autoparts {
+    --cmd-primary: #ef4444;
+    --cmd-primary-hover: #dc2626;
+    --cmd-accent: #f87171;
+}
+
+.cmd-autoparts .cmd-hero {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+}
+
+/* PharmaCare Theme (Cyan) */
+.cmd-pharmacare {
+    --cmd-primary: #06b6d4;
+    --cmd-primary-hover: #0891b2;
+    --cmd-accent: #22d3ee;
+}
+
+.cmd-pharmacare .cmd-hero {
+    background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%);
+}
+
+/* Navigation */
+.cmd-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem 0;
+    margin-bottom: 0;
+}
+
+.cmd-nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cmd-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: #1f2937;
+}
+
+/* Hero Section */
+.cmd-hero {
+    position: relative;
+    text-align: center;
+    padding: 5rem 1rem 6rem;
+    margin-bottom: 4rem;
+    color: white;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+}
+
+.cmd-hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cmd-hero-subtitle {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1rem;
+}
+
+.cmd-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: white;
+}
+
+.cmd-hero p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+/* Stock Checker Section */
+.cmd-stock-checker {
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.cmd-megamart .cmd-stock-checker {
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+
+.cmd-autoparts .cmd-stock-checker {
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+.cmd-pharmacare .cmd-stock-checker {
+    background: #ecfeff;
+    border-color: #67e8f9;
+}
+
+.cmd-stock-title {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.cmd-megamart .cmd-stock-title {
+    color: #047857;
+}
+
+.cmd-autoparts .cmd-stock-title {
+    color: #b91c1c;
+}
+
+.cmd-pharmacare .cmd-stock-title {
+    color: #0e7490;
+}
+
+.cmd-stock-desc {
+    margin-bottom: 1.5rem;
+}
+
+.cmd-megamart .cmd-stock-desc {
+    color: #065f46;
+}
+
+.cmd-autoparts .cmd-stock-desc {
+    color: #991b1b;
+}
+
+.cmd-pharmacare .cmd-stock-desc {
+    color: #164e63;
+}
+
+.cmd-stock-form {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.cmd-stock-input {
+    flex: 1;
+    min-width: 150px;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+.cmd-stock-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cmd-megamart .cmd-stock-btn {
+    background: #10b981;
+}
+
+.cmd-megamart .cmd-stock-btn:hover {
+    background: #059669;
+}
+
+.cmd-autoparts .cmd-stock-btn {
+    background: #ef4444;
+}
+
+.cmd-autoparts .cmd-stock-btn:hover {
+    background: #dc2626;
+}
+
+.cmd-pharmacare .cmd-stock-btn {
+    background: #06b6d4;
+}
+
+.cmd-pharmacare .cmd-stock-btn:hover {
+    background: #0891b2;
+}
+
+.cmd-stock-result {
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    color: #1f2937;
+}
+
+/* Products Grid */
+.cmd-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.cmd-product-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.cmd-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+.cmd-megamart .cmd-product-card:hover {
+    border-color: #10b981;
+}
+
+.cmd-autoparts .cmd-product-card:hover {
+    border-color: #ef4444;
+}
+
+.cmd-pharmacare .cmd-product-card:hover {
+    border-color: #06b6d4;
+}
+
+.cmd-product-img-wrapper {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f9fafb;
+}
+
+.cmd-product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.cmd-product-card:hover .cmd-product-img {
+    transform: scale(1.05);
+}
+
+.cmd-product-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cmd-product-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.cmd-product-desc {
+    color: #6b7280;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.cmd-product-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.cmd-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.cmd-megamart .cmd-price {
+    color: #10b981;
+}
+
+.cmd-autoparts .cmd-price {
+    color: #ef4444;
+}
+
+.cmd-pharmacare .cmd-price {
+    color: #06b6d4;
+}
+
+.cmd-btn-check {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 2px solid;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.cmd-megamart .cmd-btn-check {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.cmd-megamart .cmd-btn-check:hover {
+    background: #10b981;
+    color: white;
+}
+
+.cmd-autoparts .cmd-btn-check {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.cmd-autoparts .cmd-btn-check:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.cmd-pharmacare .cmd-btn-check {
+    border-color: #06b6d4;
+    color: #06b6d4;
+}
+
+.cmd-pharmacare .cmd-btn-check:hover {
+    background: #06b6d4;
+    color: white;
+}
+
+/* Footer */
+.cmd-footer {
+    text-align: center;
+    padding: 2rem 0;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    margin-top: 4rem;
+}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Lab 6: OS Command Injection{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab5-hero">
+    <h1>OS Command Injection</h1>
+    <p class="lab5-hero-desc">
+        Discover how unsanitized user input can lead to arbitrary command execution on the server operating system.
+    </p>
+</div>
+
+<div class="container lab5-grid-container">
+    <div class="grid lab5-grid">
+        
+        <!-- Lab 6.1 -->
+        <div class="lab5-card">
+            <div>
+                <span class="status-badge badge-critical">CRITICAL SEVERITY</span>
+            </div>
+            <div class="lab5-icon-wrapper">
+                <i style="font-style: normal;">💻</i>
+            </div>
+            <h3 class="lab5-card-title">6.1: OS Command Injection via Stock Check</h3>
+            <p class="lab5-card-desc">
+                This lab contains a stock checking feature that executes system commands without proper input sanitization.
+            </p>
+            <a href="{{ url_for('lab6_1_menu') }}" class="btn-lab5-primary">
+                Select Mission &rarr;
+            </a>
+        </div>
+
+        <!-- Placeholder for future labs -->
+        <div class="lab5-card lab5-card-disabled">
+            <div>
+                <span class="status-badge badge-soon">COMING SOON</span>
+            </div>
+            <div class="lab5-icon-wrapper lab5-icon-disabled">
+                <i style="font-style: normal;">🚫</i>
+            </div>
+            <h3 class="lab5-card-title-muted">6.2: Blind OS Command Injection</h3>
+            <p class="lab5-card-desc">
+                Future module exploring blind command injection techniques.
+            </p>
+            <button disabled class="btn-lab5-blocked">Locked</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

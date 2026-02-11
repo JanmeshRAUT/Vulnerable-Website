@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Sign In - PixelArt{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    :root {
+        --primary: #ec4899;         
+        --primary-hover: #db2777;   
+        --accent: #d946ef;          
+    }
+    .auth-title {
+        background: linear-gradient(to right, #ec4899, #8b5cf6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .auth-icon {
+        filter: hue-rotate(90deg);
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="container animate-fade-in lab5-container-center">
+    <div class="nav-back-link">
+        <a href="{{ url_for('lab5_1_b') }}" class="btn-tech-outline" style="border: none; padding: 0.5rem 1rem;">&larr; Back to Gallery</a>
+    </div>
+
+    <div class="auth-container glass">
+        <div class="auth-header">
+            <div class="auth-icon">🔐</div>
+            <h2 class="auth-title">Artist Access</h2>
+            <p class="auth-subtitle">Manage your digital portfolio.</p>
+        </div>
+
+        {% if error %}
+        <div class="auth-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('lab5_1_b_login') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-input" placeholder="e.g. pixel_master" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-input" placeholder="e.g. secret123" required>
+            </div>
+            
+            <button type="submit" class="btn-tech-primary auth-submit-btn">Enter Studio</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p class="auth-footer-text">
+                Need an invite? Contact <span class="auth-link">Curators</span>.
+            </p>
+            <p class="auth-hint">Default: wiener / peter</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

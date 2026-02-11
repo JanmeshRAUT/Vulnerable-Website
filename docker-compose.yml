@@ -1,12 +1,14 @@
-version: '3.8'
+
 
 services:
   web:
     build: .
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Map host port 5000 to container port 5000
     volumes:
-      - .:/app
+      - .:/app       # Mount current directory for development
     environment:
       - FLASK_ENV=development
-    restart: always
+    restart: unless-stopped
+    # Use gunicorn for production container (or python app.py for easier debugging)
+    # command: gunicorn -w 4 -b 0.0.0.0:5000 app:app

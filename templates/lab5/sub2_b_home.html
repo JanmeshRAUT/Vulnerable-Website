@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Track Shipment - Global Logistics{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: Global Logistics (Orange/Amber) */
+    :root {
+        --primary: #f97316;         /* Orange 500 */
+        --primary-hover: #ea580c;   /* Orange 600 */
+        --accent: #fb923c;          /* Orange 400 */
+    }
+    .tech-nav {
+        border-bottom: 1px solid #fed7aa;
+    }
+    .tech-hero {
+        background: linear-gradient(135deg, #f97316 0%, #ca8a04 100%);
+        box-shadow: 0 10px 30px -10px rgba(249, 115, 22, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab5_2_b') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">📦</span>
+            <span style="color: #ea580c;">Global Logistics</span>
+        </a>
+        <div class="nav-actions">
+            {% if session.get('lab5_2_b_user') %}
+                <a href="{{ url_for('lab5_2_b_account') }}" class="btn-tech-primary">
+                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">🚚</span> Driver Portal
+                </a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline">Exit Lab</a>
+            {% else %}
+                <a href="{{ url_for('lab5_2_b_login') }}" class="btn-tech-outline">Driver Login</a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline" style="border-color: transparent; color: #94a3b8;">Exit Lab</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Worldwide Shipping</span>
+        <h1>Delivering <br>Possibilities.</h1>
+        <p>Reliable logistics for businesses of all sizes. Real-time tracking, secure handling, and guaranteed delivery times.</p>
+        <div class="hero-actions">
+            <a href="#tracking" class="btn-tech-primary">Track Order</a>
+        </div>
+    </div>
+</header>
+
+<main id="tracking" class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid" style="grid-template-columns: 1fr;">
+        {% for shipment in shipments %}
+        <div class="tech-card" style="flex-direction: row; padding: 1.5rem; align-items: center; gap: 2rem;">
+            <div class="tech-card-body" style="padding: 0;">
+                <h3 class="tech-title" style="margin-bottom: 0.25rem;">{{ shipment.id }}</h3>
+                <p class="tech-desc" style="margin-bottom: 0;">{{ shipment.status }} • {{ shipment.eta }}</p>
+            </div>
+             <div class="product-actions">
+                <button class="btn-tech-outline">View Details</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<footer class="tech-footer">
+    <p>&copy; 2025 Global Logistics Inc.</p>
+</footer>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}PharmaCare - Medical Supplies{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: PharmaCare (Cyan) */
+    :root {
+        --primary: #06b6d4;
+        --primary-hover: #0891b2;
+        --accent: #22d3ee;
+    }
+    .tech-hero {
+        background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%);
+    }
+    .stock-checker {
+        background: #ecfeff;
+        border: 2px solid #67e8f9;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    .stock-result {
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        font-family: 'Courier New', monospace;
+        white-space: pre-wrap;
+        color: #1f2937;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab6_1_c') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">💊</span>
+            <span style="color: #0891b2;">PharmaCare</span>
+        </a>
+        <div class="nav-actions">
+            <a href="{{ url_for('lab6') }}" class="btn-tech-outline">Exit Lab</a>
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Trusted Healthcare Partner</span>
+        <h1>Your Health.<br>Our Priority.</h1>
+        <p>Prescription medications and medical supplies. Verify availability across pharmacy branches.</p>
+    </div>
+</header>
+
+<main class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid">
+        {% for product in products %}
+        <div class="tech-card">
+            <div class="tech-card-img-wrapper">
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="tech-card-img">
+            </div>
+            <div class="tech-card-body">
+                <h3 class="tech-title">{{ product.name }}</h3>
+                <p class="tech-desc">{{ product.description }}</p>
+                <div class="product-actions">
+                    <div class="tech-price">${{ product.price }}</div>
+                    <button class="btn-tech-outline btn-cart-mini" onclick="checkStock({{ product.id }})">Check Stock</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Stock Checker Section -->
+    <div class="stock-checker">
+        <h2 style="color: #0e7490; margin-bottom: 1rem;">🏥 Branch Inventory System</h2>
+        <p style="color: #155e75; margin-bottom: 1.5rem;">Verify medication availability by NDC code and pharmacy branch.</p>
+        
+        <form id="stockForm" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <input type="number" id="productId" placeholder="NDC Code" 
+                   style="flex: 1; min-width: 150px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" required>
+            <input type="text" id="branchId" placeholder="Branch ID (e.g., 1)" 
+                   style="flex: 1; min-width: 150px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" required>
+            <button type="submit" class="btn-tech-primary" style="background: #06b6d4;">
+                Verify Stock
+            </button>
+        </form>
+
+        <div id="stockResult" class="stock-result" style="display: none;"></div>
+    </div>
+</main>
+
+<script>
+function checkStock(productId) {
+    document.getElementById('productId').value = productId;
+    document.getElementById('branchId').focus();
+}
+
+document.getElementById('stockForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const productId = document.getElementById('productId').value;
+    const branchId = document.getElementById('branchId').value;
+    
+    const resultDiv = document.getElementById('stockResult');
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = 'Verifying prescription database...';
+    
+    try {
+        const response = await fetch('/lab6/1/c/check-stock', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: `productId=${productId}&branchId=${encodeURIComponent(branchId)}`
+        });
+        
+        const data = await response.text();
+        resultDiv.textContent = data;
+    } catch (error) {
+        resultDiv.textContent = 'Error: ' + error.message;
+    }
+});
+</script>
+
+<footer class="tech-footer">
+    <p>&copy; 2025 PharmaCare Distribution.</p>
+</footer>
+{% endblock %}

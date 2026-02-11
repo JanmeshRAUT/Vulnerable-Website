@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}FinSecure - Banking{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: SecureBank (Purple/Indigo) */
+    :root {
+        --primary: #7c3aed;         /* Violet 600 */
+        --primary-hover: #6d28d9;   /* Violet 700 */
+        --accent: #8b5cf6;          /* Violet 500 */
+    }
+    .tech-nav {
+        border-bottom: 1px solid #ddd6fe;
+    }
+    .tech-hero {
+        background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+        box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab5_2_c') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">🏦</span>
+            <span style="color: #6d28d9;">FinSecure</span>
+        </a>
+        <div class="nav-actions">
+            {% if session.get('lab5_2_c_user') %}
+                <a href="{{ url_for('lab5_2_c_account') }}" class="btn-tech-primary">
+                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">💳</span> My Account
+                </a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline">Exit Lab</a>
+            {% else %}
+                <a href="{{ url_for('lab5_2_c_login') }}" class="btn-tech-outline">Online Banking</a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline" style="border-color: transparent; color: #94a3b8;">Exit Lab</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Premium Digital Banking</span>
+        <h1>Secure. Smart. <br>Seamless.</h1>
+        <p>Manage your wealth with military-grade encryption and 24/7 fraud monitoring. Your financial future, protected.</p>
+        <div class="hero-actions">
+            <a href="#services" class="btn-tech-primary">Open Account</a>
+        </div>
+    </div>
+</header>
+
+<main id="services" class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid">
+         <div class="tech-card">
+            <div class="tech-card-body">
+                <h3 class="tech-title">Checking Accounts</h3>
+                <p class="tech-desc">Zero fees, unlimited transfers, instant crypto exchange.</p>
+            </div>
+        </div>
+         <div class="tech-card">
+            <div class="tech-card-body">
+                <h3 class="tech-title">High-Yield Savings</h3>
+                <p class="tech-desc">Earn 5.00% APY on your idle cash. No minimum balance.</p>
+            </div>
+        </div>
+         <div class="tech-card">
+            <div class="tech-card-body">
+                <h3 class="tech-title">Investment Portfolio</h3>
+                <p class="tech-desc">Automated robo-advisors tailored to your risk profile.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="tech-footer">
+    <p>&copy; 2025 FinSecure Bank N.A. Member FDIC.</p>
+</footer>
+{% endblock %}

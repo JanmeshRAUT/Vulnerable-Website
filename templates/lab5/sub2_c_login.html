@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}FinSecure Sign In{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: SecureBank (Purple) */
+    :root {
+        --primary: #7c3aed;
+        --primary-hover: #6d28d9;
+        --accent: #8b5cf6;
+    }
+    .auth-title {
+        color: #6d28d9; /* Violet 700 */
+    }
+    .btn-tech-primary {
+         background-color: var(--primary) !important;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="container animate-fade-in lab5-container-center">
+    <div class="nav-back-link">
+        <a href="{{ url_for('lab5_2_c') }}" class="btn-tech-outline" style="border: none; padding: 0.5rem 1rem;">&larr; Back to Banking</a>
+    </div>
+
+    <div class="auth-container glass">
+        <div class="auth-header">
+            <div class="auth-icon">🔒</div>
+            <h2 class="auth-title">Client Access</h2>
+            <p class="auth-subtitle">Two-Factor Authentication Enabled.</p>
+        </div>
+
+        {% if error %}
+        <div class="auth-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('lab5_2_c_login') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Client Username</label>
+                <input type="text" name="username" class="form-input" placeholder="client_wiener" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-tech-primary auth-submit-btn">Login Securely</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p class="auth-hint">Default: wiener / peter</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1664,84 +1664,657 @@ def admin_delete_user():
         return f"<h1>Success</h1><p>User {username} deleted successfully!</p><p>FLAG{{ssrf_local_admin_pwned}}</p>"
     return f"User {username} not found."
 
-# Lab 4.2: Basic SSRF against another back-end system
-@app.route('/lab4/2')
-def lab4_2():
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 3').fetchall()
-    return render_template('lab4/sub2.html', products=products)
 
-@app.route('/lab4/2/product/<int:product_id>')
-def lab4_2_product(product_id):
-    db = get_db()
-    product = db.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
-    if not product: return "Product not found", 404
-    return render_template('lab4/sub2_product.html', product=product)
-
-@app.route('/lab4/2/stock', methods=['POST'])
-def lab4_2_stock():
-    stock_api = request.form.get('stockApi')
-    
-    if not stock_api:
-        return "Missing stockApi parameter", 400
-
-    # SIMULATION: Mock Internal Network for SSRF
-    
-    # 1. Valid Stock Check (The "Happy Path")
-    # In the lab, the user sees a valid request to an internal IP (e.g., 192.168.0.1)
-    if "192.168.0.1:8080" in stock_api:
-        import random
-        return f"Success: {random.randint(10, 100)} units available."
-
-    # 2. Target Admin Panel (Hidden on .154)
-    target_ip = "192.168.0.154"
-    if f"{target_ip}:8080" in stock_api:
-        # Check if they are trying to delete Carlos
-        if "/admin/delete?username=carlos" in stock_api:
-             return "<h1>Success</h1><p>User carlos deleted!</p><p>FLAG{ssrf_backend_system_found_154}</p>"
-        # Or just accessing the admin panel
-        elif "/admin" in stock_api:
-            return render_template('lab4/admin_panel_internal.html', ip=target_ip)
-        else:
-            return "404 Not Found", 404
-    
-    # 3. Internal Network Scanning Simulation
-    # If the user changes the IP byte to scan (Intruder), we need to simulate
-    # that other IPs are "down" or "refused connection"
-    ip_match = re.search(r'http://(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):8080', stock_api)
-    if ip_match:
-        ip = ip_match.group(1)
-        # Check if it's in our simulated private range
-        if ip.startswith("192.168.0."):
-             # Return error to signify "port closed" or "host unreachable"
-             # This allows the user to filter by status code in Intruder (500 vs 200)
-            return "Error: Internal Server Error (Connection Refused)", 500
-            
-    return "Invalid stock API URL", 400
 
 
 # -------------------------
 # LAB 5: File Upload
 # -------------------------
+
 @app.route('/lab5')
 def lab5():
-    return render_template('lab5.html')
+    return render_template('lab5/index.html')
 
-@app.route('/lab5/upload', methods=['POST'])
-def lab5_upload():
-    if 'file' not in request.files:
-        return 'No file part'
-    file = request.files['file']
-    if file.filename == '':
-        return 'No selected file'
+import uuid
+
+# LAB 5.1: Remote Code Execution via Web Shell Upload
+# Menu Selection
+@app.route('/lab5/1/menu')
+def lab5_1_menu():
+    return render_template('lab5/sub1_menu.html')
+
+@app.route('/lab5/1')
+def lab5_1():
+    # Render the E-commerce Shop Home Page
+    products = [
+        {'name': 'SecureDrive SSD', 'description': 'Encrypted 2TB storage for ultimate privacy.', 'price': 199.99, 'image': 'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=600&q=80'},
+        {'name': 'Privacy Shield', 'description': 'Anti-spam filter hardware appliance.', 'price': 149.50, 'image': 'https://images.unsplash.com/photo-1563770095128-42fa6112a83e?auto=format&fit=crop&w=600&q=80'},
+        {'name': 'Developer Laptop', 'description': 'Optimized for heavy compiling workloads.', 'price': 1299.00, 'image': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=600&q=80'},
+        {'name': 'Wireless Headers', 'description': 'Noise-canceling over-ear headphones.', 'price': 299.00, 'image': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80'},
+        {'name': 'Mechanical Keyboard', 'description': 'RGB backlit clicky switches.', 'price': 89.99, 'image': 'https://images.unsplash.com/photo-1587829741301-dc798b91a05c?auto=format&fit=crop&w=600&q=80'},
+        {'name': 'Smart Watch', 'description': 'Health tracking and notifications.', 'price': 150.00, 'image': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab5/sub1_home.html', products=products)
+
+@app.route('/lab5/1/login', methods=['GET', 'POST'])
+def lab5_1_login():
+    if request.method == 'GET':
+        if 'lab5_1_user' in session:
+            return redirect(url_for('lab5_1_account'))
+        return render_template('lab5/sub1_login.html')
     
-    # VULNERABILITY: No file extension validation
-    # Saves file to public upload directory
-    if file:
-        filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        file_url = url_for('static', filename=f'uploads/{filename}')
-        return f"File uploaded successfully! <a href='{file_url}'>View File</a>"
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    # Wiener:peter (Standard PortSwigger user)
+    if username == 'wiener' and password == 'peter':
+        session['lab5_1_user'] = username
+        # Generate a unique session ID for file isolation if not exists
+        if 'lab5_1_uid' not in session:
+            session['lab5_1_uid'] = str(uuid.uuid4())
+        return redirect(url_for('lab5_1_account'))
+    else:
+        return render_template('lab5/sub1_login.html', error='Invalid credentials')
+
+@app.route('/lab5/1/account')
+def lab5_1_account():
+    username = session.get('lab5_1_user')
+    if not username:
+        return redirect(url_for('lab5_1_login'))
+    
+    # Check if user has an avatar uploaded in their specific directory
+    avatar = session.get('lab5_1_avatar') # This now stores 'uid/filename' or just filename? 
+    # Let's store RELATIVE path 'uid/filename' in the session for simplicity?
+    # Or keep just filename and construct path. Storing relative path is safer.
+    
+    avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    
+    return render_template('lab5/sub1_account.html', username=username, avatar=avatar_url)
+
+@app.route('/lab5/1/upload', methods=['POST'])
+def lab5_1_upload():
+    if 'lab5_1_user' not in session:
+        return redirect(url_for('lab5_1_login'))
+        
+    if 'avatar' not in request.files:
+        return redirect(url_for('lab5_1_account'))
+    
+    # Ensure UID exists
+    if 'lab5_1_uid' not in session:
+        session['lab5_1_uid'] = str(uuid.uuid4())
+    
+    user_uid = session['lab5_1_uid']
+        
+    file = request.files['avatar']
+    if file.filename == '':
+        return redirect(url_for('lab5_1_account'))
+    
+    # VULNERABILITY: No validation of file extension or content
+    filename = file.filename
+    
+    # Create User Specific Directory
+    base_dir = os.getcwd()
+    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+        
+    file.save(os.path.join(upload_dir, filename))
+    
+    # Update session with relative path
+    relative_path = f"{user_uid}/{filename}"
+    session['lab5_1_avatar'] = relative_path
+    
+    return render_template('lab5/sub1_account.html', 
+                         username=session['lab5_1_user'], 
+                         avatar=f"/files/avatars/{relative_path}",
+                         message=f"Avatar {filename} uploaded successfully!")
+
+@app.route('/lab5/1/logout')
+@app.route('/lab5/1/logout')
+def lab5_1_logout():
+    # Cleanup: Delete user files on logout
+    uid = session.get('lab5_1_uid')
+    if uid:
+        import shutil
+        base_dir = os.getcwd()
+        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        if os.path.exists(user_upload_dir):
+            try:
+                shutil.rmtree(user_upload_dir)
+            except Exception as e:
+                print(f"Error cleaning up directory {user_upload_dir}: {e}")
+
+    session.pop('lab5_1_user', None)
+    session.pop('lab5_1_avatar', None)
+    session.pop('lab5_1_uid', None)
+    return redirect(url_for('lab5_1_login'))
+
+# The Vulnerable File Serving Route
+@app.route('/files/avatars/<path:filename>')
+def lab5_1_file(filename):
+    # Filename here will be "uid/actual_filename.ext" because of <path:filename>
+    base_dir = os.getcwd()
+    # Base upload directory
+    upload_base_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars')
+    
+    # Securely join paths? No, we want to allow access to the file.
+    # But let's construct the full path.
+    file_path = os.path.join(upload_base_dir, filename)
+    
+    # Security check: Ensure we don't traverse up from 'avatars' directory
+    # Although path traversal is another vulnerability potential, for this specific lab focus on File Upload RCE,
+    # let's keep it scoped to the avatars folder structure essentially.
+    if not os.path.abspath(file_path).startswith(os.path.abspath(upload_base_dir)):
+         return "Access Denied", 403
+
+    if not os.path.exists(file_path):
+        return "File not found", 404
+        
+    # SIMULATION: Check if it's a PHP file and "execute" it
+    if filename.lower().endswith('.php'):
+        try:
+            with open(file_path, 'r') as f:
+                content = f.read()
+                
+            # Check for the specific payload requested in the lab
+            # Payload: <?php echo file_get_contents('/home/carlos/secret'); ?>
+            if "file_get_contents('/home/carlos/secret')" in content:
+                # Return the secret!
+                return "FLAG{file_upload_code_execution_php}"
+            
+            # Simulated generic echo
+            if "echo" in content:
+                import re
+                matches = re.findall(r"echo\s+['\"](.*?)['\"]", content)
+                if matches:
+                    return "".join(matches)
+                    
+            # Fallback: Just return the content as text/plain (source code disclosure)
+            return content, 200, {'Content-Type': 'text/plain'}
+            
+        except Exception as e:
+            return str(e), 500
+            
+    # Serve normal images
+    # We need to serve from the specific directory.
+    # send_from_directory expects a directory and a filename.
+    # Since 'filename' contains 'uid/image.png', we can pass base dir and the path.
+    return send_from_directory(upload_base_dir, filename)
+
+
+# -------------------------
+# LAB 5.2: Content-Type Bypass
+# -------------------------
+@app.route('/lab5/2/menu')
+def lab5_2_menu():
+    return render_template('lab5/sub2_menu.html')
+
+@app.route('/lab5/2')
+def lab5_2():
+    # Similar products to Lab 5.1 but distinct enough
+    products = [
+         {'name': 'Encrypted Drive', 'description': 'Secure data storage.', 'price': 89.99, 'image': 'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=600&q=80'},
+         {'name': 'Privacy Filter', 'description': 'Screen protector.', 'price': 29.50, 'image': 'https://images.unsplash.com/photo-1563770095128-42fa6112a83e?auto=format&fit=crop&w=600&q=80'},
+         {'name': 'Dev Station', 'description': 'Workstation laptop.', 'price': 1499.00, 'image': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab5/sub2_home.html', products=products)
+
+@app.route('/lab5/2/login', methods=['GET', 'POST'])
+def lab5_2_login():
+    if request.method == 'GET':
+        if 'lab5_2_user' in session:
+            return redirect(url_for('lab5_2_account'))
+        return render_template('lab5/sub2_login.html')
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username == 'wiener' and password == 'peter':
+        session['lab5_2_user'] = username
+        if 'lab5_2_uid' not in session:
+            session['lab5_2_uid'] = str(uuid.uuid4())
+        return redirect(url_for('lab5_2_account'))
+    else:
+        return render_template('lab5/sub2_login.html', error='Invalid credentials')
+
+@app.route('/lab5/2/account')
+def lab5_2_account():
+    username = session.get('lab5_2_user')
+    if not username:
+        return redirect(url_for('lab5_2_login'))
+    
+    avatar = session.get('lab5_2_avatar')
+    avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    
+    return render_template('lab5/sub2_account.html', username=username, avatar=avatar_url)
+
+@app.route('/lab5/2/upload', methods=['POST'])
+def lab5_2_upload():
+    if 'lab5_2_user' not in session:
+        return redirect(url_for('lab5_2_login'))
+        
+    if 'avatar' not in request.files:
+        return redirect(url_for('lab5_2_account'))
+    
+    if 'lab5_2_uid' not in session:
+        session['lab5_2_uid'] = str(uuid.uuid4())
+    user_uid = session['lab5_2_uid']
+        
+    file = request.files['avatar']
+    if file.filename == '':
+        return redirect(url_for('lab5_2_account'))
+    
+    # VULNERABILITY: Content-Type Bypass
+    # We check the Content-Type header, but not the actual file content or extension
+    if file.content_type not in ['image/jpeg', 'image/png']:
+        return render_template('lab5/sub2_error.html', 
+                             username=session['lab5_2_user'], 
+                             error=f"Error: File type {file.content_type} is not allowed. Only image/jpeg and image/png are accepted in this secure environment.")
+    
+    # If the attacker changes Content-Type to image/jpeg, we accept it, even if filename is exploit.php
+    filename = file.filename
+    
+    base_dir = os.getcwd()
+    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+        
+    file.save(os.path.join(upload_dir, filename))
+    
+    relative_path = f"{user_uid}/{filename}"
+    session['lab5_2_avatar'] = relative_path
+    
+    return render_template('lab5/sub2_account.html', 
+                         username=session['lab5_2_user'], 
+                         avatar=f"/files/avatars/{relative_path}",
+                         message=f"Avatar {filename} uploaded successfully!")
+
+@app.route('/lab5/2/logout')
+def lab5_2_logout():
+    # Cleanup
+    uid = session.get('lab5_2_uid')
+    if uid:
+        import shutil
+        base_dir = os.getcwd()
+        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        if os.path.exists(user_upload_dir):
+            try:
+                shutil.rmtree(user_upload_dir)
+            except Exception as e:
+                pass
+
+    session.pop('lab5_2_user', None)
+    session.pop('lab5_2_avatar', None)
+    session.pop('lab5_2_uid', None)
+    return redirect(url_for('lab5_2_login'))
+
+# -------------------------
+# LAB 5.2 VARIATION B: Global Logistics (Orange Theme)
+# -------------------------
+@app.route('/lab5/2/b')
+def lab5_2_b():
+    shipments = [
+        {'id': 'SHP-9021', 'status': 'In Transit', 'eta': '2 Days'},
+        {'id': 'SHP-8820', 'status': 'Delivered', 'eta': 'Did not arrive'},
+        {'id': 'SHP-1029', 'status': 'Processing', 'eta': 'Pending'}
+    ]
+    return render_template('lab5/sub2_b_home.html', shipments=shipments)
+
+@app.route('/lab5/2/b/login', methods=['GET', 'POST'])
+def lab5_2_b_login():
+    if request.method == 'GET':
+        if 'lab5_2_b_user' in session:
+            return redirect(url_for('lab5_2_b_account'))
+        return render_template('lab5/sub2_b_login.html')
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username == 'wiener' and password == 'peter':
+        session['lab5_2_b_user'] = username
+        if 'lab5_2_b_uid' not in session:
+            session['lab5_2_b_uid'] = str(uuid.uuid4())
+        return redirect(url_for('lab5_2_b_account'))
+    else:
+        return render_template('lab5/sub2_b_login.html', error='Invalid credentials')
+
+@app.route('/lab5/2/b/account')
+def lab5_2_b_account():
+    username = session.get('lab5_2_b_user')
+    if not username:
+        return redirect(url_for('lab5_2_b_login'))
+    
+    avatar = session.get('lab5_2_b_avatar')
+    avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    
+    return render_template('lab5/sub2_b_account.html', username=username, avatar=avatar_url)
+
+@app.route('/lab5/2/b/upload', methods=['POST'])
+def lab5_2_b_upload():
+    if 'lab5_2_b_user' not in session:
+        return redirect(url_for('lab5_2_b_login'))
+        
+    if 'avatar' not in request.files:
+        return redirect(url_for('lab5_2_b_account'))
+    
+    if 'lab5_2_b_uid' not in session:
+        session['lab5_2_b_uid'] = str(uuid.uuid4())
+    user_uid = session['lab5_2_b_uid']
+        
+    file = request.files['avatar']
+    if file.filename == '':
+        return redirect(url_for('lab5_2_b_account'))
+    
+    # VULNERABILITY (Same as 5.2): Check Content-Type only
+    if file.content_type not in ['image/jpeg', 'image/png']:
+        return render_template('lab5/sub2_error.html', 
+                             username=session['lab5_2_b_user'], 
+                             error=f"ERROR P-902: Invalid format {file.content_type}. Driver app only accepts camera images (JPEG/PNG).")
+    
+    filename = file.filename
+    base_dir = os.getcwd()
+    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+        
+    file.save(os.path.join(upload_dir, filename))
+    
+    relative_path = f"{user_uid}/{filename}"
+    session['lab5_2_b_avatar'] = relative_path
+    
+    return render_template('lab5/sub2_b_account.html', username=session['lab5_2_b_user'], avatar=f"/files/avatars/{relative_path}", message=f"Signature {filename} updated!")
+
+@app.route('/lab5/2/b/logout')
+def lab5_2_b_logout():
+    # Cleanup
+    uid = session.get('lab5_2_b_uid')
+    if uid:
+        import shutil
+        base_dir = os.getcwd()
+        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        if os.path.exists(user_upload_dir):
+            try:
+                shutil.rmtree(user_upload_dir)
+            except Exception as e:
+                pass
+    session.pop('lab5_2_b_user', None)
+    session.pop('lab5_2_b_avatar', None)
+    session.pop('lab5_2_b_uid', None)
+    return redirect(url_for('lab5_2_b_login'))
+
+# -------------------------
+# LAB 5.2 VARIATION C: SecureBank (Purple Theme)
+# -------------------------
+@app.route('/lab5/2/c')
+def lab5_2_c():
+    return render_template('lab5/sub2_c_home.html')
+
+@app.route('/lab5/2/c/login', methods=['GET', 'POST'])
+def lab5_2_c_login():
+    if request.method == 'GET':
+        if 'lab5_2_c_user' in session:
+            return redirect(url_for('lab5_2_c_account'))
+        return render_template('lab5/sub2_c_login.html')
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username == 'wiener' and password == 'peter':
+        session['lab5_2_c_user'] = username
+        if 'lab5_2_c_uid' not in session:
+            session['lab5_2_c_uid'] = str(uuid.uuid4())
+        return redirect(url_for('lab5_2_c_account'))
+    else:
+        return render_template('lab5/sub2_c_login.html', error='Invalid credentials')
+
+@app.route('/lab5/2/c/account')
+def lab5_2_c_account():
+    username = session.get('lab5_2_c_user')
+    if not username:
+        return redirect(url_for('lab5_2_c_login'))
+    
+    avatar = session.get('lab5_2_c_avatar')
+    avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    
+    return render_template('lab5/sub2_c_account.html', username=username, avatar=avatar_url)
+
+@app.route('/lab5/2/c/upload', methods=['POST'])
+def lab5_2_c_upload():
+    if 'lab5_2_c_user' not in session:
+        return redirect(url_for('lab5_2_c_login'))
+        
+    if 'avatar' not in request.files:
+        return redirect(url_for('lab5_2_c_account'))
+    
+    if 'lab5_2_c_uid' not in session:
+        session['lab5_2_c_uid'] = str(uuid.uuid4())
+    user_uid = session['lab5_2_c_uid']
+        
+    file = request.files['avatar']
+    if file.filename == '':
+        return redirect(url_for('lab5_2_c_account'))
+    
+    # VULNERABILITY (Same as 5.2)
+    if file.content_type not in ['image/jpeg', 'image/png']:
+         return render_template('lab5/sub2_error.html', 
+                             username=session['lab5_2_c_user'], 
+                             error=f"SECURITY ALERT: The format {file.content_type} is not compliant with banking regulations. Upload only JPEG/PNG scans.")
+    
+    filename = file.filename
+    base_dir = os.getcwd()
+    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+        
+    file.save(os.path.join(upload_dir, filename))
+    
+    relative_path = f"{user_uid}/{filename}"
+    session['lab5_2_c_avatar'] = relative_path
+    
+    return render_template('lab5/sub2_c_account.html', username=session['lab5_2_c_user'], avatar=f"/files/avatars/{relative_path}", message=f"Document {filename} submitted for verification!")
+
+@app.route('/lab5/2/c/logout')
+def lab5_2_c_logout():
+    # Cleanup
+    uid = session.get('lab5_2_c_uid')
+    if uid:
+        import shutil
+        base_dir = os.getcwd()
+        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        if os.path.exists(user_upload_dir):
+            try:
+                shutil.rmtree(user_upload_dir)
+            except Exception as e:
+                pass
+    session.pop('lab5_2_c_user', None)
+    session.pop('lab5_2_c_avatar', None)
+    session.pop('lab5_2_c_uid', None)
+    return redirect(url_for('lab5_2_c_login'))
+
+
+# -------------------------
+# LAB 5.1 VARIATION B: PixelArt (NFT/Crypto Theme)
+# -------------------------
+@app.route('/lab5/1/b')
+def lab5_1_b():
+    gallery = [
+        {'title': 'Cyber Punk #2049', 'artist': 'NeonDreamer', 'price': 0.5, 'image': 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=600&q=80'},
+        {'title': 'Glitch Face', 'artist': 'V0ID', 'price': 2.1, 'image': 'https://images.unsplash.com/photo-1614812513172-567d2fe96a75?auto=format&fit=crop&w=600&q=80'},
+        {'title': 'Retro Wave', 'artist': 'SynthBoy', 'price': 0.8, 'image': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'},
+        {'title': 'Digital Ape', 'artist': 'CryptoKing', 'price': 12.5, 'image': 'https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?auto=format&fit=crop&w=600&q=80'},
+        {'title': 'Abstract 8-bit', 'artist': 'PixelMage', 'price': 0.05, 'image': 'https://images.unsplash.com/photo-1633103453303-34e2c0e6205e?auto=format&fit=crop&w=600&q=80'},
+        {'title': 'Metaverse City', 'artist': 'FutureArchitect', 'price': 4.2, 'image': 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab5/sub1_b_home.html', gallery=gallery)
+
+@app.route('/lab5/1/b/login', methods=['GET', 'POST'])
+def lab5_1_b_login():
+    if request.method == 'GET':
+        if 'lab5_1_b_user' in session:
+            return redirect(url_for('lab5_1_b_account'))
+        return render_template('lab5/sub1_b_login.html')
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username == 'wiener' and password == 'peter':
+        session['lab5_1_b_user'] = username
+        if 'lab5_1_b_uid' not in session:
+            session['lab5_1_b_uid'] = str(uuid.uuid4())
+        return redirect(url_for('lab5_1_b_account'))
+    else:
+        return render_template('lab5/sub1_b_login.html', error='Invalid credentials')
+
+@app.route('/lab5/1/b/account')
+def lab5_1_b_account():
+    username = session.get('lab5_1_b_user')
+    if not username:
+        return redirect(url_for('lab5_1_b_login'))
+    
+    avatar = session.get('lab5_1_b_avatar')
+    avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    
+    return render_template('lab5/sub1_b_account.html', username=username, avatar=avatar_url)
+
+@app.route('/lab5/1/b/upload', methods=['POST'])
+def lab5_1_b_upload():
+    if 'lab5_1_b_user' not in session:
+        return redirect(url_for('lab5_1_b_login'))
+        
+    if 'avatar' not in request.files:
+        return redirect(url_for('lab5_1_b_account'))
+    
+    if 'lab5_1_b_uid' not in session:
+        session['lab5_1_b_uid'] = str(uuid.uuid4())
+    user_uid = session['lab5_1_b_uid']
+        
+    file = request.files['avatar']
+    if file.filename == '':
+        return redirect(url_for('lab5_1_b_account'))
+    
+    # VULNERABILITY
+    filename = file.filename
+    base_dir = os.getcwd()
+    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+    file.save(os.path.join(upload_dir, filename))
+    
+    relative_path = f"{user_uid}/{filename}"
+    session['lab5_1_b_avatar'] = relative_path
+    
+    return render_template('lab5/sub1_b_account.html', username=session['lab5_1_b_user'], avatar=f"/files/avatars/{relative_path}", message=f"Artwork {filename} uploaded!")
+
+@app.route('/lab5/1/b/logout')
+def lab5_1_b_logout():
+    # Cleanup
+    uid = session.get('lab5_1_b_uid')
+    if uid:
+        import shutil
+        base_dir = os.getcwd()
+        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        if os.path.exists(user_upload_dir):
+            try:
+                shutil.rmtree(user_upload_dir)
+            except Exception as e:
+                pass # Silent fail
+
+    session.pop('lab5_1_b_user', None)
+    session.pop('lab5_1_b_avatar', None)
+    session.pop('lab5_1_b_uid', None)
+    return redirect(url_for('lab5_1_b_login'))
+
+
+# -------------------------
+# LAB 5.1 VARIATION C: HireMinds (Job Portal Theme)
+# -------------------------
+@app.route('/lab5/1/c')
+def lab5_1_c():
+    jobs = [
+        {'title': 'Senior React Developer', 'company': 'TechFlow', 'location': 'Remote', 'salary': '$120k', 'logo': 'https://ui-avatars.com/api/?name=TF&background=0D8ABC&color=fff'},
+        {'title': 'DevOps Engineer', 'company': 'CloudScale', 'location': 'New York, USA', 'salary': '$150k', 'logo': 'https://ui-avatars.com/api/?name=CS&background=ff5722&color=fff'},
+        {'title': 'UX Designer', 'company': 'CreativeBox', 'location': 'London, UK', 'salary': '£65k', 'logo': 'https://ui-avatars.com/api/?name=CB&background=673ab7&color=fff'},
+        {'title': 'Product Manager', 'company': 'Innovate', 'location': 'Berlin, DE', 'salary': '€85k', 'logo': 'https://ui-avatars.com/api/?name=IN&background=4caf50&color=fff'},
+        {'title': 'Data Scientist', 'company': 'DataMind', 'location': 'Toronto, CA', 'salary': '$135k', 'logo': 'https://ui-avatars.com/api/?name=DM&background=607d8b&color=fff'}
+    ]
+    return render_template('lab5/sub1_c_home.html', jobs=jobs)
+
+@app.route('/lab5/1/c/login', methods=['GET', 'POST'])
+def lab5_1_c_login():
+    if request.method == 'GET':
+        if 'lab5_1_c_user' in session:
+            return redirect(url_for('lab5_1_c_account'))
+        return render_template('lab5/sub1_c_login.html')
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username == 'wiener' and password == 'peter':
+        session['lab5_1_c_user'] = username
+        if 'lab5_1_c_uid' not in session:
+            session['lab5_1_c_uid'] = str(uuid.uuid4())
+        return redirect(url_for('lab5_1_c_account'))
+    else:
+        return render_template('lab5/sub1_c_login.html', error='Invalid credentials')
+
+@app.route('/lab5/1/c/account')
+def lab5_1_c_account():
+    username = session.get('lab5_1_c_user')
+    if not username:
+        return redirect(url_for('lab5_1_c_login'))
+    
+    avatar = session.get('lab5_1_c_avatar')
+    avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    
+    return render_template('lab5/sub1_c_account.html', username=username, avatar=avatar_url)
+
+@app.route('/lab5/1/c/upload', methods=['POST'])
+def lab5_1_c_upload():
+    if 'lab5_1_c_user' not in session:
+        return redirect(url_for('lab5_1_c_login'))
+        
+    if 'avatar' not in request.files:
+        return redirect(url_for('lab5_1_c_account'))
+    
+    if 'lab5_1_c_uid' not in session:
+        session['lab5_1_c_uid'] = str(uuid.uuid4())
+    user_uid = session['lab5_1_c_uid']
+        
+    file = request.files['avatar']
+    if file.filename == '':
+        return redirect(url_for('lab5_1_c_account'))
+    
+    # VULNERABILITY
+    filename = file.filename
+    base_dir = os.getcwd()
+    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+    file.save(os.path.join(upload_dir, filename))
+    
+    relative_path = f"{user_uid}/{filename}"
+    session['lab5_1_c_avatar'] = relative_path
+    
+    return render_template('lab5/sub1_c_account.html', username=session['lab5_1_c_user'], avatar=f"/files/avatars/{relative_path}", message=f"Credential {filename} verified!")
+
+@app.route('/lab5/1/c/logout')
+def lab5_1_c_logout():
+    # Cleanup
+    uid = session.get('lab5_1_c_uid')
+    if uid:
+        import shutil
+        base_dir = os.getcwd()
+        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        if os.path.exists(user_upload_dir):
+            try:
+                shutil.rmtree(user_upload_dir)
+            except Exception as e:
+                pass
+
+    session.pop('lab5_1_c_user', None)
+    session.pop('lab5_1_c_avatar', None)
+    session.pop('lab5_1_c_uid', None)
+    return redirect(url_for('lab5_1_c_login'))
 
 
 # -------------------------
@@ -1749,7 +2322,7 @@ def lab5_upload():
 # -------------------------
 @app.route('/lab6')
 def lab6():
-    return render_template('lab6.html')
+    return render_template('lab6/index.html')
 
 @app.route('/lab6/track', methods=['POST'])
 def lab6_track():
@@ -1774,24 +2347,9 @@ def lab6_track():
 # -------------------------
 # LAB 7: SQL Injection
 # -------------------------
-@app.route('/lab7', methods=['GET', 'POST'])
+@app.route('/lab7')
 def lab7():
-    products = []
-    if request.method == 'POST':
-        search_term = request.form.get('search')
-        
-        # VULNERABILITY: Raw SQL String Formatting
-        # Allow ' UNION SELECT ... --
-        query = f"SELECT * FROM products WHERE name LIKE '%{search_term}%'"
-        
-        db = get_db()
-        try:
-            # Using execute with string formatted query (BAD PRACTICE)
-            products = db.execute(query).fetchall()
-        except Exception as e:
-            return f"SQL Error: {e}"
-            
-    return render_template('lab7.html', products=products)
+    return render_template('lab7/index.html')
 
 
 
@@ -1862,8 +2420,18 @@ def lab8_2():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        if username in LAB8_USERS_DB and LAB8_USERS_DB[username]['password'] == password:
+        # Static check for credentials (test/test)
+        if username == 'test' and password == 'test':
             session['lab8_2_user'] = username
+            
+            # Initialize isolated profile in session if not exists
+            if 'lab8_2_profile' not in session:
+                session['lab8_2_profile'] = {
+                    'full_name': 'Joan Smith',
+                    'email': 'joan.smith@techfusion.corp',
+                    'address': '123 Cyber Lane, Tech City',
+                    'bio': 'Senior Analyst at TechFusion Dynamics. Love hiking and coding.'
+                }
             return redirect(url_for('lab8_2_dashboard'))
         else:
             return render_template('lab8/sub2_login.html', error="Invalid credentials")
@@ -1879,11 +2447,11 @@ def lab8_2_dashboard():
     if 'lab8_2_user' not in session:
         return redirect(url_for('lab8_2'))
     
-    username = session['lab8_2_user']
-    user_data = LAB8_USERS_DB.get(username)
+    # Retrieve data from SESSION, not global DB
+    # This isolation allows multiple users to do the lab simultaneously
+    user_data = session.get('lab8_2_profile', {})
     
     # Check for Stored XSS Flag condition
-    # If any stored field contains a script tag, we consider the attack successful for the lab
     flag = None
     for key in ['full_name', 'address', 'email', 'bio']:
         val = user_data.get(key, '')
@@ -1898,13 +2466,17 @@ def lab8_2_update():
     if 'lab8_2_user' not in session:
         return redirect(url_for('lab8_2'))
         
-    username = session['lab8_2_user']
+    # Update the SESSION data
+    # We must copy/modify the dict to ensure Flask detects the change on the session object
+    profile = session.get('lab8_2_profile', {}).copy()
     
     # VULNERABILITY: Storing input without sanitization
-    LAB8_USERS_DB[username]['full_name'] = request.form.get('full_name')
-    LAB8_USERS_DB[username]['email'] = request.form.get('email')
-    LAB8_USERS_DB[username]['address'] = request.form.get('address')
-    LAB8_USERS_DB[username]['bio'] = request.form.get('bio')
+    profile['full_name'] = request.form.get('full_name')
+    profile['email'] = request.form.get('email')
+    profile['address'] = request.form.get('address')
+    profile['bio'] = request.form.get('bio')
+    
+    session['lab8_2_profile'] = profile
     
     return redirect(url_for('lab8_2_dashboard'))
 
@@ -1935,6 +2507,156 @@ def lab8_2_reset():
         {'author': 'System Admin', 'date': '2024-03-01', 'body': 'Welcome to the feedback board! Please identify any bugs you find.'}
     ]
     return redirect(url_for('lab8_2'))
+
+
+# LAB 7.1: SQL Injection in WHERE Clause (Category Filter)
+@app.route('/lab7/1')
+def lab7_1():
+    category = request.args.get('category', '')
+    
+    # Initialize database connection
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Ensure lab7_products table exists with sample data
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lab7_products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT,
+            price REAL,
+            image_url TEXT,
+            released INTEGER DEFAULT 1,
+            category TEXT
+        )
+    ''')
+    
+    # Check if table is empty and seed data
+    cursor.execute('SELECT COUNT(*) FROM lab7_products')
+    if cursor.fetchone()[0] == 0:
+        products_data = [
+            ('Luxury Gift Box', 'Premium assortment of chocolates', 49.99, 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80', 1, 'Gifts'),
+            ('Personalized Mug', 'Custom photo coffee mug', 19.99, 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80', 1, 'Gifts'),
+            ('Scented Candle Set', 'Aromatherapy collection', 34.99, 'https://images.unsplash.com/photo-1602874801006-c2b5d9f6e1c7?auto=format&fit=crop&w=600&q=80', 1, 'Lifestyle'),
+            ('Leather Wallet', 'Genuine leather bifold', 59.99, 'https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=600&q=80', 1, 'Accessories'),
+            ('Wireless Earbuds', 'Noise-canceling audio', 89.99, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=80', 1, 'Tech'),
+            ('Designer Watch', 'Limited edition timepiece', 299.99, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', 1, 'Accessories'),
+            
+            # UNRELEASED PRODUCTS (released = 0)
+            ('SECRET: Diamond Necklace', 'Exclusive VIP gift - Coming Soon', 1999.99, 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80', 0, 'Gifts'),
+            ('SECRET: Gold Cufflinks', 'Premium executive accessory', 499.99, 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?auto=format&fit=crop&w=600&q=80', 0, 'Accessories'),
+            ('SECRET: Smart Home Hub', 'Next-gen AI assistant', 399.99, 'https://images.unsplash.com/photo-1558089687-e28ddf4e8e5f?auto=format&fit=crop&w=600&q=80', 0, 'Tech')
+        ]
+        
+        cursor.executemany('''
+            INSERT INTO lab7_products (name, description, price, image_url, released, category)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', products_data)
+        db.commit()
+    
+    # VULNERABILITY: SQL Injection in WHERE clause
+    # The category parameter is directly concatenated into the SQL query
+    # Normal query: SELECT * FROM lab7_products WHERE category = 'Gifts' AND released = 1
+    # Exploit: category='+OR+1=1-- will bypass the released check
+    
+    if category:
+        # VULNERABLE CODE - Direct string concatenation
+        query = f"SELECT * FROM lab7_products WHERE category = '{category}' AND released = 1"
+    else:
+        query = "SELECT * FROM lab7_products WHERE released = 1"
+    
+    try:
+        cursor.execute(query)
+        products = cursor.fetchall()
+    except Exception as e:
+        # If SQL error occurs, show it (helpful for learning)
+        products = []
+        print(f"SQL Error: {e}")
+    
+    return render_template('lab7/sub1_home.html', products=products, category=category)
+
+
+# LAB 6.1: OS Command Injection via Stock Check
+@app.route('/lab6/1/menu')
+def lab6_1_menu():
+    return render_template('lab6/sub1_menu.html')
+
+# Variation A: MegaMart
+@app.route('/lab6/1')
+def lab6_1():
+    products = [
+        {'id': 1, 'name': 'Organic Bananas', 'description': 'Fresh from local farms', 'price': 2.99, 'image': 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=600&q=80'},
+        {'id': 2, 'name': 'Whole Grain Bread', 'description': 'Artisan baked daily', 'price': 4.50, 'image': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80'},
+        {'id': 3, 'name': 'Free Range Eggs', 'description': 'Dozen large eggs', 'price': 5.99, 'image': 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab6/sub1_home.html', products=products)
+
+@app.route('/lab6/1/check-stock', methods=['POST'])
+def lab6_1_check_stock():
+    product_id = request.form.get('productId', '')
+    store_id = request.form.get('storeId', '')
+    
+    # VULNERABILITY: OS Command Injection
+    # The storeId parameter is directly concatenated into a shell command
+    # An attacker can inject commands like: 1|whoami or 1;ls or 1 && cat /etc/passwd
+    try:
+        command = f"echo 'Stock check for product {product_id} at store {store_id}' && echo 'Units available: 42'"
+        result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, text=True, timeout=5)
+        return result
+    except subprocess.TimeoutExpired:
+        return "Error: Command timed out"
+    except Exception as e:
+        return f"Error executing stock check: {str(e)}"
+
+# Variation B: AutoParts Pro
+@app.route('/lab6/1/b')
+def lab6_1_b():
+    products = [
+        {'id': 101, 'name': 'Brake Pads Set', 'description': 'Ceramic compound', 'price': 89.99, 'image': 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=600&q=80'},
+        {'id': 102, 'name': 'Oil Filter', 'description': 'Premium filtration', 'price': 12.50, 'image': 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?auto=format&fit=crop&w=600&q=80'},
+        {'id': 103, 'name': 'Spark Plugs', 'description': 'Iridium tipped', 'price': 24.99, 'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab6/sub1_b_home.html', products=products)
+
+@app.route('/lab6/1/b/check-stock', methods=['POST'])
+def lab6_1_b_check_stock():
+    product_id = request.form.get('productId', '')
+    location_id = request.form.get('locationId', '')
+    
+    # VULNERABILITY: Same OS Command Injection, different parameter name
+    try:
+        command = f"echo 'Warehouse query: SKU {product_id} at location {location_id}' && echo 'Inventory count: 156'"
+        result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, text=True, timeout=5)
+        return result
+    except subprocess.TimeoutExpired:
+        return "Error: Query timed out"
+    except Exception as e:
+        return f"System error: {str(e)}"
+
+# Variation C: PharmaCare
+@app.route('/lab6/1/c')
+def lab6_1_c():
+    products = [
+        {'id': 201, 'name': 'Ibuprofen 200mg', 'description': 'Pain relief tablets', 'price': 8.99, 'image': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80'},
+        {'id': 202, 'name': 'Vitamin D3', 'description': '5000 IU softgels', 'price': 15.99, 'image': 'https://images.unsplash.com/photo-1550572017-4a6e8c5c1f8c?auto=format&fit=crop&w=600&q=80'},
+        {'id': 203, 'name': 'First Aid Kit', 'description': 'Complete emergency kit', 'price': 29.99, 'image': 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab6/sub1_c_home.html', products=products)
+
+@app.route('/lab6/1/c/check-stock', methods=['POST'])
+def lab6_1_c_check_stock():
+    product_id = request.form.get('productId', '')
+    branch_id = request.form.get('branchId', '')
+    
+    # VULNERABILITY: Same OS Command Injection, different parameter name
+    try:
+        command = f"echo 'Prescription verification: NDC {product_id} at branch {branch_id}' && echo 'Stock level: 89 units'"
+        result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, text=True, timeout=5)
+        return result
+    except subprocess.TimeoutExpired:
+        return "Error: Verification timeout"
+    except Exception as e:
+        return f"Database error: {str(e)}"
 
 
 if __name__ == '__main__':

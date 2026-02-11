@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Lab 5.2 - TechZone{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab5_2') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">🛡️</span>
+            <span>TechZone 5.2</span>
+        </a>
+        <div class="nav-actions">
+            {% if session.get('lab5_2_user') %}
+                <a href="{{ url_for('lab5_2_account') }}" class="btn-tech-primary">
+                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">👤</span> My Account
+                </a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline">Exit Lab</a>
+            {% else %}
+                <a href="{{ url_for('lab5_2_login') }}" class="btn-tech-outline">Sign In</a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline" style="border-color: transparent; color: #94a3b8;">Exit Lab</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Lab 5.2 Scenario</span>
+        <h1>Content Check. <br>Bypass Required.</h1>
+        <p>The server now checks Content-Type headers. Can you trick it into accepting your web shell?</p>
+        <div class="hero-actions">
+            <a href="#products" class="btn-tech-primary">Browse Shop</a>
+        </div>
+    </div>
+</header>
+
+<main id="products" class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid">
+        {% for product in products %}
+        <div class="tech-card">
+            <div class="tech-card-img-wrapper">
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="tech-card-img">
+            </div>
+            <div class="tech-card-body">
+                <h3 class="tech-title">{{ product.name }}</h3>
+                <p class="tech-desc">{{ product.description }}</p>
+                <div class="product-actions">
+                    <div class="tech-price">${{ product.price }}</div>
+                    <button class="btn-tech-outline btn-cart-mini">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<footer style="padding: 4rem 0; text-align: center; color: #64748b;">
+    <p>&copy; 2025 TechZone Security Labs.</p>
+</footer>
+{% endblock %}

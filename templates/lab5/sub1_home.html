@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}TechZone - Premium Electronics{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab5_1') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">⚡</span>
+            <span>TechZone</span>
+        </a>
+        <div class="nav-actions">
+            {% if session.get('lab5_1_user') %}
+                <a href="{{ url_for('lab5_1_account') }}" class="btn-tech-primary">
+                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">👤</span> My Account
+                </a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline">Exit Lab</a>
+            {% else %}
+                <a href="{{ url_for('lab5_1_login') }}" class="btn-tech-outline">Sign In</a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline" style="border-color: transparent; color: #94a3b8;">Exit Lab</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Authorized Reseller</span>
+        <h1>Future Tech. <br>Delivered Today.</h1>
+        <p>Experience the next generation of computing with our curated selection of high-performance hardware. Secure, fast, and reliable.</p>
+        <div class="hero-actions">
+            <a href="#products" class="btn-tech-primary">Browse Collection</a>
+            <a href="#" class="btn-tech-outline">View Specs</a>
+        </div>
+    </div>
+</header>
+
+<main id="products" class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid">
+        {% for product in products %}
+        <div class="tech-card">
+            <div class="tech-card-img-wrapper">
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="tech-card-img">
+            </div>
+            <div class="tech-card-body">
+                <h3 class="tech-title">{{ product.name }}</h3>
+                <p class="tech-desc">{{ product.description }}</p>
+                <div class="product-actions">
+                    <div class="tech-price">${{ product.price }}</div>
+                    <button class="btn-tech-outline btn-cart-mini">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<footer style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 4rem 0; text-align: center; color: #64748b;">
+    <p>&copy; 2025 TechZone Inc. All rights reserved.</p>
+    <p style="font-size: 0.875rem; margin-top: 1rem;">Secure Payment Processing • 24/7 Support • Global Shipping</p>
+</footer>
+{% endblock %}

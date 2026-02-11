@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('lab4_1') }}" class="btn">&larr; Back to Shop</a>
+    <a href="{{ url_for('lab4_1_2') }}" class="btn">&larr; Back to Shop</a>
 
     <div class="detail-container-a">
         <div class="detail-card-a">
@@ -21,8 +21,8 @@
                 <div class="detail-price-a">${{ product.price }}</div>
                 
                 <div class="stock-box-a">
-                    <form action="{{ url_for('lab4_1_stock') }}" method="POST" id="stockForm">
-                        <input type="hidden" name="stockApi" value="http://localhost/stock/check?id={{ product.id }}">
+                    <form action="{{ url_for('lab4_stock_check') }}" method="POST" id="stockForm">
+                        <input type="hidden" name="stockApi" value="http://192.168.0.1:8080/product/stock/check?productId={{ product.id }}&storeId=1">
                         <button type="submit" class="stock-btn-a">Check Stock</button>
                     </form>
                     <div id="stockResult" class="stock-result-a"></div>
@@ -50,12 +50,12 @@
             })
             .then(res => res.text())
             .then(data => {
-                if (data.includes('Success')) {
-                     resultDiv.innerHTML = data;
-                     resultDiv.style.color = "#10b981";
-                } else if (data.includes('403') || data.includes('Admin')) {
-                     // If SSRF returns the admin page content
+                // If the response is HTML (admin panel), render it in a contained way
+                 if (data.includes('Admin Interface') || data.includes('User deleted')) {
                      resultDiv.innerHTML = "<div style='color: #fbbf24; border: 1px solid #fbbf24; padding: 1rem; background: rgba(251, 191, 36, 0.1);'>" + data + "</div>";
+                } else if (data.includes('500') || data.includes('Internal Server Error')) {
+                     resultDiv.innerText = "Check failed: " + data;
+                     resultDiv.style.color = "#ef4444";
                 } else {
                      resultDiv.innerText = data;
                      resultDiv.style.color = "#10b981";

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}HireMinds - Professional Network{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override: HireMinds (Teal/Emerald) */
+    :root {
+        --primary: #059669;         /* Emerald 600 */
+        --primary-hover: #047857;   /* Emerald 700 */
+        --accent: #10b981;          /* Emerald 500 */
+    }
+    .tech-nav {
+        border-bottom: 1px solid #a7f3d0;
+    }
+    .tech-hero {
+        background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+        box-shadow: 0 10px 30px -10px rgba(5, 150, 105, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<nav class="tech-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
+        <a href="{{ url_for('lab5_1_c') }}" class="tech-brand">
+            <span style="font-size: 1.75rem;">💼</span>
+            <span style="color: #059669;">HireMinds</span>
+        </a>
+        <div class="nav-actions">
+            {% if session.get('lab5_1_c_user') %}
+                <a href="{{ url_for('lab5_1_c_account') }}" class="btn-tech-primary">
+                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">👤</span> My Profile
+                </a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline">Exit Lab</a>
+            {% else %}
+                <a href="{{ url_for('lab5_1_c_login') }}" class="btn-tech-outline">Employer Login</a>
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline" style="border-color: transparent; color: #64748b;">Exit Lab</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<header class="tech-hero animate-fade-in">
+    <div class="hero-content">
+        <span class="hero-subtitle">Connecting Talent</span>
+        <h1>Find Your <br>Next Opportunity.</h1>
+        <p>The world's leading professional platform for creative and tech industries. Verified companies. Transparent salaries.</p>
+        <div class="hero-actions">
+            <a href="#jobs" class="btn-tech-primary">Search Jobs</a>
+            <a href="#" class="btn-tech-outline">Post Opening</a>
+        </div>
+    </div>
+</header>
+
+<main id="jobs" class="container animate-fade-in lab5-container-max">
+    <div class="tech-grid" style="grid-template-columns: 1fr;">
+        {% for job in jobs %}
+        <div class="tech-card" style="flex-direction: row; padding: 1.5rem; align-items: center; gap: 2rem;">
+            <div class="tech-card-img-wrapper" style="width: 80px; height: 80px; border-radius: 12px; padding: 0; flex-shrink: 0;">
+                <img src="{{ job.logo }}" alt="{{ job.company }}" class="tech-card-img" style="object-fit: contain; padding: 10px;">
+            </div>
+            <div class="tech-card-body" style="padding: 0;">
+                <h3 class="tech-title" style="margin-bottom: 0.25rem;">{{ job.title }}</h3>
+                <p class="tech-desc" style="margin-bottom: 0;">{{ job.company }} • {{ job.location }}</p>
+            </div>
+             <div class="product-actions">
+                <div class="tech-price" style="font-size: 1.1rem; font-weight: 600; margin: 0; margin-right: 2rem;">{{ job.salary }}</div>
+                <button class="btn-tech-primary">Apply Now</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<footer class="tech-footer">
+    <p>&copy; 2025 HireMinds. All rights reserved.</p>
+    <p class="tech-footer-sub">Privacy Policy • Terms of Service • Guidelines</p>
+</footer>
+{% endblock %}

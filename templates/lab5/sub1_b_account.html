@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}My Portfolio - PixelArt{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    /* Theme Override */
+    :root {
+        --primary: #ec4899;         
+        --primary-hover: #db2777;   
+        --accent: #d946ef;          
+    }
+    .profile-sidebar .profile-card {
+        border-top: 4px solid #fbcfe8;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="container animate-fade-in lab5-container-split">
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+        <div class="glass profile-card">
+            <div class="avatar-lg" style="box-shadow: 0 0 0 4px #ec4899, 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                {% if avatar %}
+                <img src="{{ avatar }}" alt="User Avatar">
+                {% else %}
+                <div class="avatar-placeholder-icon">🎨</div>
+                {% endif %}
+            </div>
+            
+            <h3 class="profile-name">{{ username }}</h3>
+            <p class="profile-badge" style="background:#fce7f3; color:#db2777; border-color:#fbcfe8;">Verify Artist</p>
+            
+            <div class="profile-nav">
+                <a href="{{ url_for('lab5') }}" class="btn-tech-outline nav-sidemenu-item" style="color: #94a3b8; border-color: rgba(255,255,255,0.1);">
+                    <span class="menu-icon">⬅️</span> Exit Lab
+                </a>
+                <a href="{{ url_for('lab5_1_b') }}" class="btn-tech-outline nav-sidemenu-item">
+                    <span class="menu-icon">🖼️</span> Gallery Home
+                </a>
+                <a href="#" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-active" style="border-color:#fbcfe8; background:#fdf2f8; color:#db2777;">
+                    <span class="menu-icon">✒️</span> Studio
+                </a>
+                <a href="{{ url_for('lab5_1_b_logout') }}" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-danger">
+                    <span class="menu-icon">🚪</span> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-main">
+        <div class="glass content-card">
+            <div class="content-header">
+                <div>
+                    <h1 class="content-title">Personal Studio</h1>
+                    <p class="auth-subtitle">Upload your avatar to showcase your brand.</p>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <h3 class="section-title">
+                    <span class="section-icon" style="color:#d946ef; background:#fdf4ff; border-color:#f0abfc;">🖌️</span> 
+                    Avatar Update
+                </h3>
+
+                {% if message %}
+                <div class="upload-message-success">
+                    {{ message }}
+                </div>
+                {% endif %}
+                
+                {% if error %}
+                <div class="upload-message-error">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('lab5_1_b_upload') }}" method="POST" enctype="multipart/form-data">
+                    <div class="upload-zone" onclick="document.getElementById('avatar-input').click()">
+                        <div class="upload-placeholder-icon" style="color:#f0abfc;">☁️</div>
+                        <p class="upload-text-main">Click to select artwork</p>
+                        <p class="upload-text-sub">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                        <input type="file" name="avatar" id="avatar-input" class="d-none" onchange="this.form.submit()">
+                    </div>
+                    
+                    <div class="upload-actions">
+                        <button type="button" class="btn-upload-primary" onclick="document.getElementById('avatar-input').click()">
+                            <span>⬆️</span> Upload Art
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Personal Info (Read Only) -->
+            <div class="info-grid">
+                <div class="form-group">
+                    <label class="form-label">Artist Alias</label>
+                    <input type="text" class="form-input input-readonly" value="{{ username }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Wallet Address</label>
+                    <input type="text" class="form-input input-readonly" value="0x71C...39A" readonly>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
