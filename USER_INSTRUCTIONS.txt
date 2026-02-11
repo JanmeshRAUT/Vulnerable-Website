@@ -1,0 +1,220 @@
+===============================================================================
+  VULNERABLE E-COMMERCE LAB - STANDALONE APPLICATION
+  Version 1.0
+===============================================================================
+
+⚠️  WARNING: EDUCATIONAL USE ONLY
+This application contains intentional security vulnerabilities for learning
+purposes. Do NOT use with real data or deploy on public servers!
+
+===============================================================================
+  SYSTEM REQUIREMENTS
+===============================================================================
+
+✓ Windows 7, 8, 10, or 11 (64-bit)
+✓ At least 200 MB free disk space
+✓ No Python installation required
+✓ No internet connection required (runs locally)
+
+===============================================================================
+  HOW TO RUN
+===============================================================================
+
+1. DOUBLE-CLICK the VulnerableEcommerceLab.exe file
+
+2. A console window will appear showing:
+   - Server startup messages
+   - URL: http://127.0.0.1:5000
+
+3. Your default browser will AUTOMATICALLY OPEN to the application
+
+4. If browser doesn't open automatically:
+   - Manually open your browser
+   - Navigate to: http://127.0.0.1:5000
+
+5. START PRACTICING with the labs!
+
+===============================================================================
+  HOW TO STOP
+===============================================================================
+
+Option 1: Press Ctrl+C in the console window
+Option 2: Simply close the console window
+Option 3: Close your browser and then close the console
+
+===============================================================================
+  AVAILABLE LABS
+===============================================================================
+
+Lab 1: Path Traversal
+       - Learn to access files outside the intended directory
+
+Lab 2: Access Control Vulnerabilities
+       - Exploit broken access controls and IDOR
+
+Lab 3: Authentication Vulnerabilities
+       - Practice brute force attacks and user enumeration
+
+Lab 4: Server-Side Request Forgery (SSRF)
+       - Exploit SSRF to access internal resources
+
+Lab 5: File Upload Vulnerabilities
+       - Upload malicious files and bypass restrictions
+
+Lab 6: Command Injection
+       - Execute OS commands through vulnerable inputs
+
+Lab 7: SQL Injection
+       - Extract database information through SQL injection
+
+Lab 8: Cross-Site Scripting (XSS)
+       - Inject and execute malicious scripts
+
+===============================================================================
+  TROUBLESHOOTING
+===============================================================================
+
+PROBLEM: Windows Defender blocks the application
+SOLUTION: 
+  1. Click "More info" when the warning appears
+  2. Click "Run anyway"
+  
+  This is a FALSE POSITIVE. PyInstaller executables are often flagged
+  by antivirus software. The application is safe for educational use.
+
+---
+
+PROBLEM: "Port 5000 is already in use" error
+SOLUTION:
+  1. Close any other applications using port 5000
+  2. Common culprits: Other Flask apps, AirPlay on Mac
+  3. Restart your computer if the issue persists
+
+---
+
+PROBLEM: Browser doesn't open automatically
+SOLUTION:
+  1. Manually open your browser
+  2. Go to: http://127.0.0.1:5000
+  3. Or try: http://localhost:5000
+
+---
+
+PROBLEM: "Permission denied" or "Access denied" errors
+SOLUTION:
+  1. Run the application from a folder where you have write permissions
+  2. Don't run from C:\Program Files or other protected folders
+  3. Try running from your Desktop or Documents folder
+
+---
+
+PROBLEM: Application crashes immediately
+SOLUTION:
+  1. Make sure you have at least 200 MB free disk space
+  2. Check if antivirus is blocking the application
+  3. Try running as Administrator (right-click → Run as administrator)
+
+---
+
+PROBLEM: Labs don't work correctly
+SOLUTION:
+  1. Close the application completely
+  2. Delete the database.db file (if it exists in the same folder)
+  3. Restart the application (it will create a fresh database)
+
+===============================================================================
+  USING WITH BURP SUITE
+===============================================================================
+
+1. Configure Burp Suite proxy (usually 127.0.0.1:8080)
+
+2. Configure your browser to use Burp proxy
+
+3. In Burp, go to Proxy → Options → Proxy Listeners
+
+4. Make sure intercept is ON when you want to capture requests
+
+5. Navigate to http://127.0.0.1:5000 in your browser
+
+6. All requests will now be captured in Burp Suite!
+
+===============================================================================
+  TIPS FOR STUDENTS
+===============================================================================
+
+✓ Start with Lab 1 (easiest) and progress sequentially
+✓ Use Burp Suite to intercept and modify HTTP requests
+✓ Read the lab descriptions carefully for hints
+✓ Each lab has a FLAG to capture upon successful exploitation
+✓ Take notes on your methodology for future reference
+✓ Practice ethical hacking principles
+✓ Don't use these techniques on real websites without permission!
+
+===============================================================================
+  FREQUENTLY ASKED QUESTIONS
+===============================================================================
+
+Q: Do I need to install Python?
+A: No! Everything is bundled in the .exe file.
+
+Q: Can I run this on Mac or Linux?
+A: No, this is a Windows executable. Ask your instructor for other versions.
+
+Q: Is my data safe?
+A: The app runs locally on your machine. No data is sent to the internet.
+
+Q: Can I modify the labs?
+A: The code is bundled in the .exe. To modify, you need the source code.
+
+Q: How do I reset the database?
+A: Delete the database.db file and restart the application.
+
+Q: Can I run multiple instances?
+A: No, only one instance can run at a time (port 5000 limitation).
+
+Q: Is this safe to run?
+A: Yes, for educational purposes. It only runs locally on your machine.
+
+Q: Why does my antivirus flag it?
+A: PyInstaller executables often trigger false positives. It's safe.
+
+===============================================================================
+  ETHICAL HACKING GUIDELINES
+===============================================================================
+
+⚠️  IMPORTANT: Use these skills responsibly!
+
+✓ ONLY practice on this lab application or authorized systems
+✓ NEVER attack real websites without explicit written permission
+✓ Understand that unauthorized hacking is illegal
+✓ Use your skills to improve security, not to cause harm
+✓ Report vulnerabilities responsibly to affected organizations
+✓ Respect privacy and confidentiality
+✓ Follow your organization's acceptable use policies
+
+Unauthorized access to computer systems is a crime in most countries.
+Always obtain proper authorization before testing security.
+
+===============================================================================
+  SUPPORT
+===============================================================================
+
+For issues or questions:
+- Check the troubleshooting section above
+- Contact your instructor or lab administrator
+- GitHub: https://github.com/JanmeshRAUT/Vulnerable-Website
+
+===============================================================================
+  CREDITS
+===============================================================================
+
+Developed for educational purposes
+Based on PortSwigger Web Security Academy concepts
+Built with Flask and PyInstaller
+
+===============================================================================
+
+Thank you for using Vulnerable E-Commerce Lab!
+Happy learning! 🎓🔒
+
+===============================================================================

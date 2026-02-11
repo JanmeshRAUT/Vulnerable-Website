@@ -1,2 +1,4 @@
 Flask==2.3.0
 Werkzeug==2.3.0
+gunicorn==21.2.0
+pyinstaller==6.3.0
