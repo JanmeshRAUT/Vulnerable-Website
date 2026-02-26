@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Lab 7.1: Mission Select{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
+<style>
+    .mission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+    .mission-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 1rem;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .mission-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+    .mission-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+    }
+    .mission-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+    .mission-desc {
+        color: #94a3b8;
+        margin-bottom: 2rem;
+        flex-grow: 1;
+    }
+    .btn-mission {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: block;
+        box-sizing: border-box;
+    }
+    
+    /* Theme A: GiftShop (Purple) */
+    .theme-a:hover { border-color: #a855f7; }
+    .btn-theme-a { background: #a855f7; color: white; border: none; }
+    .btn-theme-a:hover { background: #9333ea; }
+    
+    /* Theme B: Staff Portal (Blue) */
+    .theme-b:hover { border-color: #3b82f6; }
+    .btn-theme-b { background: #3b82f6; color: white; border: none; }
+    .btn-theme-b:hover { background: #2563eb; }
+    
+    /* Theme C: PetShop (Orange) */
+    .theme-c:hover { border-color: #f97316; }
+    .btn-theme-c { background: #f97316; color: white; border: none; }
+    .btn-theme-c:hover { background: #ea580c; }
+
+    /* Theme D: HR Portal (Red) */
+    .theme-d:hover { border-color: #ef4444; }
+    .btn-theme-d { background: #ef4444; color: white; border: none; }
+    .btn-theme-d:hover { background: #dc2626; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lab5-hero">
+    <h1>Select Target System</h1>
+    <p class="lab5-hero-desc">
+        Choose a target system to exploit. Each uses a vulnerable SQL query to fetch or verify data using a different vulnerability pattern.
+    </p>
+</div>
+
+<div class="container animate-fade-in lab5-container-max">
+    <div class="mission-grid">
+        <!-- Variation A -->
+        <div class="mission-card theme-a">
+            <div class="mission-icon">🎁</div>
+            <h3 class="mission-title">GiftShop (WHERE Clause)</h3>
+            <p class="mission-desc">
+                Find the secret luxurious gifts that are supposed to be unreleased. Exploit the 'category' filter via string injection.
+            </p>
+            <a href="{{ url_for('lab7_1') }}" class="btn-mission btn-theme-a">Access System &rarr;</a>
+        </div>
+
+        <!-- Variation B -->
+        <div class="mission-card theme-b">
+            <div class="mission-icon">🔐</div>
+            <h3 class="mission-title">Staff Portal (Login Bypass)</h3>
+            <p class="mission-desc">
+                An internal staff portal. Exploit the authentication query to bypass the login and gain admin access.
+            </p>
+            <a href="{{ url_for('lab7_1_b') }}" class="btn-mission btn-theme-b">Enter Portal &rarr;</a>
+        </div>
+
+        <!-- Variation C -->
+        <div class="mission-card theme-c">
+            <div class="mission-icon">🐾</div>
+            <h3 class="mission-title">PetShop (UNION Attack)</h3>
+            <p class="mission-desc">
+                A pet shop catalog. Exploit the search functionality to perform a UNION attack and retrieve hidden tables.
+            </p>
+            <a href="{{ url_for('lab7_1_c') }}" class="btn-mission btn-theme-c">Access Database &rarr;</a>
+        </div>
+
+        <!-- Variation D -->
+        <div class="mission-card theme-d">
+            <div class="mission-icon">👔</div>
+            <h3 class="mission-title">HR Portal (Integer Based)</h3>
+            <p class="mission-desc">
+                An employee directory displaying users by ID. Exploit the integer-based ID parameter to view the CEO's secret data.
+            </p>
+            <a href="{{ url_for('lab7_1_d') }}" class="btn-mission btn-theme-d">Enter Directory &rarr;</a>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 4rem;">
+        <a href="{{ url_for('lab7') }}" style="color: #64748b; text-decoration: none;">&larr; Back to Lab 7 Overview</a>
+    </div>
+</div>
+{% endblock %}

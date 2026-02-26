@@ -85,7 +85,9 @@ navigation #} {% block content %}
         Utilize the server's identity to probe internal networks and access
         loopback services.
       </p>
-      <a href="{{ url_for('lab4') }}" class="btn">View Module</a>
+      <button class="btn" disabled style="cursor: not-allowed; opacity: 0.6">
+        Unavailable
+      </button>
     </div>
 
     <!-- Lab 5: File Upload -->
@@ -99,7 +101,9 @@ navigation #} {% block content %}
         Achieve remote code execution by exploiting unrestricted file upload
         functionality.
       </p>
-      <a href="{{ url_for('lab5') }}" class="btn">Initialize Lab</a>
+      <button class="btn" disabled style="cursor: not-allowed; opacity: 0.6">
+        Unavailable
+      </button>
     </div>
 
     <!-- Lab 6: OS Command Injection -->
@@ -113,7 +117,9 @@ navigation #} {% block content %}
         Inject system commands through application inputs to compromise the
         underlying host.
       </p>
-      <a href="{{ url_for('lab6') }}" class="btn">Initialize Lab</a>
+      <button class="btn" disabled style="cursor: not-allowed; opacity: 0.6">
+        Unavailable
+      </button>
     </div>
 
     <!-- Lab 7: SQL Injection -->
@@ -138,7 +144,8 @@ navigation #} {% block content %}
       </div>
       <h3>8. Cross-Site Scripting</h3>
       <p>
-        Execute malicious JavaScript in other users' browsers via Reflected and Stored XSS attacks.
+        Execute malicious JavaScript in other users' browsers via Reflected and
+        Stored XSS attacks.
       </p>
       <a href="{{ url_for('lab8') }}" class="btn">Initialize Lab</a>
     </div>

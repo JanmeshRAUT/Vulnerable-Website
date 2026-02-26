@@ -1,12 +1,12 @@
 /* Lab 4.1c - Global Logistics Theme (Dark/Amber) */
 :root {
-    --logi-bg: #1c1917;
-    --logi-card: #292524;
+    --logi-bg: #f8f9fa;
+    --logi-card: #ffffff;
     --logi-accent: #f59e0b; /* Amber 500 */
     --logi-accent-hover: #d97706;
-    --logi-text: #e7e5e4;
-    --logi-sub: #a8a29e;
-    --logi-border: #44403c;
+    --logi-text: #111827;
+    --logi-sub: #6b7280;
+    --logi-border: #e5e7eb;
 }
 
 .logi-body {
@@ -71,7 +71,7 @@
 
 .logi-img {
     height: 140px;
-    background: #0c0a09;
+    background: #f3f4f6;
     display: flex;
     align-items: center;
     justify-content: center;

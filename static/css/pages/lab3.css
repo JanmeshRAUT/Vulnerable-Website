@@ -6,11 +6,11 @@
 :root {
     --auth-primary: #8b5cf6; /* VIOLET-500 */
     --auth-secondary: #06b6d4; /* CYAN-500 */
-    --auth-surface: rgba(30, 41, 59, 0.4); /* DARK SLATE with transparency */
-    --auth-dark: #0f172a; /* SLATE 900 */
-    --text-muted: #94a3b8; /* SLATE 400 */
-    --text-main: #f8fafc; /* SLATE 50 */
-    --glass-border: rgba(255, 255, 255, 0.05);
+    --auth-surface: rgba(255, 255, 255, 0.7); /* LIGHT surface with transparency */
+    --auth-dark: #f8f9fa; /* Light background */
+    --text-muted: #6b7280; /* SLATE 500 */
+    --text-main: #111827; /* SLATE 900 */
+    --glass-border: rgba(0, 0, 0, 0.06);
 }
 
 /* Page Container (Responsive) */
@@ -29,10 +29,10 @@
     gap: 0.75rem;
     margin-bottom: 3rem;
     padding: 0.75rem 1.25rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid transparent;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(99, 102, 241, 0.02));
+    border: 1.5px solid #e5e7eb;
     border-radius: 99px;
-    color: var(--text-muted);
+    color: #6b7280;
     font-size: 0.9rem;
     font-weight: 500;
     text-decoration: none;
@@ -40,9 +40,9 @@
 }
 
 .btn-back:hover {
-    color: var(--text-main);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
+    color: #111827;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
+    border-color: rgba(99, 102, 241, 0.2);
     transform: translateX(-4px);
 }
 
@@ -60,11 +60,11 @@
     gap: 3rem;
     align-items: center;
     padding: 3rem;
-    background: linear-gradient(120deg, rgba(88, 28, 135, 0.15), rgba(15, 23, 42, 0.3));
-    border: 1px solid var(--glass-border);
+    background: linear-gradient(120deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
+    border: 1.5px solid #e5e7eb;
     border-radius: 24px;
     backdrop-filter: blur(24px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     position: relative;
     overflow: hidden;
 }
@@ -83,16 +83,16 @@
 
 .lab-header-icon {
     font-size: 3.5rem;
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--auth-primary);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
+    color: #6366f1;
     width: 96px;
     height: 96px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+    border: 1.5px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .lab-title {

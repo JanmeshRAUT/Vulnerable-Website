@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Staff Portal - Login{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    .gift-nav { border-bottom: 1px solid rgba(59, 130, 246, 0.2); }
+    .gift-brand { color: #3b82f6 !important; }
+    .auth-container { max-width: 450px; margin: 4rem auto; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 2.5rem; }
+    .auth-title { text-align: center; margin-bottom: 2rem; color: white; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; color: #94a3b8; }
+    .form-control { width: 100%; padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: white; }
+    .form-control:focus { outline: none; border-color: #3b82f6; }
+    .btn-login { width: 100%; padding: 0.75rem; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-login:hover { background: #2563eb; }
+    .alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; }
+    .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #6ee7b7; padding: 1.5rem; border-radius: 6px; text-align: center; }
+    .dev-note { margin-top: 2rem; padding: 1rem; background: rgba(0,0,0,0.3); border-left: 3px solid #3b82f6; color: #94a3b8; font-size: 0.85rem; word-break: break-all; }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="gift-main-content">
+<nav class="gift-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid gift-nav-content">
+        <a href="{{ url_for('lab7_1_b') }}" class="gift-brand">
+            <span style="font-size: 1.75rem;">🔐</span>
+            <span>Staff Portal</span>
+        </a>
+        <div class="nav-actions">
+            <a href="{{ url_for('lab7_1_menu') }}" class="btn-tech-outline">Exit System</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container animate-fade-in">
+    <div class="auth-container">
+        {% if success %}
+            <div class="alert-success">
+                <h3>Authentication Successful</h3>
+                <p style="margin-top: 1rem; font-family: monospace; font-size: 1.2rem;">{{ flag }}</p>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{{ url_for('lab7_1_b') }}" class="btn-login" style="text-decoration: none; display: inline-block;">Back to Login</a>
+            </div>
+        {% else %}
+            <h2 class="auth-title">Staff Login</h2>
+            
+            {% if error %}
+            <div class="alert-error">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <form action="{{ url_for('lab7_1_b') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+        {% endif %}
+        
+        {% if query %}
+        <div class="dev-note">
+            <strong>Executed Query:</strong><br>
+            <code>{{ query }}</code>
+        </div>
+        {% endif %}
+    </div>
+</main>
+</div>
+{% endblock %}

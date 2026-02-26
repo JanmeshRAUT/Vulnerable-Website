@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}HR Portal - Directory{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    .gift-nav { border-bottom: 1px solid rgba(239, 68, 68, 0.2); }
+    .gift-brand { color: #ef4444 !important; }
+    .gift-hero { background: linear-gradient(135deg, rgba(127, 29, 29, 0.4), rgba(185, 28, 28, 0.2)); border-color: rgba(239, 68, 68, 0.2); padding: 3rem 0; }
+    .directory-table { width: 100%; border-collapse: collapse; margin-top: 2rem; background: rgba(30, 41, 59, 0.6); border-radius: 8px; overflow: hidden; }
+    .directory-table th { background: rgba(0,0,0,0.4); padding: 1rem; text-align: left; color: #f87171; }
+    .directory-table td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; }
+    .directory-table tr:hover { background: rgba(255,255,255,0.05); }
+    .search-input { padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; width: 150px; }
+    .btn-search { padding: 0.5rem 1rem; background: #ef4444; border: none; border-radius: 4px; color: white; cursor: pointer; }
+    .btn-search:hover { background: #dc2626; }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="gift-main-content">
+<nav class="gift-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid gift-nav-content">
+        <a href="{{ url_for('lab7_1_d') }}" class="gift-brand">
+            <span style="font-size: 1.75rem;">👔</span>
+            <span>HR Portal</span>
+        </a>
+        <div class="nav-actions">
+            <a href="{{ url_for('lab7_1_menu') }}" class="btn-tech-outline">Exit System</a>
+        </div>
+    </div>
+</nav>
+
+<header class="gift-hero animate-fade-in">
+    <div class="gift-hero-content">
+        <span class="gift-hero-subtitle">Employee Directory</span>
+        <h1>Company Access</h1>
+    </div>
+</header>
+
+<main class="container animate-fade-in lab5-container-max" style="padding-bottom: 5rem;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
+        <h3>Employee Lookup</h3>
+        <form action="{{ url_for('lab7_1_d') }}" method="GET" style="display: flex; gap: 0.5rem;">
+            <input type="text" name="id" class="search-input" value="{{ emp_id }}" placeholder="Employee ID">
+            <button type="submit" class="btn-search">Lookup</button>
+        </form>
+    </div>
+
+    <table class="directory-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Email Contact</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if employees %}
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp[0] }}</td>
+                    <td>{{ emp[1] }}</td>
+                    <td>{{ emp[2] }}</td>
+                    <td>{{ emp[3] }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 2rem;">No employee found with this ID.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</main>
+</div>
+{% endblock %}

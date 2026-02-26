@@ -5,9 +5,9 @@
 /* Hero Section */
 .hero-section {
     text-align: center;
-    padding: 6rem 1rem 8rem;
+    padding: 7rem 1.5rem 9rem;
     position: relative;
-    max-width: 900px;
+    max-width: 950px;
     margin: 0 auto;
 }
 
@@ -17,33 +17,32 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-    filter: blur(60px);
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+    filter: blur(80px);
     z-index: -1;
     pointer-events: none;
 }
 
 .hero-title {
-    font-size: 4rem;
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 1.5rem;
-    letter-spacing: -0.03em;
-    background: linear-gradient(to right, #fff, #94a3b8);
+    font-size: 4.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 1.75rem;
+    letter-spacing: -0.035em;
+    background: linear-gradient(to right, #f8fafc, #cbd5e1);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--text-muted);
-    max-width: 650px;
-    margin: 0 auto 3rem;
-    line-height: 1.6;
+    font-size: 1.35rem;
+    color: #a0aec0;
+    max-width: 700px;
+    margin: 0 auto 3.5rem;
+    line-height: 1.7;
 }
 
 .hero-actions {
@@ -51,50 +50,54 @@
     gap: 1.5rem;
     justify-content: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 .hero-actions .btn {
-    padding: 1rem 2.5rem;
+    padding: 1.1rem 2.75rem;
     font-size: 1.05rem;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 /* Curriculum Section */
 
 /* This section connects the hero to the labs */
 .curriculum-header {
-    margin-bottom: 3rem;
+    margin-bottom: 3.5rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(99, 102, 241, 0.15);
+    padding-bottom: 2rem;
 }
 
 .curriculum-header h2 {
-    font-size: 1.75rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-main);
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    color: #f8fafc;
+    font-weight: 800;
+    letter-spacing: -0.015em;
 }
 
 .curriculum-header p {
-    color: var(--text-muted);
+    color: #a0aec0;
     margin: 0;
+    font-size: 1.05rem;
 }
 
 .curriculum-info {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.03);
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: #94a3b8;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.05));
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    border: 1.5px solid rgba(99, 102, 241, 0.2);
+    font-weight: 500;
 }
-
-.environment-status {
-    color: #10b981; /* Success Green */
-    margin-right: 0.5rem;
+.environment-status {    
+    color: #22c55e;
+    margin-right: 0.75rem;
 }
 
 /* Lab Card Grid Improvements */

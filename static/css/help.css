@@ -11,56 +11,84 @@
 /* Help Header */
 .help-header {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: 4.5rem;
 }
 
 .help-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 2.75rem;
+    margin-bottom: 1rem;
+    font-weight: 900;
+    color: #f8fafc;
+    letter-spacing: -0.02em;
 }
 
 .help-header p {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
+    color: #a0aec0;
+    font-size: 1.15rem;
+    line-height: 1.6;
 }
 
 /* FAQ Section */
 .faq-section {
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
 }
 
 .faq-section h2 {
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+    border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+    padding-bottom: 1rem;
 }
 
 /* FAQ Item */
 .faq-item {
     margin-bottom: 1rem;
-    padding: 1.5rem;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
+    padding: 1.75rem;
+    background: linear-gradient(135deg, rgba(20, 24, 41, 0.6), rgba(20, 24, 41, 0.4));
+    border: 1.5px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .faq-item:hover {
-    border-color: var(--accent);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
 
 .faq-item h4 {
     margin: 0;
-    color: var(--text-primary);
+    color: #f8fafc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.faq-toggle {
+    font-size: 0.8rem;
+    color: #6366f1;
+    transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-toggle {
+    transform: rotate(180deg);
 }
 
 .faq-item p {
     display: none;
     margin-top: 1rem;
-    color: var(--text-secondary);
+    color: #a0aec0;
+    line-height: 1.7;
 }
 
-.faq-item.active p {
+.faq-item.open p {
     display: block;
 }
 

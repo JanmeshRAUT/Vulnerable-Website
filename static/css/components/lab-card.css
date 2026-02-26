@@ -4,8 +4,8 @@
    ================================ */
 
 .lab-card {
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.6) 100%);
+    border: 1.5px solid #e5e7eb;
     border-radius: 24px;
     padding: 2.5rem;
     display: flex;
@@ -15,6 +15,7 @@
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     backdrop-filter: blur(20px);
     height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Accent Line (Gradient Top Border) */
@@ -32,9 +33,9 @@
 
 .lab-card:hover {
     transform: translateY(-8px);
-    background: rgba(30, 41, 59, 0.8);
-    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.12);
+    border-color: rgba(99, 102, 241, 0.2);
 }
 
 .lab-card:hover::before {
@@ -53,17 +54,17 @@
     align-items: center;
     justify-content: center;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    color: var(--text-main);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
+    border: 1.5px solid #e5e7eb;
+    color: #6366f1;
     transition: all 0.4s ease;
 }
 
 .lab-card:hover .card-icon {
-    background: var(--auth-primary);
+    background: linear-gradient(135deg, #6366f1, #818cf8);
     color: white;
     transform: scale(1.1);
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
     border-color: transparent;
 }
 
@@ -71,7 +72,7 @@
 .lab-card h3 {
     font-size: 1.75rem;
     font-weight: 800;
-    color: white;
+    color: #111827;
     margin: 0 0 1rem 0;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -81,19 +82,19 @@
     display: inline-flex;
     align-items: center;
     padding: 0.35rem 0.85rem;
-    background: rgba(139, 92, 246, 0.1);
-    color: #a78bfa;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
+    color: #6366f1;
     border-radius: 100px;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 1.5rem;
-    border: 1px solid rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 .lab-card p {
-    color: var(--text-muted);
+    color: #6b7280;
     font-size: 1.05rem;
     line-height: 1.75;
     margin-bottom: 3rem;

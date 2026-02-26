@@ -1,12 +1,12 @@
 /* Lab 4.1b Premium Styles - Cloud Infrastructure Theme */
 :root {
-    --bg-dark: #0f172a;
-    --bg-card: #1e293b;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+    --bg-dark: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
     --accent-color: #38bdf8; /* Sky Blue */
     --accent-hover: #0ea5e9;
-    --border-color: #334155;
+    --border-color: #e5e7eb;
     --success-color: #10b981;
     --danger-color: #ef4444;
     --fw-regular: 400;
@@ -24,9 +24,9 @@ body {
 
 /* Header */
 .lab-header {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1.5px solid var(--border-color);
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -71,7 +71,7 @@ body {
 .section-title {
     font-size: 2rem;
     margin-bottom: 2rem;
-    background: linear-gradient(to right, #f8fafc, #94a3b8);
+    background: linear-gradient(to right, #1f2937, #6b7280);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

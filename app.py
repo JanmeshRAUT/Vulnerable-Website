@@ -2575,7 +2575,152 @@ def lab7_1():
     
     return render_template('lab7/sub1_home.html', products=products, category=category)
 
+@app.route('/lab7/1/menu')
+def lab7_1_menu():
+    return render_template('lab7/sub1_menu.html')
 
+@app.route('/lab7/1/b', methods=['GET', 'POST'])
+def lab7_1_b():
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lab7_staff (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT
+        )
+    ''')
+    
+    cursor.execute('SELECT COUNT(*) FROM lab7_staff')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("INSERT INTO lab7_staff (username, password, role) VALUES ('admin', 'super_secret_complex_pass_123', 'administrator')")
+        cursor.execute("INSERT INTO lab7_staff (username, password, role) VALUES ('j.doe', 'password123', 'staff')")
+        db.commit()
+
+    if request.method == 'POST':
+        username = request.form.get('username', '')
+        password = request.form.get('password', '')
+        
+        # VULNERABLE QUERY - String concats allow auth bypass like username: admin' --
+        query = f"SELECT * FROM lab7_staff WHERE username = '{username}' AND password = '{password}'"
+        print(f"Executing: {query}")
+        
+        try:
+            cursor.execute(query)
+            user = cursor.fetchone()
+            
+            if user:
+                # Login successful
+                if user[3] == 'administrator':
+                    return render_template('lab7/sub1_b_home.html', success=True, flag="FLAG{login_bypass_admin}", query=query)
+                else:
+                    return render_template('lab7/sub1_b_home.html', success=True, flag="Logged in as regular staff.", query=query)
+            else:
+                return render_template('lab7/sub1_b_home.html', error="Invalid username or password", query=query)
+        except Exception as e:
+            return render_template('lab7/sub1_b_home.html', error=f"SQL Error: {e}", query=query)
+            
+    return render_template('lab7/sub1_b_home.html')
+
+@app.route('/lab7/1/c')
+def lab7_1_c():
+    category = request.args.get('category', 'Dogs')
+    
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lab7_pets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            breed TEXT,
+            price REAL,
+            image_url TEXT,
+            available INTEGER DEFAULT 1,
+            type TEXT
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lab7_admin_creds (
+            username TEXT,
+            password TEXT
+        )
+    ''')
+    
+    cursor.execute('SELECT COUNT(*) FROM lab7_pets')
+    if cursor.fetchone()[0] == 0:
+        pets_data = [
+            ('Buddy', 'Golden Retriever', 800.00, 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Luna', 'Siamese Cat', 400.00, 'https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Nemo', 'Clownfish', 25.00, 'https://images.unsplash.com/photo-1524704796725-9fc3044a58b2?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+        ]
+        
+        cursor.executemany('''
+            INSERT INTO lab7_pets (name, breed, price, image_url, available, type)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', pets_data)
+        
+        cursor.execute("INSERT INTO lab7_admin_creds (username, password) VALUES ('administrator', 'FLAG{union_based_sql_injection_master}')")
+        db.commit()
+    
+    # VULNERABLE TO UNION ATTACK
+    query = f"SELECT name, breed, price, image_url FROM lab7_pets WHERE type = '{category}' AND available = 1"
+    
+    try:
+        cursor.execute(query)
+        pets = cursor.fetchall()
+    except Exception as e:
+        pets = []
+        print(f"SQL Error: {e}")
+    
+    return render_template('lab7/sub1_c_home.html', products=pets, category=category)
+
+@app.route('/lab7/1/d')
+def lab7_1_d():
+    emp_id = request.args.get('id', '1')
+    
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lab7_employees (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            role TEXT,
+            email TEXT,
+            is_public INTEGER DEFAULT 1
+        )
+    ''')
+    
+    cursor.execute('SELECT COUNT(*) FROM lab7_employees')
+    if cursor.fetchone()[0] == 0:
+        emp_data = [
+            ('John Doe', 'Sales', 'john.doe@corp.local', 1),
+            ('Jane Smith', 'Marketing', 'jane.smith@corp.local', 1),
+            ('Bob Sec', 'IT Support', 'bob@corp.local', 1),
+            ('Gabe Admin', 'CEO', 'gabe.awp@corp.local - FLAG{integer_sqli_expert}', 0)
+        ]
+        
+        cursor.executemany('''
+            INSERT INTO lab7_employees (name, role, email, is_public)
+            VALUES (?, ?, ?, ?)
+        ''', emp_data)
+        db.commit()
+    
+    # VULNERABLE INTEGER BASED (no quotes)
+    query = f"SELECT * FROM lab7_employees WHERE id = {emp_id} AND is_public = 1"
+    
+    try:
+        cursor.execute(query)
+        employees = cursor.fetchall()
+    except Exception as e:
+        employees = []
+        print(f"SQL Error: {e}")
+    
+    return render_template('lab7/sub1_d_home.html', employees=employees, emp_id=emp_id)
 # LAB 6.1: OS Command Injection via Stock Check
 @app.route('/lab6/1/menu')
 def lab6_1_menu():

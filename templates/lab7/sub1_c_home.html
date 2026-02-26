@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}PetShop - Exotic Animals{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    .gift-nav { border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
+    .gift-brand { color: #f97316 !important; }
+    .gift-hero { background: linear-gradient(135deg, rgba(154, 52, 18, 0.4), rgba(234, 88, 12, 0.2)); border-color: rgba(249, 115, 22, 0.2); }
+    .gift-filter-btn.active { background: #f97316; border-color: #f97316; }
+    .gift-filter-btn:hover { border-color: #f97316; color: #f97316; }
+    .gift-product-card { border-color: rgba(249, 115, 22, 0.1); }
+    .gift-product-card:hover { border-color: rgba(249, 115, 22, 0.3); box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1); }
+    .gift-price { color: #fb923c; }
+    .gift-btn-cart { background: #f97316; }
+    .gift-btn-cart:hover { background: #ea580c; }
+    .search-box { display: flex; max-width: 600px; margin: 0 auto 2rem; }
+    .search-input { flex: 1; padding: 1rem; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; border-radius: 8px 0 0 8px; }
+    .search-input:focus { outline: none; border-color: #f97316; }
+    .search-btn { padding: 1rem 2rem; background: #f97316; border: none; color: white; border-radius: 0 8px 8px 0; cursor: pointer; font-weight: bold; }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="gift-main-content">
+<nav class="gift-nav glass">
+    <div class="container animate-fade-in lab5-container-fluid gift-nav-content">
+        <a href="{{ url_for('lab7_1_c') }}" class="gift-brand">
+            <span style="font-size: 1.75rem;">🐾</span>
+            <span>PetShop</span>
+        </a>
+        <div class="nav-actions">
+            <a href="{{ url_for('lab7_1_menu') }}" class="btn-tech-outline">Exit System</a>
+        </div>
+    </div>
+</nav>
+
+<header class="gift-hero animate-fade-in">
+    <div class="gift-hero-content">
+        <span class="gift-hero-subtitle">Your New Best Friend Awaits</span>
+        <h1>Lovable.<br>Adorable.</h1>
+        <p>Use our advanced search to find pets by type.</p>
+    </div>
+</header>
+
+<main class="container animate-fade-in lab5-container-max">
+    <form class="search-box" action="{{ url_for('lab7_1_c') }}" method="GET">
+        <input type="text" name="category" class="search-input" value="{{ category }}" placeholder="Search by pet type (e.g., Dogs, Cats...)">
+        <button type="submit" class="search-btn">🔍 Search</button>
+    </form>
+
+    <div class="gift-products-grid">
+        {% if products %}
+            {% for product in products %}
+            <div class="gift-product-card">
+                <div class="gift-product-img-wrapper">
+                    <img src="{{ product[3] }}" alt="{{ product[0] }}" class="gift-product-img" onerror="this.src='https://via.placeholder.com/600x400?text=No+Image';">
+                </div>
+                <div class="gift-product-body">
+                    <h3 class="gift-product-title">
+                        {{ product[0] }}
+                    </h3>
+                    <p class="gift-product-desc">Breed: {{ product[1] }}</p>
+                    <div class="gift-product-actions">
+                        <div class="gift-price">${{ product[2] }}</div>
+                        <button class="gift-btn-cart">Adopt</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="gift-empty-state">
+                <p>No pets found in this type.</p>
+                <!-- Dev Hint: Hidden admin credentials are in 'lab7_admin_creds' table (username, password) -->
+            </div>
+        {% endif %}
+    </div>
+</main>
+</div>
+{% endblock %}
