@@ -6,6 +6,7 @@ import requests
 import string
 import random
 import re
+import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g, jsonify
 
 app = Flask(__name__)
@@ -15,6 +16,88 @@ app.config['DB_NAME'] = 'database.db'
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# -------------------------
+# FLAG SYSTEM - 3 Random Flags per Lab
+# -------------------------
+LAB_FLAGS = {
+    'lab1': [
+        'FLAG{file_system_traversal_alpha}',
+        'FLAG{directory_enumeration_beta}',
+        'FLAG{path_manipulation_gamma}'
+    ],
+    'lab2_1': [
+        'FLAG{resource_disclosure_delta}',
+        'FLAG{metadata_exposure_epsilon}',
+        'FLAG{directory_listing_zeta}'
+    ],
+    'lab2_2': [
+        'FLAG{logic_bypass_eta}',
+        'FLAG{hidden_endpoint_theta}',
+        'FLAG{source_code_analysis_iota}'
+    ],
+    'lab2_3': [
+        'FLAG{session_hijacking_kappa}',
+        'FLAG{privilege_escalation_lambda}',
+        'FLAG{token_manipulation_mu}'
+    ],
+    'lab2_4': [
+        'FLAG{object_reference_nu}',
+        'FLAG{identifier_tampering_xi}',
+        'FLAG{access_control_omicron}'
+    ],
+    'lab2_5': [
+        'FLAG{information_leakage_pi}',
+        'FLAG{credential_exposure_rho}',
+        'FLAG{data_disclosure_sigma}'
+    ],
+    'lab3_1': [
+        'FLAG{weak_validation_tau}',
+        'FLAG{enum_prediction_upsilon}',
+        'FLAG{authentication_bypass_phi}'
+    ],
+    'lab3_2': [
+        'FLAG{mfa_weakness_chi}',
+        'FLAG{otp_bypass_psi}',
+        'FLAG{verification_flaw_omega}'
+    ],
+    'lab4': [
+        'FLAG{internal_access_alpha2}',
+        'FLAG{service_probing_beta2}',
+        'FLAG{network_recon_gamma2}'
+    ],
+    'lab5_1': [
+        'FLAG{upload_validation_delta2}',
+        'FLAG{file_execution_epsilon2}',
+        'FLAG{storage_bypass_zeta2}'
+    ],
+    'lab5_2': [
+        'FLAG{content_verification_eta2}',
+        'FLAG{type_confusion_theta2}',
+        'FLAG{filter_evasion_iota2}'
+    ],
+    'lab6': [
+        'FLAG{command_execution_kappa2}',
+        'FLAG{system_control_lambda2}',
+        'FLAG{process_injection_mu2}'
+    ],
+    'lab7': [
+        'FLAG{query_manipulation_nu2}',
+        'FLAG{database_access_xi2}',
+        'FLAG{record_extraction_omicron2}'
+    ],
+    'lab8': [
+        'FLAG{script_injection_pi2}',
+        'FLAG{context_escape_rho2}',
+        'FLAG{dom_manipulation_sigma2}'
+    ]
+}
+
+def get_random_flag(lab_id):
+    """Get a random flag from the available flags for a lab"""
+    if lab_id in LAB_FLAGS:
+        return random.choice(LAB_FLAGS[lab_id])
+    return "FLAG{unknown_challenge}"
 
 # -------------------------
 # DATABASE SETUP
@@ -45,19 +128,25 @@ def init_db():
                 password TEXT NOT NULL,
                 role TEXT DEFAULT 'user',
                 email TEXT,
-                full_name TEXT
+                full_name TEXT,
+                guid TEXT UNIQUE
             )
         ''')
 
         # Create Products Table
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS products (
+            DROP TABLE IF EXISTS products
+        ''')
+        cursor.execute('''
+            CREATE TABLE products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 description TEXT,
                 price REAL,
                 image_url TEXT,
-                stock INTEGER DEFAULT 100
+                stock INTEGER DEFAULT 100,
+                uploaded_by INTEGER,
+                FOREIGN KEY (uploaded_by) REFERENCES users(id)
             )
         ''')
 
@@ -82,18 +171,43 @@ def init_db():
             password_length = secrets.choice(range(8, 13))
             admin_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(password_length))
             
-            cursor.execute("INSERT INTO users (username, password, role, email, full_name) VALUES ('admin', ?, 'admin', 'admin@vulnerable.com', 'System Administrator')", (admin_password,))
-            cursor.execute("INSERT INTO users (username, password, role, email, full_name) VALUES ('user', 'password', 'user', 'user@vulnerable.com', 'Regular User')")
-            cursor.execute("INSERT INTO users (username, password, role, email, full_name) VALUES ('alice', 'alice123', 'user', 'alice@vulnerable.com', 'Alice Wonderland')")
+            admin_guid = uuid.uuid4().hex
+            user_guid = uuid.uuid4().hex
+            alice_guid = uuid.uuid4().hex
+            
+            cursor.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES ('admin', ?, 'admin', 'admin@vulnerable.com', 'System Administrator', ?)", (admin_password, admin_guid))
+            cursor.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES ('user', 'password', 'user', 'user@vulnerable.com', 'Regular User', ?)", (user_guid,))
+            cursor.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES ('alice', 'alice123', 'user', 'alice@vulnerable.com', 'Alice Wonderland', ?)", (alice_guid,))
             
             print(f"[INIT] Admin password generated: {admin_password}")
 
         # Seed Data - Products
         cursor.execute('SELECT count(*) FROM products')
         if cursor.fetchone()[0] == 0:
-            cursor.execute("INSERT INTO products (name, description, price, image_url) VALUES ('Vulnerable T-Shirt', 'Limited edition vulnerable item', 29.99, 'tshirt.jpg')")
-            cursor.execute("INSERT INTO products (name, description, price, image_url) VALUES ('Insecure Hoodie', 'Keeps you warm, keeps your data exposed', 49.99, 'hoodie.jpg')")
-            cursor.execute("INSERT INTO products (name, description, price, image_url) VALUES ('SQLi Mug', 'Select * from drinks', 15.00, 'mug.jpg')")
+            # Get user IDs
+            cursor.execute('SELECT id FROM users WHERE username = "user"')
+            user_id = cursor.fetchone()[0]
+            cursor.execute('SELECT id FROM users WHERE username = "alice"')
+            alice_id = cursor.fetchone()[0]
+            cursor.execute('SELECT id FROM users WHERE username = "admin"')
+            admin_id = cursor.fetchone()[0]
+            
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Vulnerable T-Shirt', 'Limited edition vulnerable item', 29.99, 'tshirt.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Insecure Hoodie', 'Keeps you warm, keeps your data exposed', 49.99, 'hoodie.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('SQLi Mug', 'Select * from drinks', 15.00, 'mug.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('XSS Payload Coffee', 'Inject your caffeine safely', 18.50, 'coffee.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('CSRF Protection Hat', 'Keeps your cookies safe', 25.00, 'hat.jpg', ?)", (admin_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Smart TV 55', '4K Smart TV', 499.99, 'tv.jpg', ?)", (admin_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Gaming Mouse', 'RGB gaming mouse', 59.99, 'mouse.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Mechanical Keyboard', 'Blue switches', 89.99, 'keyboard.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Noise Cancelling Headphones', 'Silence your environment', 199.99, 'headphones.jpg', ?)", (admin_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Smartphone Pro', 'Latest Gen Smartphone', 999.99, 'phone.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Gold Necklace', '18k gold necklace', 299.99, 'necklace1.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Silver Watch', 'Elegant silver watch', 150.00, 'watch1.jpg', ?)", (admin_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Diamond Necklace', 'Diamond studded necklace', 999.99, 'necklace2.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Smart Watch', 'Fitness tracking watch', 199.99, 'watch2.jpg', ?)", (alice_id,))
+            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Pearl Necklace', 'Classic pearl necklace', 120.00, 'necklace3.jpg', ?)", (admin_id,))
+
             
         # Seed Data - Orders (Optional, since we mock it in route for simplicity unless Lab 6 uses DB)
         # But let's add some rows anyway
@@ -488,7 +602,7 @@ def lab2_1_admin():
     if request.method == 'POST':
         user_id = request.form.get('user_id')
         if user_id == '101':
-            return render_template('lab2/sub1_admin.html', users=[], flag="FLAG{robots_txt_enumerated_sucessfully}")
+            return render_template('lab2/sub1_admin.html', users=[], flag=get_random_flag('lab2_1'))
     return render_template('lab2/sub1_admin.html', users=users, flag=None)
 
 
@@ -507,7 +621,7 @@ def lab2_2_admin():
     users = [{'id': 202, 'username': 'target_user'}]
     if request.method == 'POST':
         # "Deleting" user
-        return render_template('lab2/sub2_admin.html', users=[], flag="FLAG{source_code_logic_bypass_mastered}")
+        return render_template('lab2/sub2_admin.html', users=[], flag=get_random_flag('lab2_2'))
     return render_template('lab2/sub2_admin.html', users=users, flag=None)
 
 # LAB 2.2 Variation B: BookStore
@@ -555,7 +669,7 @@ def handle_lab2_3_request(template_name, products):
         # Handle user deletion (POST request simulation)
         flag = None
         if request.method == 'POST':
-            flag = "FLAG{cookie_manipulation_is_sweet}"
+            flag = get_random_flag('lab2_3')
             users = [] # Clear users to simulate deletion
             
         return render_template('lab2/sub3_admin.html', users=users, flag=flag)
@@ -685,10 +799,28 @@ def lab2_3_admin():
 def lab2_4():
     # Main store page for Lab 2.4
     db = get_db()
-    products = db.execute('SELECT * FROM products').fetchall()
+    products = db.execute('''
+        SELECT p.*, u.username, u.guid as uploader_guid 
+        FROM products p
+        LEFT JOIN users u ON p.uploaded_by = u.id
+    ''').fetchall()
+    
+    admin_user = db.execute('SELECT guid FROM users WHERE role = "admin"').fetchone()
+    admin_guid = admin_user['guid'] if admin_user else ''
     
     # No session/cookies - purely URL-based
-    return render_template('lab2/sub4.html', products=products, username=None, user_id=None)
+    return render_template('lab2/sub4.html', products=products, username=None, user_id=None, admin_guid=admin_guid)
+
+@app.route('/lab2/4/admin-collection')
+def lab2_4_admin_collection():
+    db = get_db()
+    products = db.execute('''
+        SELECT p.*, u.username, u.guid as uploader_guid 
+        FROM products p
+        LEFT JOIN users u ON p.uploaded_by = u.id
+        WHERE u.role = 'admin'
+    ''').fetchall()
+    return render_template('lab2/sub4_admin_collection.html', products=products)
 
 @app.route('/lab2/4/login', methods=['GET', 'POST'])
 def lab2_4_login():
@@ -703,9 +835,9 @@ def lab2_4_login():
         user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
         
         if user:
-            # NO SESSION/COOKIES - Just redirect with username in URL
+            # NO SESSION/COOKIES - Just redirect with guid in URL
             # This makes the IDOR vulnerability more obvious
-            return redirect(url_for('lab2_4_myaccount', id=user['username']))
+            return redirect(url_for('lab2_4_myaccount', id=user['guid']))
         else:
             return redirect(url_for('lab2_4', login_error="Invalid Credentials"))
 
@@ -716,10 +848,13 @@ def lab2_4_myaccount():
     
     if not account_username:
         return redirect(url_for('lab2_4'))
+        
+    if not account_username.isalnum():
+        return "Invalid GUID: Must be alphanumerical", 400
     
-    # Fetch user data based on USERNAME from URL parameter (IDOR vulnerability)
+    # Fetch user data based on GUID from URL parameter (IDOR vulnerability)
     db = get_db()
-    account_user = db.execute('SELECT * FROM users WHERE username = ?', (account_username,)).fetchone()
+    account_user = db.execute('SELECT * FROM users WHERE guid = ?', (account_username,)).fetchone()
     
     if not account_user:
         return "User not found", 404
@@ -728,13 +863,26 @@ def lab2_4_myaccount():
     if account_user['role'] == 'admin':
         # Show admin panel with flag immediately
         users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+        products = db.execute('''
+            SELECT p.*, u.username, u.guid as uploader_guid 
+            FROM products p
+            LEFT JOIN users u ON p.uploaded_by = u.id
+            WHERE p.uploaded_by = ?
+        ''', (account_user['id'],)).fetchall()
         return render_template('lab2/sub4_admin.html', 
                              account=account_user, 
-                             flag="FLAG{parameter_tampering_idor_master}",
-                             users=users)
+                             flag=get_random_flag('lab2_4'),
+                             users=users,
+                             products=products)
     
-    # Regular user account page
-    products = db.execute('SELECT * FROM products').fetchall()
+    # Regular user account page - Show only products uploaded by this user
+    # VULNERABILITY: Still shows all products if accessed by different user via URL tampering
+    products = db.execute('''
+        SELECT p.*, u.username, u.guid as uploader_guid 
+        FROM products p
+        LEFT JOIN users u ON p.uploaded_by = u.id
+        WHERE p.uploaded_by = ?
+    ''', (account_user['id'],)).fetchall()
     return render_template('lab2/sub4_account.html', 
                          account=account_user, 
                          products=products)
@@ -744,11 +892,26 @@ def lab2_4_logout():
     # No session to clear - just redirect
     return redirect(url_for('lab2_4'))
 
+@app.route('/lab2/4/product/<int:product_id>')
+def lab2_4_product(product_id):
+    db = get_db()
+    product = db.execute('''
+        SELECT p.*, u.username, u.guid as uploader_guid 
+        FROM products p
+        LEFT JOIN users u ON p.uploaded_by = u.id
+        WHERE p.id = ?
+    ''', (product_id,)).fetchone()
+    
+    if not product:
+        return "Product not found", 404
+        
+    return render_template('lab2/sub4_product.html', product=product)
+
 # LAB 2.4 Variation B: JewelryStore (Parameter Tampering)
 @app.route('/lab2/4b')
 def lab2_4b():
     db = get_db()
-    products = db.execute('SELECT * FROM products WHERE description LIKE "%necklace%" OR description LIKE "%watch%" OR id > 10 LIMIT 6').fetchall()
+    products = db.execute('SELECT p.*, u.username, u.guid as uploader_guid FROM products p LEFT JOIN users u ON p.uploaded_by = u.id WHERE p.description LIKE "%necklace%" OR p.description LIKE "%watch%" OR p.id > 10 LIMIT 20').fetchall()
     return render_template('lab2/sub4_b.html', products=products)
 
 @app.route('/lab2/4b/login', methods=['POST'])
@@ -759,26 +922,39 @@ def lab2_4b_login():
     user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
     if user:
         # VULNERABILITY: IDOR via 'user' parameter
-        return redirect(url_for('lab2_4b_account', user=user['username']))
+        return redirect(url_for('lab2_4b_account', user=user['guid']))
     return redirect(url_for('lab2_4b', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4b/account')
 def lab2_4b_account():
     username_param = request.args.get('user')
     if not username_param: return redirect(url_for('lab2_4b'))
+    if not username_param.isalnum(): return "Invalid GUID: Must be alphanumerical", 400
     db = get_db()
-    user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+    user = db.execute('SELECT * FROM users WHERE guid = ?', (username_param,)).fetchone()
     if not user: return "User not found", 404
     
     if user['role'] == 'admin':
-        return render_template('lab2/sub4_b_admin.html', account=user, flag="FLAG{jewelry_tampering_gold}")
+        return render_template('lab2/sub4_b_admin.html', account=user, flag=get_random_flag('lab2_4'))
     return render_template('lab2/sub4_b_account.html', account=user)
+
+@app.route('/lab2/4b/product/<int:product_id>')
+def lab2_4b_product(product_id):
+    db = get_db()
+    product = db.execute('''
+        SELECT p.*, u.username, u.guid as uploader_guid 
+        FROM products p
+        LEFT JOIN users u ON p.uploaded_by = u.id
+        WHERE p.id = ?
+    ''', (product_id,)).fetchone()
+    if not product: return "Product not found", 404
+    return render_template('lab2/sub4_b_product.html', product=product)
 
 # LAB 2.4 Variation C: ElectroMart (Parameter Tampering)
 @app.route('/lab2/4c')
 def lab2_4c():
     db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    products = db.execute('SELECT p.*, u.username, u.guid as uploader_guid FROM products p LEFT JOIN users u ON p.uploaded_by = u.id LIMIT 20').fetchall()
     return render_template('lab2/sub4_c.html', products=products)
 
 @app.route('/lab2/4c/login', methods=['POST'])
@@ -789,20 +965,33 @@ def lab2_4c_login():
     user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
     if user:
         # VULNERABILITY: IDOR via 'username' parameter
-        return redirect(url_for('lab2_4c_account', username=user['username']))
+        return redirect(url_for('lab2_4c_account', username=user['guid']))
     return redirect(url_for('lab2_4c', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4c/account')
 def lab2_4c_account():
     username_param = request.args.get('username')
     if not username_param: return redirect(url_for('lab2_4c'))
+    if not username_param.isalnum(): return "Invalid GUID: Must be alphanumerical", 400
     db = get_db()
-    user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+    user = db.execute('SELECT * FROM users WHERE guid = ?', (username_param,)).fetchone()
     if not user: return "User not found", 404
     
     if user['role'] == 'admin':
-        return render_template('lab2/sub4_c_admin.html', account=user, flag="FLAG{electro_tampering_volt}")
+        return render_template('lab2/sub4_c_admin.html', account=user, flag=get_random_flag('lab2_4'))
     return render_template('lab2/sub4_c_account.html', account=user)
+
+@app.route('/lab2/4c/product/<int:product_id>')
+def lab2_4c_product(product_id):
+    db = get_db()
+    product = db.execute('''
+        SELECT p.*, u.username, u.guid as uploader_guid 
+        FROM products p
+        LEFT JOIN users u ON p.uploaded_by = u.id
+        WHERE p.id = ?
+    ''', (product_id,)).fetchone()
+    if not product: return "Product not found", 404
+    return render_template('lab2/sub4_c_product.html', product=product)
 
 
 # LAB 2.5: Password Disclosure via IDOR
@@ -827,6 +1016,9 @@ def lab2_5_login():
         user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
         
         if user:
+            # If the user is admin, explicitly render the profile with the flag
+            if user['role'] == 'admin':
+                return render_template('lab2/sub5_profile.html', user=user, flag=get_random_flag('lab2_5'))
             # VULNERABILITY: Redirect to profile with username parameter
             # The profile page will expose the password in HTML
             return redirect(url_for('lab2_5_profile', username=user['username']))
@@ -841,36 +1033,16 @@ def lab2_5_profile():
     if not username_param:
         return redirect(url_for('lab2_5'))
 
-    # Generate a random password for the admin if accessed
-    # In a real app, this would be in the DB, but for the lab we simulate it
-    # to ensure it's different every time and requires checking the vulnerability
-    if username_param == 'admin':
-        # Generate random password
-        chars = string.ascii_letters + string.digits + "!@#$%"
-        random_password = ''.join(random.choice(chars) for _ in range(12))
-        
-        # Create a mock user object with the random password
-        user = {
-            'username': 'admin',
-            'password': random_password, # The secret!
-            'email': 'admin@shophub.com',
-            'role': 'admin',
-            'full_name': 'System Administrator'
-        }
-        flag = f"FLAG{{shophub_admin_password_{random_password}}}"
-    else:
-        # Fetch regular user data/mock data
-        db = get_db()
-        user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
-        flag = None
-        
-        if not user:
-             return "User not found", 404
+    # Fetch user data based on parameter
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+    
+    if not user:
+         return "User not found", 404
 
     # VULNERABILITY: Password is exposed in the template (hidden in HTML comment or hidden input)
-    return render_template('lab2/sub5_profile.html', 
-                         user=user, 
-                         flag=flag)
+    # The flag is NOT returned here. The attacker must use the exposed password to log in.
+    return render_template('lab2/sub5_profile.html', user=user, flag=None)
 
 @app.route('/lab2/5/logout')
 def lab2_5_logout():
@@ -889,6 +1061,16 @@ def lab2_5b_login():
     # Use mock check for variation
     if username == "guest" and password == "guest123":
         return redirect(url_for('lab2_5b_profile', username=username))
+    elif username == "root":
+        # Simulate successful root login dynamically returning the flag
+        return render_template('lab2/sub5_b_profile.html', 
+                               user={
+                                   'username': 'root',
+                                   'full_name': 'Cloud Infrastructure Root',
+                                   'email': 'infrastructure@cloudmart.io',
+                                   'role': 'super_admin'
+                               }, 
+                               flag=get_random_flag('lab2_5'))
     return redirect(url_for('lab2_5b', login_error="Invalid Credentials"))
 
 @app.route('/lab2/5b/profile')
@@ -914,7 +1096,16 @@ def lab2_5b_profile():
             'role': 'super_admin',
             'full_name': 'Cloud Infrastructure Root'
         }
-        flag = f"FLAG{{cloudmart_root_access_{random_password}}}"
+        flag = None
+    elif username_param == 'guest':
+        user = {
+            'username': 'guest',
+            'password': 'guest123',
+            'email': 'guest@cloudmart.io',
+            'role': 'user',
+            'full_name': 'Guest User'
+        }
+        flag = None
     else:
         db = get_db()
         user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
@@ -937,6 +1128,16 @@ def lab2_5c_login():
     # Use mock check for variation
     if username == "viewer" and password == "view123":
         return redirect(url_for('lab2_5c_profile', username=username))
+    elif username == "owner":
+        # Simulate successful root login dynamically returning the flag
+        return render_template('lab2/sub5_c_profile.html', 
+                               user={
+                                   'username': 'owner',
+                                   'full_name': 'DataVault System Owner',
+                                   'email': 'security@datavault_internal.net',
+                                   'role': 'system_owner'
+                               }, 
+                               flag=get_random_flag('lab2_5'))
     return redirect(url_for('lab2_5c', login_error="Invalid Credentials"))
 
 @app.route('/lab2/5c/profile')
@@ -959,7 +1160,16 @@ def lab2_5c_profile():
             'role': 'system_owner',
             'full_name': 'DataVault System Owner'
         }
-        flag = f"FLAG{{datavault_owner_override_{random_password}}}"
+        flag = None
+    elif username_param == 'viewer':
+        user = {
+            'username': 'viewer',
+            'password': 'view123',
+            'email': 'viewer@datavault.net',
+            'role': 'viewer',
+            'full_name': 'Read-Only Viewer'
+        }
+        flag = None
     else:
         db = get_db()
         user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
@@ -1076,7 +1286,7 @@ def lab3_1_delete_user():
                          users=[], 
                          admin_username=admin_user,
                          variant='1',
-                         flag="FLAG{brute_force_authentication_master}")
+                         flag=get_random_flag('lab3_1'))
 
 # LAB 3.1.2: Brute Force Attack - Luxury Variant
 @app.route('/lab3/1/2')
@@ -1154,7 +1364,7 @@ def lab3_1_2_delete_user():
                          users=[], 
                          admin_username=admin_user,
                          variant='2',
-                         flag="FLAG{brute_force_premium_variant}")
+                         flag=get_random_flag('lab3_1'))
 
 @app.route('/lab3/1/2/logout')
 def lab3_1_2_logout():
@@ -1238,7 +1448,7 @@ def lab3_1_3_delete_user():
                          users=[], 
                          admin_username=admin_user,
                          variant='3',
-                         flag="FLAG{brute_force_corporate_variant}")
+                         flag=get_random_flag('lab3_1'))
 
 @app.route('/lab3/1/3/logout')
 def lab3_1_3_logout():
@@ -1340,7 +1550,7 @@ def lab3_2_account():
     
     if username == 'carlos' and not verified:
         # 2FA was bypassed!
-        flag = "FLAG{two_factor_authentication_bypass_master}"
+        flag = get_random_flag('lab3_2')
     
     return render_template('lab3/sub2_account.html', 
                          username=username,
@@ -1415,7 +1625,7 @@ def lab3_2b_account():
     flag = None
     
     if username == 'bob' and not verified:
-        flag = "FLAG{two_factor_authentication_bypass_banksecure}"
+        flag = get_random_flag('lab3_2')
     
     return render_template('lab3/sub2b_account.html', 
                          username=username,
@@ -1490,7 +1700,7 @@ def lab3_2c_account():
     flag = None
     
     if username == 'admin' and not verified:
-        flag = "FLAG{two_factor_authentication_bypass_clouddrive}"
+        flag = get_random_flag('lab3_2')
     
     return render_template('lab3/sub2c_account.html', 
                          username=username,
@@ -1661,7 +1871,8 @@ def admin_delete_user():
         
     username = request.args.get('username')
     if username == "carlos":
-        return f"<h1>Success</h1><p>User {username} deleted successfully!</p><p>FLAG{{ssrf_local_admin_pwned}}</p>"
+        flag = get_random_flag('lab4')
+        return f"<h1>Success</h1><p>User {username} deleted successfully!</p><p>{flag}</p>"
     return f"User {username} not found."
 
 
@@ -1820,7 +2031,7 @@ def lab5_1_file(filename):
             # Payload: <?php echo file_get_contents('/home/carlos/secret'); ?>
             if "file_get_contents('/home/carlos/secret')" in content:
                 # Return the secret!
-                return "FLAG{file_upload_code_execution_php}"
+                return get_random_flag('lab5_1')
             
             # Simulated generic echo
             if "echo" in content:
@@ -2397,7 +2608,7 @@ def lab8_1():
         # VULNERABILITY: Reflecting username without sanitization
         # Check for XSS payload in username
         if username and ('<script>' in username.lower() or '%3cscript%3e' in username.lower()):
-            flag = "FLAG{reflected_xss_login_successful}"
+            flag = get_random_flag('lab8_1')
             
     return render_template('lab8/sub1.html', username=username, flag=flag, show_login=show_login)
 
@@ -2456,7 +2667,7 @@ def lab8_2_dashboard():
     for key in ['full_name', 'address', 'email', 'bio']:
         val = user_data.get(key, '')
         if val and ('<script>' in val.lower() or '%3cscript%3e' in val.lower()):
-            flag = "FLAG{stored_xss_profile_pwned}"
+            flag = get_random_flag('lab8_2')
             break
             
     return render_template('lab8/sub2_dashboard.html', user=user_data, flag=flag)
@@ -2559,6 +2770,7 @@ def lab7_1():
     # Normal query: SELECT * FROM lab7_products WHERE category = 'Gifts' AND released = 1
     # Exploit: category='+OR+1=1-- will bypass the released check
     
+    flag = None
     if category:
         # VULNERABLE CODE - Direct string concatenation
         query = f"SELECT * FROM lab7_products WHERE category = '{category}' AND released = 1"
@@ -2568,12 +2780,16 @@ def lab7_1():
     try:
         cursor.execute(query)
         products = cursor.fetchall()
+        
+        # Award flag if UNION injection is detected (more results than expected or SQL injection keywords)
+        if category and ('UNION' in category.upper() or 'OR' in category.upper()):
+            flag = get_random_flag('lab7')
     except Exception as e:
         # If SQL error occurs, show it (helpful for learning)
         products = []
         print(f"SQL Error: {e}")
     
-    return render_template('lab7/sub1_home.html', products=products, category=category)
+    return render_template('lab7/sub1_home.html', products=products, category=category, flag=flag)
 
 @app.route('/lab7/1/menu')
 def lab7_1_menu():
@@ -2614,7 +2830,7 @@ def lab7_1_b():
             if user:
                 # Login successful
                 if user[3] == 'administrator':
-                    return render_template('lab7/sub1_b_home.html', success=True, flag="FLAG{login_bypass_admin}", query=query)
+                    return render_template('lab7/sub1_b_home.html', success=True, flag=get_random_flag('lab7'), query=query)
                 else:
                     return render_template('lab7/sub1_b_home.html', success=True, flag="Logged in as regular staff.", query=query)
             else:
@@ -2653,9 +2869,60 @@ def lab7_1_c():
     cursor.execute('SELECT COUNT(*) FROM lab7_pets')
     if cursor.fetchone()[0] == 0:
         pets_data = [
+            # Dogs
             ('Buddy', 'Golden Retriever', 800.00, 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Max', 'German Shepherd', 750.00, 'https://images.unsplash.com/photo-1568393691622-2d9f6b4f6a3e?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Charlie', 'Labrador Retriever', 850.00, 'https://images.unsplash.com/photo-1633722715463-d30628cad4d1?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Rocky', 'Bulldog', 950.00, 'https://images.unsplash.com/photo-1583337137474-e92b38b1a08a?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Daisy', 'Poodle', 600.00, 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Cooper', 'Beagle', 500.00, 'https://images.unsplash.com/photo-1611003228941-98852ba62227?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Bella', 'Husky', 700.00, 'https://images.unsplash.com/photo-1605537345935-d5a2c273266e?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            ('Sadie', 'Cocker Spaniel', 650.00, 'https://images.unsplash.com/photo-1600298881974-6be191ceeda1?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
+            
+            # Cats
             ('Luna', 'Siamese Cat', 400.00, 'https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Whiskers', 'Persian Cat', 450.00, 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Mittens', 'Tabby Cat', 250.00, 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Shadow', 'Black Cat', 300.00, 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Snowball', 'White Cat', 350.00, 'https://images.unsplash.com/photo-1553882900-f2b06423b1a7?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Tiger', 'Bengal Cat', 550.00, 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Smokey', 'Russian Blue', 400.00, 'https://images.unsplash.com/photo-1606214174585-fe31582dc1d7?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            ('Ginger', 'Orange Tabby', 280.00, 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
+            
+            # Fish
             ('Nemo', 'Clownfish', 25.00, 'https://images.unsplash.com/photo-1524704796725-9fc3044a58b2?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            ('Bubbles', 'Goldfish', 15.00, 'https://images.unsplash.com/photo-1535266842546-a05a90ad7789?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            ('Dory', 'Blue Tang', 30.00, 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            ('Finn', 'Betta Fish', 20.00, 'https://images.unsplash.com/photo-1536882240095-0379873feb4e?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            ('Coral', 'Coral Reef', 40.00, 'https://images.unsplash.com/photo-1583212192454-1fe6229603b7?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            ('Scales', 'Angelfish', 28.00, 'https://images.unsplash.com/photo-1535946613881-e72cf28c9d1b?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            ('Flash', 'Tetra Fish', 12.00, 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            ('Spots', 'Spotted Fish', 22.00, 'https://images.unsplash.com/photo-1575614032303-e970f716972a?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
+            
+            # Birds
+            ('Polly', 'African Grey Parrot', 500.00, 'https://images.unsplash.com/photo-1444464666175-1642bebf3031?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
+            ('Tweety', 'Canary', 80.00, 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
+            ('Squawk', 'Macaw', 600.00, 'https://images.unsplash.com/photo-1535081749551-fdc5a1d5b9d1?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
+            ('Chirp', 'Cockatiel', 200.00, 'https://images.unsplash.com/photo-1544923408-75c5dbd02676?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
+            ('Sky', 'Blue Jay', 150.00, 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
+            ('Rainbow', 'Lovebird', 120.00, 'https://images.unsplash.com/photo-1512453575869-c55f5f6f0c1a?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
+            ('Feather', 'Finch', 50.00, 'https://images.unsplash.com/photo-1456717174519-93ff41c351c7?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
+            
+            # Reptiles
+            ('Scaly', 'Bearded Dragon', 350.00, 'https://images.unsplash.com/photo-1550258987-920a2eae7d1f?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
+            ('Hissy', 'Ball Python', 300.00, 'https://images.unsplash.com/photo-1597163625128-7a0ee3dbe463?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
+            ('Ziggy', 'Leopard Gecko', 200.00, 'https://images.unsplash.com/photo-1600298881974-6be191ceeda1?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
+            ('Iggy', 'Green Iguana', 400.00, 'https://images.unsplash.com/photo-1623284026819-34a44a9a2ccc?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
+            ('Silky', 'Corn Snake', 250.00, 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
+            ('Tex', 'Tortoise', 450.00, 'https://images.unsplash.com/photo-1551883287-ecba61f90b4b?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
+            
+            # Rabbits
+            ('Floppy', 'Holland Lop', 150.00, 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
+            ('Hoppy', 'Dwarf Rabbit', 120.00, 'https://images.unsplash.com/photo-1585288981271-ddfe805f9b39?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
+            ('Nibbles', 'Lop-Eared', 140.00, 'https://images.unsplash.com/photo-1585288979521-e82c40f00f9f?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
+            ('Cotton', 'Angora Rabbit', 200.00, 'https://images.unsplash.com/photo-1585288981035-87b9316b6a36?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
+            ('Pepper', 'Black Rabbit', 130.00, 'https://images.unsplash.com/photo-1585288981037-f14c3fac413c?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
+            ('Snowpuff', 'White Fluffy Rabbit', 160.00, 'https://images.unsplash.com/photo-1585288981038-8f1f5e4e4f4a?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
         ]
         
         cursor.executemany('''
@@ -2663,20 +2930,25 @@ def lab7_1_c():
             VALUES (?, ?, ?, ?, ?, ?)
         ''', pets_data)
         
-        cursor.execute("INSERT INTO lab7_admin_creds (username, password) VALUES ('administrator', 'FLAG{union_based_sql_injection_master}')")
+        cursor.execute("INSERT INTO lab7_admin_creds (username, password) VALUES ('administrator', '" + get_random_flag('lab7') + "')")
         db.commit()
     
     # VULNERABLE TO UNION ATTACK
     query = f"SELECT name, breed, price, image_url FROM lab7_pets WHERE type = '{category}' AND available = 1"
     
+    flag = None
     try:
         cursor.execute(query)
         pets = cursor.fetchall()
+        
+        # Award flag if UNION-based SQL injection is detected
+        if category and 'UNION' in category.upper():
+            flag = get_random_flag('lab7')
     except Exception as e:
         pets = []
         print(f"SQL Error: {e}")
     
-    return render_template('lab7/sub1_c_home.html', products=pets, category=category)
+    return render_template('lab7/sub1_c_home.html', products=pets, category=category, flag=flag)
 
 @app.route('/lab7/1/d')
 def lab7_1_d():
@@ -2701,7 +2973,7 @@ def lab7_1_d():
             ('John Doe', 'Sales', 'john.doe@corp.local', 1),
             ('Jane Smith', 'Marketing', 'jane.smith@corp.local', 1),
             ('Bob Sec', 'IT Support', 'bob@corp.local', 1),
-            ('Gabe Admin', 'CEO', 'gabe.awp@corp.local - FLAG{integer_sqli_expert}', 0)
+            ('Gabe Admin', 'CEO', 'gabe.awp@corp.local - ' + get_random_flag('lab7'), 0)
         ]
         
         cursor.executemany('''
@@ -2713,14 +2985,107 @@ def lab7_1_d():
     # VULNERABLE INTEGER BASED (no quotes)
     query = f"SELECT * FROM lab7_employees WHERE id = {emp_id} AND is_public = 1"
     
+    flag = None
     try:
         cursor.execute(query)
         employees = cursor.fetchall()
+        
+        # Award flag if integer-based SQL injection is detected (OR, UNION, comments)
+        if emp_id and ('OR' in emp_id.upper() or 'UNION' in emp_id.upper() or '--' in emp_id or '/*' in emp_id):
+            flag = get_random_flag('lab7')
     except Exception as e:
         employees = []
         print(f"SQL Error: {e}")
     
-    return render_template('lab7/sub1_d_home.html', employees=employees, emp_id=emp_id)
+    return render_template('lab7/sub1_d_home.html', employees=employees, emp_id=emp_id, flag=flag)
+
+# ========================
+# LAB 7.2: Office Login System
+# ========================
+
+@app.route('/lab7/2')
+def lab7_2():
+    return render_template('lab7/sub2_index.html')
+
+@app.route('/lab7/2/login', methods=['GET', 'POST'])
+def lab7_2_login():
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Create office users table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lab7_office_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee_id TEXT NOT NULL,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
+            department TEXT,
+            role TEXT,
+            email TEXT
+        )
+    ''')
+    
+    cursor.execute('SELECT COUNT(*) FROM lab7_office_users')
+    if cursor.fetchone()[0] == 0:
+        office_users = [
+            ('E001', 'john.smith', 'secure_pass_2024!', 'Sales', 'staff', 'john.smith@office.local'),
+            ('E002', 'sarah.jones', 'welcome123', 'Marketing', 'staff', 'sarah.jones@office.local'),
+            ('E003', 'admin_office', 'SuperSecure#Pass456', 'IT', 'administrator', 'admin@office.local'),
+            ('E004', 'director', 'DirectorPass789', 'Executive', 'director', 'director@office.local'),
+        ]
+        
+        cursor.executemany('''
+            INSERT INTO lab7_office_users (employee_id, username, password, department, role, email)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', office_users)
+        db.commit()
+
+    error = None
+    success = False
+    flag = None
+    query = None
+    user_info = None
+
+    if request.method == 'POST':
+        username = request.form.get('username', '')
+        password = request.form.get('password', '')
+        
+        # VULNERABLE QUERY - SQL Injection in authentication
+        # Example bypass: username = "admin_office' --" password can be anything
+        query = f"SELECT * FROM lab7_office_users WHERE username = '{username}' AND password = '{password}'"
+        
+        try:
+            cursor.execute(query)
+            user = cursor.fetchone()
+            
+            if user:
+                success = True
+                user_info = {
+                    'employee_id': user[1],
+                    'username': user[2],
+                    'department': user[4],
+                    'role': user[5],
+                    'email': user[6]
+                }
+                
+                # Award flag if SQL injection keywords detected
+                if "'" in username or '--' in username or '/*' in username or 'OR' in username.upper():
+                    flag = get_random_flag('lab7')
+                elif "'" in password or '--' in password or '/*' in password or 'OR' in password.upper():
+                    flag = get_random_flag('lab7')
+            else:
+                error = "Invalid username or password"
+                
+        except Exception as e:
+            error = f"Database Error: {str(e)}"
+    
+    return render_template('lab7/sub2_login.html', 
+                          error=error, 
+                          success=success, 
+                          flag=flag,
+                          query=query,
+                          user_info=user_info)
+
 # LAB 6.1: OS Command Injection via Stock Check
 @app.route('/lab6/1/menu')
 def lab6_1_menu():

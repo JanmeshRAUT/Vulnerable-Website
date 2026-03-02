@@ -52,6 +52,13 @@
     cursor: pointer;
 }
 
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
 .product-card-luxe {
     background: #0f172a;
     border: 1px solid #334155;

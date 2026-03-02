@@ -48,11 +48,13 @@
 
             <div class="card-grid">
                 {% for product in products %}
-                <div class="card product-card-electro">
+                <div class="card product-card-electro" style="cursor: pointer;" onclick="window.location='{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}'">
                     <div class="product-image-electro">
                         ⚡
                     </div>
-                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">{{ product.name }}</h4>
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">
+                        <a href="{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                    </h4>
                     <p style="color: #64748b; font-size: 0.8rem; margin-bottom: 1rem;">{{ product.description }}</p>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
                         <span class="electro-price">${{ product.price }}</span>

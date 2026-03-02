@@ -1,32 +1,58 @@
 {% extends 'base.html' %}
-{% block title %}PetShop - Exotic Animals{% endblock %}
+{% block title %}PetShop - Premium Pet Adoption{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
 <style>
-    .gift-nav { border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
-    .gift-brand { color: #f97316 !important; }
-    .gift-hero { background: linear-gradient(135deg, rgba(154, 52, 18, 0.4), rgba(234, 88, 12, 0.2)); border-color: rgba(249, 115, 22, 0.2); }
-    .gift-filter-btn.active { background: #f97316; border-color: #f97316; }
-    .gift-filter-btn:hover { border-color: #f97316; color: #f97316; }
-    .gift-product-card { border-color: rgba(249, 115, 22, 0.1); }
-    .gift-product-card:hover { border-color: rgba(249, 115, 22, 0.3); box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1); }
-    .gift-price { color: #fb923c; }
-    .gift-btn-cart { background: #f97316; }
-    .gift-btn-cart:hover { background: #ea580c; }
-    .search-box { display: flex; max-width: 600px; margin: 0 auto 2rem; }
-    .search-input { flex: 1; padding: 1rem; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; border-radius: 8px 0 0 8px; }
-    .search-input:focus { outline: none; border-color: #f97316; }
-    .search-btn { padding: 1rem 2rem; background: #f97316; border: none; color: white; border-radius: 0 8px 8px 0; cursor: pointer; font-weight: bold; }
+    .pet-nav { border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
+    .pet-brand { color: #f97316 !important; }
+    .pet-hero { background: linear-gradient(135deg, rgba(154, 52, 18, 0.4), rgba(234, 88, 12, 0.2)); border-color: rgba(249, 115, 22, 0.2); padding: 3rem 0; position: relative; }
+    .pet-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .pet-hero-desc { color: #cbd5e1; font-size: 1.1rem; max-width: 700px; }
+    .challenge-box { background: rgba(249, 115, 22, 0.05); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 6px; padding: 1.5rem; margin-bottom: 2rem; color: #cbd5e1; }
+    .challenge-box strong { color: #fb923c; }
+    .search-section { background: rgba(30, 41, 59, 0.5); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; border: 1px solid rgba(249, 115, 22, 0.1); }
+    .search-box { display: flex; max-width: 800px; margin: 0 auto; gap: 1rem; }
+    .search-input { flex: 1; padding: 1rem; border: 1px solid rgba(249, 115, 22, 0.3); background: rgba(15, 23, 42, 0.8); color: white; border-radius: 6px; transition: all 0.2s; }
+    .search-input:focus { outline: none; border-color: #f97316; background: rgba(15, 23, 42, 0.9); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
+    .search-btn { padding: 1rem 2rem; background: #f97316; border: 2px solid #f97316; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+    .search-btn:hover { background: #ea580c; border-color: #ea580c; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4); }
+    .search-btn:focus { outline: 2px solid #fb923c; outline-offset: 2px; }
+    .pet-filter-section { margin-bottom: 2rem; }
+    .pet-filter-title { color: #e2e8f0; font-weight: 600; margin-bottom: 1rem; }
+    .pet-filter-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .pet-filter-btn { padding: 0.5rem 1.25rem; border: 2px solid rgba(249, 115, 22, 0.3); background: transparent; color: #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+    .pet-filter-btn:hover { border-color: #f97316; color: #f97316; }
+    .pet-filter-btn.active { background: #f97316; border-color: #f97316; color: white; }
+    .gift-products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .gift-product-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(249, 115, 22, 0.1); border-radius: 10px; overflow: hidden; transition: all 0.3s ease; }
+    .gift-product-card:hover { transform: translateY(-5px); border-color: rgba(249, 115, 22, 0.3); box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.15); }
+    .gift-product-img-wrapper { width: 100%; height: 250px; overflow: hidden; }
+    .gift-product-img { width: 100%; height: 100%; object-fit: cover; }
+    .gift-product-body { padding: 1.5rem; }
+    .gift-product-title { margin: 0 0 0.5rem 0; color: #e2e8f0; font-size: 1.1rem; font-weight: 600; }
+    .gift-product-desc { margin: 0.25rem 0; color: #94a3b8; font-size: 0.9rem; }
+    .gift-product-badge { display: inline-block; background: rgba(249, 115, 22, 0.2); color: #fb923c; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; margin-bottom: 0.75rem; }
+    .gift-product-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+    .gift-price { font-size: 1.25rem; font-weight: 700; color: #fb923c; }
+    .gift-btn-cart { background: #f97316; color: white; border: 2px solid #f97316; padding: 0.625rem 1.25rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    .gift-btn-cart:hover { background: #ea580c; border-color: #ea580c; }
+    .gift-empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
+    .gift-empty-state p { font-size: 1.1rem; margin: 0; }
+    .btn-tech-outline { display: inline-block; padding: 0.625rem 1.25rem; background: transparent; color: #f97316; border: 2px solid #f97316; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
+    .btn-tech-outline:hover { background: rgba(249, 115, 22, 0.1); color: #fb923c; border-color: #fb923c; }
+    .btn-tech-outline:focus { outline: 2px solid #f97316; outline-offset: 2px; }
+    .featured-section { background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05)); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; }
+    .featured-title { color: #fb923c; font-weight: 600; margin-bottom: 1rem; }
 </style>
 {% endblock %}
 
 {% block layout_container %}
 <div class="gift-main-content">
-<nav class="gift-nav glass">
+<nav class="pet-nav glass">
     <div class="container animate-fade-in lab5-container-fluid gift-nav-content">
-        <a href="{{ url_for('lab7_1_c') }}" class="gift-brand">
+        <a href="{{ url_for('lab7_1_c') }}" class="pet-brand">
             <span style="font-size: 1.75rem;">🐾</span>
             <span>PetShop</span>
         </a>
@@ -36,46 +62,116 @@
     </div>
 </nav>
 
-<header class="gift-hero animate-fade-in">
-    <div class="gift-hero-content">
-        <span class="gift-hero-subtitle">Your New Best Friend Awaits</span>
-        <h1>Lovable.<br>Adorable.</h1>
-        <p>Use our advanced search to find pets by type.</p>
+<div style="padding: 1rem; font-size: 0.9rem;">
+    <div class="container">
+        <a href="{{ url_for('lab7') }}" style="color: #64748b; text-decoration: none;">Lab 7</a>
+        <span style="color: #475569;"> / </span>
+        <a href="{{ url_for('lab7_1_menu') }}" style="color: #64748b; text-decoration: none;">SQL Injection Challenges</a>
+        <span style="color: #475569;"> / PetShop</span>
+    </div>
+</div>
+
+<header class="pet-hero animate-fade-in">
+    <div class="container" style="padding: 1rem;">
+        <h1>🐾 Premium Pet Adoption</h1>
+        <p class="pet-hero-desc">
+            Welcome to our premium pet adoption service. Browse our extensive catalog of available pets and find your perfect companion. 
+            All animals are health-checked and ready for their new homes.
+        </p>
     </div>
 </header>
 
 <main class="container animate-fade-in lab5-container-max">
-    <form class="search-box" action="{{ url_for('lab7_1_c') }}" method="GET">
-        <input type="text" name="category" class="search-input" value="{{ category }}" placeholder="Search by pet type (e.g., Dogs, Cats...)">
-        <button type="submit" class="search-btn">🔍 Search</button>
-    </form>
+    <!-- Challenge Context -->
+    <div class="challenge-box">
+        <strong>⚠️ Challenge Objective:</strong> This pet shop has a vulnerable search feature that uses SQL queries. 
+        Use SQL injection techniques to extract data from the database beyond what's normally visible. 
+        Explore table structures and find hidden information using UNION-based attacks.
+    </div>
 
-    <div class="gift-products-grid">
-        {% if products %}
-            {% for product in products %}
-            <div class="gift-product-card">
-                <div class="gift-product-img-wrapper">
-                    <img src="{{ product[3] }}" alt="{{ product[0] }}" class="gift-product-img" onerror="this.src='https://via.placeholder.com/600x400?text=No+Image';">
-                </div>
-                <div class="gift-product-body">
-                    <h3 class="gift-product-title">
-                        {{ product[0] }}
-                    </h3>
-                    <p class="gift-product-desc">Breed: {{ product[1] }}</p>
-                    <div class="gift-product-actions">
-                        <div class="gift-price">${{ product[2] }}</div>
-                        <button class="gift-btn-cart">Adopt</button>
+    <!-- Featured Section -->
+    <div class="featured-section">
+        <div class="featured-title">🌟 Featured Collections</div>
+        <p style="color: #cbd5e1; margin: 0;">
+            Browse our popular pet categories below or use advanced search to find specific pet types and characteristics.
+        </p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <form class="search-box" action="{{ url_for('lab7_1_c') }}" method="GET">
+            <input type="text" name="category" class="search-input" value="{{ category }}" placeholder="Search pets by type (Dogs, Cats, Fish...)" autocomplete="off">
+            <button type="submit" class="search-btn">🔍 Search</button>
+        </form>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="pet-filter-section">
+        <div class="pet-filter-title">Popular Types:</div>
+        <div class="pet-filter-buttons">
+            <a href="{{ url_for('lab7_1_c', category='Dogs') }}" class="pet-filter-btn {% if category == 'Dogs' %}active{% endif %}">🐕 Dogs</a>
+            <a href="{{ url_for('lab7_1_c', category='Cats') }}" class="pet-filter-btn {% if category == 'Cats' %}active{% endif %}">🐈 Cats</a>
+            <a href="{{ url_for('lab7_1_c', category='Fish') }}" class="pet-filter-btn {% if category == 'Fish' %}active{% endif %}">🐠 Fish</a>
+            <a href="{{ url_for('lab7_1_c', category='Birds') }}" class="pet-filter-btn {% if category == 'Birds' %}active{% endif %}">🦜 Birds</a>
+            <a href="{{ url_for('lab7_1_c', category='Reptiles') }}" class="pet-filter-btn {% if category == 'Reptiles' %}active{% endif %}">🦎 Reptiles</a>
+            <a href="{{ url_for('lab7_1_c', category='Rabbits') }}" class="pet-filter-btn {% if category == 'Rabbits' %}active{% endif %}">🐰 Rabbits</a>
+            <a href="{{ url_for('lab7_1_c') }}" class="pet-filter-btn">All Types</a>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div>
+        <h2 style="color: #e2e8f0; margin-bottom: 1.5rem;">
+            {% if category %}Available {{ category }}{% else %}All Available Pets{% endif %}
+        </h2>
+
+        <div class="gift-products-grid">
+            {% if products %}
+                {% for product in products %}
+                <div class="gift-product-card">
+                    <div class="gift-product-img-wrapper">
+                        <img src="{{ product[3] }}" alt="{{ product[0] }}" class="gift-product-img" onerror="this.src='https://via.placeholder.com/600x400?text=Pet+Available';">
+                    </div>
+                    <div class="gift-product-body">
+                        <span class="gift-product-badge">✓ Available</span>
+                        <h3 class="gift-product-title">{{ product[0] }}</h3>
+                        <p class="gift-product-desc"><strong>Breed:</strong> {{ product[1] }}</p>
+                        <p class="gift-product-desc"><strong>Status:</strong> Ready for Adoption</p>
+                        <div class="gift-product-actions">
+                            <div class="gift-price">${{ "%.2f"|format(product[2]) }}</div>
+                            <button class="gift-btn-cart">Adopt Now</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="gift-empty-state">
-                <p>No pets found in this type.</p>
-                <!-- Dev Hint: Hidden admin credentials are in 'lab7_admin_creds' table (username, password) -->
-            </div>
-        {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="gift-empty-state">
+                    <p>🔍 No pets found matching your search criteria.</p>
+                    <p style="font-size: 0.9rem; margin-top: 1rem; color: #64748b;">Try searching for Dogs, Cats, or Fish</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </main>
+
+{% if flag %}
+<div style="position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(16, 185, 129, 0.95)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4); z-index: 1000; max-width: 400px; border: 1px solid rgba(34, 197, 94, 0.3); animation: slideIn 0.3s ease-out;">
+    <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 0.5rem; font-weight: 600;">🎉 Challenge Completed!</p>
+    <p style="margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 1rem;">SQL Injection Successful</p>
+    <p style="margin: 0; font-family: monospace; font-size: 0.9rem; color: white; word-break: break-all; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; border-left: 3px solid rgba(255,255,255,0.3);">{{ flag }}</p>
+</div>
+<style>
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endif %}
 </div>
 {% endblock %}

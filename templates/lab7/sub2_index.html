@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Office Login System{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    .office-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(15, 23, 42, 0.8));
+        padding: 2rem;
+    }
+    
+    .office-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 12px;
+        padding: 3rem;
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .office-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .office-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+    }
+    
+    .office-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .office-description {
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 2rem;
+        line-height: 1.8;
+    }
+    
+    .office-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+    }
+    
+    .office-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+    
+    .office-features {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(59, 130, 246, 0.1);
+        text-align: left;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .feature-item {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+    }
+    
+    .feature-item strong {
+        color: #3b82f6;
+        display: block;
+        margin-bottom: 0.3rem;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="office-container">
+    <div class="office-card">
+        <div class="office-icon">🏢</div>
+        <h1 class="office-title">Office Access</h1>
+        <p class="office-subtitle">Employee Portal</p>
+        
+        <p class="office-description">
+            Welcome to the Office Management System. This secure portal allows employees to access company resources and information. 
+            Log in with your credentials to continue.
+        </p>
+        
+        <a href="{{ url_for('lab7_2_login') }}" class="office-btn">Login to Office System</a>
+        
+        <div class="office-features">
+            <div class="feature-item">
+                <strong>🔐 Secure</strong>
+                Database-backed authentication
+            </div>
+            <div class="feature-item">
+                <strong>👥 Multi-User</strong>
+                Multiple employee accounts
+            </div>
+            <div class="feature-item">
+                <strong>📊 Permissions</strong>
+                Role-based access control
+            </div>
+            <div class="feature-item">
+                <strong>📋 Info</strong>
+                Employee directory access
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

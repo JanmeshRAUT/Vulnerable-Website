@@ -47,11 +47,7 @@
             </div>
             <div class="alert-box alert-info">
                 <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem; color: #93c5fd;">Vulnerability Exploited</h3>
-                <p>You discovered the admin password by changing the <code>username</code> parameter in the URL from <code>user</code> to <code>admin</code>. The password was exposed in hidden HTML fields!</p>
-                <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
-                    <strong>Admin Username:</strong> <code>{{ user.username }}</code><br>
-                    <strong>Admin Password:</strong> <code style="color: #fca5a5;">{{ user.password }}</code>
-                </div>
+                <p>You successfully logged into the admin account! You achieved this by modifying the <code>username</code> parameter in the profile page URL and extracting the hidden admin password via IDOR.</p>
             </div>
         {% endif %}
         

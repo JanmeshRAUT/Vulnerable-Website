@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}TechMart - Admin Collection{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4.css') }}">
+    <!-- Custom Header for Lab 2.4 -->
+    <header class="lab2-4-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="{{ url_for('lab2_4') }}" style="color: #64748b; font-size: 0.875rem; text-decoration: none;">&larr; Back to Shop</a>
+            <div class="brand">Admin Collection</div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); padding-left: 1rem; margin-top: 2rem;">Admin's Exclusive Collection</h2>
+    
+    <div class="card-grid">
+        {% for product in products %}
+        <div class="card product-card-custom" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id) }}'">
+            <div class="product-image-placeholder">
+                <span>[Product Image]</span>
+            </div>
+            <div style="flex-grow: 1;">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">
+                    <a href="{{ url_for('lab2_4_product', product_id=product.id) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                </h3>
+                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.5rem;">{{ product.description }}</p>
+                <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">Uploaded by: <span style="color: var(--accent);">{{ product.username }}</span></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 1rem; border-top: 1px solid #334155;">
+                <span style="font-weight: 700; font-size: 1.25rem; color: var(--text-primary);">${{ product.price }}</span>
+                <button class="btn" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Add to Cart</button>
+            </div>
+        </div>
+        {% endfor %}
+        {% if not products %}
+        <p style="color: #94a3b8; font-size: 1rem;">No exclusive products available at this time.</p>
+        {% endif %}
+    </div>
+{% endblock %}

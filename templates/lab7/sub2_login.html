@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% block title %}Office Login{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+        padding: 2rem;
+    }
+    
+    .login-card {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        padding: 2.5rem;
+        max-width: 450px;
+        width: 100%;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .login-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .login-title {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+    }
+    
+    .login-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 6px;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(30, 41, 59, 0.9);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .login-btn {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+    
+    .error-message {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .success-message {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        color: #86efac;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .user-info {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 1.5rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .user-info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    .user-info-row:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .user-info-label {
+        font-weight: 600;
+        color: #3b82f6;
+    }
+    
+    .query-section {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1rem;
+        border-radius: 6px;
+        margin-top: 1.5rem;
+        border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+    
+    .query-label {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        margin-bottom: 0.5rem;
+    }
+    
+    .query-content {
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 0.85rem;
+        color: #3b82f6;
+        word-break: break-all;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 0.75rem;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+    
+    .back-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(59, 130, 246, 0.1);
+    }
+    
+    .back-link a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link a:hover {
+        color: #60a5fa;
+    }
+    
+    .test-accounts {
+        background: rgba(59, 130, 246, 0.05);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .test-accounts strong {
+        color: #3b82f6;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .test-accounts code {
+        display: block;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        margin: 0.25rem 0;
+        font-family: monospace;
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">🏢</div>
+            <h1 class="login-title">Office Access</h1>
+            <p class="login-subtitle">Employee Portal Login</p>
+        </div>
+        
+        {% if error %}
+        <div class="error-message">
+            <strong>❌ Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+        
+        {% if success and user_info %}
+        <div class="success-message">
+            <strong>✅ Login Successful!</strong> Welcome back.
+        </div>
+        
+        <div class="user-info">
+            <div class="user-info-row">
+                <span class="user-info-label">Employee ID:</span>
+                <span>{{ user_info.employee_id }}</span>
+            </div>
+            <div class="user-info-row">
+                <span class="user-info-label">Username:</span>
+                <span>{{ user_info.username }}</span>
+            </div>
+            <div class="user-info-row">
+                <span class="user-info-label">Department:</span>
+                <span>{{ user_info.department }}</span>
+            </div>
+            <div class="user-info-row">
+                <span class="user-info-label">Role:</span>
+                <span>{{ user_info.role }}</span>
+            </div>
+            <div class="user-info-row">
+                <span class="user-info-label">Email:</span>
+                <span>{{ user_info.email }}</span>
+            </div>
+        </div>
+        
+        {% if query %}
+        <div class="query-section">
+            <div class="query-label">🔍 Executed Query:</div>
+            <div class="query-content">{{ query }}</div>
+        </div>
+        {% endif %}
+        {% else %}
+        
+        <div class="test-accounts">
+            <strong>Test Accounts:</strong>
+            <code>Username: john.smith | Pass: secure_pass_2024!</code>
+            <br>
+            <em style="font-size: 0.8rem;">💡 Or try SQL injection!</em>
+        </div>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label" for="username">Employee Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username"
+                    class="form-input"
+                    placeholder="Enter your username"
+                    required
+                    autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password"
+                    class="form-input"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="off">
+            </div>
+            
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        
+        {% endif %}
+        
+        <div class="back-link">
+            <a href="{{ url_for('lab7_2') }}">← Back to Office</a>
+        </div>
+    </div>
+</div>
+
+{% if flag %}
+<div style="position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 400px;">
+    <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem;">🎉 Challenge Completed!</p>
+    <p style="margin: 0; font-family: monospace; font-size: 1.1rem; color: white; word-break: break-all;">{{ flag }}</p>
+</div>
+{% endif %}
+
+{% endblock %}

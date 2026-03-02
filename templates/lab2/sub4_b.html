@@ -31,12 +31,14 @@
     
     <div class="card-grid">
         {% for product in products %}
-        <div class="card product-card-luxe">
+        <div class="card product-card-luxe" style="cursor: pointer;" onclick="window.location='{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}'">
             <div class="product-image-luxe">
                 💎
             </div>
             <div style="padding: 1.5rem;">
-                <h3 class="luxe-title">{{ product.name }}</h3>
+                <h3 class="luxe-title">
+                    <a href="{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                </h3>
                 <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1.5rem;">{{ product.description }}</p>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 700; color: white;">${{ product.price }}</span>

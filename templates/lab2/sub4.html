@@ -29,7 +29,10 @@
     <div class="lab2-4-hero">
         <h1>Tech Deals 2026</h1>
         <p style="font-size: 1.25rem; opacity: 0.9; margin-bottom: 2rem;">Premium gadgets at unbeatable prices!</p>
-        <button class="btn" style="background: white; color: #059669; font-weight: bold; border: none; padding: 0.75rem 2rem; border-radius: 0.5rem;">Shop Now</button>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button class="btn" style="background: white; color: #059669; font-weight: bold; border: none; padding: 0.75rem 2rem; border-radius: 0.5rem;">Shop Now</button>
+           
+        </div>
     </div>
 
     <!-- Product Grid -->
@@ -37,13 +40,15 @@
     
     <div class="card-grid">
         {% for product in products %}
-        <div class="card product-card-custom">
+        <div class="card product-card-custom" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id) }}'">
             <div class="product-image-placeholder">
                 <span>[Product Image]</span>
             </div>
             <div style="flex-grow: 1;">
-                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">{{ product.name }}</h3>
-                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">{{ product.description }}</p>
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">
+                    <a href="{{ url_for('lab2_4_product', product_id=product.id) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                </h3>
+                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.5rem;">{{ product.description }}</p>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 1rem; border-top: 1px solid #334155;">
                 <span style="font-weight: 700; font-size: 1.25rem; color: var(--text-primary);">${{ product.price }}</span>

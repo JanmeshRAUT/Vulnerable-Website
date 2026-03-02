@@ -12,7 +12,7 @@
     }
     .mission-card {
         background: #1e293b;
-        border: 1px solid #334155;
+        border: 2px solid #334155;
         border-radius: 1rem;
         padding: 2rem;
         transition: all 0.3s ease;
@@ -23,11 +23,16 @@
     }
     .mission-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .mission-card:focus-within {
+        outline: 2px solid #64748b;
+        outline-offset: 2px;
     }
     .mission-icon {
         font-size: 3rem;
         margin-bottom: 1.5rem;
+        line-height: 1;
     }
     .mission-title {
         font-size: 1.5rem;
@@ -42,35 +47,130 @@
     }
     .btn-mission {
         width: 100%;
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         border-radius: 0.5rem;
         font-weight: 600;
         text-align: center;
         text-decoration: none;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
         display: block;
         box-sizing: border-box;
+        border: 2px solid transparent;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    .btn-mission:focus {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
     }
     
     /* Theme A: GiftShop (Purple) */
-    .theme-a:hover { border-color: #a855f7; }
-    .btn-theme-a { background: #a855f7; color: white; border: none; }
-    .btn-theme-a:hover { background: #9333ea; }
+    .theme-a {
+        border-color: #7e22ce;
+    }
+    .theme-a:hover {
+        border-color: #a855f7;
+    }
+    .btn-theme-a {
+        background: #a855f7;
+        color: white;
+        border: 2px solid #a855f7;
+    }
+    .btn-theme-a:hover {
+        background: #9333ea;
+        border-color: #9333ea;
+        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
     
     /* Theme B: Staff Portal (Blue) */
-    .theme-b:hover { border-color: #3b82f6; }
-    .btn-theme-b { background: #3b82f6; color: white; border: none; }
-    .btn-theme-b:hover { background: #2563eb; }
+    .theme-b {
+        border-color: #1e40af;
+    }
+    .theme-b:hover {
+        border-color: #3b82f6;
+    }
+    .btn-theme-b {
+        background: #3b82f6;
+        color: white;
+        border: 2px solid #3b82f6;
+    }
+    .btn-theme-b:hover {
+        background: #2563eb;
+        border-color: #2563eb;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
     
     /* Theme C: PetShop (Orange) */
-    .theme-c:hover { border-color: #f97316; }
-    .btn-theme-c { background: #f97316; color: white; border: none; }
-    .btn-theme-c:hover { background: #ea580c; }
+    .theme-c {
+        border-color: #c2410c;
+    }
+    .theme-c:hover {
+        border-color: #f97316;
+    }
+    .btn-theme-c {
+        background: #f97316;
+        color: white;
+        border: 2px solid #f97316;
+    }
+    .btn-theme-c:hover {
+        background: #ea580c;
+        border-color: #ea580c;
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+    }
 
     /* Theme D: HR Portal (Red) */
-    .theme-d:hover { border-color: #ef4444; }
-    .btn-theme-d { background: #ef4444; color: white; border: none; }
-    .btn-theme-d:hover { background: #dc2626; }
+    .theme-d {
+        border-color: #b91c1c;
+    }
+    .theme-d:hover {
+        border-color: #ef4444;
+    }
+    .btn-theme-d {
+        background: #ef4444;
+        color: white;
+        border: 2px solid #ef4444;
+    }
+    .btn-theme-d:hover {
+        background: #dc2626;
+        border-color: #dc2626;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+    
+    /* Theme E: Office Portal (Cyan) */
+    .theme-e {
+        border-color: #0369a1;
+    }
+    .theme-e:hover {
+        border-color: #06b6d4;
+    }
+    .btn-theme-e {
+        background: #06b6d4;
+        color: white;
+        border: 2px solid #06b6d4;
+    }
+    .btn-theme-e:hover {
+        background: #0891b2;
+        border-color: #0891b2;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+    
+    /* Back link styling */
+    .back-link {
+        display: inline-block;
+        color: #64748b;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        padding: 0.5rem 0;
+        border-bottom: 2px solid transparent;
+    }
+    .back-link:hover {
+        color: #94a3b8;
+        border-bottom-color: #64748b;
+    }
+    .back-link:focus {
+        outline: 2px solid #64748b;
+        outline-offset: 2px;
+    }
 </style>
 {% endblock %}
 
@@ -123,10 +223,20 @@
             </p>
             <a href="{{ url_for('lab7_1_d') }}" class="btn-mission btn-theme-d">Enter Directory &rarr;</a>
         </div>
+
+        <!-- Variation E: Office Login -->
+        <div class="mission-card theme-e">
+            <div class="mission-icon">🏢</div>
+            <h3 class="mission-title">Office Login (Auth Bypass)</h3>
+            <p class="mission-desc">
+                An office management system with employee authentication. Exploit the login form to bypass password verification using SQL injection.
+            </p>
+            <a href="{{ url_for('lab7_2') }}" class="btn-mission btn-theme-e">Access Office &rarr;</a>
+        </div>
     </div>
     
     <div style="text-align: center; margin-top: 4rem;">
-        <a href="{{ url_for('lab7') }}" style="color: #64748b; text-decoration: none;">&larr; Back to Lab 7 Overview</a>
+        <a href="{{ url_for('lab7') }}" class="back-link">&larr; Back to Lab 7 Overview</a>
     </div>
 </div>
 {% endblock %}

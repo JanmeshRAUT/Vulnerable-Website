@@ -69,6 +69,13 @@
     margin-bottom: 0.5rem;
 }
 
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
 .product-card-electro {
     padding: 1rem;
     border: 1px solid #efeff1;

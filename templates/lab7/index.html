@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Lab 7: SQL Injection{% endblock %}
+{% block title %}Database Security Module{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="lab5-hero">
-    <h1>SQL Injection</h1>
+    <h1>Security Assessment Portal</h1>
     <p class="lab5-hero-desc">
         Learn how unsanitized user input in SQL queries can expose sensitive data and bypass security controls.
     </p>
@@ -19,14 +19,14 @@
         <!-- Lab 7.1 -->
         <div class="lab5-card">
             <div>
-                <span class="status-badge badge-critical">CRITICAL SEVERITY</span>
+                <span class="status-badge badge-critical">Database Operations</span>
             </div>
             <div class="lab5-icon-wrapper">
                 <i style="font-style: normal;">🗄️</i>
             </div>
-            <h3 class="lab5-card-title">7.1: Data Extraction & Bypass</h3>
+            <h3 class="lab5-card-title">Module 7.1: Data Query Analysis</h3>
             <p class="lab5-card-desc">
-                Various SQL injection vulnerabilities through WHERE clauses, UNION attacks, integer vulnerabilities, and authentication bypasses.
+                Analyze how the system processes user input in database operations. Test various input patterns.
             </p>
             <a href="{{ url_for('lab7_1_menu') }}" class="btn-lab5-primary">
                 Access Module &rarr;

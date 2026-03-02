@@ -42,11 +42,19 @@
     margin-bottom: 0.5rem;
 }
 
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
 .product-card-custom {
     display: flex;
     flex-direction: column;
-    height: 100%;
     border: 1px solid #334155;
+    padding: 1.5rem;
+    cursor: pointer;
 }
 
 .product-image-placeholder {

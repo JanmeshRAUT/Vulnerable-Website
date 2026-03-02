@@ -67,5 +67,33 @@
 [INFO] System heartbeat: OK
         </pre>
     </div>
+
+    <div class="card" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">All Uploaded Products</h3>
+        {% if products %}
+        <div class="card-grid" style="margin-top: 1.5rem;">
+            {% for product in products %}
+            <div class="card" style="padding: 1.5rem; cursor: pointer;" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}'">
+                <div style="background: #334155; border-radius: 0.5rem; padding: 2rem; margin-bottom: 1rem; text-align: center; color: #94a3b8; font-size: 0.875rem;">
+                    [Product Image]
+                </div>
+                <h4 style="margin-bottom: 0.5rem; font-size: 1.125rem;">
+                    <a href="{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                </h4>
+                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">{{ product.description }}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #334155; margin-bottom: 0.75rem;">
+                    <span style="font-weight: 700; color: var(--accent);">${{ product.price }}</span>
+                    <span style="font-size: 0.75rem; color: #64748b;">Stock: {{ product.stock }}</span>
+                </div>
+                <p style="color: #64748b; font-size: 0.75rem; margin: 0;">
+                    <strong>Uploaded by:</strong> {{ product.username }} <code style="background: #1e293b; padding: 2px 6px; border-radius: 3px;">(ID: {{ product.uploaded_by }})</code>
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #64748b;">No products uploaded.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
