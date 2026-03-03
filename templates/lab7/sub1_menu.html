@@ -205,13 +205,14 @@
         </div>
 
         <!-- Variation C -->
-        <div class="mission-card theme-c">
+        <div class="mission-card theme-c" style="opacity: 0.6;">
+            <div style="position: absolute; top: 1rem; right: 1rem; background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 600;">UNAVAILABLE</div>
             <div class="mission-icon">🐾</div>
             <h3 class="mission-title">PetShop (UNION Attack)</h3>
             <p class="mission-desc">
                 A pet shop catalog. Exploit the search functionality to perform a UNION attack and retrieve hidden tables.
             </p>
-            <a href="{{ url_for('lab7_1_c') }}" class="btn-mission btn-theme-c">Access Database &rarr;</a>
+            <button disabled class="btn-mission btn-theme-c" style="cursor: not-allowed; opacity: 0.5;" title="This lab is currently unavailable">Access Database &rarr;</button>
         </div>
 
         <!-- Variation D -->

@@ -80,7 +80,7 @@
             <div class="media-preview-stock">
                 <div class="pro-badge-stock">★ PREMIUM</div>
                 <!-- Real Image Preview using the new route -->
-                <img src="{{ url_for('lab1_3_preview', filename=item.file) }}" alt="{{ item.title }}" loading="lazy">
+                <img src="{{ url_for('lab1_3_image', image=item.file) }}" alt="{{ item.title }}" loading="lazy">
 
                 <!-- Hover Overlay Actions -->
                 <div class="media-overlay-stock">
@@ -88,7 +88,7 @@
                         <button class="icon-action-btn">❤️</button>
                         <button class="icon-action-btn">➕</button>
                     </div>
-                    <a href="{{ url_for('lab1_3_download', file=item.file) }}" class="download-btn-stock">Download</a>
+                    <a href="{{ url_for('lab1_3_image', image=item.file) }}" class="download-btn-stock" target="_blank">Download</a>
                 </div>
             </div>
 

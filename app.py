@@ -478,7 +478,25 @@ def lab1_3():
     # Pass full objects to template
     return render_template('lab1/sub3.html', files=media_items)
 
-# Helper route to serve images for Lab 1.3 preview
+# Image serving route for Lab 1.3 (Path Traversal Vulnerability)
+@app.route('/lab1/3/image')
+def lab1_3_image():
+    image = request.args.get('image')
+    if not image:
+        return "No image specified", 400
+    
+    # VULNERABILITY: Path Traversal
+    # Intended directory is 'img' folder in root, but no path normalization
+    base_dir = os.getcwd()
+    intended_dir = os.path.join(base_dir, 'img')
+    file_path = os.path.join(intended_dir, image)
+    
+    if os.path.exists(file_path):
+        return send_file(file_path, mimetype='image/jpeg')
+    else:
+        return f"Image not found: {file_path}", 404
+
+# Legacy preview route for backward compatibility
 @app.route('/lab1/3/preview/<path:filename>')
 def lab1_3_preview(filename):
     # Serve directly from the 'img' folder in the root directory
@@ -605,6 +623,42 @@ def lab2_1_admin():
             return render_template('lab2/sub1_admin.html', users=[], flag=get_random_flag('lab2_1'))
     return render_template('lab2/sub1_admin.html', users=users, flag=None)
 
+# Lab 2.1 Variation A: TechStore Admin Panel
+@app.route('/lab2/1/tech_admin_console', methods=['GET', 'POST'])
+def lab2_1a_admin():
+    users = [
+        {'id': 101, 'username': 'testuser1', 'role': 'Editor'}
+    ]
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        if user_id == '101':
+            return render_template('lab2/sub1_admin.html', users=[], flag=get_random_flag('lab2_1'))
+    return render_template('lab2/sub1_admin.html', users=users, flag=None)
+
+# Lab 2.1 Variation B: FashionHub Admin Panel
+@app.route('/lab2/1/b/fashion_control_panel', methods=['GET', 'POST'])
+def lab2_1b_admin():
+    users = [
+        {'id': 102, 'username': 'testuser2', 'role': 'Designer'}
+    ]
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        if user_id == '102':
+            return render_template('lab2/sub1_admin.html', users=[], flag=get_random_flag('lab2_1'))
+    return render_template('lab2/sub1_admin.html', users=users, flag=None)
+
+# Lab 2.1 Variation C: FoodMart Admin Panel
+@app.route('/lab2/1/c/kitchen_admin_zone', methods=['GET', 'POST'])
+def lab2_1c_admin():
+    users = [
+        {'id': 103, 'username': 'testuser3', 'role': 'Manager'}
+    ]
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        if user_id == '103':
+            return render_template('lab2/sub1_admin.html', users=[], flag=get_random_flag('lab2_1'))
+    return render_template('lab2/sub1_admin.html', users=users, flag=None)
+
 
 # LAB 2.2: Hidden Link / Conditional Logic (Variation A: GadgetShop)
 @app.route('/lab2/2')
@@ -619,10 +673,11 @@ def lab2_2():
 @app.route('/lab2/2/admin_dashboard_hidden_abc123', methods=['GET', 'POST'])
 def lab2_2_admin():
     users = [{'id': 202, 'username': 'target_user'}]
+    admin_path = '/lab2/2/admin_dashboard_hidden_abc123'
     if request.method == 'POST':
         # "Deleting" user
-        return render_template('lab2/sub2_admin.html', users=[], flag=get_random_flag('lab2_2'))
-    return render_template('lab2/sub2_admin.html', users=users, flag=None)
+        return render_template('lab2/sub2_admin.html', users=[], flag=get_random_flag('lab2_2'), admin_path=admin_path)
+    return render_template('lab2/sub2_admin.html', users=users, flag=None, admin_path=admin_path)
 
 # LAB 2.2 Variation B: BookStore
 @app.route('/lab2/2/bookstore')
@@ -636,6 +691,14 @@ def lab2_2b():
         {'id': 6, 'name': 'War and Peace', 'price': 25, 'author': 'Leo Tolstoy', 'image': 'war.jpg'},
     ]
     return render_template('lab2/sub2_b.html', products=products)
+
+@app.route('/lab2/2/bookstore/library_admin_vault', methods=['GET', 'POST'])
+def lab2_2b_admin():
+    users = [{'id': 203, 'username': 'bookstore_user'}]
+    admin_path = '/lab2/2/bookstore/library_admin_vault'
+    if request.method == 'POST':
+        return render_template('lab2/sub2_admin.html', users=[], flag=get_random_flag('lab2_2'), admin_path=admin_path)
+    return render_template('lab2/sub2_admin.html', users=users, flag=None, admin_path=admin_path)
 
 # LAB 2.2 Variation C: GameZone
 @app.route('/lab2/2/gamezone')
@@ -651,6 +714,14 @@ def lab2_2c():
         {'id': 8, 'name': 'Hades', 'price': 24.99, 'platform': 'PC, Switch', 'image': 'hades.jpg'},
     ]
     return render_template('lab2/sub2_c.html', products=products)
+
+@app.route('/lab2/2/gamezone/esports_control_room', methods=['GET', 'POST'])
+def lab2_2c_admin():
+    users = [{'id': 204, 'username': 'gamezone_user'}]
+    admin_path = '/lab2/2/gamezone/esports_control_room'
+    if request.method == 'POST':
+        return render_template('lab2/sub2_admin.html', users=[], flag=get_random_flag('lab2_2'), admin_path=admin_path)
+    return render_template('lab2/sub2_admin.html', users=users, flag=None, admin_path=admin_path)
 
 
 # LAB 2.3: Cookie Manipulation
@@ -3083,10 +3154,8 @@ def lab7_1_b():
 
 @app.route('/lab7/1/c')
 def lab7_1_c():
-    category = request.args.get('category', 'Dogs')
-    
-    db = get_db()
-    cursor = db.cursor()
+    # Lab 7.1.C is currently unavailable
+    return render_template('lab_unavailable.html', lab_name='Lab 7.1.C - PetShop (UNION Attack)', lab_id='lab7_1_c'), 503
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS lab7_pets (
@@ -3178,6 +3247,7 @@ def lab7_1_c():
     query = f"SELECT name, breed, price, image_url FROM lab7_pets WHERE type = '{category}' AND available = 1"
     
     flag = None
+    sql_error = None
     try:
         cursor.execute(query)
         pets = cursor.fetchall()
@@ -3187,9 +3257,10 @@ def lab7_1_c():
             flag = get_random_flag('lab7')
     except Exception as e:
         pets = []
+        sql_error = str(e)
         print(f"SQL Error: {e}")
     
-    return render_template('lab7/sub1_c_home.html', products=pets, category=category, flag=flag)
+    return render_template('lab7/sub1_c_home.html', products=pets, category=category, flag=flag, query=query, sql_error=sql_error)
 
 @app.route('/lab7/1/d')
 def lab7_1_d():

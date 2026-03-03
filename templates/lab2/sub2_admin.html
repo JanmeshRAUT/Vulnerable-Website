@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}System Core - GadgetShop Internal{% endblock %}
+{% block title %}System Core - Internal Admin{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
@@ -7,7 +7,7 @@
 <div class="security-header" style="background: linear-gradient(135deg, #1e293b, #000);">
     <div class="container">
         <h1 class="security-title">Hidden Management Node</h1>
-        <p class="security-subtitle">Internal Routing: <code>/admin_dashboard_hidden_abc123</code></p>
+        <p class="security-subtitle">Internal Routing: <code>{{ admin_path or '/admin_dashboard_hidden_abc123' }}</code></p>
     </div>
 </div>
 {% endblock %}

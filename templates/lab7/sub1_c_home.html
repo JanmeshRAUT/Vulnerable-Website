@@ -89,6 +89,24 @@
         Explore table structures and find hidden information using UNION-based attacks.
     </div>
 
+    <!-- SQL Query Display -->
+    <div style="background: rgba(15, 23, 42, 0.8); border-left: 4px solid #3b82f6; padding: 1.5rem; margin-bottom: 2rem; border-radius: 6px; font-family: monospace; color: #60a5fa; font-size: 0.9rem; word-break: break-all;">
+        <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem; font-weight: 600; font-family: sans-serif;">Current SQL Query:</div>
+        <code>{{ query }}</code>
+    </div>
+
+    <!-- Attack Hints -->
+    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.5rem; margin-bottom: 2rem; border-radius: 6px;">
+        <div style="color: #60a5fa; font-weight: 600; margin-bottom: 1rem;">💡 SQL Injection Hints:</div>
+        <ul style="color: #cbd5e1; margin: 0; padding-left: 1.5rem;">
+            <li style="margin-bottom: 0.75rem;"><strong>Column Count:</strong> The query returns 4 columns (name, breed, price, image_url)</li>
+            <li style="margin-bottom: 0.75rem;"><strong>Hidden Table:</strong> There's a table called <code style="color: #60a5fa;">lab7_admin_creds</code> with admin credentials</li>
+            <li style="margin-bottom: 0.75rem;"><strong>UNION Syntax:</strong> <code style="color: #60a5fa;">Type' UNION SELECT col1, col2, col3, col4 FROM hidden_table--</code></li>
+            <li style="margin-bottom: 0.75rem;"><strong>Example Payload:</strong> Try searching for: <code style="color: #fbbf24; background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 3px;">Dogs' UNION SELECT username, password, '1', '1' FROM lab7_admin_creds--</code></li>
+            <li><strong>Tip:</strong> The admin password field contains the flag!</li>
+        </ul>
+    </div>
+
     <!-- Featured Section -->
     <div class="featured-section">
         <div class="featured-title">🌟 Featured Collections</div>
@@ -153,6 +171,25 @@
         </div>
     </div>
 </main>
+
+{% if sql_error %}
+<div style="position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4); z-index: 1000; max-width: 400px; border: 1px solid rgba(239, 68, 68, 0.3); animation: slideIn 0.3s ease-out;">
+    <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 0.5rem; font-weight: 600;">⚠️ SQL Error Detected</p>
+    <p style="margin: 0; font-family: monospace; font-size: 0.85rem; color: #fca5a5; word-break: break-all;">{{ sql_error }}</p>
+</div>
+<style>
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endif %}
 
 {% if flag %}
 <div style="position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(16, 185, 129, 0.95)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4); z-index: 1000; max-width: 400px; border: 1px solid rgba(34, 197, 94, 0.3); animation: slideIn 0.3s ease-out;">

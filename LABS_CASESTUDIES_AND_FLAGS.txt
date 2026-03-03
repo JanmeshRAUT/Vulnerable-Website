@@ -40,7 +40,8 @@ configuration files on the server?"
 
 Vulnerability Location: /lab1/2/image endpoint
 Injection Parameter: 'filename' in query string
-Example Exploit: ../../.env or ../../secrets.txt
+Example Exploit: ../etc/passwd or ../secrets.txt or ../../README.md
+Windows Example: ../etc/passwd (to access /etc/passwd file in root directory)
 Available Flags (Random Selection):
   - FLAG{file_system_traversal_alpha}
   - FLAG{directory_enumeration_beta}
@@ -49,14 +50,15 @@ Available Flags (Random Selection):
 Lab 1.3 - MediaHub (Stock Photo Marketplace)
 ================================================
 Case Study Question:
-"MediaHub is a platform for buying and downloading stock photos. The download 
-mechanism in /lab1/3/download is vulnerable to path traversal. Can you exploit 
-this to download files from arbitrary locations on the server beyond the 
-intended /data/mediahub/ directory?"
+"MediaHub is a platform for buying and downloading stock photos. The image 
+gallery loads photos from the /data/mediahub/gallery/ directory. However, 
+there's a path traversal vulnerability in the image loading mechanism. Can you 
+exploit this to access images and files outside the intended directory?"
 
-Vulnerability Location: /lab1/3/download endpoint
-Injection Parameter: 'file' parameter
-Example Exploit: path traversal using ../ sequences
+Vulnerability Location: /lab1/3/image endpoint
+Injection Parameter: 'image' parameter in query string
+Example Exploit: ../../app.py or ../../README.md or ../../../etc/passwd
+Windows Example: ..\..\secrets.txt (to access config files in parent directories)
 Available Flags (Random Selection):
   - FLAG{file_system_traversal_alpha}
   - FLAG{directory_enumeration_beta}

