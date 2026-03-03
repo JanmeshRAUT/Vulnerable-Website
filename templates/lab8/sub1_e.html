@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 8.1.E - IFrame Injection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .document-viewer {
+            background: var(--dir-surface);
+            border: 1px solid var(--dir-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dir-text-muted);
+        }
+        
+        .lab-instructions {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            color: #e0e7ff;
+        }
+        
+        .payload-code {
+            background: #0f172a;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.25rem;
+            border-left: 2px solid #60a5fa;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            font-size: 0.8rem;
+        }
+        
+        .execution-indicator {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+
+{% if show_form %}
+    <div class="xss-real-wrapper">
+        <div class="login-mode-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="brand-logo">📄</div>
+                    <h1 class="login-title">Lab 8.1.E - IFrame Injection</h1>
+                    <p class="login-subtitle">Document Viewer</p>
+                </div>
+                
+                {% if xss_detected and flag %}
+                    <div class="flag-container">
+                        <div class="flag-header">
+                           ✅ <strong>IFrame Injection Successful!</strong>
+                        </div>
+                        <div>Your malicious iframe was embedded and executed.</div>
+                        <div class="flag-code">{{ flag }}</div>
+                    </div>
+                {% endif %}
+
+                {% if document_url %}
+                    {% if xss_detected %}
+                        <div class="alert-message" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7;">
+                            <div class="alert-icon">✓</div>
+                            <div class="alert-content">
+                                IFrame Loaded <span class="execution-indicator">ACTIVE</span>
+                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Payload: <strong>{{ document_url | safe }}</strong></span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert-message">
+                            <div class="alert-icon">ℹ️</div>
+                            <div class="alert-content">
+                                Document loaded: <strong>{{ document_url }}</strong>
+                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Try injecting an iframe with JavaScript protocol or src.</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <form action="{{ url_for('lab8_1_e') }}" method="POST" class="login-form">
+                    <div class="form-group">
+                        <label for="document_url" class="form-label">Document URL (IFrame Injection)</label>
+                        <input type="text" id="document_url" name="document_url" class="form-input" placeholder="&lt;iframe src=\"javascript:alert('XSS')\"&gt;&lt;/iframe&gt;" autocomplete="off" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">View Document</button>
+                </form>
+
+                <div class="lab-instructions">
+                    <h3>📚 Lab 8.1.E: IFrame Injection</h3>
+                    <p>Embed malicious iframes that can execute arbitrary code. IFrames can use the <strong>javascript: protocol</strong> to execute scripts directly in the iframe context.</p>
+                    
+                    <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 6px; margin-top: 1rem; font-size: 0.85rem; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <p style="color: #cbd5e1;"><strong>💡 IFrame Injection Techniques:</strong></p>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">JavaScript protocol:</p>
+                        <div class="payload-code">&lt;iframe src="javascript:alert('XSS')"&gt;&lt;/iframe&gt;</div>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Inline HTML:</p>
+                        <div class="payload-code">&lt;iframe srcdoc="&lt;script&gt;alert('XSS')&lt;/script&gt;"&gt;&lt;/iframe&gt;</div>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Data URI:</p>
+                        <div class="payload-code">&lt;iframe src="data:text/html,&lt;script&gt;alert('XSS')&lt;/script&gt;"&gt;&lt;/iframe&gt;</div>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Onload handler:</p>
+                        <div class="payload-code">&lt;iframe onload="alert('IFrame loaded')"&gt;&lt;/iframe&gt;</div>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Blob URL:</p>
+                        <div class="payload-code">&lt;iframe src="blob:data:text/html,&lt;script&gt;alert('XSS')&lt;/script&gt;"&gt;&lt;/iframe&gt;</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="{{ url_for('lab8_1') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Back to Lab 8.1</a>
+                </div>
+            </div>
+            
+            <footer style="margin-top:2rem; text-align:center; color:#64748b; font-size:0.8rem;">
+                &copy; 2025 Security Training Labs. Educational Purpose Only.
+            </footer>
+        </div>
+    </div>
+
+{% else %}
+    <div class="site-wrapper">
+        <nav class="site-nav">
+            <div class="nav-logo">
+                <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">📄</div>
+                Lab 8.1.E <span>IFrame Injection</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('lab8_1') }}" class="nav-link">Back to M8.1</a>
+            </div>
+        </nav>
+
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">IFrame Injection<br>Attack Lab</h1>
+                <p class="hero-subtitle">Exploit iframe embedding to inject malicious content and execute code through protocol handlers.</p>
+                <a href="{{ url_for('lab8_1_e', mode='view') }}" class="btn-primary" style="padding:1rem 2rem; font-size:1.1rem;">Start Lab</a>
+            </div>
+        </section>
+    </div>
+{% endif %}
+
+</body>
+</html>

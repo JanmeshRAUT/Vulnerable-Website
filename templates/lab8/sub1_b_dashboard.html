@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopHub Seller Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #f5f7fa;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-left p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .user-info {
+            text-align: right;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding-right: 1.5rem;
+        }
+        
+        .user-info small {
+            opacity: 0.8;
+        }
+        
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a472a;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #40916c;
+            box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .btn-upload {
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #40916c, #2d6a4f);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            align-self: flex-end;
+        }
+        
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(64, 145, 108, 0.3);
+        }
+        
+        .upload-result {
+            background: #d8f3dc;
+            border-left: 4px solid #40916c;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+        }
+        
+        .upload-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+        }
+        
+        .result-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #2d6a4f;
+        }
+        
+        .flag-text {
+            background: #1a1a2e;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        
+        .gallery-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .product-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .product-image {
+            height: 150px;
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .product-info {
+            padding: 1rem;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            color: #1a472a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-price {
+            color: #40916c;
+            font-weight: 700;
+        }
+        
+        .explore-hint {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>🛍️ ShopHub Dashboard</h1>
+            <p>{{ seller_name }}'s Store</p>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div><strong>{{ seller_name }}</strong></div>
+                <small>Seller Account</small>
+            </div>
+            <form method="POST" style="margin: 0;">
+                <button type="submit" name="logout_btn" value="1" class="btn-logout">Logout</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="upload-section">
+            <h2 class="section-title">📦 Upload New Product</h2>
+            <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Add new products to your store inventory. Fill in the product details and upload image metadata.
+            </p>
+            
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" name="product_name" class="form-input" placeholder="e.g., Wireless Headphones" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Price ($)</label>
+                        <input type="text" name="product_price" class="form-input" placeholder="99.99">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Image Description / Alt Text</label>
+                    <input 
+                        type="text" 
+                        name="image_alt" 
+                        class="form-input" 
+                        placeholder="Describe the product image (this is where you can inject code)" 
+                        required
+                    >
+                    <small style="color: #666; margin-top: 0.5rem; display: block;">
+                        This alt text is used by screen readers and displayed when images fail to load.
+                    </small>
+                </div>
+                
+                <button type="submit" name="upload_btn" value="1" class="btn-upload">Upload Product</button>
+            </form>
+            
+            {% if upload_result %}
+                {% if upload_result.detected and upload_result.flag %}
+                    <div class="upload-result upload-success">
+                        <div class="result-title">✅ XSS Attack Successful!</div>
+                        <div style="margin-bottom: 0.5rem;">Your image tag with error handler was executed.</div>
+                        <div class="flag-text">{{ upload_result.flag }}</div>
+                    </div>
+                {% else %}
+                    <div class="upload-result">
+                        <div class="result-title">Product Uploaded</div>
+                        <div style="margin-top: 0.5rem; color: #2d6a4f;">
+                            Image alt text: {{ upload_result.alt_text }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            
+            <div class="explore-hint">
+                💡 <strong>Hint:</strong> Try injecting an &lt;img&gt; tag with an <code>onerror</code> handler in the Image Alt Text field. The alt text is rendered without sanitization.
+            </div>
+        </div>
+        
+        <div class="gallery-section">
+            <h2 class="section-title">Your Product Gallery</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="product-image">📷 No Image</div>
+                    <div class="product-info">
+                        <div class="product-name">Sample Product 1</div>
+                        <div class="product-price">$49.99</div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">📷 No Image</div>
+                    <div class="product-info">
+                        <div class="product-name">Sample Product 2</div>
+                        <div class="product-price">$79.99</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

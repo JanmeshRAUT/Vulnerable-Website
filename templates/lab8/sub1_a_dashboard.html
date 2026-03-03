@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCorp Employee Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #f0f4f9;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #001a4d 0%, #0a3566 100%);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .company-badge {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-left h1 {
+            font-size: 1.6rem;
+            margin-bottom: 0.25rem;
+            font-weight: 700;
+        }
+        
+        .header-left p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .user-info {
+            text-align: right;
+            padding-right: 2rem;
+            border-right: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .user-info .user-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-info .user-email {
+            font-size: 0.8rem;
+            opacity: 0.75;
+        }
+        
+        .btn-logout {
+            padding: 0.625rem 1.25rem;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid #0066cc;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0066cc;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 14px;
+            padding: 2rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+        }
+        
+        .section-header {
+            margin-bottom: 1.75rem;
+        }
+        
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #001a4d;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-desc {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.95rem 1.25rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: #fafbfc;
+        }
+        
+        .search-input::placeholder {
+            color: #999;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+            background: white;
+        }
+        
+        .btn-search {
+            padding: 0.95rem 2rem;
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 102, 204, 0.25);
+        }
+        
+        .btn-search:active {
+            transform: translateY(0);
+        }
+        
+        .search-result {
+            background: #f0f4ff;
+            border-left: 5px solid #0066cc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .success-result {
+            background: rgba(16, 185, 129, 0.07);
+            border-left-color: #10b981;
+        }
+        
+        .result-title {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            font-size: 1.05rem;
+            color: #001a4d;
+        }
+        
+        .result-message {
+            color: #555;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .flag-text {
+            background: #1a1a2e;
+            color: #00ff00;
+            padding: 1.25rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            word-break: break-all;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+            user-select: all;
+        }
+        
+        .payload-examples {
+            background: #f5f5f5;
+            border-left: 4px solid #673ab7;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+        
+        .payload-title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .payload-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .payload-item {
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #0066cc;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+            cursor: pointer;
+            user-select: all;
+        }
+        
+        .payload-item:hover {
+            background: #f0f4ff;
+            border-color: #0066cc;
+        }
+        
+        .explore-hint {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #856404;
+            line-height: 1.6;
+        }
+        
+        .explore-hint strong {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: #664d03;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="company-badge">TC</div>
+            <div>
+                <h1>TechCorp Dashboard</h1>
+                <p>Employee Management System</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-name">{{ username }}</div>
+                <div class="user-email">Employee ID: emp123</div>
+            </div>
+            <form method="POST" style="margin: 0;">
+                <button type="submit" name="logout_btn" value="1" class="btn-logout">🚪 Logout</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-number">12</div>
+                <div class="stat-label">Active Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">48</div>
+                <div class="stat-label">Tasks Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number">156</div>
+                <div class="stat-label">Team Members</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-number">9.2</div>
+                <div class="stat-label">Performance Score</div>
+            </div>
+        </div>
+        
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="section-header">
+                <h2 class="section-title">🔍 Search Employee Database</h2>
+                <p class="section-desc">
+                    Search through the employee database by name, department, employee ID, or email. Results are displayed in real-time.
+                </p>
+            </div>
+            
+            <form method="POST" class="search-form">
+                <input 
+                    type="text" 
+                    name="search_query" 
+                    class="search-input" 
+                    placeholder="Try: John Smith, IT Department, emp456, john@techcorp.com" 
+                    required
+                >
+                <button type="submit" name="search_btn" value="1" class="btn-search">🔎 Search</button>
+            </form>
+            
+            <!-- Search Results -->
+            {% if search_data and search_data.query %}
+                {% if search_data.detected and search_data.flag %}
+                    <div class="search-result success-result">
+                        <div class="result-title">✅ XSS Attack Successful!</div>
+                        <div class="result-message">
+                            Congratulations! Your script injection was executed in the search field. The vulnerable code reflected your input without proper sanitization.
+                        </div>
+                        <div class="flag-text">{{ search_data.flag }}</div>
+                    </div>
+                {% else %}
+                    <div class="search-result">
+                        <div class="result-title">Search Results for: <em>{{ search_data.query }}</em></div>
+                        <div class="result-message">
+                            No employees found matching your search criteria. The search returned 0 results.
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            
+            <!-- Payload Examples -->
+            <div class="payload-examples">
+                <div class="payload-title">🎯 Example Payloads to Try:</div>
+                <div class="payload-list">
+                    <div class="payload-item">{{ "<script>alert('XSS')</script>" }}</div>
+                    <div class="payload-item">{{ "<img src=x onerror=\"alert('Vulnerable')\">" }}</div>
+                    <div class="payload-item">{{ "';alert('XSS');//" }}</div>
+                </div>
+            </div>
+            
+            <!-- Hint Box -->
+            <div class="explore-hint">
+                <strong>💡 Lab Objective & Hint:</strong>
+                The "Search Employee Database" field is vulnerable to Stored/Reflected XSS attacks. Try entering one of the example payloads above, or craft your own. The application does not properly sanitize user input before displaying it, allowing arbitrary JavaScript code to execute. Look for the success message to know when you've successfully exploited the vulnerability!
+            </div>
+        </div>
+    </div>
+</body>
+</html>

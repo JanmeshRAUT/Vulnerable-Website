@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCorp Employee Portal - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #001a4d 0%, #0a3566 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .login-left {
+            color: white;
+        }
+        
+        .brand-header {
+            margin-bottom: 2rem;
+        }
+        
+        .brand-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .brand-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .brand-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .description {
+            margin-top: 1.5rem;
+            opacity: 0.85;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .login-right {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            padding: 2.5rem;
+        }
+        
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #001a4d;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .login-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .credentials-section {
+            background: #f0f4ff;
+            border-left: 4px solid #0066cc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .credentials-title {
+            font-weight: 700;
+            color: #001a4d;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .credentials-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .credential-item {
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid #ddd;
+        }
+        
+        .credential-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .credential-value {
+            background: #f5f5f5;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #0066cc;
+            font-weight: 600;
+            user-select: all;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: #fafbfc;
+        }
+        
+        .form-input::placeholder {
+            color: #aaa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            background: white;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 102, 204, 0.3);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .objective-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #856404;
+            line-height: 1.6;
+        }
+        
+        .objective-box strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #664d03;
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .login-left {
+                display: none;
+            }
+            
+            .brand-header {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-left">
+            <div class="brand-header">
+                <div class="brand-logo">TC</div>
+                <h1>TechCorp</h1>
+                <p>Employee Portal</p>
+            </div>
+            <div class="description">
+                <p>Welcome to the TechCorp Employee Management System. This learning environment demonstrates real-world security vulnerabilities and helps you understand how to identify and exploit them responsibly.</p>
+            </div>
+        </div>
+        
+        <div class="login-right">
+            <h2 class="login-title">Sign In</h2>
+            <p class="login-subtitle">Enter your credentials to access the dashboard</p>
+            
+            <div class="credentials-section">
+                <div class="credentials-title">📋 Demo Credentials</div>
+                <div class="credentials-list">
+                    <div class="credential-item">
+                        <div class="credential-label">Employee ID:</div>
+                        <div class="credential-value">emp123</div>
+                    </div>
+                    <div class="credential-item">
+                        <div class="credential-label">Password:</div>
+                        <div class="credential-value">password</div>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label">👤 Employee ID</label>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        class="form-input" 
+                        placeholder="e.g., emp123" 
+                        value="emp123"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">🔐 Password</label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Enter your password" 
+                        value="password"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" name="login_btn" value="1" class="btn-login">🔓 Login to Dashboard</button>
+            </form>
+            
+            <div class="objective-box">
+                <strong>🎯 Lab Objective:</strong>
+                Once logged in, navigate to the "Search Employee Database" section on the dashboard. Try injecting a &lt;script&gt; tag in the search field to execute JavaScript and capture the flag!
+            </div>
+        </div>
+    </div>
+</body>
+</html>

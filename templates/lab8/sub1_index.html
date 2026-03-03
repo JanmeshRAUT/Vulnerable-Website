@@ -1,0 +1,224 @@
+{% extends 'base.html' %} 
+{% block title %}Lab 8.1 - Reflected XSS Modules{% endblock %} 
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+<style>
+    .module-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 4rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .module-card {
+        background: var(--dir-surface);
+        border: 2px solid var(--dir-border);
+        border-radius: 12px;
+        padding: 2rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .module-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--dir-accent);
+        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+    }
+    
+    .module-code {
+        display: inline-block;
+        background: var(--dir-accent);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+    
+    .module-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.75rem;
+    }
+    
+    .module-desc {
+        color: var(--dir-text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .payload-type {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 3px solid var(--dir-accent);
+        padding: 0.75rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #60a5fa;
+        font-family: monospace;
+    }
+    
+    .start-btn {
+        display: inline-block;
+        background: var(--dir-accent);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s;
+        margin-top: 1rem;
+    }
+    
+    .start-btn:hover {
+        background: var(--dir-accent-hover);
+    }
+    
+    .difficulty {
+        display: inline-block;
+        margin-left: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .difficulty.beginner {
+        color: #10b981;
+    }
+    
+    .difficulty.intermediate {
+        color: #f59e0b;
+    }
+    
+    .difficulty.advanced {
+        color: #ef4444;
+    }
+</style>
+{% endblock %} 
+
+{% block content %}
+<div class="site-wrapper">
+    <nav class="site-nav">
+        <div class="nav-logo">
+            <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🔍</div>
+            Lab 8.1 <span>Reflected XSS</span>
+        </div>
+        <div class="nav-links">
+            <span style="color: var(--dir-text-muted);">Security Research Labs</span>
+            <a href="{{ url_for('lab8') }}" class="nav-link">Back to Lab 8</a>
+        </div>
+    </nav>
+
+    <div class="hero-section" style="padding: 4rem 2rem; min-height: 40vh;">
+        <div class="hero-content">
+            <h1 class="hero-title">Reflected XSS<br>Attack Vectors</h1>
+            <p class="hero-subtitle">
+                Master different techniques to execute XSS attacks through various input vectors. 
+                Each sub-lab focuses on a specific real-world attack scenario.
+            </p>
+        </div>
+    </div>
+
+    <div class="module-grid">
+        <!-- 8.1.A: Script Injection -->
+        <div class="module-card">
+            <div class="module-code">8.1.A</div>
+            <h3 class="module-title">Employee Login Portal <span class="difficulty beginner">Beginner</span></h3>
+            <p class="module-desc">
+                Classic script injection attack on a corporate login page. Reflect malicious JavaScript through the username field.
+            </p>
+            <div class="payload-type">
+                &lt;script&gt;alert('XSS')&lt;/script&gt;
+            </div>
+            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
+                ✓ Direct script execution<br>
+                ✓ Simple alert boxes<br>
+                ✓ JavaScript injection
+            </p>
+            <a href="{{ url_for('lab8_1_a', mode='login') }}" class="start-btn">Start Module</a>
+        </div>
+
+        <!-- 8.1.B: Image Tag Injection -->
+        <div class="module-card">
+            <div class="module-code">8.1.B</div>
+            <h3 class="module-title">Product Image Gallery <span class="difficulty beginner">Beginner</span></h3>
+            <p class="module-desc">
+                Inject malicious code through image metadata on an e-commerce product upload feature. Uses error event handlers.
+            </p>
+            <div class="payload-type">
+                &lt;img src=x onerror=alert('XSS')&gt;
+            </div>
+            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
+                ✓ Image tag injection<br>
+                ✓ Error event handlers<br>
+                ✓ Broken image exploitation
+            </p>
+            <a href="{{ url_for('lab8_1_b', mode='upload') }}" class="start-btn">Start Module</a>
+        </div>
+
+        <!-- 8.1.C: SVG Injection -->
+        <div class="module-card">
+            <div class="module-code">8.1.C</div>
+            <h3 class="module-title">SVG Graphics Editor <span class="difficulty intermediate">Intermediate</span></h3>
+            <p class="module-desc">
+                Craft SVG payloads on a graphics editing platform. Leverage SVG's onload event for automatic execution upon rendering.
+            </p>
+            <div class="payload-type">
+                &lt;svg onload=alert('XSS')&gt;
+            </div>
+            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
+                ✓ SVG vector graphics<br>
+                ✓ Onload event triggering<br>
+                ✓ Automatic execution
+            </p>
+            <a href="{{ url_for('lab8_1_c', mode='create') }}" class="start-btn">Start Module</a>
+        </div>
+
+        <!-- 8.1.D: Event Handler Injection -->
+        <div class="module-card">
+            <div class="module-code">8.1.D</div>
+            <h3 class="module-title">Social Media Comments <span class="difficulty intermediate">Intermediate</span></h3>
+            <p class="module-desc">
+                Post XSS payloads in user comments. Attack through hover and interaction events that trigger on user behavior.
+            </p>
+            <div class="payload-type">
+                &lt;span onmouseover=alert('XSS')&gt;Hover me&lt;/span&gt;
+            </div>
+            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
+                ✓ Event handler injection<br>
+                ✓ User interaction triggers<br>
+                ✓ Multiple event types
+            </p>
+            <a href="{{ url_for('lab8_1_d', mode='comment') }}" class="start-btn">Start Module</a>
+        </div>
+
+        <!-- 8.1.E: IFrame Injection -->
+        <div class="module-card">
+            <div class="module-code">8.1.E</div>
+            <h3 class="module-title">Document Viewer <span class="difficulty advanced">Advanced</span></h3>
+            <p class="module-desc">
+                Embed malicious frames in a document viewing application. Chain vulnerabilities using the JavaScript protocol in iframe sources.
+            </p>
+            <div class="payload-type">
+                &lt;iframe src="javascript:alert('XSS')"&gt;&lt;/iframe&gt;
+            </div>
+            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
+                ✓ IFrame embedding<br>
+                ✓ JavaScript protocol<br>
+                ✓ Complex payload chaining
+            </p>
+            <a href="{{ url_for('lab8_1_e', mode='view') }}" class="start-btn">Start Module</a>
+        </div>
+    </div>
+
+    <footer class="site-footer" style="margin-top: 4rem;">
+        <p>&copy; 2025 Security Training Labs. Educational Purpose Only.</p>
+    </footer>
+</div>
+{% endblock %}

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialBuzz Feed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #dc2626;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .user-handle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            background: #fecaca;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .post-composer {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .composer-header {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 100px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .btn-post {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            float: right;
+        }
+        
+        .btn-post:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
+        }
+        
+        .clearfix {
+            clear: both;
+        }
+        
+        .feed {
+            margin-top: 2rem;
+        }
+        
+        .post {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dc2626;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 0.75rem;
+        }
+        
+        .post-info {
+            flex: 1;
+        }
+        
+        .post-author {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .post-time {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+        
+        .post-content {
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            word-wrap: break-word;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        .post-action {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .post-action:hover {
+            color: #dc2626;
+        }
+        
+        .post-result {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+        
+        .post-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+        }
+        
+        .result-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .flag-text {
+            background: #1a1a2e;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        
+        .explore-hint {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">🌟 SocialBuzz</div>
+        <div class="header-right">
+            <div class="user-handle">{{ user_handle }}</div>
+            <form method="POST" style="margin: 0;">
+                <button type="submit" name="logout_btn" value="1" class="btn-logout">Logout</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="post-composer">
+            <div class="composer-header">💭 What's on your mind?</div>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <textarea 
+                        name="post_content" 
+                        class="form-textarea" 
+                        placeholder="Share your thoughts... (HTML with event handlers supported)" 
+                        required
+                    ></textarea>
+                </div>
+                
+                <button type="submit" name="post_btn" value="1" class="btn-post">Post</button>
+                <div class="clearfix"></div>
+            </form>
+            
+            <div class="explore-hint">
+                💡 <strong>Hint:</strong> Try injecting HTML with event handlers like &lt;span onmouseover=alert('XSS')&gt; in your post. Posts are rendered without sanitization.
+            </div>
+        </div>
+        
+        <div class="feed">
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="post">
+                        <div class="post-header">
+                            <div class="post-avatar">{{ user_handle[0].upper() }}</div>
+                            <div class="post-info">
+                                <div class="post-author">{{ user_handle }}</div>
+                                <div class="post-time">Just now</div>
+                            </div>
+                        </div>
+                        
+                        <div class="post-content">
+                            {% if post.detected and post.flag %}
+                                {{ post.content | safe }}
+                                <div class="post-result post-success" style="margin-top: 1rem;">
+                                    <div class="result-title">✅ XSS Event Handler Triggered!</div>
+                                    <div style="margin-bottom: 0.5rem;">Someone interacted with your post and triggered the event.</div>
+                                    <div class="flag-text">{{ post.flag }}</div>
+                                </div>
+                            {% else %}
+                                {{ post.content }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="post-actions">
+                            <div class="post-action">❤️ Like</div>
+                            <div class="post-action">💬 Reply</div>
+                            <div class="post-action">🔄 Share</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; color: #9ca3af; padding: 2rem;">
+                    Be the first to post something!
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

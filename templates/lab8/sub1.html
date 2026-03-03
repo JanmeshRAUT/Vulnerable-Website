@@ -3,9 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechFusion Dynamics | Enterprise Solutions</title>
+    <title>Lab 8.1 - Reflected XSS Attack</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .lab-instructions {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            color: #e0e7ff;
+        }
+        
+        .lab-instructions h3 {
+            margin-top: 0;
+            color: #60a5fa;
+            font-weight: 700;
+        }
+        
+        .payload-examples {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .payload-examples p {
+            margin: 0.5rem 0;
+            color: #cbd5e1;
+        }
+        
+        .payload-code {
+            background: #0f172a;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.25rem;
+            border-left: 2px solid #60a5fa;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            font-size: 0.8rem;
+        }
+        
+        .xss-success {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            z-index: 9999;
+            animation: slideIn 0.3s ease-out;
+            border: 1px solid #047857;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(calc(100% + 40px));
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .execution-indicator {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
 </head>
 <body>
 
@@ -16,54 +100,95 @@
         <div class="login-mode-container">
             <div class="login-card">
                 <div class="login-header">
-                    <div class="brand-logo">T</div>
-                    <h1 class="login-title">Employee Portal</h1>
-                    <p class="login-subtitle">Secure Access Gateway</p>
+                    <div class="brand-logo">🔓</div>
+                    <h1 class="login-title">Lab 8.1: Reflected XSS</h1>
+                    <p class="login-subtitle">Interactive Learning Environment</p>
                 </div>
                 
-                <!-- Flag Logic -->
-                {% if flag %}
+                <!-- Success Notification -->
+                {% if xss_detected and flag %}
                     <div class="flag-container">
                         <div class="flag-header">
-                           🚩 <strong>Security Alert</strong>
+                           ✅ <strong>XSS Successfully Executed!</strong>
                         </div>
-                        <div>XSS Payload Detected & Executed</div>
+                        <div>Your payload was reflected and executed in the browser context.</div>
                         <div class="flag-code">{{ flag }}</div>
                     </div>
                 {% endif %}
 
                 <!-- Vulnerable Reflection -->
-                {% if username and not flag %}
-                    <div class="alert-message">
-                        <div class="alert-icon">⚠️</div>
-                        <div class="alert-content">
-                            Login failed for user: <strong>{{ username | safe }}</strong>
-                            <br>Please check your credentials.
+                {% if username %}
+                    {% if xss_detected %}
+                        <div class="alert-message" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7;">
+                            <div class="alert-icon">✓</div>
+                            <div class="alert-content">
+                                XSS Payload Executed <span class="execution-indicator">ACTIVE</span>
+                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Username: <strong>{{ username | safe }}</strong></span>
+                            </div>
                         </div>
-                    </div>
+                    {% else %}
+                        <div class="alert-message">
+                            <div class="alert-icon">⚠️</div>
+                            <div class="alert-content">
+                                Input reflected (no XSS detected): <strong>{{ username }}</strong>
+                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Try submitting a payload from the examples below.</span>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endif %}
 
                 <form action="{{ url_for('lab8_1') }}" method="POST" class="login-form">
                     <div class="form-group">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" id="username" name="username" class="form-input" placeholder="username" autocomplete="off" required>
+                        <label for="username" class="form-label">Username (Try XSS Payload)</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="Enter payload here" autocomplete="off" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+                        <label for="password" class="form-label">Password (any value)</label>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" value="test" required>
                     </div>
                     
-                    <button type="submit" class="btn-submit">Sign In</button>
+                    <button type="submit" class="btn-submit">Submit Payload</button>
                 </form>
+
+                <!-- Learning Content -->
+                <div class="lab-instructions">
+                    <h3>📚 Lab Objective</h3>
+                    <p>This lab demonstrates <strong>Reflected XSS (Cross-Site Scripting)</strong> vulnerabilities. Your goal is to inject malicious JavaScript code and have it execute in the browser.</p>
+                    
+                    <p style="margin-top: 1rem;"><strong>How it works:</strong></p>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                        <li>The username field is <strong>not sanitized</strong></li>
+                        <li>Input is directly reflected into the HTML response</li>
+                        <li>If your input contains executable JavaScript, it will run</li>
+                    </ul>
+                    
+                    <div class="payload-examples">
+                        <p><strong>💡 Try these XSS Payloads:</strong></p>
+                        <p>Simple alert:</p>
+                        <div class="payload-code">&lt;script&gt;alert('XSS!')&lt;/script&gt;</div>
+                        
+                        <p style="margin-top: 0.75rem;">Image tag with error:</p>
+                        <div class="payload-code">&lt;img src=x onerror=alert('XSS')&gt;</div>
+                        
+                        <p style="margin-top: 0.75rem;">SVG vector:</p>
+                        <div class="payload-code">&lt;svg onload=alert('XSS')&gt;</div>
+                        
+                        <p style="margin-top: 0.75rem;">Hover event:</p>
+                        <div class="payload-code">&lt;span onmouseover=alert('XSS')&gt;Hover me&lt;/span&gt;</div>
+                        
+                        <p style="margin-top: 0.75rem;">IFrame injection:</p>
+                        <div class="payload-code">&lt;iframe src="javascript:alert('XSS')"&gt;&lt;/iframe&gt;</div>
+                    </div>
+                </div>
                 
                 <div style="text-align: center; margin-top: 1.5rem;">
-                    <a href="{{ url_for('lab8_1') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Return to Home</a>
+                    <a href="{{ url_for('lab8') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Back to Lab 8</a>
                 </div>
             </div>
             
             <footer style="margin-top:2rem; text-align:center; color:#64748b; font-size:0.8rem;">
-                &copy; 2025 TechFusion Dynamics. Authorized Personnel Only.
+                &copy; 2025 Security Training Labs. Educational Purpose Only.
             </footer>
         </div>
     </div>
@@ -71,56 +196,53 @@
 {% else %}
     <!-- HOMEPAGE VIEW -->
     <div class="site-wrapper">
-        <!-- Add a distinct header-like wrapper for the nav to ensure it sits above content -->
         <nav class="site-nav">
             <div class="nav-logo">
-                <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">T</div>
-                TechFusion <span>Dynamics</span>
+                <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🔍</div>
+                Lab 8.1 <span>Reflected XSS</span>
             </div>
             <div class="nav-links">
-                <a href="#" class="nav-link">Solutions</a>
-                <a href="#" class="nav-link">Platform</a>
-                <a href="#" class="nav-link">About Us</a>
-                <a href="{{ url_for('lab8_1', mode='login') }}" class="btn-primary">Employee Login</a>
+                <span style="color: var(--dir-text-muted);">Security Research Labs</span>
+                <a href="{{ url_for('lab8') }}" class="nav-link">Back to Lab Module</a>
             </div>
         </nav>
 
         <section class="hero-section">
             <div class="hero-content">
-                <h1 class="hero-title">Accelerating Digital <br>Transformation</h1>
+                <h1 class="hero-title">Reflected XSS<br>Learning Lab</h1>
                 <p class="hero-subtitle">
-                    We provide enterprise-grade secure infrastructure for the modern web.
-                    Scalable, reliable, and built for the future.
+                    Understand how user input can be weaponized when reflected directly into web pages. 
+                    Learn the fundamentals of Cross-Site Scripting attacks in a safe, controlled environment.
                 </p>
                 <div style="display:flex; gap:1rem; justify-content:center;">
-                    <a href="#" class="btn-primary" style="padding:1rem 2rem; font-size:1.1rem;">Get Started</a>
-                    <a href="#" class="btn-primary" style="background:transparent; border:1px solid #334155; padding:1rem 2rem; font-size:1.1rem;">Learn More</a>
+                    <a href="{{ url_for('lab8_1', mode='login') }}" class="btn-primary" style="padding:1rem 2rem; font-size:1.1rem;">Start Lab 8.1</a>
+                    <a href="{{ url_for('lab8') }}" class="btn-primary" style="background:transparent; border:1px solid #334155; padding:1rem 2rem; font-size:1.1rem;">View All Labs</a>
                 </div>
             </div>
         </section>
 
         <section class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">☁️</div>
-                <h3 class="feature-title">Cloud Native</h3>
-                <p class="feature-desc">Deployed on cutting-edge serverless architecture for maximum uptime and minimal latency.</p>
+                <div class="feature-icon">💉</div>
+                <h3 class="feature-title">Input Injection</h3>
+                <p class="feature-desc">Learn how attackers inject malicious code through user input fields.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Real-time Execution</h3>
+                <p class="feature-desc">Watch your payloads execute immediately in the browser context.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🛡️</div>
-                <h3 class="feature-title">Zero Trust Security</h3>
-                <p class="feature-desc">Advanced identity management and granular access controls for your entire organization.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🚀</div>
-                <h3 class="feature-title">Rapid Deployment</h3>
-                <p class="feature-desc">Go from code to production in minutes with our automated CI/CD pipelines.</p>
+                <h3 class="feature-title">Prevent Attacks</h3>
+                <p class="feature-desc">Understand how proper input validation and encoding prevent XSS.</p>
             </div>
         </section>
 
         <footer class="site-footer">
-            <p>&copy; 2025 TechFusion Dynamics. All rights reserved.</p>
+            <p>&copy; 2025 Security Training Program. Educational Use Only.</p>
             <p style="margin-top:0.5rem; opacity:0.6;">
-                <a href="{{ url_for('lab8') }}" style="color:inherit; text-decoration:none;">Research Lab Module 8.1</a>
+                <a href="{{ url_for('lab8') }}" style="color:inherit; text-decoration:none;">Research Lab Module 8</a>
             </p>
         </footer>
     </div>

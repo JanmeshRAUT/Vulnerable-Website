@@ -2595,22 +2595,254 @@ def lab8():
 # Lab 8.1: Reflected XSS
 @app.route('/lab8/1', methods=['GET', 'POST'])
 def lab8_1():
-    username = None
-    flag = None
-    show_login = False
+    return render_template('lab8/sub1_index.html')
+
+# Lab 8.1.A: Script Injection on Employee Login
+@app.route('/lab8/1/a', methods=['GET', 'POST'])
+def lab8_1_a():
+    # Handle login
+    if request.method == 'POST' and 'login_btn' in request.form:
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        if username and password:
+            session['lab8_1_a_user'] = username
+            session['lab8_1_a_messages'] = []
     
-    # Check if we should show the login page (either via query param or if submitting form)
-    if request.args.get('mode') == 'login' or request.method == 'POST':
-        show_login = True
+    # Handle logout
+    if request.method == 'POST' and 'logout_btn' in request.form:
+        session.pop('lab8_1_a_user', None)
+        session.pop('lab8_1_a_messages', None)
     
-    if request.method == 'POST':
-        username = request.form.get('username')
-        # VULNERABILITY: Reflecting username without sanitization
-        # Check for XSS payload in username
-        if username and ('<script>' in username.lower() or '%3cscript%3e' in username.lower()):
-            flag = get_random_flag('lab8_1')
+    # Check if user is logged in
+    if 'lab8_1_a_user' in session:
+        flag = None
+        xss_detected = False
+        
+        # Handle search query (vulnerable field)
+        if request.method == 'POST' and 'search_btn' in request.form:
+            search_query = request.form.get('search_query', '').strip()
             
-    return render_template('lab8/sub1.html', username=username, flag=flag, show_login=show_login)
+            if search_query:
+                xss_patterns = ['<script', 'javascript:', '%3cscript']
+                search_query_lower = search_query.lower()
+                for pattern in xss_patterns:
+                    if pattern in search_query_lower:
+                        xss_detected = True
+                        flag = get_random_flag('lab8_1_a')
+                        break
+            
+            session['lab8_1_a_search'] = {
+                'query': search_query,
+                'detected': xss_detected,
+                'flag': flag
+            }
+        
+        search_data = session.get('lab8_1_a_search', {})
+        return render_template('lab8/sub1_a_dashboard.html', 
+                             username=session['lab8_1_a_user'],
+                             search_data=search_data)
+    else:
+        return render_template('lab8/sub1_a_login.html')
+
+# Lab 8.1.B: Image Tag Injection on Product Gallery
+@app.route('/lab8/1/b', methods=['GET', 'POST'])
+def lab8_1_b():
+    # Handle login
+    if request.method == 'POST' and 'login_btn' in request.form:
+        seller_name = request.form.get('seller_name', '').strip()
+        password = request.form.get('password', '')
+        if seller_name and password:
+            session['lab8_1_b_seller'] = seller_name
+            session['lab8_1_b_products'] = []
+    
+    # Handle logout
+    if request.method == 'POST' and 'logout_btn' in request.form:
+        session.pop('lab8_1_b_seller', None)
+        session.pop('lab8_1_b_products', None)
+    
+    # Check if seller is logged in
+    if 'lab8_1_b_seller' in session:
+        flag = None
+        xss_detected = False
+        upload_result = None
+        
+        # Handle product image upload (vulnerable field: image alt text)
+        if request.method == 'POST' and 'upload_btn' in request.form:
+            image_alt = request.form.get('image_alt', '').strip()
+            
+            if image_alt:
+                xss_patterns = ['<img', 'onerror=', '%3cimg']
+                image_alt_lower = image_alt.lower()
+                for pattern in xss_patterns:
+                    if pattern in image_alt_lower:
+                        xss_detected = True
+                        flag = get_random_flag('lab8_1_b')
+                        break
+            
+            upload_result = {
+                'alt_text': image_alt,
+                'detected': xss_detected,
+                'flag': flag
+            }
+        
+        products = session.get('lab8_1_b_products', [])
+        return render_template('lab8/sub1_b_dashboard.html', 
+                             seller_name=session['lab8_1_b_seller'],
+                             products=products,
+                             upload_result=upload_result)
+    else:
+        return render_template('lab8/sub1_b_login.html')
+
+# Lab 8.1.C: SVG Injection on Graphics Editor
+@app.route('/lab8/1/c', methods=['GET', 'POST'])
+def lab8_1_c():
+    # Handle login
+    if request.method == 'POST' and 'login_btn' in request.form:
+        designer_name = request.form.get('designer_name', '').strip()
+        password = request.form.get('password', '')
+        if designer_name and password:
+            session['lab8_1_c_designer'] = designer_name
+            session['lab8_1_c_projects'] = []
+    
+    # Handle logout
+    if request.method == 'POST' and 'logout_btn' in request.form:
+        session.pop('lab8_1_c_designer', None)
+        session.pop('lab8_1_c_projects', None)
+    
+    # Check if designer is logged in
+    if 'lab8_1_c_designer' in session:
+        flag = None
+        xss_detected = False
+        create_result = None
+        
+        # Handle project creation (vulnerable field: project description)
+        if request.method == 'POST' and 'create_btn' in request.form:
+            project_desc = request.form.get('project_desc', '').strip()
+            
+            if project_desc:
+                xss_patterns = ['<svg', 'onload=', '%3csvg']
+                project_desc_lower = project_desc.lower()
+                for pattern in xss_patterns:
+                    if pattern in project_desc_lower:
+                        xss_detected = True
+                        flag = get_random_flag('lab8_1_c')
+                        break
+            
+            create_result = {
+                'description': project_desc,
+                'detected': xss_detected,
+                'flag': flag
+            }
+        
+        projects = session.get('lab8_1_c_projects', [])
+        return render_template('lab8/sub1_c_dashboard.html', 
+                             designer_name=session['lab8_1_c_designer'],
+                             projects=projects,
+                             create_result=create_result)
+    else:
+        return render_template('lab8/sub1_c_login.html')
+
+# Lab 8.1.D: Event Handler Injection on Social Media
+@app.route('/lab8/1/d', methods=['GET', 'POST'])
+def lab8_1_d():
+    # Handle login
+    if request.method == 'POST' and 'login_btn' in request.form:
+        user_handle = request.form.get('user_handle', '').strip()
+        password = request.form.get('password', '')
+        if user_handle and password:
+            session['lab8_1_d_user'] = user_handle
+            session['lab8_1_d_posts'] = []
+    
+    # Handle logout
+    if request.method == 'POST' and 'logout_btn' in request.form:
+        session.pop('lab8_1_d_user', None)
+        session.pop('lab8_1_d_posts', None)
+    
+    # Check if user is logged in
+    if 'lab8_1_d_user' in session:
+        flag = None
+        xss_detected = False
+        post_result = None
+        
+        # Handle post/comment creation (vulnerable field: post content)
+        if request.method == 'POST' and 'post_btn' in request.form:
+            post_content = request.form.get('post_content', '').strip()
+            
+            if post_content:
+                xss_patterns = ['onmouseover=', 'onmouseenter=', 'onkeydown=', 'onfocus=', 'ondblclick=']
+                post_content_lower = post_content.lower()
+                for pattern in xss_patterns:
+                    if pattern in post_content_lower:
+                        xss_detected = True
+                        flag = get_random_flag('lab8_1_d')
+                        break
+            
+            posts = session.get('lab8_1_d_posts', [])
+            posts.insert(0, {
+                'content': post_content,
+                'detected': xss_detected,
+                'flag': flag
+            })
+            session['lab8_1_d_posts'] = posts
+            post_result = posts[0]
+        
+        posts = session.get('lab8_1_d_posts', [])
+        return render_template('lab8/sub1_d_dashboard.html', 
+                             user_handle=session['lab8_1_d_user'],
+                             posts=posts,
+                             post_result=post_result)
+    else:
+        return render_template('lab8/sub1_d_login.html')
+
+# Lab 8.1.E: IFrame Injection on Document Viewer
+@app.route('/lab8/1/e', methods=['GET', 'POST'])
+def lab8_1_e():
+    # Handle login
+    if request.method == 'POST' and 'login_btn' in request.form:
+        user_email = request.form.get('user_email', '').strip()
+        password = request.form.get('password', '')
+        if user_email and password:
+            session['lab8_1_e_user'] = user_email
+            session['lab8_1_e_documents'] = []
+    
+    # Handle logout
+    if request.method == 'POST' and 'logout_btn' in request.form:
+        session.pop('lab8_1_e_user', None)
+        session.pop('lab8_1_e_documents', None)
+    
+    # Check if user is logged in
+    if 'lab8_1_e_user' in session:
+        flag = None
+        xss_detected = False
+        upload_result = None
+        
+        # Handle document upload (vulnerable field: document source URL)
+        if request.method == 'POST' and 'upload_btn' in request.form:
+            doc_source = request.form.get('doc_source', '').strip()
+            
+            if doc_source:
+                xss_patterns = ['<iframe', 'javascript:', '%3ciframe']
+                doc_source_lower = doc_source.lower()
+                for pattern in xss_patterns:
+                    if pattern in doc_source_lower:
+                        xss_detected = True
+                        flag = get_random_flag('lab8_1_e')
+                        break
+            
+            upload_result = {
+                'source': doc_source,
+                'detected': xss_detected,
+                'flag': flag
+            }
+        
+        documents = session.get('lab8_1_e_documents', [])
+        return render_template('lab8/sub1_e_dashboard.html', 
+                             user_email=session['lab8_1_e_user'],
+                             documents=documents,
+                             upload_result=upload_result)
+    else:
+        return render_template('lab8/sub1_e_login.html')
+
 
 # Lab 8.2: Stored XSS (Profile Scenario)
 # Simple in-memory storage for Lab 8.2

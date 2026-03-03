@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocVault - Document Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-left p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .user-info {
+            text-align: right;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding-right: 1.5rem;
+        }
+        
+        .user-info small {
+            opacity: 0.8;
+        }
+        
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0c2d47;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0369a1;
+            box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .btn-upload {
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #0369a1, #0c4a6e);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            align-self: flex-end;
+        }
+        
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(3, 105, 161, 0.3);
+        }
+        
+        .upload-result {
+            background: #cffafe;
+            border-left: 4px solid #0369a1;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+        }
+        
+        .upload-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+        }
+        
+        .result-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #0c4a6e;
+        }
+        
+        .flag-text {
+            background: #1a1a2e;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        
+        .documents-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .document-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .document-item {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .document-item:hover {
+            background: #f3f4f6;
+            border-color: #0369a1;
+        }
+        
+        .doc-icon {
+            font-size: 2rem;
+            margin-right: 1.5rem;
+        }
+        
+        .doc-info {
+            flex: 1;
+        }
+        
+        .doc-name {
+            font-weight: 600;
+            color: #0c2d47;
+            margin-bottom: 0.25rem;
+        }
+        
+        .doc-date {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+        
+        .doc-size {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .explore-hint {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>📁 DocVault</h1>
+            <p>{{ user_email }}'s Vault</p>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div><strong>{{ user_email }}</strong></div>
+                <small>Secure Access</small>
+            </div>
+            <form method="POST" style="margin: 0;">
+                <button type="submit" name="logout_btn" value="1" class="btn-logout">Logout</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="upload-section">
+            <h2 class="section-title">📤 Embed External Document</h2>
+            <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Embed documents from external sources. You can link to PDFs, presentations, or other documents using iframe embedding.
+            </p>
+            
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Document Title</label>
+                        <input type="text" name="doc_title" class="form-input" placeholder="e.g., Q4 Financial Report" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Document Type</label>
+                        <input type="text" name="doc_type" class="form-input" placeholder="e.g., PDF, Presentation">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Document Source / Embed Code</label>
+                    <input 
+                        type="text" 
+                        name="doc_source" 
+                        class="form-input" 
+                        placeholder="Paste document URL or embed code (iframe with javascript: protocol works)" 
+                        required
+                    >
+                    <small style="color: #666; margin-top: 0.5rem; display: block;">
+                        Supports URLs, file paths, or iframe embed code for advanced document integration.
+                    </small>
+                </div>
+                
+                <button type="submit" name="upload_btn" value="1" class="btn-upload">Embed Document</button>
+            </form>
+            
+            {% if upload_result %}
+                {% if upload_result.detected and upload_result.flag %}
+                    <div class="upload-result upload-success">
+                        <div class="result-title">✅ IFrame Injection Successful!</div>
+                        <div style="margin-bottom: 0.5rem;">Your iframe payload was embedded and executed.</div>
+                        <div class="flag-text">{{ upload_result.flag }}</div>
+                    </div>
+                {% else %}
+                    <div class="upload-result">
+                        <div class="result-title">Document Embedded</div>
+                        <div style="margin-top: 0.5rem; color: #0c4a6e;">
+                            Source: {{ upload_result.source }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            
+            <div class="explore-hint">
+                💡 <strong>Hint:</strong> Try injecting an &lt;iframe&gt; tag with the <code>javascript:</code> protocol in the Document Source field. Example: &lt;iframe src="javascript:alert('XSS')"&gt;&lt;/iframe&gt;
+            </div>
+        </div>
+        
+        <div class="documents-section">
+            <h2 class="section-title">Your Documents</h2>
+            <div class="document-list">
+                <div class="document-item">
+                    <div class="doc-icon">📄</div>
+                    <div class="doc-info">
+                        <div class="doc-name">Company Handbook 2025</div>
+                        <div class="doc-date">Uploaded Jan 15, 2025</div>
+                    </div>
+                    <div class="doc-size">2.4 MB</div>
+                </div>
+                <div class="document-item">
+                    <div class="doc-icon">📊</div>
+                    <div class="doc-info">
+                        <div class="doc-name">Annual Review Presentation</div>
+                        <div class="doc-date">Uploaded Dec 28, 2024</div>
+                    </div>
+                    <div class="doc-size">5.8 MB</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

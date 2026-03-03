@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignHub Studio Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #f5f7fa;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2d1b69 0%, #3d2166 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-left p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .user-info {
+            text-align: right;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding-right: 1.5rem;
+        }
+        
+        .user-info small {
+            opacity: 0.8;
+        }
+        
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .create-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d1b69;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #9333ea;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+        }
+        
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+            font-family: monospace;
+        }
+        
+        .btn-create {
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);
+        }
+        
+        .create-result {
+            background: #f3e8ff;
+            border-left: 4px solid #9333ea;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+        }
+        
+        .create-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+        }
+        
+        .result-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #5b21b6;
+        }
+        
+        .flag-text {
+            background: #1a1a2e;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        
+        .projects-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .project-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .project-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .project-name {
+            font-weight: 600;
+            color: #2d1b69;
+            margin-bottom: 0.5rem;
+        }
+        
+        .project-desc {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .explore-hint {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>🎨 DesignHub Studio</h1>
+            <p>{{ designer_name }}'s Workspace</p>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div><strong>{{ designer_name }}</strong></div>
+                <small>Designer</small>
+            </div>
+            <form method="POST" style="margin: 0;">
+                <button type="submit" name="logout_btn" value="1" class="btn-logout">Logout</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="create-section">
+            <h2 class="section-title">🖌️ Create New Design Project</h2>
+            <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Start a new design project. Enter project details and a description. The description field supports SVG markup for advanced styling.
+            </p>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" name="project_name" class="form-input" placeholder="e.g., Website Redesign 2026" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Project Type</label>
+                    <input type="text" name="project_type" class="form-input" placeholder="e.g., Web Design, Logo, Brand Identity">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Project Description (Supports SVG)</label>
+                    <textarea 
+                        name="project_desc" 
+                        class="form-input" 
+                        placeholder="Describe your project... (SVG elements can be used for custom styling)" 
+                        required
+                    ></textarea>
+                    <small style="color: #666; margin-top: 0.5rem; display: block;">
+                        You can use SVG markup for advanced formatting and custom graphics.
+                    </small>
+                </div>
+                
+                <button type="submit" name="create_btn" value="1" class="btn-create">Create Project</button>
+            </form>
+            
+            {% if create_result %}
+                {% if create_result.detected and create_result.flag %}
+                    <div class="create-result create-success">
+                        <div class="result-title">✅ SVG Injection Successful!</div>
+                        <div style="margin-bottom: 0.5rem;">Your SVG payload was rendered and executed.</div>
+                        <div class="flag-text">{{ create_result.flag }}</div>
+                    </div>
+                {% else %}
+                    <div class="create-result">
+                        <div class="result-title">Project Created</div>
+                        <div style="margin-top: 0.5rem; color: #5b21b6;">
+                            Description: {{ create_result.description }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            
+            <div class="explore-hint">
+                💡 <strong>Hint:</strong> Try injecting an &lt;svg&gt; tag with an <code>onload</code> handler in the Project Description field. SVG elements are rendered without sanitization.
+            </div>
+        </div>
+        
+        <div class="projects-section">
+            <h2 class="section-title">Your Projects Portfolio</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <div class="project-icon">🌐</div>
+                    <div class="project-name">Website Design</div>
+                    <div class="project-desc">E-commerce Platform</div>
+                </div>
+                <div class="project-card">
+                    <div class="project-icon">🎯</div>
+                    <div class="project-name">Brand Identity</div>
+                    <div class="project-desc">Startup Logo Pack</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

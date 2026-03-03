@@ -1,4 +1,6 @@
-#!/home/kaustubh/Documents/AS/Vulnerable-Website/venv/bin/python3
+#!/bin/sh
+'''exec' "/home/kaustubh/Documents/AS Exam Project/Vulnerable-Website/venv/bin/python" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys

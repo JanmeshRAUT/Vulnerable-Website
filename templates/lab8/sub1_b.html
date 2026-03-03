@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 8.1.B - Image Injection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .gallery-item {
+            background: var(--dir-surface);
+            border: 1px solid var(--dir-border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .gallery-placeholder {
+            background: rgba(59, 130, 246, 0.1);
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            border: 2px dashed var(--dir-border);
+        }
+        
+        .lab-instructions {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            color: #e0e7ff;
+        }
+        
+        .payload-code {
+            background: #0f172a;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.25rem;
+            border-left: 2px solid #60a5fa;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            font-size: 0.8rem;
+        }
+        
+        .execution-indicator {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+
+{% if show_form %}
+    <div class="xss-real-wrapper">
+        <div class="login-mode-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="brand-logo">🖼️</div>
+                    <h1 class="login-title">Lab 8.1.B - Image Injection</h1>
+                    <p class="login-subtitle">Product Image Gallery</p>
+                </div>
+                
+                {% if xss_detected and flag %}
+                    <div class="flag-container">
+                        <div class="flag-header">
+                           ✅ <strong>Image Injection Successful!</strong>
+                        </div>
+                        <div>Your malicious image tag was reflected and executed.</div>
+                        <div class="flag-code">{{ flag }}</div>
+                    </div>
+                {% endif %}
+
+                {% if product_name %}
+                    {% if xss_detected %}
+                        <div class="alert-message" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7;">
+                            <div class="alert-icon">✓</div>
+                            <div class="alert-content">
+                                Image Tag Executed <span class="execution-indicator">ACTIVE</span>
+                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Payload: <strong>{{ product_name | safe }}</strong></span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert-message">
+                            <div class="alert-icon">ℹ️</div>
+                            <div class="alert-content">
+                                Product name reflected: <strong>{{ product_name }}</strong>
+                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Try injecting an image tag with error handler.</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <form action="{{ url_for('lab8_1_b') }}" method="POST" class="login-form">
+                    <div class="form-group">
+                        <label for="product_name" class="form-label">Product Name (Image Injection)</label>
+                        <input type="text" id="product_name" name="product_name" class="form-input" placeholder="&lt;img src=x onerror=alert('XSS')&gt;" autocomplete="off" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Add Product</button>
+                </form>
+
+                <div class="lab-instructions">
+                    <h3>📚 Lab 8.1.B: Image Tag Injection</h3>
+                    <p>Upload products to the gallery by injecting malicious image tags. The product name is <strong>directly rendered</strong> without encoding, allowing you to inject HTML.</p>
+                    
+                    <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 6px; margin-top: 1rem; font-size: 0.85rem; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <p style="color: #cbd5e1;"><strong>💡 Common Image Injection Payloads:</strong></p>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Broken image trigger:</p>
+                        <div class="payload-code">&lt;img src=x onerror=alert('XSS')&gt;</div>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">With custom message:</p>
+                        <div class="payload-code">&lt;img src=invalid onerror="alert('Image loaded: ' + this.src)"&gt;</div>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Fetch user data:</p>
+                        <div class="payload-code">&lt;img src=x onerror="fetch('/api/user').then(r=&gt;alert(r))"&gt;</div>
+                        
+                        <p style="color: #cbd5e1; margin-top: 0.75rem;">With event listener:</p>
+                        <div class="payload-code">&lt;img src=x onerror=this.onclick=()=&gt;alert('Click me!')&gt;</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="{{ url_for('lab8_1') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Back to Lab 8.1</a>
+                </div>
+            </div>
+            
+            <footer style="margin-top:2rem; text-align:center; color:#64748b; font-size:0.8rem;">
+                &copy; 2025 Security Training Labs. Educational Purpose Only.
+            </footer>
+        </div>
+    </div>
+
+{% else %}
+    <div class="site-wrapper">
+        <nav class="site-nav">
+            <div class="nav-logo">
+                <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🖼️</div>
+                Lab 8.1.B <span>Image Injection</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('lab8_1') }}" class="nav-link">Back to M8.1</a>
+            </div>
+        </nav>
+
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Image Injection<br>Attack Lab</h1>
+                <p class="hero-subtitle">Exploit broken image error handlers in product galleries to execute arbitrary code.</p>
+                <a href="{{ url_for('lab8_1_b', mode='upload') }}" class="btn-primary" style="padding:1rem 2rem; font-size:1.1rem;">Start Lab</a>
+            </div>
+        </section>
+    </div>
+{% endif %}
+
+</body>
+</html>
