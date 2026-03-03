@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphicStudio - Professional Design Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        /* ===== NAVIGATION HEADER ===== */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a, .nav-links button {
+            color: #333;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 6px;
+        }
+        
+        .nav-links a:hover, .nav-links button:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .logged-in {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+        }
+        
+        .user-greeting {
+            color: #333;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+        
+        /* ===== GALLERY ===== */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .project-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+        
+        .project-info {
+            padding: 1.5rem;
+        }
+        
+        .project-title {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .project-meta {
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        /* ===== FORMS ===== */
+        .form-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            background: white;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .flag-display {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .flag-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .flag-value {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #667eea;
+            font-weight: 700;
+            word-break: break-all;
+        }
+        
+        .search-results {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-title {
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .result-content {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION HEADER -->
+    <nav>
+        <div class="logo">GraphicStudio</div>
+        <ul class="nav-links">
+            <li><a href="/lab8/1/c">Portfolio</a></li>
+            <li><a href="/lab8/1/c/explore">Explore</a></li>
+            <li><a href="/lab8/1/c/create">Create</a></li>
+            <li><a href="/lab8/1/c/templates">Templates</a></li>
+            {% if logged_in %}
+            <li><a href="/lab8/1/c/projects">My Projects</a></li>
+            {% endif %}
+        </ul>
+        {% if logged_in %}
+        <div class="logged-in">
+            <span class="user-greeting">{{ username }}</span>
+            <form method="POST" style="display: inline;">
+                <button type="submit" name="logout_btn" class="btn-logout">Logout</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="logged-in">
+            <a href="/lab8/1/c/login" style="text-decoration: none;">
+                <button class="btn-logout">Sign In</button>
+            </a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% if page == 'portfolio' %}
+            <h1 class="page-title">Design Portfolio</h1>
+            <p class="page-subtitle">Inspiring designs from our community</p>
+            
+            <div class="portfolio-grid">
+                <div class="project-card">
+                    <div class="project-image">🎨</div>
+                    <div class="project-info">
+                        <div class="project-title">Web Design</div>
+                        <div class="project-meta">2024 • 1.3K Views</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">🖼️</div>
+                    <div class="project-info">
+                        <div class="project-title">Branding</div>
+                        <div class="project-meta">2024 • 2.1K Views</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">✨</div>
+                    <div class="project-info">
+                        <div class="project-title">UI Kit</div>
+                        <div class="project-meta">2024 • 890 Views</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">🎯</div>
+                    <div class="project-info">
+                        <div class="project-title">Marketing</div>
+                        <div class="project-meta">2024 • 1.5K Views</div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif page == 'login' %}
+            <div class="form-container">
+                <h1 class="page-title" style="text-align: center; color: #667eea;">Designer Sign In</h1>
+                <form method="POST">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="designer_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    <button type="submit" name="login_btn" class="btn-submit">Sign In</button>
+                </form>
+            </div>
+
+        {% elif page == 'create' and logged_in %}
+            <h1 class="page-title">Create New Project</h1>
+            <p class="page-subtitle">Turn your ideas into reality</p>
+            
+            <div class="form-container">
+                <form method="POST">
+                    <div class="form-group">
+                        <label>Project Name</label>
+                        <input type="text" name="project_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Project Description</label>
+                        <textarea name="project_desc" rows="5" placeholder="Describe your project details..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="web">Web Design</option>
+                            <option value="branding">Branding</option>
+                            <option value="ui">UI/UX</option>
+                            <option value="print">Print Design</option>
+                        </select>
+                    </div>
+                    <button type="submit" name="create_btn" class="btn-submit">Create Project</button>
+                </form>
+                
+                {% if create_result %}
+                    {% if create_result.get('detected') %}
+                        <div class="alert alert-success">
+                            ✓ XSS Vulnerability Detected! SVG injection successful in project description.
+                        </div>
+                        {% if create_result.get('flag') %}
+                            <div class="flag-display">
+                                <div class="flag-label">🏁 Challenge Completed - Flag:</div>
+                                <div class="flag-value">{{ create_result['flag'] }}</div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        {% elif page == 'explore' %}
+            <h1 class="page-title">Explore Designs</h1>
+            <p class="page-subtitle">Discover amazing work from designers worldwide</p>
+            
+            <div class="search-results">
+                <div class="result-item">
+                    <div class="result-title">🌟 Featured Collections</div>
+                    <div class="result-content">
+                        Browse curated collections of the best designs. From minimalist web interfaces to bold branding projects.
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-title">🔥 Trending This Week</div>
+                    <div class="result-content">
+                        See what's popular in the design community. Latest UI trends, color palettes, and design systems.
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-title">💡 Design Inspiration</div>
+                    <div class="result-content">
+                        Get inspired by thousands of projects created by talented designers. Learn new techniques and styles.
+                    </div>
+                </div>
+            </div>
+
+        {% elif page == 'templates' %}
+            <h1 class="page-title">Design Templates</h1>
+            <p class="page-subtitle">Start with professionally designed templates</p>
+            
+            <div class="portfolio-grid">
+                <div class="project-card">
+                    <div class="project-image">📱</div>
+                    <div class="project-info">
+                        <div class="project-title">Mobile App</div>
+                        <div class="project-meta">Free</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">🖥️</div>
+                    <div class="project-info">
+                        <div class="project-title">Website</div>
+                        <div class="project-meta">Free</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">📊</div>
+                    <div class="project-info">
+                        <div class="project-title">Dashboard</div>
+                        <div class="project-meta">Premium</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">🎬</div>
+                    <div class="project-info">
+                        <div class="project-title">Video Intro</div>
+                        <div class="project-meta">Premium</div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif page == 'projects' and logged_in %}
+            <h1 class="page-title">My Projects</h1>
+            <p class="page-subtitle">All your design projects in one place</p>
+            
+            <div class="search-results">
+                <div class="result-item">
+                    <div class="result-title">Active Projects</div>
+                    <div style="margin-top: 1rem;">
+                        <p><strong>Designer:</strong> {{ username }}</p>
+                        <p><strong>Total Projects:</strong> 5</p>
+                        <p><strong>Active Collaborations:</strong> 2</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

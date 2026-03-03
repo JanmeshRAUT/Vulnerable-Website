@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelArt - NFT & Digital Art Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f0f1e;
+            color: #e0e0e0;
+        }
+        
+        /* ===== NAVIGATION HEADER ===== */
+        nav {
+            background: linear-gradient(90deg, #1a1a2e 0%, #16213e 100%);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid #e94560;
+        }
+        
+        .logo {
+            color: #e94560;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a, .nav-links button {
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 6px;
+        }
+        
+        .nav-links a:hover, .nav-links button:hover {
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+        
+        .logged-in {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+        }
+        
+        .user-greeting {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+        }
+        
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            background: #e94560;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #d6364e;
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #e94560;
+        }
+        
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #999;
+            margin-bottom: 2rem;
+        }
+        
+        /* ===== HOME PAGE ===== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .nft-card {
+            background: #1a1a2e;
+            border: 2px solid #e94560;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+        }
+        
+        .nft-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #e94560 0%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .nft-info {
+            padding: 1.5rem;
+        }
+        
+        .nft-title {
+            color: #e94560;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nft-price {
+            color: #00ff00;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* ===== UPLOAD PAGE ===== */
+        .upload-box {
+            background: #1a1a2e;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 2px dashed #e94560;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #e94560;
+            border-radius: 6px;
+            background: #0f0f1e;
+            color: #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn-submit:hover {
+            background: #d6364e;
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+        }
+        
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            border-left: 4px solid;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-left-color: #00ff00;
+        }
+        
+        .flag-display {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-top: 2rem;
+            border-left: 4px solid #00ff00;
+        }
+        
+        .flag-label {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+        
+        .flag-value {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #00ff00;
+            font-weight: 700;
+            word-break: break-all;
+        }
+        
+        .search-results {
+            background: #1a1a2e;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid #e94560;
+        }
+        
+        .result-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-title {
+            font-size: 1.1rem;
+            color: #e94560;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .result-content {
+            color: #999;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION HEADER -->
+    <nav>
+        <div class="logo">PixelArt</div>
+        <ul class="nav-links">
+            <li><a href="/lab8/1/b">Gallery</a></li>
+            <li><a href="/lab8/1/b/trending">Trending</a></li>
+            <li><a href="/lab8/1/b/upload">Upload</a></li>
+            <li><a href="/lab8/1/b/community">Community</a></li>
+            {% if logged_in %}
+            <li><a href="/lab8/1/b/profile">My Gallery</a></li>
+            {% endif %}
+        </ul>
+        {% if logged_in %}
+        <div class="logged-in">
+            <span class="user-greeting">@{{ username }}</span>
+            <form method="POST" style="display: inline;">
+                <button type="submit" name="logout_btn" class="btn-logout">Disconnect</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="logged-in">
+            <a href="/lab8/1/b/login" style="color: #e94560; text-decoration: none;">Connect Wallet</a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% if page == 'gallery' %}
+            <h1 class="page-title">NFT Gallery</h1>
+            <p class="page-subtitle">Discover unique digital art and collectibles</p>
+            
+            <div class="gallery-grid">
+                <div class="nft-card">
+                    <div class="nft-image">🎨</div>
+                    <div class="nft-info">
+                        <div class="nft-title">Cyber Dreams</div>
+                        <div class="nft-price">2.5 ETH</div>
+                    </div>
+                </div>
+                <div class="nft-card">
+                    <div class="nft-image">🚀</div>
+                    <div class="nft-info">
+                        <div class="nft-title">Space Odyssey</div>
+                        <div class="nft-price">1.8 ETH</div>
+                    </div>
+                </div>
+                <div class="nft-card">
+                    <div class="nft-image">💎</div>
+                    <div class="nft-info">
+                        <div class="nft-title">Diamond Heart</div>
+                        <div class="nft-price">3.2 ETH</div>
+                    </div>
+                </div>
+                <div class="nft-card">
+                    <div class="nft-image">🌌</div>
+                    <div class="nft-info">
+                        <div class="nft-title">Galaxy</div>
+                        <div class="nft-price">2.1 ETH</div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif page == 'login' %}
+            <div style="max-width: 500px; margin: 2rem auto;">
+                <h1 class="page-title">Connect Your Wallet</h1>
+                <form method="POST" class="upload-box">
+                    <div class="form-group">
+                        <label>Artist Handle</label>
+                        <input type="text" name="seller_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Wallet Password</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    <button type="submit" name="login_btn" class="btn-submit">Connect</button>
+                </form>
+            </div>
+
+        {% elif page == 'upload' and logged_in %}
+            <h1 class="page-title">Upload NFT</h1>
+            <p class="page-subtitle">Create and mint your digital artwork</p>
+            
+            <div class="upload-box">
+                <form method="POST">
+                    <div class="form-group">
+                        <label>Artwork Title</label>
+                        <input type="text" name="artwork_title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="artwork_desc" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Image Alt Text (for accessibility)</label>
+                        <input type="text" name="image_alt" placeholder="Enter image description..." value="{{ upload_result.get('alt_text', '') if upload_result else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Price (ETH)</label>
+                        <input type="number" name="price" step="0.01" required>
+                    </div>
+                    <button type="submit" name="upload_btn" class="btn-submit">Mint NFT</button>
+                </form>
+                
+                {% if upload_result %}
+                    {% if upload_result.get('detected') %}
+                        <div class="alert alert-success">
+                            ✓ XSS Vulnerability Detected! Code injection successful in image alt text field.
+                        </div>
+                        {% if upload_result.get('flag') %}
+                            <div class="flag-display">
+                                <div class="flag-label">🏁 Challenge Completed - Flag:</div>
+                                <div class="flag-value">{{ upload_result['flag'] }}</div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        {% elif page == 'trending' %}
+            <h1 class="page-title">Trending Now</h1>
+            <p class="page-subtitle">Most popular NFTs this week</p>
+            
+            <div class="search-results">
+                <div class="result-item">
+                    <div class="result-title">🔥 Digital Renaissance</div>
+                    <div class="result-content">
+                        A collection of AI-generated artworks gaining momentum in the crypto community. Trading volume up 340% this week.
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-title">✨ Quantum Series</div>
+                    <div class="result-content">
+                        Limited edition 100-piece series exploring the intersection of quantum physics and digital art. Floor price: 1.5 ETH
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-title">🎪 Metaverse Estates</div>
+                    <div class="result-content">
+                        Virtual real estate in leading metaverse platforms. Prices have tripled over the past month.
+                    </div>
+                </div>
+            </div>
+
+        {% elif page == 'community' %}
+            <h1 class="page-title">Community</h1>
+            <p class="page-subtitle">Connect with other artists and collectors</p>
+            
+            <div class="gallery-grid" style="grid-template-columns: 1fr;">
+                <div class="search-results">
+                    <div class="result-item">
+                        <div class="result-title">Featured Artists</div>
+                        <div class="result-content">
+                            Join our vibrant community of creators. Share your work, collaborate, and build your audience in the NFT space.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif page == 'profile' and logged_in %}
+            <h1 class="page-title">My Gallery</h1>
+            <p class="page-subtitle">Your NFT Portfolio</p>
+            
+            <div class="search-results">
+                <div class="result-item">
+                    <div class="result-title">Artist Profile</div>
+                    <div style="margin-top: 1rem;">
+                        <p><strong>Artist Handle:</strong> @{{ username }}</p>
+                        <p><strong>Total NFTs:</strong> 12</p>
+                        <p><strong>Total Volume:</strong> 23.5 ETH</p>
+                        <p><strong>Floor Price:</strong> 1.2 ETH</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

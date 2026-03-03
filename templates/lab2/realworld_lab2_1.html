@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechStore - Electronics Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        /* ===== NAVIGATION ===== */
+        nav {
+            background: linear-gradient(135deg, #001a4d 0%, #0a3566 100%);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .auth-section {
+            margin-left: auto;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* ===== MAIN CONTAINER ===== */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #001a4d;
+        }
+        
+        /* ===== HERO ===== */
+        .hero {
+            background: linear-gradient(135deg, #001a4d 0%, #0a3566 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .hero h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-primary {
+            padding: 0.8rem 2rem;
+            background: #0099ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #0077cc;
+            transform: translateY(-2px);
+        }
+        
+        /* ===== PRODUCT GRID ===== */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-name {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-price {
+            color: #0099ff;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        /* ===== ADMIN HINT ===== */
+        .hint-box {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 3rem;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .hint-box h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hint-box p {
+            color: #856404;
+            font-size: 0.95rem;
+        }
+        
+        /* ===== ADMIN PANEL ===== */
+        .admin-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-panel h3 {
+            margin-bottom: 1.5rem;
+            color: #001a4d;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0099ff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .flag-display {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin-top: 1rem;
+        }
+        
+        .flag-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .flag-value {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #28a745;
+            font-weight: 700;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav>
+        <div class="logo">🛍️ TechStore</div>
+        <ul class="nav-links">
+            <li><a href="/lab2/1">Home</a></li>
+            <li><a href="/lab2/1/products">Products</a></li>
+            <li><a href="/lab2/1/about">About</a></li>
+            <li><a href="/lab2/1/contact">Contact</a></li>
+        </ul>
+        <div class="auth-section">
+            {% if admin_found %}
+                <span style="color: white; margin-right: 1rem;">Admin Access Granted!</span>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="reset" class="btn-logout">Reset</button>
+                </form>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if page == 'home' %}
+            <div class="hero">
+                <h2>Welcome to TechStore</h2>
+                <p>Discover the latest electronics and gadgets</p>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="explore" class="btn-primary">Shop Now</button>
+                </form>
+            </div>
+            
+            <div class="hint-box">
+                <h4>🔍 Security Challenge</h4>
+                <p><strong>Hint:</strong> Check robots.txt file or look at the page source code for hidden admin paths. Admin panels often expose secrets through metadata disclosure!</p>
+            </div>
+            
+            {% if admin_found %}
+                <div style="margin-top: 3rem;">
+                    <h2 class="page-title">🔐 Admin Panel - Restricted Access</h2>
+                    <div class="admin-panel">
+                        <h3>Dashboard Statistics</h3>
+                        <div class="stats">
+                            <div class="stat-card">
+                                <div class="stat-number">1,245</div>
+                                <div class="stat-label">Total Orders</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">$45,320</div>
+                                <div class="stat-label">Revenue</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">856</div>
+                                <div class="stat-label">Active Users</div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            ✓ You found the hidden admin panel! Access control vulnerability detected.
+                        </div>
+                        
+                        {% if flag %}
+                            <div class="flag-display">
+                                <div class="flag-label">🏁 Challenge Completed - Flag:</div>
+                                <div class="flag-value">{{ flag }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+        {% elif page == 'products' %}
+            <h1 class="page-title">Popular Products</h1>
+            
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">💻</div>
+                    <div class="product-info">
+                        <div class="product-name">Quantum X1 Laptop</div>
+                        <div class="product-price">$1,299</div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">📱</div>
+                    <div class="product-info">
+                        <div class="product-name">Nebula Phone Pro</div>
+                        <div class="product-price">$899</div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">⌚</div>
+                    <div class="product-info">
+                        <div class="product-name">SmartWatch Ultra</div>
+                        <div class="product-price">$349</div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">🎧</div>
+                    <div class="product-info">
+                        <div class="product-name">AudioMax Headphones</div>
+                        <div class="product-price">$199</div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif page == 'about' %}
+            <h1 class="page-title">About Us</h1>
+            <div style="background: white; padding: 2rem; border-radius: 12px;">
+                <p>TechStore is a leading electronics retailer committed to providing quality products and excellent customer service.</p>
+            </div>
+
+        {% elif page == 'contact' %}
+            <h1 class="page-title">Contact Us</h1>
+            <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px;">
+                <p>📧 support@techstore.local</p>
+                <p>📞 1-800-TECH-STORE</p>
+                <p>🏢 123 Technology Ave, Silicon Valley, CA</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

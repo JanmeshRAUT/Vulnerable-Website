@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialHub - Connect & Share</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        
+        /* ===== NAVIGATION HEADER ===== */
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 3px solid #1877f2;
+        }
+        
+        .logo {
+            color: #1877f2;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        
+        .nav-search {
+            flex: 1;
+            margin: 0 2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-search input {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.6rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: #f0f2f5;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a, .nav-links button {
+            color: #65676b;
+            text-decoration: none;
+            padding: 0.5rem 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-links a:hover, .nav-links button:hover {
+            color: #1877f2;
+            border-bottom-color: #1877f2;
+        }
+        
+        .logged-in {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+        }
+        
+        .user-greeting {
+            color: #333;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .btn-logout {
+            padding: 0.6rem 1.5rem;
+            background: #1877f2;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #166fe5;
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #050505;
+        }
+        
+        /* ===== FEED ===== */
+        .post-box {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1877f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            margin-right: 0.8rem;
+        }
+        
+        .post-user-info h4 {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .post-user-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #65676b;
+        }
+        
+        .post-content {
+            background: #f0f2f5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 0.8rem;
+        }
+        
+        .post-action {
+            flex: 1;
+            padding: 0.6rem;
+            text-align: center;
+            color: #65676b;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+        
+        .post-action:hover {
+            background: #f0f2f5;
+            color: #1877f2;
+        }
+        
+        .create-post-box {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .create-post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .create-post-input {
+            flex: 1;
+            background: #f0f2f5;
+            border: none;
+            padding: 0.8rem 1rem;
+            border-radius: 20px;
+            margin-left: 0.8rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        
+        .post-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 5px rgba(24, 119, 242, 0.2);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit:hover {
+            background: #166fe5;
+        }
+        
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .flag-display {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flag-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .flag-value {
+            font-family: monospace;
+            font-size: 1rem;
+            color: #155724;
+            font-weight: 700;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-search {
+                display: none;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION HEADER -->
+    <nav>
+        <div class="logo">SocialHub</div>
+        <div class="nav-search" style="display: none;">
+            <input type="text" placeholder="Search">
+        </div>
+        <ul class="nav-links">
+            <li><a href="/lab8/1/d">Home</a></li>
+            <li><a href="/lab8/1/d/friends">Friends</a></li>
+            <li><a href="/lab8/1/d/messages">Messages</a></li>
+            <li><a href="/lab8/1/d/notifications">Notifications</a></li>
+            {% if logged_in %}
+            <li><a href="/lab8/1/d/myfeed">Feed</a></li>
+            {% endif %}
+        </ul>
+        {% if logged_in %}
+        <div class="logged-in">
+            <span class="user-greeting">@{{ user_handle }}</span>
+            <form method="POST" style="display: inline;">
+                <button type="submit" name="logout_btn" class="btn-logout">Logout</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="logged-in">
+            <a href="/lab8/1/d/login" style="text-decoration: none;">
+                <button class="btn-logout">Sign In</button>
+            </a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% if page == 'home' %}
+            <h1 class="page-title">Welcome to SocialHub</h1>
+            <p style="color: #65676b; margin-bottom: 2rem;">Connect with friends and share your thoughts</p>
+            
+            <div class="post-box">
+                <div class="post-header">
+                    <div class="post-avatar">S</div>
+                    <div class="post-user-info">
+                        <h4>SocialHub Team</h4>
+                        <p>Official • 2 hours ago</p>
+                    </div>
+                </div>
+                <div class="post-content">
+                    Welcome to SocialHub! Your new favorite place to connect. Share your thoughts, photos, and ideas with friends from around the world.
+                </div>
+                <div class="post-actions">
+                    <div class="post-action">👍 Like</div>
+                    <div class="post-action">💬 Comment</div>
+                    <div class="post-action">↗️ Share</div>
+                </div>
+            </div>
+
+        {% elif page == 'login' %}
+            <div style="max-width: 400px; margin: 4rem auto;">
+                <h1 class="page-title" style="text-align: center;">Sign In to SocialHub</h1>
+                <div class="post-form">
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Username / Handle</label>
+                            <input type="text" name="user_handle" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;" required>
+                        </div>
+                        <button type="submit" name="login_btn" class="btn-submit">Sign In</button>
+                    </form>
+                </div>
+            </div>
+
+        {% elif page == 'myfeed' and logged_in %}
+            <h1 class="page-title">Your Feed</h1>
+            
+            <div class="post-form">
+                <div class="post-header">
+                    <div class="post-avatar" style="margin: 0; margin-right: 0.8rem;">{{ user_handle[0].upper() }}</div>
+                    <div style="flex: 1;">
+                        <div class="post-user-info">
+                            <h4>{{ user_handle }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <form method="POST">
+                    <div class="form-group">
+                        <textarea name="post_content" placeholder="What's on your mind?" required></textarea>
+                    </div>
+                    <button type="submit" name="post_btn" class="btn-submit">Post</button>
+                </form>
+                
+                {% if post_result %}
+                    {% if post_result.get('detected') %}
+                        <div class="alert alert-success">
+                            ✓ XSS Vulnerability Detected! Event handler injection successful.
+                        </div>
+                        {% if post_result.get('flag') %}
+                            <div class="flag-display">
+                                <div class="flag-label">🏁 Challenge Completed - Flag:</div>
+                                <div class="flag-value">{{ post_result['flag'] }}</div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Recent Posts</h2>
+            {% for post in posts %}
+                <div class="post-box">
+                    <div class="post-header">
+                        <div class="post-avatar">{{ user_handle[0].upper() }}</div>
+                        <div class="post-user-info">
+                            <h4>{{ user_handle }}</h4>
+                            <p>Just now</p>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        {{ post.get('content', '') }}
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">👍 Like</div>
+                        <div class="post-action">💬 Reply</div>
+                        <div class="post-action">↗️ Share</div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% elif page == 'friends' %}
+            <h1 class="page-title">Friends</h1>
+            
+            <div class="post-box" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                <p>Connect with friends to see their posts and updates</p>
+            </div>
+
+        {% elif page == 'messages' %}
+            <h1 class="page-title">Messages</h1>
+            
+            <div class="post-box" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
+                <p>Send and receive private messages with your friends</p>
+            </div>
+
+        {% elif page == 'notifications' %}
+            <h1 class="page-title">Notifications</h1>
+            
+            <div class="post-box">
+                <div style="font-size: 0.9rem; color: #65676b;">
+                    <p>✅ You have no new notifications</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

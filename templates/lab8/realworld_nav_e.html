@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocVault - Secure Document Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        
+        /* ===== NAVIGATION HEADER ===== */
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 3px solid #2c3e50;
+        }
+        
+        .logo {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a, .nav-links button {
+            color: #555;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 6px;
+        }
+        
+        .nav-links a:hover, .nav-links button:hover {
+            background: #f0f2f5;
+            color: #2c3e50;
+        }
+        
+        .logged-in {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+        }
+        
+        .user-greeting {
+            color: #333;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            background: #2c3e50;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #1a252f;
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        /* ===== DASHBOARD ===== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.3rem;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        /* ===== DOCUMENT MANAGEMENT ===== */
+        .document-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 3rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2c3e50;
+            box-shadow: 0 0 8px rgba(44, 62, 80, 0.1);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit:hover {
+            background: #1a252f;
+        }
+        
+        /* ===== DOCUMENTS TABLE ===== */
+        .documents-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        
+        .documents-table thead {
+            background: #f0f2f5;
+        }
+        
+        .documents-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .documents-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .doc-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        .doc-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .doc-info {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .btn-download {
+            padding: 0.4rem 0.8rem;
+            background: #e8f4f8;
+            color: #2c3e50;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-download:hover {
+            background: #d0e8f0;
+        }
+        
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .flag-display {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-top: 2rem;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .flag-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .flag-value {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #28a745;
+            font-weight: 700;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION HEADER -->
+    <nav>
+        <div class="logo">DocVault</div>
+        <ul class="nav-links">
+            <li><a href="/lab8/1/e">Dashboard</a></li>
+            <li><a href="/lab8/1/e/documents">Documents</a></li>
+            <li><a href="/lab8/1/e/upload">Upload</a></li>
+            <li><a href="/lab8/1/e/settings">Settings</a></li>
+            {% if logged_in %}
+            <li><a href="/lab8/1/e/shared">Shared</a></li>
+            {% endif %}
+        </ul>
+        {% if logged_in %}
+        <div class="logged-in">
+            <span class="user-greeting">{{ user_email }}</span>
+            <form method="POST" style="display: inline;">
+                <button type="submit" name="logout_btn" class="btn-logout">Logout</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="logged-in">
+            <a href="/lab8/1/e/login" style="text-decoration: none;">
+                <button class="btn-logout">Sign In</button>
+            </a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% if page == 'dashboard' %}
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Manage your documents securely</p>
+            
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">Total Documents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Shared Files</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💾</div>
+                    <div class="stat-number">4.2 GB</div>
+                    <div class="stat-label">Storage Used</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Security Rating</div>
+                </div>
+            </div>
+            
+            <div class="document-section">
+                <div class="section-title">Recent Documents</div>
+                <table class="documents-table">
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Date Modified</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="doc-icon">📑</span><span class="doc-name">presentation.pdf</span></td>
+                            <td><span class="doc-info">2024-03-02</span></td>
+                            <td><span class="doc-info">2.3 MB</span></td>
+                            <td><button class="btn-download">Download</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-icon">📊</span><span class="doc-name">financial_report.xlsx</span></td>
+                            <td><span class="doc-info">2024-03-01</span></td>
+                            <td><span class="doc-info">830 KB</span></td>
+                            <td><button class="btn-download">Download</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-icon">📄</span><span class="doc-name">contract.docx</span></td>
+                            <td><span class="doc-info">2024-02-28</span></td>
+                            <td><span class="doc-info">1.1 MB</span></td>
+                            <td><button class="btn-download">Download</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        {% elif page == 'login' %}
+            <div style="max-width: 500px; margin: 4rem auto;">
+                <h1 class="page-title" style="text-align: center;">Sign In to DocVault</h1>
+                <div class="document-section">
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="user_email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" required>
+                        </div>
+                        <button type="submit" name="login_btn" class="btn-submit">Sign In Securely</button>
+                    </form>
+                </div>
+            </div>
+
+        {% elif page == 'upload' and logged_in %}
+            <h1 class="page-title">Upload Documents</h1>
+            <p class="page-subtitle">Add new files to your vault</p>
+            
+            <div class="document-section">
+                <form method="POST">
+                    <div class="form-group">
+                        <label>Document Title</label>
+                        <input type="text" name="doc_title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Document Description</label>
+                        <textarea name="doc_description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Document Source URL (for embedded viewer)</label>
+                        <input type="text" name="doc_source" placeholder="https://example.com/docs/file.pdf" value="{{ upload_result.get('source', '') if upload_result else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Document Type</label>
+                        <select name="doc_type" required>
+                            <option value="">Select document type</option>
+                            <option value="pdf">PDF</option>
+                            <option value="docx">Word Document</option>
+                            <option value="xlsx">Spreadsheet</option>
+                            <option value="pptx">Presentation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" name="upload_btn" class="btn-submit">Upload Document</button>
+                </form>
+                
+                {% if upload_result %}
+                    {% if upload_result.get('detected') %}
+                        <div class="alert alert-success">
+                            ✓ XSS Vulnerability Detected! IFrame injection successful in document source field.
+                        </div>
+                        {% if upload_result.get('flag') %}
+                            <div class="flag-display">
+                                <div class="flag-label">🏁 Challenge Completed - Flag:</div>
+                                <div class="flag-value">{{ upload_result['flag'] }}</div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div style="margin-top: 2rem; padding: 1rem; background: #f0f2f5; border-radius: 6px;">
+                            <p style="color: #666;">Try entering a payload like &lt;iframe src="javascript:alert('XSS')"&gt;&lt;/iframe&gt; to test the vulnerability.</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        {% elif page == 'documents' %}
+            <h1 class="page-title">All Documents</h1>
+            <p class="page-subtitle">Access all your stored files</p>
+            
+            <div class="document-section">
+                <table class="documents-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th>Date Created</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="doc-icon">🔒</span><span class="doc-name">confidential.pdf</span></td>
+                            <td>PDF</td>
+                            <td>2024-03-02</td>
+                            <td>5.2 MB</td>
+                            <td><button class="btn-download">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="doc-icon">📊</span><span class="doc-name">analysis.xlsx</span></td>
+                            <td>Spreadsheet</td>
+                            <td>2024-03-01</td>
+                            <td>1.8 MB</td>
+                            <td><button class="btn-download">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        {% elif page == 'settings' %}
+            <h1 class="page-title">Settings</h1>
+            <p class="page-subtitle">Manage your account preferences</p>
+            
+            <div class="document-section">
+                <div class="section-title">Account Settings</div>
+                <p style="margin-bottom: 1rem;">Configure your DocVault account and privacy settings.</p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Enable Two-Factor Authentication</li>
+                    <li>Change Password</li>
+                    <li>Manage Linked Devices</li>
+                    <li>Document Sharing Preferences</li>
+                </ul>
+            </div>
+
+        {% elif page == 'shared' and logged_in %}
+            <h1 class="page-title">Shared Documents</h1>
+            <p class="page-subtitle">Documents shared with you</p>
+            
+            <div class="document-section">
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">📋</div>
+                    <p>No shared documents yet. Ask colleagues to share files with you.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
