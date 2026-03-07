@@ -1,5 +1,6 @@
 
 import os
+import sys
 import sqlite3
 import subprocess
 import requests
@@ -8,6 +9,18 @@ import random
 import re
 import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g, jsonify
+
+# Get base directory (works for both EXE and script execution)
+def get_base_path():
+    """Get the base path for resources (works for both dev and PyInstaller)"""
+    if getattr(sys, 'frozen', False):
+        # Running as compiled executable - extract temp directory
+        return sys._MEIPASS
+    else:
+        # Running as script - use current directory
+        return os.path.dirname(os.path.abspath(__file__))
+
+BASE_PATH = get_base_path()
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_that_is_not_secure_at_all'
@@ -373,9 +386,8 @@ def lab1_1_download():
         return "No file specified", 400
     
     try:
-        base_dir = os.getcwd()
-        intended_dir = os.path.join(base_dir, 'data', 'docuvault', 'invoices')
-        file_path = os.path.join(intended_dir, filename)
+        intended_dir = os.path.join(BASE_PATH, 'data', 'docuvault', 'invoices')
+        file_path = os.path.normpath(os.path.join(intended_dir, filename))
         
         if os.path.exists(file_path):
             return send_file(file_path, as_attachment=False, mimetype='text/plain')
@@ -442,9 +454,8 @@ def lab1_2_image():
     
     # VULNERABILITY: Path Traversal
     # Intended directory is 'img' folder in root
-    base_dir = os.getcwd()
-    intended_dir = os.path.join(base_dir, 'img')
-    file_path = os.path.join(intended_dir, filename)
+    intended_dir = os.path.join(BASE_PATH, 'img')
+    file_path = os.path.normpath(os.path.join(intended_dir, filename))
     
     # We should normalize path to check if it's safe (which we WON'T do for the vulnerability)
     # But we will check if it exists
@@ -487,9 +498,8 @@ def lab1_3_image():
     
     # VULNERABILITY: Path Traversal
     # Intended directory is 'img' folder in root, but no path normalization
-    base_dir = os.getcwd()
-    intended_dir = os.path.join(base_dir, 'img')
-    file_path = os.path.join(intended_dir, image)
+    intended_dir = os.path.join(BASE_PATH, 'img')
+    file_path = os.path.normpath(os.path.join(intended_dir, image))
     
     if os.path.exists(file_path):
         return send_file(file_path, mimetype='image/jpeg')
@@ -500,7 +510,7 @@ def lab1_3_image():
 @app.route('/lab1/3/preview/<path:filename>')
 def lab1_3_preview(filename):
     # Serve directly from the 'img' folder in the root directory
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     img_dir = os.path.join(base_dir, 'img')
     return send_from_directory(img_dir, filename)
 
@@ -511,9 +521,8 @@ def lab1_3_download():
         return "No file specified", 400
     
     try:
-        base_dir = os.getcwd()
-        intended_dir = os.path.join(base_dir, 'data', 'mediahub', 'gallery', 'uploads')
-        file_path = os.path.join(intended_dir, filename)
+        intended_dir = os.path.join(BASE_PATH, 'data', 'mediahub', 'gallery', 'uploads')
+        file_path = os.path.normpath(os.path.join(intended_dir, filename))
         
         if os.path.exists(file_path):
             return send_file(file_path, as_attachment=False, mimetype='text/plain')
@@ -557,7 +566,7 @@ def lab2_5_menu():
 @app.route('/lab2/1/robots.txt')
 def robots_txt_a():
     # Serve real static file
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'a')
     return send_from_directory(file_dir, 'robots.txt')
 
@@ -565,7 +574,7 @@ def robots_txt_a():
 @app.route('/lab2/1/b/robots.txt')
 def robots_txt_b():
     # Serve real static file
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'b')
     return send_from_directory(file_dir, 'robots.txt')
 
@@ -573,7 +582,7 @@ def robots_txt_b():
 @app.route('/lab2/1/c/robots.txt')
 def robots_txt_c():
     # Serve real static file
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'c')
     return send_from_directory(file_dir, 'robots.txt')
 
@@ -2035,7 +2044,7 @@ def lab5_1_upload():
     filename = file.filename
     
     # Create User Specific Directory
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
@@ -2058,7 +2067,7 @@ def lab5_1_logout():
     uid = session.get('lab5_1_uid')
     if uid:
         import shutil
-        base_dir = os.getcwd()
+        base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
@@ -2075,7 +2084,7 @@ def lab5_1_logout():
 @app.route('/files/avatars/<path:filename>')
 def lab5_1_file(filename):
     # Filename here will be "uid/actual_filename.ext" because of <path:filename>
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     # Base upload directory
     upload_base_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars')
     
@@ -2196,7 +2205,7 @@ def lab5_2_upload():
     # If the attacker changes Content-Type to image/jpeg, we accept it, even if filename is exploit.php
     filename = file.filename
     
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
@@ -2217,7 +2226,7 @@ def lab5_2_logout():
     uid = session.get('lab5_2_uid')
     if uid:
         import shutil
-        base_dir = os.getcwd()
+        base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
@@ -2294,7 +2303,7 @@ def lab5_2_b_upload():
                              error=f"ERROR P-902: Invalid format {file.content_type}. Driver app only accepts camera images (JPEG/PNG).")
     
     filename = file.filename
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
@@ -2312,7 +2321,7 @@ def lab5_2_b_logout():
     uid = session.get('lab5_2_b_uid')
     if uid:
         import shutil
-        base_dir = os.getcwd()
+        base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
@@ -2383,7 +2392,7 @@ def lab5_2_c_upload():
                              error=f"SECURITY ALERT: The format {file.content_type} is not compliant with banking regulations. Upload only JPEG/PNG scans.")
     
     filename = file.filename
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
@@ -2401,7 +2410,7 @@ def lab5_2_c_logout():
     uid = session.get('lab5_2_c_uid')
     if uid:
         import shutil
-        base_dir = os.getcwd()
+        base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
@@ -2476,7 +2485,7 @@ def lab5_1_b_upload():
     
     # VULNERABILITY
     filename = file.filename
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
@@ -2493,7 +2502,7 @@ def lab5_1_b_logout():
     uid = session.get('lab5_1_b_uid')
     if uid:
         import shutil
-        base_dir = os.getcwd()
+        base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
@@ -2568,7 +2577,7 @@ def lab5_1_c_upload():
     
     # VULNERABILITY
     filename = file.filename
-    base_dir = os.getcwd()
+    base_dir = BASE_PATH
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
@@ -2585,7 +2594,7 @@ def lab5_1_c_logout():
     uid = session.get('lab5_1_c_uid')
     if uid:
         import shutil
-        base_dir = os.getcwd()
+        base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
