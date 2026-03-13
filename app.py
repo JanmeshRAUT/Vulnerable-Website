@@ -3163,8 +3163,9 @@ def lab7_1_b():
 
 @app.route('/lab7/1/c')
 def lab7_1_c():
-    # Lab 7.1.C is currently unavailable
-    return render_template('lab_unavailable.html', lab_name='Lab 7.1.C - PetShop (UNION Attack)', lab_id='lab7_1_c'), 503
+    category = request.args.get('category', '')
+    db = get_db()
+    cursor = db.cursor()
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS lab7_pets (
