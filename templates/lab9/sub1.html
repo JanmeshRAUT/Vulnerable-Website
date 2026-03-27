@@ -1,0 +1,307 @@
+{% extends 'base.html' %} 
+
+{% block title %}Sentinel - Mobile Binary Analysis | Lab 9{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab9.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lab9-container">
+    <header class="scanner-header">
+        <div class="scanner-brand">
+            <span>STATIC</span> SENTINEL.ANALYZER
+        </div>
+        <div style="font-size: 0.8rem; color: #666;">
+            BUILD: v5.28_X-RAY_PRO
+        </div>
+    </header>
+
+    <!-- Upload Selection -->
+    <div id="upload-view" style="display: block;">
+        <div class="upload-zone" onclick="document.getElementById('apk-input').click()">
+            <div class="pulse-loader"></div>
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: white;">Initialize Research Scan</h2>
+            <p style="color: #666; max-width: 400px; margin: 0 auto;">Upload a mobile binary (APK) to initiate deep static analysis. The Sentinel engine will perform archive inspection and binary string extraction to identify secrets.</p>
+            <div style="margin-top: 1.5rem; color: var(--scanner-accent); font-size: 0.8rem;">
+                <a href="/lab9/sample" style="color: inherit; text-decoration: underline;">Don't have a binary? Download Research Sample Resource Pack</a>
+            </div>
+            <div style="margin-top: 2rem;">
+                <input type="file" id="apk-input" style="display: none;" onchange="handleFileSelect(this)">
+                <button class="btn btn-primary" style="padding: 1rem 3rem;">SELECT BINARY FILE</button>
+            </div>
+
+        </div>
+        
+        <div class="dashboard-grid active" id="initial-stats">
+
+            <div class="stat-card">
+                <div class="stat-card-label">TOTAL SAMPLES ANALYZED</div>
+                <div class="stat-card-value">1,204</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">CRITICAL VULNERABILITIES FOUND</div>
+                <div class="stat-card-value">12.5k</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">AVG SCAN DURATION</div>
+                <div class="stat-card-value">14.2s</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scan Progress Overlay -->
+    <div id="progress-overlay" class="scan-progress-overlay">
+        <div class="pulse-loader" style="width: 120px; height: 120px;"></div>
+        <div id="scan-step" class="scan-status-text">INITIALIZING ENGINE...</div>
+        <div class="scan-bar">
+            <div id="scan-bar-fill" class="scan-bar-fill"></div>
+        </div>
+        <div style="color: #444; font-size: 0.8rem; margin-top: 1rem;">DO NOT INTERRUPT SYSTEM INTERFACE</div>
+    </div>
+
+    <!-- Results View -->
+    <div id="results-view" style="display: none;">
+        <div style="display: flex; gap: 2rem; margin-bottom: 2rem; align-items: flex-start;">
+            <div style="flex: 2;">
+                <h1 style="font-size: 2.2rem; color: white; margin-bottom: 0.5rem;">Report: <span id="report-pkg" style="color: var(--scanner-accent);"></span></h1>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <div id="severity-header" class="severity-pill" style="background: var(--scanner-danger); color: white; padding: 0.4rem 1rem;">ANALYSIS COMPLETE</div>
+                    <div id="report-size" style="background: #222; padding: 0.4rem 1rem; border-radius: 4px; font-size: 0.8rem;">APK SIZE: 0.0 MB</div>
+                </div>
+                
+                <div class="finding-list" id="findings-container">
+                    <!-- Results populated by research telemetry -->
+                </div>
+            </div>
+
+            <div style="flex: 1; position: sticky; top: 2rem;">
+                <div class="stat-card" style="border-left: 4px solid var(--scanner-accent);">
+                    <div class="stat-card-label">ANALYSIS SUMMARY</div>
+                    <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Package:</span> <span id="summary-pkg" style="color: #888; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Logic Audit:</span> <span id="status-static" style="color: var(--scanner-success);">RUNNING</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Integrity:</span> <span id="status-integrity" style="color: var(--scanner-success);">VERIFIED</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #333;">
+                        <div style="font-size: 0.65rem; color: #555; margin-bottom: 0.4rem;">SHA-256 CRYSTAL HASH:</div>
+                        <div id="report-hash" style="font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #888; word-break: break-all; background: #000; padding: 0.5rem;">PENDING_CALCULATION</div>
+                    </div>
+                </div>
+
+                
+                <div style="margin-top: 1.5rem;">
+                    <button id="download-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 0.8rem; background: var(--scanner-success); border: none;" onclick="downloadReport()">EXPORT FORENSIC REPORT</button>
+                    <button class="btn btn-secondary" style="width: 100%; border: 1px solid #333;" onclick="window.location.reload()">NEW SCAN SEQUENCE</button>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 0.8rem;" onclick="toggleRegistry()">OPEN REGISTRY VIEW</button>
+                </div>
+            </div>
+        </div>
+
+
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="scan-progress-overlay" style="display: none; background: rgba(0,0,0,0.9); z-index: 2000;">
+        <div class="stat-card" style="width: 90%; max-width: 600px; border: 1px solid #444; position: relative;">
+            <button onclick="closeModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #666; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <div id="modal-category" class="stat-card-label" style="color: var(--scanner-accent); margin-bottom: 1rem;">CATEGORY</div>
+            <h2 id="modal-title" style="color: white; margin-bottom: 1.5rem;">Finding Title</h2>
+            
+            <div style="background: #000; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                <div style="font-size: 0.7rem; color: #555; margin-bottom: 0.5rem;">FORENSIC EVIDENCE:</div>
+                <div id="modal-detail" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #aaa; line-height: 1.4;">Detail text goes here...</div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-size: 0.7rem; color: #555; margin-bottom: 0.5rem;">REMEDIATION STRATEGY:</div>
+                <div id="modal-remediation" style="font-size: 0.9rem; color: var(--scanner-success); line-height: 1.5;">Remediation text...</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; padding-top: 1rem;">
+                <div style="font-size: 0.75rem; color: #666;">RISK SCORE: <span id="modal-score" style="color: white;">0.0</span>/10.0</div>
+                <button class="btn btn-secondary" onclick="closeModal()" style="padding: 0.5rem 2rem;">DISMISS</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.finding-item { cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+.finding-item:hover { transform: translateX(5px); border-color: var(--scanner-accent); }
+</style>
+
+
+<script>
+let lastScanData = null;
+
+function handleFileSelect(input) {
+    if (input.files.length === 0) return;
+    
+    document.getElementById('progress-overlay').style.display = 'flex';
+    document.getElementById('scan-bar-fill').style.width = '10%';
+    document.getElementById('scan-step').innerText = "TRANSMITTING BINARY PAYLOAD...";
+    
+    const formData = new FormData();
+    formData.append('file', input.files[0]);
+
+    fetch('/lab9/analyze', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) {
+            alert("Scanner Error: " + data.error);
+            document.getElementById('progress-overlay').style.display = 'none';
+            return;
+        }
+        
+        lastScanData = data; // Save for export
+        
+        // Finalize animation and show results
+        document.getElementById('scan-bar-fill').style.width = '100%';
+        document.getElementById('scan-step').innerText = "ANALYSIS COMPLETE.";
+        
+        setTimeout(() => {
+            document.getElementById('progress-overlay').style.display = 'none';
+            document.getElementById('upload-view').style.display = 'none';
+            document.getElementById('results-view').style.display = 'block';
+            
+            const pkgValue = data.package_name || data.filename;
+            document.getElementById('report-hash').innerText = data.binary_hash || "N/A_HASH_CALC_FAILED";
+            
+            // Format size
+            const sizeMB = (data.file_size / (1024 * 1024)).toFixed(2);
+            document.getElementById('report-size').innerText = `APK SIZE: ${sizeMB} MB`;
+
+            // Updated Terminal View with more detail
+            const terminal = document.getElementById('terminal-view');
+            terminal.innerHTML = `
+                <div class="terminal-line"><span class="terminal-tag">[BINARY]</span> Target: ${data.filename} identified.</div>
+                <div class="terminal-line"><span class="terminal-tag">[HASH]</span> SHA-256: ${data.binary_hash}</div>
+                <div class="terminal-line"><span class="terminal-tag">[ARCHIVE]</span> Extracting block descriptors from APK ZIP...</div>
+                <div class="terminal-line"><span class="terminal-tag">[DEX]</span> Reconstructing dalvik bytecode architecture...</div>
+                <div class="terminal-line"><span class="terminal-tag">[Forensic]</span> Multi-threaded pattern scan initiated across binary buffer...</div>
+            `;
+
+            // Show flags if found
+            const flagDisplay = document.getElementById('flag-display');
+            if (data.flags_found && data.flags_found.length > 0) {
+                flagDisplay.innerText = data.flags_found.join(", ");
+                flagDisplay.style.color = "var(--scanner-success)";
+                document.getElementById('status-static').innerText = "VULNERABLE";
+                document.getElementById('status-static').style.color = "var(--scanner-danger)";
+                terminal.innerHTML += `<div class="terminal-line" style="color: var(--scanner-danger); font-weight: bold;"><span class="terminal-tag">[CRITICAL]</span> User Deliverable (Flag) Extracted!</div>`;
+            } else {
+                flagDisplay.innerText = "NO DISCOVERABLE SECRETS IN THIS BINARY";
+                flagDisplay.style.color = "#666";
+                document.getElementById('status-static').innerText = "SECURE";
+                document.getElementById('status-static').style.color = "var(--scanner-success)";
+                terminal.innerHTML += `<div class="terminal-line" style="color: #666;"><span class="terminal-tag">[INFO]</span> No critical secrets detected in raw buffer scan.</div>`;
+            }
+            
+            terminal.innerHTML += `<div class="terminal-line" style="margin-top: 1rem;">-- FORENSIC SESSION TRACE COMPLETE --</div>`;
+            
+            const container = document.getElementById('findings-container');
+            container.innerHTML = '';
+            
+                if (data.findings && data.findings.length > 0) {
+                    data.findings.forEach((finding, index) => {
+                        const div = document.createElement('div');
+                        div.className = `finding-item ${finding.level}`;
+                        div.onclick = () => showFindingDetail(index);
+                        div.innerHTML = `
+                            <div class="finding-header">
+                                <span style="font-weight: 800; font-size: 0.9rem;">${finding.category}</span>
+                                <span class="severity-pill">${finding.level.toUpperCase()}</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #aaa;">${finding.detail}</div>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<div style="padding: 2rem; color: #666; text-align: center;">No significant security findings detected in this binary archive.</div>';
+                }
+            }, 1000);
+        })
+        .catch(err => {
+            alert("Critical Failure: " + err);
+            document.getElementById('progress-overlay').style.display = 'none';
+        });
+    }
+
+    function showFindingDetail(index) {
+        if (!lastScanData || !lastScanData.findings[index]) return;
+        const finding = lastScanData.findings[index];
+        
+        document.getElementById('modal-category').innerText = finding.category.toUpperCase();
+        document.getElementById('modal-title').innerText = finding.detail.split(':')[0];
+        document.getElementById('modal-detail').innerText = finding.detail;
+        document.getElementById('modal-remediation').innerText = finding.remediation || "No specific remediation strategy available for this research vector.";
+        document.getElementById('modal-score').innerText = finding.risk_score || "N/A";
+        
+        document.getElementById('detail-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('detail-modal').style.display = 'none';
+    }
+
+function downloadReport() {
+    if(!lastScanData) return;
+    
+    const btn = document.getElementById('download-btn');
+    btn.innerText = "GENERATING DOCUMENT...";
+    btn.disabled = true;
+
+    fetch('/lab9/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lastScanData)
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `SENTINEL_REPORT_${lastScanData.binary_hash.substring(0,8)}.txt`;
+        document.body.appendChild(a);
+        a.click();    
+        a.remove();
+        btn.innerText = "EXPORT FORENSIC REPORT";
+        btn.disabled = false;
+    })
+    .catch(err => {
+        alert("Export Failure: " + err);
+        btn.innerText = "EXPORT FORENSIC REPORT";
+        btn.disabled = false;
+    });
+}
+
+
+function toggleRegistry() {
+    const term = document.getElementById('terminal-view');
+    term.style.display = term.style.display === 'none' ? 'block' : 'none';
+    if(term.style.display === 'block') {
+        term.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function copyFlag(el) {
+    navigator.clipboard.writeText(el.innerText);
+    const originalText = el.innerText;
+    el.innerText = "COPIED TO CLIPBOARD!";
+    el.style.color = "var(--scanner-success)";
+    setTimeout(() => {
+        el.innerText = originalText;
+        el.style.color = "var(--scanner-accent)";
+    }, 2000);
+}
+</script>
+{% endblock %}

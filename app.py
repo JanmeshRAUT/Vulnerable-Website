@@ -14,6 +14,10 @@ import secrets
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 from firebase_db import FirebaseDataStore
+import zipfile
+import hashlib
+from collections import Counter
+
 
 try:
     from dotenv import load_dotenv
@@ -45,7 +49,9 @@ app = Flask(__name__)
 # USE ENVIRONMENT VARIABLES FOR PRODUCTION SECRETS
 app.secret_key = os.environ.get('SECRET_KEY', 'default_vulnerable_key_replace_in_prod')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=14)
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 # 500MB for large binaries
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
 
 if IS_VERCEL:
     app.config['DB_NAME'] = '/tmp/database.db'
@@ -3649,6 +3655,201 @@ def lab6_1_c_check_stock():
         return f"Database error: {str(e)}"
 
 
+# -------------------------
+# LAB 9: Mobile Binary Analysis (Sentinel)
+# -------------------------
+@app.route('/lab9')
+@login_required
+def lab9():
+    """Sentinel Mobile Analyzer - Entry Point"""
+    return render_template('lab9/sub1.html')
+@app.route('/lab9/analyze', methods=['POST'])
+@login_required
+def lab9_analyze():
+    """High-Fidelity Static Binary Analyzer (Memory-Efficient Engine)"""
+    if 'file' not in request.files:
+        return jsonify({'error': 'No APK archive detected in request buffer.'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'Null filename provided.'}), 400
+
+    results = {
+        'filename': file.filename,
+        'package_name': 'Unknown.Package.Identity',
+        'file_size': 0,
+        'binary_hash': '',
+        'findings': [],
+        'archive_contents': [],
+        'flags_found': []
+    }
+
+    try:
+        # Save temp file for analysis
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], f"analyze_{uuid.uuid4().hex}.apk")
+        file.save(temp_path)
+        
+        file_size = os.path.getsize(temp_path)
+        results['file_size'] = file_size
+        
+        # Calculate Hash and Search for Package Name in stream
+        sha256 = hashlib.sha256()
+        pkg_pattern = re.compile(rb'[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+')
+        found_packages = Counter()
+
+        # Forensic Logic Signatures
+        patterns = {
+            'Deliverable Token (Flag)': re.compile(rb'FLAG\{[A-Za-z0-9_.-]+\}'),
+            'Identity Access (AWS)': re.compile(rb'AKIA[0-9A-Z]{16}'),
+            'Google/Maps Dev Key': re.compile(rb'AIza[0-9A-Za-z-_]{35}'),
+            'Infrastructure Endpoint (IPv4)': re.compile(rb'\b(?:\d{1,3}\.){3}\d{1,3}\b'),
+            'Internal Research URL': re.compile(rb'https?://[a-zA-Z0-9.-]+\.sentinel-research\.io[^\s]*'),
+            'Firebase DB Instance': re.compile(rb'[a-z0-9-]+\.firebaseio\.com')
+        }
+
+        # Optimized: Stream search in chunks to handle large binaries like Photoshop.apk
+        with open(temp_path, 'rb') as f:
+            chunk_size = 1024 * 1024 # 1MB chunks
+            overlap = 2048 # To handle patterns crossing chunk boundaries
+            buffer = b""
+            
+            while True:
+                chunk = f.read(chunk_size)
+                if not chunk: break
+                
+                sha256.update(chunk)
+                search_data = buffer + chunk
+                                       # Extract potential package names (heuristic)
+                pkgs = pkg_pattern.findall(search_data)
+                for p in pkgs:
+                    p_str = p.decode('latin-1', errors='ignore')
+                    if len(p_str) > 10 and '.' in p_str:
+                        found_packages[p_str] += 1
+
+                # Pattern recognition
+                for label, pattern in patterns.items():
+                    matches = pattern.findall(search_data)
+                    for m in matches:
+                        match_str = m.decode('latin-1', errors='ignore')
+                        if 'Flag' in label:
+                            if match_str not in results['flags_found']:
+                                results['flags_found'].append(match_str)
+                        
+                        # Add as finding if not already present
+                        cat = 'Sensitive Telemetry'
+                        exists = next((item for item in results['findings'] if item['category'] == cat and label in item['detail']), None)
+                        if not exists:
+                            results['findings'].append({
+                                'category': cat,
+                                'level': 'Critical' if 'Flag' in label else 'High',
+                                'detail': f"Detected {label} pattern in binary stream.",
+                                'remediation': "Remove transitionary secrets and hardcoded credentials from the production binary.",
+                                'risk_score': 9.5 if 'Flag' in label else 7.0
+                            })
+                
+                buffer = chunk[-overlap:]
+        
+        results['binary_hash'] = sha256.hexdigest()
+        
+        # Determine Package Name from identified strings
+        if found_packages:
+            most_common = found_packages.most_common(5)
+            # Heuristic: Find com.* or io.* if possible
+            for p_str, count in most_common:
+                if p_str.startswith('com.') or p_str.startswith('io.'):
+                    results['package_name'] = p_str
+                    break
+        
+        # 1. Forensic Archive Audit
+        with zipfile.ZipFile(temp_path, 'r') as apk:
+            namelist = apk.namelist()
+            results['archive_contents'] = namelist[:30]
+            
+            dex_count = len([f for f in namelist if f.endswith('.dex')])
+            so_count = len([f for f in namelist if f.endswith('.so')])
+            
+            if dex_count > 0:
+                results['findings'].append({
+                    'category': 'Architecture',
+                    'level': 'Low',
+                    'detail': f"Found {dex_count} Dalvik Executable (DEX) files. Standard Android bytecode detected.",
+                    'remediation': "Ensure code is obfuscated to prevent easy reverse engineering.",
+                    'risk_score': 1.0
+                })
+            
+            if so_count > 0:
+                results['findings'].append({
+                    'category': 'Native Interface',
+                    'level': 'Medium',
+                    'detail': f"Application contains {so_count} native libraries (.so). Potential for memory corruption vulnerabilities.",
+                    'remediation': "Verify native code for buffer overflows and ensure stack protections (ASLR/DEP) are active.",
+                    'risk_score': 4.5
+                })
+
+        # Cleanup
+        os.remove(temp_path)
+        
+    except Exception as e:
+        print(f"[FORENSIC_FAILURE] Error during {file.filename} analysis: {str(e)}")
+        if os.path.exists(temp_path): os.remove(temp_path)
+        return jsonify({'error': f'Scanner Engine Failure: {str(e)}'}), 500
+
+    return jsonify(results)
+
+@app.route('/lab9/export', methods=['POST'])
+@login_required
+def lab9_export():
+    """Export the forensic research telemetry as a structured report."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'Null data buffer.'}), 400
+        
+    report = f"""# SENTINEL FORENSIC REPORT: {data.get('package_name', 'UNKNOWN_TARGET')}
+    
+## BINARY METADATA
+- **FILENAME**: {data.get('filename', 'N/A')}
+- **FILE_SIZE**: {data.get('file_size', 0)} bytes
+- **SHA-256 CRYSTAL HASH**: {data.get('binary_hash', 'N/A')}
+- **TIMESTAMP**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+## SECURITY FINDINGS (VULNERABILITY VECTORS)
+"""
+    for finding in data.get('findings', []):
+        report += f"### [{finding['level'].upper()}] {finding['category']}\n- {finding['detail']}\n\n"
+        
+    report += "## EXTRACTED TELEMETRY (DELIVERABLES)\n"
+    for flag in data.get('flags_found', []):
+        report += f"- FOUND SECRET: {flag}\n"
+        
+    report += "\n-- END OF FORENSIC RESEARCH SESSION --\n"
+    
+    # Return as downloadable file
+    import io
+    memory_file = io.BytesIO(report.encode())
+    return send_file(memory_file, download_name=f"SENTINEL_REPORT_{data.get('binary_hash', 'SCAN')[:8]}.txt", as_attachment=True, mimetype='text/plain')
+
+
+
+
+
+@app.route('/lab9/sample')
+@login_required
+def lab9_sample():
+    """Generate a research sample binary (JAR/APK structure) for analysis."""
+    import io
+    memory_file = io.BytesIO()
+    with zipfile.ZipFile(memory_file, 'w') as zf:
+        zf.writestr('AndroidManifest.xml', 'BINARY_XML_MOCK_DATA')
+        zf.writestr('classes.dex', 'DALVIK_EXECUTABLE_MOCK_DATA')
+        zf.writestr('res/values/strings.xml', f'FLAG: {get_random_flag("lab9")}\nGOOGLE_API_KEY: AIza' + ''.join(random.choices(string.ascii_letters + string.digits, k=35)))
+        zf.writestr('assets/secrets.conf', f'AWS_KEY=AKIA' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=16)) + '\nBACKUP_URL=https://backup.sentinel-research.io/v1/sync')
+    
+    memory_file.seek(0)
+    return send_file(memory_file, download_name='sentinel-research-sample.apk', as_attachment=True)
+
+
+
 if __name__ == '__main__':
+
     # Cloud-Native Initialization: Local DB sequence decommissioned
     app.run(debug=not IS_VERCEL, use_reloader=False, host='0.0.0.0', port=5000)
