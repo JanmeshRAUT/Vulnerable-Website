@@ -4,18 +4,18 @@
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_b.css') }}">
     <header class="luxe-header">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab2_4_menu') }}" style="color: #94a3b8; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+        <div class="luxe-header-brand-container">
+            <a href="{{ url_for('lab2_4_menu') }}" class="luxe-back-link">&larr; Back</a>
             <div class="luxe-brand">LUXE JEWELRY</div>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 2rem;">
+        <div class="luxe-header-nav-container">
             <nav class="luxe-nav">
                 <a href="#">COLLECTIONS</a>
                 <a href="#">WATCHES</a>
                 <a href="#">GIFTS</a>
             </nav>
-            <button onclick="document.getElementById('loginModal').style.display='flex'" style="background: #fbbf24; color: #0f172a; border: none; padding: 0.5rem 1.5rem; font-weight: bold; cursor: pointer; border-radius: 2px;">SIGN IN</button>
+            <button onclick="document.getElementById('loginModal').style.display='flex'" class="luxe-login-btn">SIGN IN</button>
         </div>
     </header>
 {% endblock %}
@@ -23,25 +23,25 @@
 {% block content %}
     <div class="luxe-hero">
         <h1>Timeless Elegance</h1>
-        <p style="color: #94a3b8; font-size: 1.125rem; max-width: 600px; margin: 0 auto 2rem;">Discover our hand-crafted collection of ethical diamonds and luxury Swiss timepieces.</p>
+        <p class="luxe-hero-subtitle">Discover our hand-crafted collection of ethical diamonds and luxury Swiss timepieces.</p>
         <button class="luxe-hero-btn">VIEW CATALOG</button>
     </div>
 
-    <h2 style="text-align: center; font-family: 'Playfair Display', serif; color: #fbbf24; margin-bottom: 2rem;">Exquisite Pieces</h2>
+    <h2 class="luxe-section-title">Exquisite Pieces</h2>
     
     <div class="card-grid">
         {% for product in products %}
-        <div class="card product-card-luxe" style="cursor: pointer;" onclick="window.location='{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}'">
+        <div class="card product-card-luxe luxe-product-card-interactive" onclick="window.location='{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}';">
             <div class="product-image-luxe">
                 💎
             </div>
-            <div style="padding: 1.5rem;">
+            <div class="luxe-product-info">
                 <h3 class="luxe-title">
-                    <a href="{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                    <a href="{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}" class="luxe-product-link">{{ product.name }}</a>
                 </h3>
-                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1.5rem;">{{ product.description }}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 700; color: white;">${{ product.price }}</span>
+                <p class="luxe-product-desc">{{ product.description }}</p>
+                <div class="luxe-product-action-row">
+                    <span class="luxe-product-price">${{ product.price }}</span>
                     <button class="luxe-shop-btn">SHOP</button>
                 </div>
             </div>
@@ -52,19 +52,19 @@
     <!-- Login Modal -->
     <div id="loginModal" class="modal-luxe">
         <div class="card modal-content-luxe">
-            <h2 style="color: #fbbf24; text-align: center; font-family: 'Playfair Display', serif; margin-bottom: 2rem;">MEMBER ACCESS</h2>
+            <h2 class="luxe-modal-title">MEMBER ACCESS</h2>
             <form action="{{ url_for('lab2_4b_login') }}" method="POST">
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="color: #94a3b8; display: block; font-size: 0.8rem; margin-bottom: 0.5rem;">USER ID</label>
+                <div class="luxe-form-group">
+                    <label class="luxe-form-label">USER ID</label>
                     <input type="text" name="username" required class="login-input-luxe">
                 </div>
-                <div style="margin-bottom: 2rem;">
-                    <label style="color: #94a3b8; display: block; font-size: 0.8rem; margin-bottom: 0.5rem;">PASSKEY</label>
+                <div class="luxe-form-group mb-2">
+                    <label class="luxe-form-label">PASSKEY</label>
                     <input type="password" name="password" required class="login-input-luxe">
                 </div>
                 <button type="submit" class="btn-enter-vault">ENTER VAULT</button>
             </form>
-            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #64748b;">GUEST: user / password</p>
+            <p class="luxe-modal-hint">GUEST: user / password</p>
         </div>
     </div>
 {% endblock %}

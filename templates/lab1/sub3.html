@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}PixelMarket - Premium Stock Photography{% endblock %}
+{% block title %}PixelMarket - Premium Stock Photography | Lab 1.3{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab1/sub3.css') }}">
@@ -85,8 +85,8 @@
                 <!-- Hover Overlay Actions -->
                 <div class="media-overlay-stock">
                     <div>
-                        <button class="icon-action-btn">❤️</button>
-                        <button class="icon-action-btn">➕</button>
+                        <button class="icon-action-btn" title="Favorite">❤️</button>
+                        <button class="icon-action-btn" title="Add to collection">➕</button>
                     </div>
                     <a href="{{ url_for('lab1_3_image', image=item.file) }}" class="download-btn-stock" target="_blank">Download</a>
                 </div>
@@ -111,7 +111,7 @@
 
                 <!-- Stats footer -->
                 <div class="card-stats">
-                    <span class="stat-views">👁️ {{ item.views }} reviews</span>
+                    <span class="stat-views">👁️ {{ item.views }} views</span>
                     <span class="stat-format">JPEG • 4K</span>
                 </div>
             </div>

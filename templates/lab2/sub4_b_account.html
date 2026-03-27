@@ -5,24 +5,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_b.css') }}">
     <header class="luxe-header">
         <div class="luxe-brand">LUXE JEWELRY</div>
-        <a href="{{ url_for('lab2_4b') }}" style="color: #fbbf24; text-decoration: none; font-weight: 600;">EXIT ACCOUNT</a>
+        <a href="{{ url_for('lab2_4b') }}" class="luxe-exit-link">EXIT ACCOUNT</a>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 800px; margin: 3rem auto;">
-        <div class="card product-card-luxe" style="color: white; padding: 3rem;">
-            <div style="display: flex; gap: 2rem; align-items: flex-start;">
+    <div class="luxe-acct-container">
+        <div class="card product-card-luxe luxe-acct-card">
+            <div class="luxe-acct-flex">
                 <div class="luxe-account-avatar">
                     {{ account.username[0].upper() }}
                 </div>
-                <div style="flex-grow: 1;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-family: 'Playfair Display', serif; font-size: 2rem; margin: 0;">{{ account.full_name }}</h2>
-                        <span class="luxe-shop-btn" style="border-radius: 9999px; font-size: 0.75rem;">{{ account.role.upper() }} STATUS</span>
+                <div class="luxe-acct-info-grow">
+                    <div class="luxe-acct-header-row">
+                        <h2 class="luxe-acct-fullname">{{ account.full_name }}</h2>
+                        <span class="luxe-shop-btn luxe-acct-role-badge">{{ account.role.upper() }} STATUS</span>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+                    <div class="luxe-acct-info-grid">
                         <div>
                             <label class="luxe-info-label">Username</label>
                             <p class="luxe-info-value">{{ account.username }}</p>
@@ -34,19 +34,19 @@
                     </div>
 
                     <div class="luxe-stats-container">
-                        <h4 style="margin-bottom: 1rem; font-size: 0.9rem; color: #fbbf24;">ACCOUNT STATS</h4>
-                        <div style="display: flex; justify-content: space-between; text-align: center;">
+                        <h4 class="luxe-stats-title">ACCOUNT STATS</h4>
+                        <div class="luxe-stats-row">
                             <div>
-                                <span style="display: block; font-size: 1.5rem; font-weight: 700;">4</span>
-                                <span style="font-size: 0.7rem; color: #94a3b8;">ORDERS</span>
+                                <span class="luxe-stat-value">4</span>
+                                <span class="luxe-stat-label">ORDERS</span>
                             </div>
                             <div>
-                                <span style="display: block; font-size: 1.5rem; font-weight: 700;">$14,200</span>
-                                <span style="font-size: 0.7rem; color: #94a3b8;">TOTAL SPENT</span>
+                                <span class="luxe-stat-value">$14,200</span>
+                                <span class="luxe-stat-label">TOTAL SPENT</span>
                             </div>
                             <div>
-                                <span style="display: block; font-size: 1.5rem; font-weight: 700;">12</span>
-                                <span style="font-size: 0.7rem; color: #94a3b8;">SAVED ITEMS</span>
+                                <span class="luxe-stat-value">12</span>
+                                <span class="luxe-stat-label">SAVED ITEMS</span>
                             </div>
                         </div>
                     </div>

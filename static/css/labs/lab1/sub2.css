@@ -1,90 +1,345 @@
-/* Lab 1.2 Bean & Brew Styles */
+/* =========================================
+   Lab 1.2: Bean & Brew Premium Styles
+   ========================================= */
+
+/* Header */
 .coffee-header {
-    background: #3E2723;
-    color: #FFF8DC;
-    padding: 1.5rem 2rem;
+    background: rgba(30, 20, 15, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(215, 204, 200, 0.1);
+    border-radius: 16px;
+    padding: 1.25rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(215, 204, 200, 0.04);
+    margin-bottom: 2rem;
 }
 
-.coffee-header .brand {
+.coffee-brand {
     font-family: 'Georgia', serif;
     font-weight: 700;
-    font-size: 1.8rem;
-    letter-spacing: 0.05em;
+    font-size: 1.75rem;
+    letter-spacing: 0.04em;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, #d7ccc8, #8d6e63);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
+.coffee-nav a {
+    color: #d7ccc8;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.coffee-nav a:hover {
+    background: rgba(141, 110, 99, 0.15);
+    color: #ffffff;
+}
+
+.coffee-cart-btn {
+    background: linear-gradient(135deg, #8d6e63, #5d4037);
+    color: #ffffff !important;
+    padding: 0.7rem 1.4rem;
+    font-weight: 600;
+    border-radius: 30px;
+    border: 1px solid rgba(215, 204, 200, 0.2);
+    box-shadow: 0 4px 15px rgba(93, 64, 55, 0.35);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.coffee-cart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(93, 64, 55, 0.6);
+    background: linear-gradient(135deg, #a1887f, #6d4c41);
+}
+
+/* Hero Section */
 .coffee-hero {
-    background: linear-gradient(rgba(62, 39, 35, 0.8), rgba(62, 39, 35, 0.8)), url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80');
+    background: linear-gradient(to right, rgba(20, 15, 10, 0.9), rgba(62, 39, 35, 0.6)), url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80');
     background-size: cover;
     background-position: center;
-    border-radius: 1rem;
-    padding: 4rem 2rem;
+    border: 1px solid rgba(215, 204, 200, 0.12);
+    border-radius: 20px;
+    padding: 5rem 3rem;
     color: white;
-    margin-bottom: 3rem;
-    text-align: center;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3.5rem;
+    text-align: left;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
 }
 
 .coffee-hero h1 {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 800;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    font-family: 'Georgia', serif;
+    color: #ffffff;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.coffee-explore-btn {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.05rem;
+    border-radius: 30px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.coffee-explore-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Section Header */
+.coffee-section-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
     font-family: 'Georgia', serif;
 }
 
-.coffee-section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #3E2723;
-    margin-bottom: 0.5rem;
+.coffee-filter select {
+    background: rgba(30, 20, 15, 0.6) !important;
+    border: 1px solid rgba(215, 204, 200, 0.2) !important;
+    color: #d7ccc8 !important;
+    padding: 0.75rem 1.25rem !important;
+    border-radius: 12px !important;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
 }
 
+.coffee-filter select:hover {
+    border-color: rgba(215, 204, 200, 0.5) !important;
+}
+
+/* Product Cards */
 .product-card-coffee {
+    background: rgba(30, 20, 15, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(215, 204, 200, 0.1);
+    border-radius: 16px;
     padding: 0;
     overflow: hidden;
-    border: none;
     display: flex;
     flex-direction: column;
     height: 100%;
-    transition: transform 0.2s, box-shadow 0.2s;
-    background: white;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.product-card-coffee:hover {
+    transform: translateY(-8px);
+    border-color: rgba(215, 204, 200, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(141, 110, 99, 0.15);
+    background: rgba(40, 25, 20, 0.6);
 }
 
 .product-image-container {
-    height: 250px;
+    height: 280px;
     overflow: hidden;
     position: relative;
-    background: #f5f5f5;
+    background: #1a100d;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.product-card-coffee:hover .product-image-container img {
+    transform: scale(1.08);
 }
 
 .product-content-coffee {
-    padding: 1.5rem;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
     flex: 1;
 }
 
-.btn-coffee {
-    width: 100%;
-    background: #3E2723;
-    color: white;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    transition: background 0.2s;
+.price-tag-coffee {
+    background: rgba(141, 110, 99, 0.15);
+    color: #d7ccc8;
+    padding: 0.35rem 0.8rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    border: 1px solid rgba(141, 110, 99, 0.3);
+    white-space: nowrap;
 }
 
-.price-tag-coffee {
-    background: #EFEBE9;
-    color: #5D4037;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+.btn-coffee {
+    width: 100%;
+    background: linear-gradient(135deg, #1e130f, #3e2723);
+    color: #d7ccc8;
+    padding: 0.85rem;
+    border-radius: 10px;
     font-weight: 600;
-    font-size: 0.9rem;
+    border: 1px solid rgba(141, 110, 99, 0.4);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.84rem;
+    cursor: pointer;
+}
+
+.btn-coffee:hover {
+    background: linear-gradient(135deg, #3e2723, #5d4037);
+    color: #ffffff;
+    border-color: #8d6e63;
+    box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Extracted Utility Classes from HTML */
+.coffee-back-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    text-decoration: none;
+    color: #d7ccc8;
+    margin-right: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.coffee-back-btn:hover {
+    color: #ffffff;
+    background: rgba(215, 204, 200, 0.1);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.coffee-nav {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.cart-container {
+    position: relative;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.coffee-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 0 2rem 0;
+    line-height: 1.65;
+    color: #f5f5f5;
+}
+
+.grid-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+}
+
+.section-desc {
+    color: #a1887f;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.coffee-filter {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Card Grid for Bean & Brew */
+.card-grid {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-grid-coffee {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.product-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+}
+
+.product-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.35;
+    margin: 0;
+    font-family: 'Georgia', serif;
+}
+
+.product-desc {
+    color: #a1887f;
+    font-size: 0.92rem;
+    margin-bottom: 1.5rem;
+    flex: 1;
+    line-height: 1.65;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .coffee-hero {
+        padding: 3rem 1.5rem;
+    }
+
+    .coffee-hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .card-grid-coffee {
+        grid-template-columns: 1fr;
+    }
+
+    .coffee-nav {
+        display: none;
+    }
+
+    .grid-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 }

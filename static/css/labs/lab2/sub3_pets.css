@@ -167,3 +167,105 @@ body {
     border-top: 1px dashed #fbcfe8;
     color: #9ca3af;
 }
+
+/* Missing classes from HTML */
+.pet-header-brand-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pet-brand-icon {
+    font-size: 1.5rem;
+}
+
+.pet-brand-accent {
+    color: #14b8a6;
+}
+
+.pet-user-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pet-logged-in-text {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.pet-username-highlight {
+    color: #ec4899;
+    font-weight: 700;
+}
+
+.pet-logout-btn {
+    color: #ef4444;
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.pet-logout-btn:hover {
+    background: rgba(239, 68, 68, 0.05);
+    color: #dc2626;
+}
+
+.pet-login-btn {
+    background: #ec4899;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 99px;
+    transition: all 0.3s ease;
+}
+
+.pet-login-btn:hover {
+    background: #db2777;
+    box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
+}
+
+.pet-back-link {
+    display: inline-block;
+    color: #ec4899;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    transition: color 0.2s;
+}
+
+.pet-back-link:hover {
+    color: #db2777;
+}
+
+.pet-hero-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.pet-hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.85;
+}
+
+.pet-product-desc {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.pet-modal-title {
+    color: #be185d;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+}

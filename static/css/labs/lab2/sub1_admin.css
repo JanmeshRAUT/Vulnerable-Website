@@ -1,39 +1,223 @@
-/* Lab 2.1 Admin Styles */
+/* Lab 2.1 Admin Styles (Premium) */
+
+.admin-security-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-security-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: 10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Base Theme (TechStore) */
+.theme-tech {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(12, 74, 110, 0.8));
+    border-bottom: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+/* Fashion Theme (FashionHub) */
+.theme-fashion {
+    background: linear-gradient(135deg, rgba(216, 180, 226, 0.2), rgba(67, 44, 74, 0.8));
+    border-bottom: 1px solid rgba(216, 180, 226, 0.3);
+}
+
+/* Food Theme (FoodMart) */
+.theme-food {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.2), rgba(17, 42, 32, 0.8));
+    border-bottom: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+/* Music Theme (NeonBeats) - Lab 2.3 */
+.theme-music {
+    background: linear-gradient(135deg, rgba(176, 38, 255, 0.2), rgba(45, 12, 75, 0.8));
+    border-bottom: 1px solid rgba(176, 38, 255, 0.3);
+}
+
+/* Sports Theme (SportsGear) - Lab 2.3 */
+.theme-sports {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(92, 43, 6, 0.8));
+    border-bottom: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+/* Pets Theme (PetShop) - Lab 2.3 */
+.theme-pets {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(85, 20, 55, 0.8));
+    border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+}
+
 .admin-success-alert {
-    padding: 2rem;
+    padding: 2.5rem;
     flex-direction: column;
     align-items: flex-start;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.05);
+    margin-bottom: 2rem;
+}
+
+.admin-access-label {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .admin-flag-code {
-    font-size: 1.25rem;
-    background: rgba(0,0,0,0.2);
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    margin-top: 1rem;
-    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.4);
+    color: #a7f3d0;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    border: 1px dashed rgba(16, 185, 129, 0.5);
+    display: inline-block;
+    letter-spacing: 0.05em;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.admin-return-container {
+    margin-top: 2rem;
+}
+
+.admin-section-title {
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.35rem;
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+.admin-section-icon {
+    font-size: 1.5rem;
+}
+
+.admin-user-grid {
+    display: grid;
+    gap: 1.25rem;
 }
 
 .user-identity-card {
-    background: #020617;
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.user-identity-card:hover {
+    transform: translateX(5px);
+    background: rgba(30, 41, 59, 0.9);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Theme Tech */
+.admin-container-tech .user-identity-card:hover {
+    border-color: rgba(14, 165, 233, 0.3);
+}
+.admin-container-tech .admin-section-icon { color: #0ea5e9; }
+
+/* Theme Fashion */
+.admin-container-fashion .user-identity-card:hover {
+    border-color: rgba(216, 180, 226, 0.4);
+}
+.admin-container-fashion .admin-section-icon { color: #d8b4e2; }
+
+/* Theme Food */
+.admin-container-food .user-identity-card:hover {
+    border-color: rgba(39, 174, 96, 0.4);
+}
+.admin-container-food .admin-section-icon { color: #27ae60; }
+
+/* Theme Music (Lab 2.3) */
+.admin-container-music .user-identity-card:hover {
+    border-color: rgba(176, 38, 255, 0.4);
+}
+.admin-container-music .admin-section-icon { color: #b026ff; }
+
+/* Theme Sports (Lab 2.3) */
+.admin-container-sports .user-identity-card:hover {
+    border-color: rgba(249, 115, 22, 0.4);
+}
+.admin-container-sports .admin-section-icon { color: #f97316; }
+
+/* Theme Pets (Lab 2.3) */
+.admin-container-pets .user-identity-card:hover {
+    border-color: rgba(236, 72, 153, 0.4);
+}
+.admin-container-pets .admin-section-icon { color: #ec4899; }
+
+/* Admin success states */
+.admin-success-cookie {
+    padding: 2.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.05);
+    margin-bottom: 2rem;
+}
+
+.admin-flag-display {
+    margin-top: 1rem;
 }
 
 .user-name-admin {
-    font-weight: 700;
-    font-size: 1.1rem;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: #e2e8f0;
+    margin-bottom: 0.25rem;
 }
 
 .user-id-admin {
-    font-size: 0.8rem;
-    color: #64748b;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
 }
 
 .btn-purge {
-    background: #dc2626 !important;
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    border: 1px solid #b91c1c !important;
+    color: white !important;
+    padding: 0.6rem 1.25rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2) !important;
+}
+
+.btn-purge:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4) !important;
+    background: linear-gradient(135deg, #f87171, #ef4444) !important;
+}
+
+.admin-top-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }

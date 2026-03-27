@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_b.css') }}">
 <header class="cm-header">
     <div class="cm-brand">
-        <a href="{{ url_for('lab2_5_menu') }}" style="color: #cbd5e1; font-size: 0.9rem; text-decoration: none; margin-right: 1rem;">&larr; Back</a>
+        <a href="{{ url_for('lab2_5_menu') }}" class="cm-back-link">&larr; Back</a>
         ☁️ CloudMart
     </div>
     <button onclick="document.getElementById('loginModal').style.display='flex'" class="cm-btn">Login</button>
@@ -14,9 +14,9 @@
 
 {% block content %}
 <div class="cm-hero">
-    <h1 style="color: var(--cm-primary-dark); margin-bottom: 1rem;">Enterprise Cloud Solutions</h1>
-    <p style="color: var(--cm-text); margin-bottom: 2rem;">Manage your resources with our next-gen platform.</p>
-    <button class="cm-btn" style="background: white; color: var(--cm-primary);">Get Started</button>
+    <h1 class="cm-hero-title">Enterprise Cloud Solutions</h1>
+    <p class="cm-hero-subtitle">Manage your resources with our next-gen platform.</p>
+    <button class="cm-btn cm-hero-btn">Get Started</button>
 </div>
 
 <div class="feature-grid-cm">
@@ -35,9 +35,9 @@
 </div>
 
 <div id="loginModal" class="cm-modal {% if error %}active-modal{% endif %}">
-    <div class="cm-card" style="position: relative;">
+    <div class="cm-card cm-modal-card">
         <button onclick="document.getElementById('loginModal').style.display='none'" class="modal-close-cm">&times;</button>
-        <h2 style="margin-bottom: 1.5rem; color: var(--cm-primary-dark);">Client Portal</h2>
+        <h2 class="cm-modal-title">Client Portal</h2>
         
         {% if error %}
         <div class="error-msg-cm">
@@ -52,7 +52,7 @@
             <label class="form-label-cm">Access Key</label>
             <input type="password" name="password" class="cm-input" placeholder="guest123">
             
-            <button type="submit" class="cm-btn" style="width: 100%;">Authenticate</button>
+            <button type="submit" class="cm-btn cm-submit-btn">Authenticate</button>
         </form>
     </div>
 </div>

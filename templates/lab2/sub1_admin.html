@@ -1,44 +1,71 @@
 {% extends 'base.html' %}
-{% block title %}Restricted Management Console - TechStore{% endblock %}
+
+{% set is_fashion = 'fashion' in request.path %}
+{% set is_food = 'kitchen' in request.path %}
+
+{% if is_fashion %}
+    {% set admin_title = 'FashionHub - Control Panel' %}
+    {% set admin_theme = 'fashion' %}
+    {% set admin_icon = '👗' %}
+{% elif is_food %}
+    {% set admin_title = 'FoodMart - Kitchen Admin Zone' %}
+    {% set admin_theme = 'food' %}
+    {% set admin_icon = '🍔' %}
+{% else %}
+    {% set admin_title = 'TechStore - Management Console' %}
+    {% set admin_theme = 'tech' %}
+    {% set admin_icon = '💻' %}
+{% endif %}
+
+{% block title %}Restricted Access | {{ admin_title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_admin.css') }}">
+{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_admin.css') }}">
-<div class="security-header" style="background: linear-gradient(135deg, #0ea5e9, #0c4a6e);">
+<div class="security-header admin-security-header theme-{{ admin_theme }}">
     <div class="container">
-        <h1 class="security-title">Admin Interface</h1>
-        <p class="security-subtitle">Internal node: <code>super_secret_admin_panel_xyz</code></p>
+        <h1 class="security-title">{{ admin_title }}</h1>
+        <p class="security-subtitle">Internal node: <code>{{ request.path.split('/')[-1] }}</code></p>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container admin-container-{{ admin_theme }}">
     {% if flag %}
         <div class="alert alert-success admin-success-alert">
-            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎯 Access Level: ROOT</div>
+            <div class="admin-access-label">🎯 Access Level: ROOT</div>
             <p>Verification successful. Your research token:</p>
             <code class="admin-flag-code">{{ flag }}</code>
         </div>
-        <div style="margin-top: 2rem;">
-            <a href="{{ url_for('lab2_1') }}" class="btn">&larr; Return to Dashboard</a>
+        <div class="admin-return-container">
+            {% if is_fashion %}
+                <a href="{{ url_for('lab2_1b') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
+            {% elif is_food %}
+                <a href="{{ url_for('lab2_1c') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('lab2_1') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
+            {% endif %}
         </div>
     {% else %}
         <div class="security-card">
-            <h3 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
-                <span style="color: #0ea5e9;">👥</span> Registered Identities
+            <h3 class="admin-section-title">
+                <span class="admin-section-icon">{{ admin_icon }}</span> Registered Identities
             </h3>
             
-            <div style="display: grid; gap: 1rem;">
+            <div class="admin-user-grid">
                 {% for user in users %}
                 <div class="user-identity-card">
                     <div>
-                        <div class="user-name-admin">{{ user.username }}</div>
+                        <div class="user-name-admin">{{ user.username }} ({{ user.role | default('User') }})</div>
                         <div class="user-id-admin">System ID: USR-{{ user.id }}</div>
                     </div>
                     <form method="POST">
                         <input type="hidden" name="user_id" value="{{ user.id }}">
-                        <button type="submit" class="btn btn-danger btn-purge">Purge User</button>
+                        <button type="submit" class="btn btn-purge">Purge User</button>
                     </form>
                 </div>
                 {% endfor %}

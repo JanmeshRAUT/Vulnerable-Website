@@ -4,15 +4,15 @@
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4.css') }}">
 <header class="lab2-4-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <a href="{{ url_for('lab2_4') }}" style="color: #64748b; font-size: 0.875rem; text-decoration: none;">&larr; Back to Shop</a>
+    <div class="tm-header-inner">
+        <a href="{{ url_for('lab2_4') }}" class="tm-back-link">&larr; Back to Shop</a>
         <div class="brand">TechMart™</div>
     </div>
     
-    <div style="display: flex; align-items: center; gap: 1.5rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <span style="color: #94a3b8; font-size: 0.875rem;">Account: <strong>{{ account.username }}</strong></span>
-            <a href="{{ url_for('lab2_4_logout') }}" class="btn btn-danger" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Logout</a>
+    <div class="tm-acct-header-actions">
+        <div class="tm-acct-header-user">
+            <span class="tm-acct-username-label">Account: <strong>{{ account.username }}</strong></span>
+            <a href="{{ url_for('lab2_4_logout') }}" class="btn btn-danger tm-acct-logout-btn">Logout</a>
         </div>
     </div>
 </header>
@@ -25,13 +25,13 @@
             {{ account.username[0].upper() }}
         </div>
         <div>
-            <h1 style="margin: 0; font-size: 2rem;">{{ account.full_name }}</h1>
-            <p style="color: var(--accent); font-weight: 600; margin: 0.25rem 0 0 0;">{{ account.role.upper() }} ACCOUNT</p>
+            <h1 class="tm-acct-fullname">{{ account.full_name }}</h1>
+            <p class="tm-acct-role">{{ account.role.upper() }} ACCOUNT</p>
         </div>
     </div>
 
     <div class="card">
-        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 1rem;">Personal Information</h3>
+        <h3 class="tm-acct-card-title">Personal Information</h3>
         
         <div class="info-row">
             <span class="label">Username</span>
@@ -43,41 +43,41 @@
         </div>
         <div class="info-row">
             <span class="label">Member ID</span>
-            <span style="font-family: monospace;">TM-{{ account.id }}</span>
+            <span class="tm-acct-member-id">TM-{{ account.id }}</span>
         </div>
-        <div class="info-row" style="border: none;">
+        <div class="info-row tm-acct-info-row-last">
             <span class="label">Account Status</span>
-            <span style="color: #10b981;">● Active</span>
+            <span class="tm-acct-status-active">● Active</span>
         </div>
     </div>
 
-    <div style="margin-top: 2rem;">
-        <h3 style="margin-bottom: 1rem;">Your Uploaded Products</h3>
+    <div class="tm-acct-products-section">
+        <h3 class="tm-acct-products-title">Your Uploaded Products</h3>
         {% if products %}
-        <div class="card-grid" style="margin-top: 1.5rem;">
+        <div class="card-grid tm-acct-products-grid">
             {% for product in products %}
-            <div class="card" style="padding: 1.5rem; cursor: pointer;" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}'">
-                <div style="background: #334155; border-radius: 0.5rem; padding: 3rem; margin-bottom: 1rem; text-align: center; color: #94a3b8;">
+            <div class="card tm-acct-product-card" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}'">
+                <div class="tm-acct-product-image">
                     [Product Image]
                 </div>
-                <h4 style="margin-bottom: 0.5rem; font-size: 1.125rem;">
-                    <a href="{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                <h4 class="tm-acct-product-name">
+                    <a href="{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}" class="techmart-product-link">{{ product.name }}</a>
                 </h4>
-                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">{{ product.description }}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #334155;">
-                    <span style="font-weight: 700; color: var(--accent);">${{ product.price }}</span>
-                    <span style="font-size: 0.75rem; color: #64748b;">Stock: {{ product.stock }}</span>
+                <p class="tm-acct-product-desc">{{ product.description }}</p>
+                <div class="tm-acct-product-footer">
+                    <span class="tm-acct-product-price">${{ product.price }}</span>
+                    <span class="tm-acct-product-stock">Stock: {{ product.stock }}</span>
                 </div>
-                <p style="color: #64748b; font-size: 0.75rem; margin-top: 0.75rem;">
-                    <strong>Uploaded by:</strong> {{ product.username }} <code style="background: #1e293b; padding: 2px 6px; border-radius: 3px;">(ID: {{ product.uploaded_by }})</code>
+                <p class="tm-acct-product-uploader">
+                    <strong>Uploaded by:</strong> {{ product.username }} <code class="tm-acct-uploader-id-code">(ID: {{ product.uploaded_by }})</code>
                 </p>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="card" style="text-align: center; padding: 3rem; color: #64748b;">
+        <div class="card tm-acct-empty">
             <p>You haven't uploaded any products yet.</p>
-            <a href="{{ url_for('lab2_4') }}" class="btn" style="display: inline-block; margin-top: 1rem;">Back to Store</a>
+            <a href="{{ url_for('lab2_4') }}" class="btn tm-acct-empty-btn">Back to Store</a>
         </div>
         {% endif %}
     </div>

@@ -2,11 +2,11 @@
 {% block title %}ShopHub - Your Online Marketplace{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='lab2/5/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5.css') }}">
     <header class="shophub-header">
         <div class="header-container">
             <div class="brand-section">
-                <a href="{{ url_for('lab2_5_menu') }}" class="back-link">&larr; Back</a>
+                <a href="{{ url_for('lab2_5_menu') }}" class="back-link">&larr;</a>
                 <div class="brand-logo">🛍️ ShopHub</div>
                 <nav class="nav-links">
                     <a href="#" class="nav-item">Home</a>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Categories -->
-    <h2 class="section-title" style="text-align: center; justify-content: center;">Shop by Category</h2>
+    <h2 class="section-title shophub-section-title-center">Shop by Category</h2>
     <div class="category-grid">
         <div class="category-card">
             <div class="category-icon">👕</div>
@@ -61,16 +61,16 @@
     </div>
 
     <!-- Featured Products -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 0 2rem;">
-        <h2 class="section-title" style="margin: 0;">Featured Products</h2>
-        <div style="display: flex; gap: 0.5rem;">
-            <button class="btn-action" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);">All</button>
-            <button class="btn-action" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Best Sellers</button>
-            <button class="btn-action" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);">New</button>
+    <div class="shophub-featured-header">
+        <h2 class="section-title shophub-featured-title">Featured Products</h2>
+        <div class="shophub-filter-btn-group">
+            <button class="shophub-filter-btn shophub-filter-btn-default">All</button>
+            <button class="shophub-filter-btn shophub-filter-btn-active">Best Sellers</button>
+            <button class="shophub-filter-btn shophub-filter-btn-default">New</button>
         </div>
     </div>
     
-    <div class="products-grid" style="padding: 0 2rem;">
+    <div class="products-grid">
         {% for product in products %}
         <div class="product-card">
             <div class="badge-sale">SALE</div>
@@ -79,10 +79,10 @@
             </div>
             <div class="product-content">
                 <h3 class="product-title">{{ product.name }}</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">{{ product.description }}</p>
+                <p class="shophub-product-desc">{{ product.description }}</p>
                 <div class="product-rating">
-                    <span style="color: #fbbf24;">⭐⭐⭐⭐⭐</span>
-                    <span style="color: var(--text-muted);">(245)</span>
+                    <span class="shophub-rating-stars">⭐⭐⭐⭐⭐</span>
+                    <span class="shophub-rating-count">(245)</span>
                 </div>
                 <div class="product-footer">
                     <div class="price-box">
@@ -97,27 +97,27 @@
     </div>
 
     <!-- Benefits Section -->
-    <div style="background: var(--bg-card); padding: 4rem 2rem; margin-top: 4rem; border-top: 1px solid var(--border);">
-        <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem;">
-            <div style="text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚚</div>
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-main);">Free Shipping</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">On orders over $50</p>
+    <div class="shophub-benefits-section">
+        <div class="shophub-benefits-grid">
+            <div class="shophub-benefit-card">
+                <div class="shophub-benefit-icon">🚚</div>
+                <h3 class="shophub-benefit-title">Free Shipping</h3>
+                <p class="shophub-benefit-desc">On orders over $50</p>
             </div>
-            <div style="text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔒</div>
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-main);">Secure Payment</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">100% protected transactions</p>
+            <div class="shophub-benefit-card">
+                <div class="shophub-benefit-icon">🔒</div>
+                <h3 class="shophub-benefit-title">Secure Payment</h3>
+                <p class="shophub-benefit-desc">100% protected transactions</p>
             </div>
-            <div style="text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 1rem;">↩️</div>
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-main);">Easy Returns</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">30-day money back guarantee</p>
+            <div class="shophub-benefit-card">
+                <div class="shophub-benefit-icon">↩️</div>
+                <h3 class="shophub-benefit-title">Easy Returns</h3>
+                <p class="shophub-benefit-desc">30-day money back guarantee</p>
             </div>
-            <div style="text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 1rem;">💬</div>
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-main);">24/7 Support</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">We are always here to help</p>
+            <div class="shophub-benefit-card">
+                <div class="shophub-benefit-icon">💬</div>
+                <h3 class="shophub-benefit-title">24/7 Support</h3>
+                <p class="shophub-benefit-desc">We are always here to help</p>
             </div>
         </div>
     </div>
@@ -143,9 +143,9 @@
                     <label class="form-label">Password</label>
                     <input type="password" name="password" class="form-input" required placeholder="Enter your password">
                 </div>
-                <button type="submit" class="btn-action btn-block">Sign In</button>
-                <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
-                    Test account: <code style="margin: 0 0.3rem;">user</code> / <code style="margin: 0 0.3rem;">password</code>
+                <button type="submit" class="btn-block">Sign In</button>
+                <div class="shophub-modal-hint-box">
+                    Test account: <code class="shophub-modal-hint-code">user</code> / <code class="shophub-modal-hint-code">password</code>
                 </div>
             </form>
         </div>

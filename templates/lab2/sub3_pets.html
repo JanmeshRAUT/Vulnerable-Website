@@ -4,22 +4,19 @@
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub3_pets.css') }}">
 <header class="pet-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <div style="font-size: 2.2rem;">🐾</div>
+    <div class="pet-header-brand-container">
+        <div class="pet-brand-icon">🐾</div>
         <a href="{{ url_for('lab2_3_pets') }}" class="pet-brand">
-            Pet<span style="color: #14b8a6;">Shop</span>
+            Pet<span class="pet-brand-accent">Shop</span>
         </a>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 1.5rem;">
+    <div class="pet-user-controls">
         {% if username %}
-        <div style="color: #555;">Hello, <span style="color: #ec4899; font-weight: bold;">{{ username }}</span>! 😺
-        </div>
-        <a href="{{ url_for('lab2_3_logout') }}"
-            style="color: #14b8a6; text-decoration: none; font-weight: bold;">Logout</a>
+        <div class="pet-logged-in-text">Hello, <span class="pet-username-highlight">{{ username }}</span>! 😺</div>
+        <a href="{{ url_for('lab2_3_logout') }}" class="pet-logout-btn">Logout</a>
         {% else %}
-        <button onclick="document.getElementById('loginModal').style.display='flex'"
-            style="background: #ec4899; color: #fff; border: none; padding: 0.5rem 1.2rem; cursor: pointer; font-weight: bold; border-radius: 20px; box-shadow: 0 4px 0 #be185d;">
+        <button onclick="document.getElementById('loginModal').style.display='flex'" class="pet-login-btn">
             Login
         </button>
         {% endif %}
@@ -29,13 +26,11 @@
 
 {% block content %}
 <!-- Lab Context -->
-<a href="{{ url_for('lab2_3_menu') }}"
-    style="position: absolute; top: 110px; left: 20px; color: #14b8a6; text-decoration: none; font-weight: bold;">&larr;
-    Back to Menu</a>
+<a href="{{ url_for('lab2_3_menu') }}" class="pet-back-link">&larr; Back to Menu</a>
 
 <div class="hero-pet">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Everything for your best friend! 🐶</h1>
-    <p>Toys, treats, and lots of love.</p>
+    <h1 class="pet-hero-title">Everything for your best friend! 🐶</h1>
+    <p class="pet-hero-subtitle">Toys, treats, and lots of love.</p>
 </div>
 
 <div class="product-grid-pet">
@@ -44,7 +39,7 @@
         <div class="product-image-pet">🦴</div>
         <div class="product-info-pet">
             <div class="product-title-pet">{{ product.name }}</div>
-            <p style="color: #777; font-size: 0.9rem;">{{ product.description }}</p>
+            <p class="pet-product-desc">{{ product.description }}</p>
             <span class="product-price-pet">${{ product.price }}</span>
             <button class="btn-add-pet">Add to Cart</button>
         </div>
@@ -56,7 +51,7 @@
 <div id="loginModal" class="modal-pet">
     <div class="modal-content-pet">
         <span class="close-btn-pet" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
-        <h2 style="text-align: center; color: #be185d; margin-bottom: 1.5rem;">Welcome Back! 🐱</h2>
+        <h2 class="pet-modal-title">Welcome Back! 🐱</h2>
         <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
             <input type="hidden" name="theme" value="pets">
             <input type="text" name="username" placeholder="Username" required class="login-input-pet">

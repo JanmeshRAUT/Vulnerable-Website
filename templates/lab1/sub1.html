@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
-{% block title %}DocuVault - Document Management{% endblock %}
+{% block title %}DocuVault - Document Management | Lab 1.1{% endblock %}
 
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab1/sub1.css') }}">
-    <!-- Custom Header for Lab 1 -->
+    <!-- Custom Header for Lab 1.1 -->
     <header class="docuvault-header">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('home') }}" style="color: #bae6fd; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
-            <div style="font-weight: 700; font-size: 1.5rem; letter-spacing: -0.025em;">📁 DocuVault</div>
+        <div class="docuvault-brand">
+            <a href="{{ url_for('lab1') }}" class="btn btn-icon docuvault-back-btn">&larr; Back</a>
+            📁 DocuVault
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <nav style="display: flex; gap: 1.5rem; font-size: 0.9rem;">
-                <a href="#" style="color: white; text-decoration: none;">My Documents</a>
-                <a href="#" style="color: white; text-decoration: none;">Shared</a>
-                <a href="#" style="color: white; text-decoration: none;">Recent</a>
+        <div class="header-actions">
+            <nav class="docuvault-nav">
+                <a href="#">My Documents</a>
+                <a href="#">Shared</a>
+                <a href="#">Recent</a>
             </nav>
-            <button class="btn" style="background: white; color: #0ea5e9; padding: 0.5rem 1rem; font-size: 0.875rem;">Upload</button>
+            <button class="btn btn-docuvault btn-upload">⬆ Upload File</button>
         </div>
     </header>
 {% endblock %}
@@ -24,25 +24,28 @@
 {% block content %}
     <!-- Hero Section -->
     <div class="docuvault-hero">
-        <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">📂 Your Documents</h1>
-        <p style="font-size: 1rem; opacity: 0.9;">Secure cloud storage for all your important files</p>
+        <div class="hero-content">
+            <h1 class="docuvault-title">📂 Your Documents</h1>
+            <p class="docuvault-subtitle">Secure cloud storage for all your important files. Click a file to download it.</p>
+        </div>
     </div>
 
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-        <span>Home</span> / <span>Documents</span> / <span style="color: var(--text-primary);">Invoices 2024</span>
+        <span>Home</span> / <span>Documents</span> / <span class="active">Invoices 2024</span>
+    </div>
+
+    <!-- Document Grid Header -->
+    <div class="grid-header">
+        <h2 class="grid-title">
+            <span class="grid-title-icon">📑</span> Corporate Repository
+        </h2>
+        <div class="file-count">
+            <span>{{ files|length }}</span> documents
+        </div>
     </div>
 
     <!-- Document Grid -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-            <span style="color: #0ea5e9;">📑</span> Corporate Repository
-        </h2>
-        <div style="font-size: 0.9rem; color: #94a3b8;">
-            Showing {{ files|length }} documents
-        </div>
-    </div>
-    
     <div class="card-grid">
         {% for file in files %}
             {% set icon_class = 'icon-txt' %}
@@ -64,26 +67,27 @@
                 {% set icon_char = '📦' %}
             {% endif %}
 
-        <div class="card file-card">
-            <div style="display: flex; align-items: start; margin-bottom: 1rem;">
+        <div class="file-card">
+            <div class="card-top">
                 <div class="file-icon {{ icon_class }}">
                     {{ icon_char }}
                 </div>
-                <div style="flex: 1; min-width: 0;">
-                    <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ file }}">
+                <div class="card-text">
+                    <h3 class="card-title" title="{{ file }}">
                         {{ file }}
                     </h3>
-                    <p style="color: #94a3b8; font-size: 0.8rem; margin: 0;">
-                        {% if '2024' in file %}Modified: Today{% else %}Archived{% endif %}
+                    <p class="card-status">
+                        <span class="status-indicator {% if '2024' in file %}status-recent{% else %}status-archived{% endif %}"></span>
+                        {% if '2024' in file %}Modified Today{% else %}Archived{% endif %}
                     </p>
                 </div>
             </div>
             
-            <div style="display: flex; gap: 0.5rem; margin-top: auto;">
-                <a href="{{ url_for('lab1_1_download', file=file) }}" class="btn" style="flex: 1; background: #0f172a; border: 1px solid #0ea5e9; color: #0ea5e9; padding: 0.5rem; font-size: 0.85rem; text-align: center; transition: all 0.2s;">
-                    Download
+            <div class="card-actions">
+                <a href="{{ url_for('lab1_1_download', file=file) }}" class="btn btn-docuvault btn-download">
+                    ⬇ Download
                 </a>
-                <button class="btn" style="background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 0.5rem 0.75rem;">
+                <button class="btn btn-icon btn-options">
                     ⋮
                 </button>
             </div>
@@ -92,34 +96,34 @@
     </div>
 
     <!-- Info Section -->
-    <div class="card info-banner">
-        <div style="display: flex; align-items: start; gap: 1rem;">
-            <div style="font-size: 2rem;">💡</div>
+    <div class="info-banner">
+        <div class="banner-inner">
+            <div class="banner-icon">💡</div>
             <div>
-                <h3 style="margin-bottom: 0.5rem; color: #38bdf8;">Storage Information</h3>
-                <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
-                    Your documents are securely stored in our cloud infrastructure. All files are encrypted and backed up daily.
+                <h3 class="banner-title">Storage Information</h3>
+                <p class="banner-text">
+                    Your documents are securely stored in our cloud infrastructure. All files are encrypted and backed up daily. Investigate the download endpoint carefully.
                 </p>
             </div>
         </div>
     </div>
 
     <!-- Quick Actions -->
-    <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-        <div class="card quick-action-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📤</div>
-            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">Upload Files</h4>
-            <p style="color: #94a3b8; font-size: 0.8rem;">Add new documents</p>
+    <div class="quick-actions">
+        <div class="quick-action-card">
+            <div class="action-icon">📤</div>
+            <h4 class="action-title">Upload Files</h4>
+            <p class="action-desc">Add new documents to your vault</p>
         </div>
-        <div class="card quick-action-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔗</div>
-            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">Share</h4>
-            <p style="color: #94a3b8; font-size: 0.8rem;">Share with team</p>
+        <div class="quick-action-card">
+            <div class="action-icon">🔗</div>
+            <h4 class="action-title">Share Documents</h4>
+            <p class="action-desc">Share securely with your team</p>
         </div>
-        <div class="card quick-action-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗂️</div>
-            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">Organize</h4>
-            <p style="color: #94a3b8; font-size: 0.8rem;">Create folders</p>
+        <div class="quick-action-card">
+            <div class="action-icon">🗂️</div>
+            <h4 class="action-title">Organize</h4>
+            <p class="action-desc">Create folders and tags</p>
         </div>
     </div>
 {% endblock %}

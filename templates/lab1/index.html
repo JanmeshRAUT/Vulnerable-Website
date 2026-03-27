@@ -1,39 +1,75 @@
 {% extends 'base.html' %}
-{% block title %}Lab 1: Path Traversal{% endblock %}
+{% block title %}Module 1 - Path Traversal | Lab Center{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab1/index.css') }}">
+{% endblock %}
 
 {% block content %}
-    <div class="lab-header">
-        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
-        <h2 class="lab-title">Module 1: Path Traversal</h2>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('home') }}" class="back-link-premium">&larr; Back to Dashboard</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Module 1</p>
+            <h1 class="lab-sub-title">Path Traversal</h1>
+        </div>
+        <p class="lab-header-desc">Explore vulnerabilities where an application allows attackers to read arbitrary files on the server that is running an application.</p>
     </div>
 
-    <div class="banner">
-        ⚠️ Intentional Vulnerability: Unauthorized directory browsing and sensitive file exfiltration.
+    <!-- Alert Banner -->
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Intentional Vulnerability:</strong> Unauthorized directory browsing and sensitive file exfiltration. These labs are for educational purposes only.
+        </div>
     </div>
 
-    <div class="card-grid lab-card-grid">
+    <!-- Lab Grid -->
+    <div class="premium-lab-grid">
         <!-- Lab 1.1 -->
-        <div class="card">
-            <span class="card-icon">📂</span>
-            <h3>1.1: DocuVault</h3>
-            <p>Corporate document management system. Exploit direct file references in invoice delivery modules.</p>
-            <a href="{{ url_for('lab1_1') }}" class="btn">Start Lab 1.1</a>
-        </div>
-        
+        <a href="{{ url_for('lab1_1') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">📂</div>
+                <span class="premium-card-badge">Lab 1.1</span>
+            </div>
+            <div class="premium-card-body">
+                <h3>DocuVault</h3>
+                <p>Corporate document management system. Exploit direct file references in invoice delivery modules to traverse the server file system.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Lab 1.1 &rarr;</span>
+            </div>
+        </a>
+
         <!-- Lab 1.2 -->
-        <div class="card">
-            <span class="card-icon">☕</span>
-            <h3>1.2: Bean & Brew</h3>
-            <p>Boutique coffee e-commerce. Challenge backend image loaders that process external path parameters.</p>
-            <a href="{{ url_for('lab1_2') }}" class="btn">Start Lab 1.2</a>
-        </div>
-        
+        <a href="{{ url_for('lab1_2') }}" class="premium-lab-card" style="--card-color: #f59e0b;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2);">☕</div>
+                <span class="premium-card-badge">Lab 1.2</span>
+            </div>
+            <div class="premium-card-body">
+                <h3>Bean &amp; Brew</h3>
+                <p>Boutique coffee e-commerce. Challenge backend image loaders that process external path parameters without proper sanitization.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Lab 1.2 &rarr;</span>
+            </div>
+        </a>
+
         <!-- Lab 1.3 -->
-        <div class="card">
-            <span class="card-icon">🖼️</span>
-            <h3>1.3: PixelMarket</h3>
-            <p>High-resolution asset marketplace. Bypass validation filters to access underlying system configuration.</p>
-            <a href="{{ url_for('lab1_3') }}" class="btn">Start Lab 1.3</a>
-        </div>
+        <a href="{{ url_for('lab1_3') }}" class="premium-lab-card" style="--card-color: #ec4899;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.2);">🖼️</div>
+                <span class="premium-card-badge">Lab 1.3</span>
+            </div>
+            <div class="premium-card-body">
+                <h3>PixelMarket</h3>
+                <p>High-resolution asset marketplace. Bypass validation filters to access underlying system configuration and sensitive server files.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Lab 1.3 &rarr;</span>
+            </div>
+        </a>
     </div>
+</div>
 {% endblock %}

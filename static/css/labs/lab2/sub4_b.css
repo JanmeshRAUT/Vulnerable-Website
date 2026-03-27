@@ -206,3 +206,50 @@
     padding: 1rem;
     border-left: 2px solid #fbbf24;
 }
+
+/* Product Detail */
+.luxe-header-inner { display: flex; align-items: center; gap: 1rem; }
+.luxe-back-link { color: #94a3b8; font-size: 0.875rem; text-decoration: none; }
+.luxe-back-link:hover { color: #fbbf24; }
+
+.luxe-product-detail-container { max-width: 800px; margin: 2rem auto; padding: 2rem; background: #0f172a; border-radius: 4px; border: 1px solid #1e293b; }
+.luxe-product-detail-flex { display: flex; gap: 2rem; align-items: flex-start; }
+.luxe-product-image-box { flex: 1; height: 300px; background: #1e293b; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+.luxe-product-info-box { flex: 1; }
+.luxe-product-detail-name { font-family: 'Playfair Display', serif; font-size: 2rem; color: #fbbf24; margin-bottom: 1rem; }
+.luxe-product-detail-desc { font-size: 1rem; color: #94a3b8; margin-bottom: 1.5rem; }
+.luxe-product-detail-price { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 2rem; }
+
+.luxe-uploader-box { background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-left: 2px solid #fbbf24; margin-bottom: 2rem; }
+.luxe-uploader-text { color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.5rem; }
+.luxe-uploader-strong { color: white; }
+.luxe-uploader-link { color: #fbbf24; text-decoration: underline; }
+.luxe-uploader-ref { color: #64748b; font-size: 0.75rem; }
+.luxe-uploader-owner { color: #fbbf24; font-weight: bold; margin-top: 1rem; font-size: 0.875rem; }
+
+.luxe-add-collection-btn { width: 100%; padding: 1rem; font-size: 1rem; background: #fbbf24; color: #0f172a; border: none; font-weight: bold; cursor: pointer; border-radius: 2px; }
+.luxe-add-collection-btn:hover { background: #f59e0b; }
+
+/* Account Page */
+.luxe-exit-link { color: #fbbf24; text-decoration: none; font-weight: 600; }
+.luxe-exit-link:hover { color: #f59e0b; }
+
+.luxe-acct-container { max-width: 800px; margin: 3rem auto; }
+.luxe-acct-card { color: white; padding: 3rem; }
+.luxe-acct-flex { display: flex; gap: 2rem; align-items: flex-start; }
+.luxe-acct-info-grow { flex-grow: 1; }
+.luxe-acct-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.luxe-acct-fullname { font-family: 'Playfair Display', serif; font-size: 2rem; margin: 0; }
+.luxe-acct-role-badge { border-radius: 9999px; font-size: 0.75rem; }
+
+.luxe-acct-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+.luxe-stats-title { margin-bottom: 1rem; font-size: 0.9rem; color: #fbbf24; }
+.luxe-stats-row { display: flex; justify-content: space-between; text-align: center; }
+.luxe-stat-value { display: block; font-size: 1.5rem; font-weight: 700; }
+.luxe-stat-label { font-size: 0.7rem; color: #94a3b8; }
+
+/* Admin Page */
+.luxe-admin-stat-grid { grid-template-columns: repeat(3, 1fr); }
+.luxe-admin-stat-value { font-size: 1.5rem; }
+.luxe-admin-stat-secure { font-size: 1.5rem; color: #22c55e; }
+.luxe-admin-notification-text { font-size: 1rem; font-weight: normal; }

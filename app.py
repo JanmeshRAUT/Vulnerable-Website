@@ -174,6 +174,83 @@ def init_db():
             )
         ''')
 
+        # Create Lab Enrollments Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS lab_enrollments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                lab_id TEXT NOT NULL,
+                enrolled_date TEXT NOT NULL,
+                status TEXT DEFAULT 'in_progress',
+                completion_percentage INTEGER DEFAULT 0,
+                last_accessed TEXT,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, lab_id)
+            )
+        ''')
+
+        # Create Lab Progress Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS lab_progress (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                lab_id TEXT NOT NULL,
+                section_id TEXT,
+                task_completed BOOLEAN DEFAULT 0,
+                flag_found BOOLEAN DEFAULT 0,
+                flag_value TEXT,
+                completion_time TEXT,
+                notes TEXT,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, lab_id, section_id)
+            )
+        ''')
+
+        # Create Assignments Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS assignments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                lab_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                description TEXT,
+                due_date TEXT,
+                created_date TEXT,
+                max_score INTEGER DEFAULT 100
+            )
+        ''')
+
+        # Create Assignment Submissions Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS assignment_submissions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                assignment_id INTEGER NOT NULL,
+                submission_date TEXT NOT NULL,
+                file_path TEXT,
+                content TEXT,
+                status TEXT DEFAULT 'submitted',
+                score INTEGER,
+                feedback TEXT,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (assignment_id) REFERENCES assignments(id)
+            )
+        ''')
+
+        # Create Lab Grades Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS lab_grades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                lab_id TEXT NOT NULL,
+                score INTEGER,
+                grade TEXT,
+                feedback TEXT,
+                graded_date TEXT,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, lab_id)
+            )
+        ''')
+
         # Seed Data - Users
         # Check if users exist
         cursor.execute('SELECT count(*) FROM users')
@@ -335,6 +412,268 @@ def checkout():
 def help():
     # Help and FAQ page
     return render_template('help.html')
+
+
+# -------------------------
+# STUDENT DASHBOARD - Progress Tracking and Lab Management
+# -------------------------
+@app.route('/dashboard')
+def student_dashboard():
+    """Main student dashboard showing labs, progress, and assignments"""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch user info
+    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+    user = cursor.fetchone()
+    
+    # Fetch enrolled labs
+    cursor.execute('''
+        SELECT * FROM lab_enrollments 
+        WHERE user_id = ? 
+        ORDER BY enrolled_date DESC
+    ''', (user_id,))
+    enrollments = cursor.fetchall()
+    
+    # Fetch pending assignments
+    cursor.execute('''
+        SELECT a.*, 
+               (SELECT COUNT(*) FROM assignment_submissions 
+                WHERE assignment_id = a.id AND user_id = ?) as submitted
+        FROM assignments a
+        ORDER BY a.due_date ASC
+    ''', (user_id,))
+    assignments = cursor.fetchall()
+    
+    # Calculate overall progress
+    cursor.execute('''
+        SELECT AVG(completion_percentage) as avg_progress
+        FROM lab_enrollments
+        WHERE user_id = ?
+    ''', (user_id,))
+    progress_data = cursor.fetchone()
+    overall_progress = progress_data['avg_progress'] or 0
+    
+    # Fetch grades for completed labs
+    cursor.execute('''
+        SELECT * FROM lab_grades
+        WHERE user_id = ?
+        ORDER BY graded_date DESC
+    ''', (user_id,))
+    grades = cursor.fetchall()
+    
+    return render_template('student_dashboard.html', 
+                         user=user,
+                         enrollments=enrollments,
+                         assignments=assignments,
+                         overall_progress=int(overall_progress),
+                         grades=grades)
+
+
+@app.route('/dashboard/enroll', methods=['POST'])
+def enroll_lab():
+    """Enroll a student in a lab"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    user_id = session['user_id']
+    lab_id = request.form.get('lab_id')
+    
+    if not lab_id:
+        return jsonify({'error': 'Lab ID required'}), 400
+    
+    db = get_db()
+    cursor = db.cursor()
+    
+    try:
+        from datetime import datetime
+        cursor.execute('''
+            INSERT INTO lab_enrollments (user_id, lab_id, enrolled_date, status)
+            VALUES (?, ?, ?, 'in_progress')
+        ''', (user_id, lab_id, datetime.now().isoformat()))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Successfully enrolled in lab'})
+    except sqlite3.IntegrityError:
+        return jsonify({'error': 'Already enrolled in this lab'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/dashboard/progress/<lab_id>', methods=['GET', 'POST'])
+def lab_progress(lab_id):
+    """View and update lab progress"""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Check if user is enrolled in this lab
+    cursor.execute('''
+        SELECT * FROM lab_enrollments 
+        WHERE user_id = ? AND lab_id = ?
+    ''', (user_id, lab_id))
+    enrollment = cursor.fetchone()
+    
+    if not enrollment:
+        return redirect(url_for('student_dashboard'))
+    
+    if request.method == 'POST':
+        section_id = request.form.get('section_id')
+        task_completed = request.form.get('task_completed') == 'true'
+        flag_found = request.form.get('flag_found') == 'true'
+        flag_value = request.form.get('flag_value', '')
+        notes = request.form.get('notes', '')
+        
+        cursor.execute('''
+            INSERT OR REPLACE INTO lab_progress 
+            (user_id, lab_id, section_id, task_completed, flag_found, flag_value, completion_time, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (user_id, lab_id, section_id, task_completed, flag_found, flag_value, 
+              datetime.now().isoformat(), notes))
+        
+        # Update enrollment progress percentage
+        cursor.execute('''
+            SELECT COUNT(*) as total, 
+                   SUM(CASE WHEN task_completed = 1 THEN 1 ELSE 0 END) as completed
+            FROM lab_progress
+            WHERE user_id = ? AND lab_id = ?
+        ''', (user_id, lab_id))
+        progress = cursor.fetchone()
+        
+        if progress['total'] > 0:
+            completion_pct = (progress['completed'] / progress['total']) * 100
+            cursor.execute('''
+                UPDATE lab_enrollments 
+                SET completion_percentage = ?
+                WHERE user_id = ? AND lab_id = ?
+            ''', (int(completion_pct), user_id, lab_id))
+        
+        cursor.execute('UPDATE lab_enrollments SET last_accessed = ? WHERE user_id = ? AND lab_id = ?', 
+                      (datetime.now().isoformat(), user_id, lab_id))
+        db.commit()
+        
+        return jsonify({'success': True, 'message': 'Progress updated'})
+    
+    # GET request - fetch progress
+    cursor.execute('''
+        SELECT * FROM lab_progress
+        WHERE user_id = ? AND lab_id = ?
+        ORDER BY section_id
+    ''', (user_id, lab_id))
+    progress_entries = cursor.fetchall()
+    
+    return render_template('lab_progress.html',
+                         lab_id=lab_id,
+                         enrollment=enrollment,
+                         progress_entries=progress_entries)
+
+
+@app.route('/dashboard/assignments')
+def assignments_page():
+    """View all assignments"""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch all assignments with submission status
+    cursor.execute('''
+        SELECT a.*, 
+               COALESCE(
+                   (SELECT submission_date FROM assignment_submissions 
+                    WHERE assignment_id = a.id AND user_id = ? 
+                    ORDER BY submission_date DESC LIMIT 1),
+                   NULL
+               ) as last_submission
+        FROM assignments a
+        ORDER BY a.due_date ASC
+    ''', (user_id,))
+    assignments = cursor.fetchall()
+    
+    return render_template('assignments.html', assignments=assignments)
+
+
+@app.route('/dashboard/assignment/<int:assignment_id>', methods=['GET', 'POST'])
+def assignment_detail(assignment_id):
+    """View and submit assignment"""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch assignment
+    cursor.execute('SELECT * FROM assignments WHERE id = ?', (assignment_id,))
+    assignment = cursor.fetchone()
+    
+    if not assignment:
+        return "Assignment not found", 404
+    
+    if request.method == 'POST':
+        from datetime import datetime
+        submission_content = request.form.get('submission_content', '')
+        
+        cursor.execute('''
+            INSERT INTO assignment_submissions 
+            (user_id, assignment_id, submission_date, content, status)
+            VALUES (?, ?, ?, ?, 'submitted')
+        ''', (user_id, assignment_id, datetime.now().isoformat(), submission_content))
+        db.commit()
+        
+        return redirect(url_for('assignment_submissions', assignment_id=assignment_id))
+    
+    # Fetch previous submissions
+    cursor.execute('''
+        SELECT * FROM assignment_submissions
+        WHERE user_id = ? AND assignment_id = ?
+        ORDER BY submission_date DESC
+    ''', (user_id, assignment_id))
+    submissions = cursor.fetchall()
+    
+    return render_template('assignment_detail.html',
+                         assignment=assignment,
+                         submissions=submissions)
+
+
+@app.route('/dashboard/grades')
+def grades_page():
+    """View all grades and feedback"""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch all grades
+    cursor.execute('''
+        SELECT * FROM lab_grades
+        WHERE user_id = ?
+        ORDER BY graded_date DESC
+    ''', (user_id,))
+    grades = cursor.fetchall()
+    
+    # Calculate average grade
+    cursor.execute('''
+        SELECT AVG(score) as avg_score, COUNT(*) as total_labs
+        FROM lab_grades
+        WHERE user_id = ?
+    ''', (user_id,))
+    statistics = cursor.fetchone()
+    
+    return render_template('grades.html',
+                         grades=grades,
+                         avg_score=statistics['avg_score'],
+                         total_labs=statistics['total_labs'])
 
 
 # -------------------------

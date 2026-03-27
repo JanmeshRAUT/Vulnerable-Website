@@ -1,45 +1,67 @@
 {% extends 'base.html' %}
-{% block title %}System Core - Internal Admin{% endblock %}
+
+{% set is_book = 'bookstore' in request.path or 'b' in request.path %}
+{% set is_game = 'gamezone' in request.path or 'c' in request.path %}
+
+{% if is_book %}
+    {% set admin_title = 'BookStore - Hidden Admin' %}
+    {% set admin_theme = 'book' %}
+    {% set admin_icon = '📚' %}
+{% elif is_game %}
+    {% set admin_title = 'GameZone - Developer Mode' %}
+    {% set admin_theme = 'game' %}
+    {% set admin_icon = '🎮' %}
+{% else %}
+    {% set admin_title = 'GadgetShop - Internal Node' %}
+    {% set admin_theme = 'gadget' %}
+    {% set admin_icon = '📱' %}
+{% endif %}
+
+{% block title %}System Core | {{ admin_title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_admin.css') }}">
+{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub2_admin.css') }}">
-<div class="security-header" style="background: linear-gradient(135deg, #1e293b, #000);">
+<div class="security-header admin-security-header theme-{{ admin_theme }}">
     <div class="container">
-        <h1 class="security-title">Hidden Management Node</h1>
-        <p class="security-subtitle">Internal Routing: <code>{{ admin_path or '/admin_dashboard_hidden_abc123' }}</code></p>
+        <h1 class="security-title">{{ admin_title }}</h1>
+        <p class="security-subtitle">Internal Routing: <code>{{ admin_path or request.path.split('/')[-1] }}</code></p>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container admin-container-{{ admin_theme }}">
     {% if flag %}
         <div class="alert alert-success admin-success-bypass">
-            <div>
-                <h2 style="margin-bottom: 1rem; color: #10b981;">✅ Logic Bypass Confirmed</h2>
-                <p>You successfully discovered the hidden administrative routing through source code analysis.</p>
-                <div class="admin-flag-display">
-                    {{ flag }}
-                </div>
+            <div class="admin-access-label">✅ Logic Bypass Confirmed</div>
+            <p>You successfully discovered the hidden administrative routing through source code analysis.</p>
+            <div class="admin-flag-display">
+                <code class="admin-flag-code">{{ flag }}</code>
             </div>
+        </div>
+        <div class="admin-return-container">
+            <a href="{{ url_for('lab2_2_menu') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
         </div>
     {% else %}
         <div class="security-card">
-            <h3 style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">User Database Access</h3>
+            <h3 class="admin-section-title">
+                <span class="admin-section-icon">{{ admin_icon }}</span> User Database Access
+            </h3>
             
-            <div style="display: grid; gap: 1.5rem;">
+            <div class="admin-user-grid">
                 {% for user in users %}
-                <div class="user-node-card">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <div class="user-node-name">{{ user.username }}</div>
-                            <div class="user-node-id">Identifier: NODE_{{ user.id }}</div>
-                        </div>
-                        <form method="POST">
-                            <button type="submit" class="btn btn-danger btn-terminate">Terminate Account</button>
-                        </form>
+                <div class="user-identity-card">
+                    <div>
+                        <div class="user-node-name">{{ user.username }}</div>
+                        <div class="user-node-id">Identifier: NODE_{{ user.id }}</div>
                     </div>
+                    <form method="POST">
+                        <button type="submit" class="btn btn-purge">Terminate Account</button>
+                    </form>
                 </div>
                 {% endfor %}
             </div>

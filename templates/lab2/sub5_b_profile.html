@@ -5,8 +5,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_b.css') }}">
 <header class="cm-header">
     <a href="{{ url_for('lab2_5b') }}" class="cm-brand">☁️ CloudMart Console</a>
-    <div style="display: flex; gap: 1rem; align-items: center;">
-        <span style="font-size: 0.9rem; color: #64748b;">Member Portal</span>
+    <div class="cm-profile-header-right">
+        <span class="cm-member-portal-text">Member Portal</span>
         <a href="{{ url_for('lab2_5b') }}" class="cm-btn-outline">Logout</a>
     </div>
 </header>
@@ -14,21 +14,21 @@
 
 {% block content %}
 <div class="profile-container-cm">
-    <div style="margin-bottom: 2rem;">
-        <h1 style="font-size: 1.875rem; font-weight: 700; color: #1e293b;">Account Settings</h1>
-        <p style="color: #64748b;">Manage your identity and cloud access keys.</p>
+    <div class="cm-profile-title-container">
+        <h1 class="cm-profile-title">Account Settings</h1>
+        <p class="cm-profile-subtitle">Manage your identity and cloud access keys.</p>
     </div>
 
     {% if flag %}
     <div class="flag-zone-cm">
-        <h3 style="margin-bottom: 0.5rem;">🎯 Access Level: SUPER_ADMIN</h3>
+        <h3 class="cm-flag-title">🎯 Access Level: SUPER_ADMIN</h3>
         <p>Your session has been elevated. Security Flag: <strong>{{ flag }}</strong></p>
     </div>
     {% endif %}
 
-    <div class="cm-card" style="margin-top: 2rem;">
+    <div class="cm-card cm-card-top-margin">
         <div class="card-header-cm">
-            <h2 style="font-size: 1.1rem; font-weight: 600;">Personal Information</h2>
+            <h2 class="cm-card-header-title">Personal Information</h2>
         </div>
         <div class="card-body-cm">
             <div class="info-row-cm">
@@ -47,20 +47,20 @@
             </div>
             <div class="info-row-cm">
                 <div class="info-label-cm">System UID</div>
-                <div class="info-value-cm" style="font-family: monospace;">{{ user.username }}</div>
+                <div class="info-value-cm cm-info-value-mono">{{ user.username }}</div>
             </div>
         </div>
     </div>
 
-    <div class="cm-card" style="margin-top: 2rem;">
+    <div class="cm-card cm-card-top-margin">
         <div class="card-header-cm">
-            <h2 style="font-size: 1.1rem; font-weight: 600;">Security Keys</h2>
+            <h2 class="cm-card-header-title">Security Keys</h2>
         </div>
         <div class="card-body-cm">
-            <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--cm-border);">
-                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">To update your access key, please use the CLI or contact infrastructure support.</p>
-                <div style="display: flex; gap: 1rem;">
-                    <button class="cm-btn-outline" style="background: #14b8a6; color: white; border: none;">Rotate Keys</button>
+            <div class="cm-security-box">
+                <p class="cm-security-text">To update your access key, please use the CLI or contact infrastructure support.</p>
+                <div class="cm-security-btn-group">
+                    <button class="cm-btn-outline cm-btn-rotate">Rotate Keys</button>
                     <button class="cm-btn-outline">Download Config</button>
                 </div>
             </div>
@@ -72,7 +72,7 @@
        Sensitive fields are hidden in the page for 'convenience' during form updates.
        This allows an attacker to extract the password via IDOR.
     -->
-    <form id="hidden-security-form" style="display: none;">
+    <form id="hidden-security-form" class="cm-form-hidden">
         <input type="hidden" name="id" value="{{ user.username }}">
         <input type="hidden" id="access_key_backup" name="key_backup" value="{{ user.password }}">
         <input type="hidden" name="token_expiry" value="2026-12-31">

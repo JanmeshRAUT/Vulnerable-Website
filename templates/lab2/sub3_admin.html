@@ -1,52 +1,73 @@
 {% extends 'base.html' %}
-{% block title %}Premium Administration Portal{% endblock %}
+
+{% set is_sports = 'sports' in request.path %}
+{% set is_pets = 'pets' in request.path %}
+
+{% if is_sports %}
+    {% set admin_title = 'SportsGear - Admin' %}
+    {% set admin_theme = 'sports' %}
+    {% set admin_icon = '⚡' %}
+{% elif is_pets %}
+    {% set admin_title = 'PetShop - Admin' %}
+    {% set admin_theme = 'pets' %}
+    {% set admin_icon = '🐾' %}
+{% else %}
+    {% set admin_title = 'MusicStore - Admin' %}
+    {% set admin_theme = 'music' %}
+    {% set admin_icon = '🎵' %}
+{% endif %}
+
+{% block title %}Premium Administration Portal | {{ admin_title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_admin.css') }}">
+{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub3_admin.css') }}">
-<div class="security-header" style="background: linear-gradient(135deg, #4f46e5, #7c3aed);">
+<div class="security-header admin-security-header theme-{{ admin_theme }}">
     <div class="container">
-        <h1 class="security-title">Global Admin Hub</h1>
+        <h1 class="security-title">{{ admin_title }}</h1>
         <p class="security-subtitle">Role: <strong>ADMINISTRATOR</strong> (Cookie-based Auth)</p>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-        <a href="{{ url_for('lab2_3_menu') }}" class="btn btn-secondary">← Back to Shop</a>
+<div class="container admin-container-{{ admin_theme }}">
+    <div class="admin-top-actions">
+        <a href="{{ url_for('lab2_3_menu') }}" class="btn btn-primary">&larr; Back to Shop</a>
         <a href="{{ url_for('lab2_3_logout') }}" class="btn btn-danger">Invalidate Session</a>
     </div>
 
     {% if flag %}
-    <div class="alert alert-success admin-success-cookie">
-        <div style="text-align: center; width: 100%;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🍪</div>
-            <h2 style="margin-bottom: 1rem;">Cookie Manipulation Successful</h2>
-            <p style="margin-bottom: 2rem;">You successfully elevation your privileges by tampering with the <code>Admin</code> cookie.</p>
-            <div class="admin-flag-cookie">
-                {{ flag }}
+        <div class="alert alert-success admin-success-cookie">
+            <div class="admin-access-label">✅ Cookie Manipulation Successful</div>
+            <p>You successfully elevated your privileges by tampering with the <code>Admin</code> cookie.</p>
+            <div class="admin-flag-display">
+                <code class="admin-flag-code">{{ flag }}</code>
             </div>
         </div>
-    </div>
     {% else %}
-    <div class="security-card">
-        <h3 style="margin-bottom: 2rem;">User Identity Management</h3>
-        <div style="display: grid; gap: 1rem;">
-            {% for user in users %}
-            <div class="user-identity-card">
-                <div>
-                    <div class="user-identity-name">{{ user.username }}</div>
-                    <div class="user-identity-session">Session Key: {{ user.id }}</div>
+        <div class="security-card">
+            <h3 class="admin-section-title">
+                <span class="admin-section-icon">{{ admin_icon }}</span> User Identity Management
+            </h3>
+            
+            <div class="admin-user-grid">
+                {% for user in users %}
+                <div class="user-identity-card">
+                    <div>
+                        <div class="user-name-admin">{{ user.username }}</div>
+                        <div class="user-id-admin">Session Key: {{ user.id }}</div>
+                    </div>
+                    <form method="POST">
+                        <button type="submit" class="btn btn-purge">Purge Identity</button>
+                    </form>
                 </div>
-                <form method="POST">
-                    <button type="submit" class="btn btn-danger">Purge Identity</button>
-                </form>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
-    </div>
     {% endif %}
 </div>
 {% endblock %}

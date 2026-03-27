@@ -4,21 +4,19 @@
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub3_sports.css') }}">
 <header class="sports-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <div style="font-size: 2rem; color: #f97316;">⚡</div>
+    <div class="sports-header-brand-container">
+        <div class="sports-brand-icon">⚡</div>
         <a href="{{ url_for('lab2_3_sports') }}" class="sports-brand">
-            Sports<span style="color: #f97316;">Gear</span>
+            Sports<span class="sports-brand-accent">Gear</span>
         </a>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 1.5rem;">
+    <div class="sports-user-controls">
         {% if username %}
-        <div style="color: #0f172a; font-weight: bold;">User: <span style="color: #f97316;">{{ username }}</span></div>
-        <a href="{{ url_for('lab2_3_logout') }}"
-            style="color: #0f172a; text-decoration: none; font-weight: bold; border-bottom: 2px solid #f97316;">Logout</a>
+        <div class="sports-logged-in-text">User: <span class="sports-username-highlight">{{ username }}</span></div>
+        <a href="{{ url_for('lab2_3_logout') }}" class="sports-logout-btn">Logout</a>
         {% else %}
-        <button onclick="document.getElementById('loginModal').style.display='flex'"
-            style="background: #0f172a; color: #fff; border: none; padding: 0.6rem 1.5rem; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 4px; transform: skew(-10deg);">
+        <button onclick="document.getElementById('loginModal').style.display='flex'" class="sports-login-btn">
             Sign In
         </button>
         {% endif %}
@@ -28,14 +26,11 @@
 
 {% block content %}
 <!-- Lab Context -->
-<a href="{{ url_for('lab2_3_menu') }}"
-    style="position: absolute; top: 120px; left: 30px; color: #fff; text-decoration: none; font-weight: bold; background: rgba(0,0,0,0.2); padding: 0.5rem 1rem; border-radius: 99px;">&larr;
-    Lab Menu</a>
+<a href="{{ url_for('lab2_3_menu') }}" class="sports-back-link">&larr; Lab Menu</a>
 
 <div class="hero-sports">
-    <h1 style="font-size: 3rem; margin-bottom: 0.5rem; font-weight: 900; font-style: italic;">UNLEASH YOUR POTENTIAL
-    </h1>
-    <p style="font-size: 1.2rem; font-weight: 500;">Premium gear for elite athletes.</p>
+    <h1 class="sports-hero-title">UNLEASH YOUR POTENTIAL</h1>
+    <p class="sports-hero-subtitle">Premium gear for elite athletes.</p>
 </div>
 
 <div class="product-grid-sports">
@@ -44,8 +39,8 @@
         <div class="product-image-sports">🏆</div>
         <div class="product-info-sports">
             <div class="product-title-sports">{{ product.name }}</div>
-            <p style="color: #64748b; margin-bottom: 1rem;">{{ product.description }}</p>
-            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <p class="sports-product-desc">{{ product.description }}</p>
+            <div class="sports-product-action-row">
                 <div class="product-price-sports">${{ product.price }}</div>
             </div>
             <button class="btn-add-sports">Add to Cart</button>
@@ -59,7 +54,7 @@
 <div id="loginModal" class="modal-sports">
     <div class="modal-content-sports">
         <span class="close-btn-sports" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
-        <h2 style="text-align: center; color: #0f172a; margin-bottom: 1.5rem; font-weight: 800;">MEMBER LOGIN</h2>
+        <h2 class="sports-modal-title">MEMBER LOGIN</h2>
         <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
             <input type="hidden" name="theme" value="sports">
             <input type="text" name="username" placeholder="Username" required class="login-input-sports">

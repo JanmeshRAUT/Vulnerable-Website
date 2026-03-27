@@ -1,66 +1,58 @@
 {% extends 'base.html' %}
 {% block title %}Admin Control Panel - AutoParts{% endblock %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4.css') }}">
+{% endblock %}
+
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4.css') }}">
-<div class="lab2-4-header admin-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <span class="brand admin-brand">⚙️ AUTOPARTS ADMIN</span>
-    </div>
-    <div style="display: flex; gap: 1rem;">
-        <a href="{{ url_for('lab2_4') }}" class="btn btn-secondary">Exit Panel</a>
+<div class="security-header admin-security-header theme-tech">
+    <div class="container">
+        <h1 class="security-title">Admin Interface</h1>
+        <p class="security-subtitle">Internal node: <code>AUTOPARTS_ADMIN</code></p>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="account-container admin-container">
-    <div class="admin-success-banner">
-        <span style="font-size: 2rem;">🏆</span>
-        <div>
-            <h3>Administrative Access Confirmed</h3>
-            <p>You have successfully bypassed the account verification layer.</p>
-            <div class="flag-display">
-                {{ flag }}
+<div class="container admin-container-tech">
+    <div class="alert alert-success admin-success-alert">
+        <div class="admin-access-label">🎯 Administrative Access Confirmed</div>
+        <p>You have successfully bypassed the account verification layer through IDOR.</p>
+        <div class="admin-flag-display">
+            <code class="admin-flag-code">{{ flag }}</code>
+        </div>
+    </div>
+    
+    <div class="admin-return-container">
+        <a href="{{ url_for('lab2_4') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
+    </div>
+
+    <div class="security-card tm-admin-card-spacing">
+        <h3 class="admin-section-title">
+            <span class="admin-section-icon">👥</span> User Management
+        </h3>
+        
+        <div class="admin-user-grid">
+            {% for user in users %}
+            <div class="user-identity-card">
+                <div>
+                    <div class="user-name-admin">{{ user.username }} <span class="tm-admin-role-badge">{{ user.role }}</span></div>
+                    <div class="user-id-admin">ID: {{ user.id }} | Email: {{ user.email }}</div>
+                </div>
+                <button class="btn btn-purge">Delete</button>
             </div>
+            {% endfor %}
         </div>
     </div>
 
-    <div class="card" style="margin-bottom: 2rem;">
-        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">User Management</h3>
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th style="text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr class="admin-table-row">
-                    <td>{{ user.id }}</td>
-                    <td style="font-weight: 600;">{{ user.username }}</td>
-                    <td style="color: var(--text-secondary);">{{ user.email }}</td>
-                    <td>
-                        <span class="role-badge">{{ user.role }}</span>
-                    </td>
-                    <td style="text-align: right;">
-                        <button class="btn btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Delete</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <div class="card system-logs-card">
-        <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span style="color: #64748b;">🖥️</span> System Logs
+    <div class="security-card tm-admin-card-spacing">
+        <h3 class="admin-section-title">
+            <span class="admin-section-icon">🖥️</span> System Logs
         </h3>
-        <pre class="system-logs-pre">
+        <pre class="user-id-admin tm-admin-log-pre">
 [INFO] Admin session initiated from loopback
 [INFO] DB connection active: SQLite 3.x
 [WARN] Parameter 'id' used for primary authentication key
@@ -68,31 +60,24 @@
         </pre>
     </div>
 
-    <div class="card" style="margin-top: 2rem;">
-        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">All Uploaded Products</h3>
+    <div class="security-card tm-admin-card-spacing">
+        <h3 class="admin-section-title">
+            <span class="admin-section-icon">📦</span> All Uploaded Products
+        </h3>
         {% if products %}
-        <div class="card-grid" style="margin-top: 1.5rem;">
+        <div class="admin-user-grid">
             {% for product in products %}
-            <div class="card" style="padding: 1.5rem; cursor: pointer;" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}'">
-                <div style="background: #334155; border-radius: 0.5rem; padding: 2rem; margin-bottom: 1rem; text-align: center; color: #94a3b8; font-size: 0.875rem;">
-                    [Product Image]
+            <div class="user-identity-card tm-admin-product-card" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}'">
+                <div>
+                    <div class="user-name-admin"><a href="{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}" class="techmart-product-link">{{ product.name }}</a></div>
+                    <div class="user-id-admin">${{ product.price }} | Stock: {{ product.stock }}</div>
                 </div>
-                <h4 style="margin-bottom: 0.5rem; font-size: 1.125rem;">
-                    <a href="{{ url_for('lab2_4_product', product_id=product.id, id=request.args.get('id')) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
-                </h4>
-                <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">{{ product.description }}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #334155; margin-bottom: 0.75rem;">
-                    <span style="font-weight: 700; color: var(--accent);">${{ product.price }}</span>
-                    <span style="font-size: 0.75rem; color: #64748b;">Stock: {{ product.stock }}</span>
-                </div>
-                <p style="color: #64748b; font-size: 0.75rem; margin: 0;">
-                    <strong>Uploaded by:</strong> {{ product.username }} <code style="background: #1e293b; padding: 2px 6px; border-radius: 3px;">(ID: {{ product.uploaded_by }})</code>
-                </p>
+                <div class="user-id-admin">Uploader ID: {{ product.uploaded_by }}</div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p style="color: #64748b;">No products uploaded.</p>
+        <p class="tm-admin-no-products">No products uploaded.</p>
         {% endif %}
     </div>
 </div>

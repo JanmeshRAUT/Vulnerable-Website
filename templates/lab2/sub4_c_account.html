@@ -7,19 +7,19 @@
         <div class="electro-brand">
             [EM_SYSTEMS]
         </div>
-        <a href="{{ url_for('lab2_4c') }}" style="color: white; text-decoration: none; font-weight: 600;">Sign Out</a>
+        <a href="{{ url_for('lab2_4c') }}" class="electro-signout-link">Sign Out</a>
     </header>
 {% endblock %}
 
 {% block content %}
-<div style="display: flex; gap: 2rem; margin-top: 2rem;">
+<div class="electro-acct-layout">
     <!-- Sidebar -->
-    <div style="width: 250px;">
-        <div class="card" style="padding: 0; border: 1px solid #e2e8f0; overflow: hidden;">
+    <div class="electro-sidebar-wrapper">
+        <div class="card electro-sidebar-card-clean">
             <div class="electro-account-header">
                 NAVIGATION_V1
             </div>
-            <ul style="list-style: none; padding: 0;">
+            <ul class="electro-nav-list">
                 <li><a href="#" class="electro-nav-item active">Overview</a></li>
                 <li><a href="#" class="electro-nav-item">Order History</a></li>
                 <li><a href="#" class="electro-nav-item">Wishlist</a></li>
@@ -30,23 +30,23 @@
     </div>
 
     <!-- Main Section -->
-    <div style="flex-grow: 1;">
-        <div class="card" style="padding: 2.5rem; border-radius: 12px; border: 1px solid #e2e8f0;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem;">
+    <div class="electro-main-content">
+        <div class="card electro-main-card">
+            <div class="electro-welcome-row">
                 <div>
-                    <h2 style="font-size: 2rem; color: #1e293b; margin-bottom: 0.25rem;">Welcome, {{ account.username }}</h2>
-                    <p style="color: #64748b;">Manage your tech ecosystem and view orders.</p>
+                    <h2 class="electro-welcome-title">Welcome, {{ account.username }}</h2>
+                    <p class="electro-welcome-sub">Manage your tech ecosystem and view orders.</p>
                 </div>
-                <div style="text-align: right;">
+                <div class="electro-welcome-right">
                     <span class="electro-status-badge">STATUS: {{ account.role.upper() }}</span>
-                    <p style="font-size: 0.8rem; color: #94a3b8;">Last login: {{ "now" | datetimeformat if datetimeformat else "2 mins ago" }}</p>
+                    <p class="electro-last-login">Last login: {{ "now" | datetimeformat if datetimeformat else "2 mins ago" }}</p>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+            <div class="electro-info-grid">
                 <div class="electro-account-card">
-                    <h4 style="font-size: 0.9rem; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">Personal Details</h4>
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <h4 class="electro-card-title">Personal Details</h4>
+                    <div class="electro-card-fields">
                         <div>
                             <span class="electro-label">FULL NAME</span>
                             <span class="electro-value">{{ account.full_name }}</span>
@@ -59,9 +59,9 @@
                 </div>
                 
                 <div class="electro-account-card">
-                    <h4 style="font-size: 0.9rem; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">Connected Infrastructure</h4>
-                    <p style="font-size: 0.85rem; color: #64748b;">No active tech connections detected.</p>
-                    <button style="margin-top: 1rem; background: #2563eb; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-size: 0.8rem;">Sync Device</button>
+                    <h4 class="electro-card-title">Connected Infrastructure</h4>
+                    <p class="electro-infra-text">No active tech connections detected.</p>
+                    <button class="electro-sync-btn">Sync Device</button>
                 </div>
             </div>
         </div>

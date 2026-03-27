@@ -1,48 +1,74 @@
 {% extends 'base.html' %}
 {% block title %}VIP VAULT ACCESS - Luxe Jewelry{% endblock %}
 
-{% block header %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_admin.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_b.css') }}">
-    <header class="luxe-header">
-        <div class="luxe-brand">LUXE JEWELRY - <span style="color: white;">ADMIN_VAULT</span></div>
-        <a href="{{ url_for('lab2_4b') }}" style="color: #fbbf24; text-decoration: none; font-weight: 600;">LOGOUT</a>
-    </header>
+{% endblock %}
+
+{% block header %}
+<div class="security-header admin-security-header theme-fashion">
+    <div class="container">
+        <h1 class="security-title">VIP VAULT ACCESS</h1>
+        <p class="security-subtitle">Internal node: <code>LUXE_JEWELRY_ADMIN</code></p>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 1000px; margin: 3rem auto;">
-        <div class="luxe-admin-banner">
-            <h2 style="margin: 0;">UNAUTHORIZED VAULT ACCESS DETECTED</h2>
-            <p style="font-weight: 600;">FLAG FOUND: <span class="luxe-flag-box">{{ flag }}</span></p>
+<div class="container admin-container-fashion">
+    <div class="alert alert-success admin-success-alert">
+        <div class="admin-access-label">💎 UNAUTHORIZED VAULT ACCESS DETECTED</div>
+        <p>You have successfully bypassed the vault verification layer.</p>
+        <div class="admin-flag-display">
+            <code class="admin-flag-code">{{ flag }}</code>
         </div>
+    </div>
+    
+    <div class="admin-return-container">
+        <a href="{{ url_for('lab2_4b') }}" class="btn btn-primary">&larr; Return to Dashboard</a>
+    </div>
 
-        <div class="card luxe-admin-card">
-            <h3 style="font-family: 'Playfair Display', serif; color: #fbbf24; border-bottom: 1px solid #334155; padding-bottom: 1rem; margin-bottom: 2rem;">VAULT OVERVIEW ({{ account.full_name }})</h3>
-            
-            <div class="luxe-vault-grid">
-                <div class="luxe-vault-item">
-                    <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.5rem;">GLOBAL SALES</span>
-                    <span style="font-size: 1.5rem; font-weight: 700;">$2.4M</span>
-                </div>
-                <div class="luxe-vault-item">
-                    <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.5rem;">SYSTEM STATUS</span>
-                    <span style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">SECURE</span>
-                </div>
-                <div class="luxe-vault-item">
-                    <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.5rem;">REPORTS</span>
-                    <span style="font-size: 1.5rem; font-weight: 700;">42</span>
+    <div class="security-card tm-admin-card-spacing">
+        <h3 class="admin-section-title">
+            <span class="admin-section-icon">🏦</span> VAULT OVERVIEW
+        </h3>
+        
+        <div class="admin-user-grid luxe-admin-stat-grid">
+            <div class="user-identity-card">
+                <div>
+                    <div class="user-id-admin">GLOBAL SALES</div>
+                    <div class="user-name-admin luxe-admin-stat-value">$2.4M</div>
                 </div>
             </div>
-
-            <h4 style="color: #fbbf24; margin-bottom: 1rem;">LATEST VIP NOTIFICATIONS</h4>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <div class="luxe-notification">
-                    <p style="margin: 0; font-size: 0.9rem;">New shipment of rare Sapphire arrived in London warehouse.</p>
+            <div class="user-identity-card">
+                <div>
+                    <div class="user-id-admin">SYSTEM STATUS</div>
+                    <div class="user-name-admin luxe-admin-stat-secure">SECURE</div>
                 </div>
-                <div class="luxe-notification">
-                    <p style="margin: 0; font-size: 0.9rem;">Audit request for the royal collection scheduled for May 15th.</p>
+            </div>
+            <div class="user-identity-card">
+                <div>
+                    <div class="user-id-admin">REPORTS</div>
+                    <div class="user-name-admin luxe-admin-stat-value">42</div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="security-card tm-admin-card-spacing">
+        <h3 class="admin-section-title">
+            <span class="admin-section-icon">🔔</span> LATEST VIP NOTIFICATIONS
+        </h3>
+        <div class="admin-user-grid">
+            <div class="user-identity-card">
+                <div class="user-name-admin luxe-admin-notification-text">New shipment of rare Sapphire arrived in London warehouse.</div>
+            </div>
+            <div class="user-identity-card">
+                <div class="user-name-admin luxe-admin-notification-text">Audit request for the royal collection scheduled for May 15th.</div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,71 +1,105 @@
-
 {% extends 'base.html' %}
-{% block title %}Lab 2: Access Control{% endblock %}
+{% block title %}Module 2 - Access Control | Lab Center{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/index.css') }}">
+{% endblock %}
 
 {% block content %}
-    <div class="lab-header">
-        <a href="{{ url_for('home') }}" class="btn btn-secondary">&larr; Back</a>
-        <h2 class="lab-title">Module 2: Broken Access Control</h2>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('home') }}" class="back-link-premium">&larr; Back to Dashboard</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Module 2</p>
+            <h1 class="lab-sub-title">Broken Access Control</h1>
+        </div>
+        <p class="lab-header-desc">Explore vulnerabilities where applications fail to enforce privilege restrictions and authorization checks.</p>
     </div>
 
-    <div class="banner">
-        ⚠️ Intentional Vulnerability: Exploration of vertical and horizontal privilege escalation.
+    <!-- Alert Banner -->
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Intentional Vulnerability:</strong> Exploration of vertical and horizontal privilege escalation techniques. Examples are for educational purposes.
+        </div>
     </div>
 
-    <div class="card-grid lab-card-grid">
+    <!-- Lab Grid -->
+    <div class="premium-lab-grid">
         <!-- Lab 2.1 -->
-        <div class="card">
-            <div class="card-header-flex">
-                <span class="card-icon">🤖</span>
-                <span class="badge-variation">3 Themes</span>
+        <a href="{{ url_for('lab2_1_menu') }}" class="premium-lab-card" style="--card-color: #06b6d4;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.2);">🤖</div>
+                <div class="premium-card-badge">Lab 2.1</div>
             </div>
-            <h3>2.1: Robots.txt Disclosure</h3>
-            <p>Analyze search engine directives to discover hidden administrative endpoints and sensitive directories.</p>
-            <a href="{{ url_for('lab2_1_menu') }}" class="btn">Start Research</a>
-        </div>
-        
+            <div class="premium-card-body">
+                <h3>Robots.txt Disclosure</h3>
+                <p>Analyze search engine directives to discover hidden administrative endpoints and sensitive directories.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Research &rarr;</span>
+            </div>
+        </a>
+
         <!-- Lab 2.2 -->
-        <div class="card">
-            <div class="card-header-flex">
-                <span class="card-icon">🕵️</span>
-                <span class="badge-variation">3 Themes</span>
+        <a href="{{ url_for('lab2_2_menu') }}" class="premium-lab-card" style="--card-color: #8b5cf6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.2);">🕵️</div>
+                <div class="premium-card-badge">Lab 2.2</div>
             </div>
-            <h3>2.2: Hidden Administrative Logic</h3>
-            <p>Trace application execution flow to find obfuscated links and unprotected control panels.</p>
-            <a href="{{ url_for('lab2_2_menu') }}" class="btn">Start Research</a>
-        </div>
-        
+            <div class="premium-card-body">
+                <h3>Hidden Admin Logic</h3>
+                <p>Trace application execution flow to find obfuscated links and unprotected control panels.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Research &rarr;</span>
+            </div>
+        </a>
+
         <!-- Lab 2.3 -->
-        <div class="card">
-            <div class="card-header-flex">
-                <span class="card-icon">🍪</span>
-                <span class="badge-variation">3 Themes</span>
+        <a href="{{ url_for('lab2_3_menu') }}" class="premium-lab-card" style="--card-color: #ec4899;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.2);">🍪</div>
+                <div class="premium-card-badge">Lab 2.3</div>
             </div>
-            <h3>2.3: Cookie-Based Escalation</h3>
-            <p>Manipulate stateless session tokens to elevate user privileges and bypass authentication checks.</p>
-            <a href="{{ url_for('lab2_3_menu') }}" class="btn">Start Research</a>
-        </div>
-        
+            <div class="premium-card-body">
+                <h3>Cookie Escalation</h3>
+                <p>Manipulate stateless session tokens to elevate user privileges and bypass authentication checks.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Research &rarr;</span>
+            </div>
+        </a>
+
         <!-- Lab 2.4 -->
-        <div class="card">
-            <div class="card-header-flex">
-                <span class="card-icon">🆔</span>
-                <span class="badge-variation">3 Themes</span>
+        <a href="{{ url_for('lab2_4_menu') }}" class="premium-lab-card" style="--card-color: #10b981;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">🆔</div>
+                <div class="premium-card-badge">Lab 2.4</div>
             </div>
-            <h3>2.4: Parameter Tampering (IDOR)</h3>
-            <p>Perform Insecure Direct Object Reference attacks by manipulating unique resource identifiers in requests.</p>
-            <a href="{{ url_for('lab2_4_menu') }}" class="btn">Start Research</a>
-        </div>
-        
+            <div class="premium-card-body">
+                <h3>Parameter Tampering</h3>
+                <p>Perform Insecure Direct Object Reference (IDOR) attacks by manipulating unique resource identifiers.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Research &rarr;</span>
+            </div>
+        </a>
+
         <!-- Lab 2.5 -->
-        <div class="card">
-            <div class="card-header-flex">
-                <span class="card-icon">🔑</span>
-                <span class="badge-variation">3 Themes</span>
+        <a href="{{ url_for('lab2_5_menu') }}" class="premium-lab-card" style="--card-color: #f59e0b;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2);">🔑</div>
+                <div class="premium-card-badge">Lab 2.5</div>
             </div>
-            <h3>2.5: Information Disclosure</h3>
-            <p>Utilize IDOR to exfiltrate sensitive user credentials exposed within secondary application views.</p>
-            <a href="{{ url_for('lab2_5_menu') }}" class="btn">Start Research</a>
-        </div>
+            <div class="premium-card-body">
+                <h3>Information Disclosure</h3>
+                <p>Utilize IDOR to exfiltrate sensitive user credentials exposed within secondary application views.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Research &rarr;</span>
+            </div>
+        </a>
     </div>
+</div>
 {% endblock %}

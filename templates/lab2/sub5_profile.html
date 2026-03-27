@@ -2,7 +2,7 @@
 {% block title %}My Profile - ShopHub{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='lab2/5/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5.css') }}">
     <!-- Custom Header -->
     <header class="shophub-header">
         <div class="header-container">
@@ -18,7 +18,7 @@
             
             <div class="profile-header">
                 <div class="user-avatar">{{ user.username[0]|upper }}</div>
-                <span style="font-weight: 600;">{{ user.username }}</span>
+                <span class="shophub-profile-username">{{ user.username }}</span>
                 <a href="{{ url_for('lab2_5_logout') }}" class="btn-logout">Logout</a>
             </div>
         </div>
@@ -42,11 +42,11 @@
                 alert("Congratulations! {{ flag }}");
             </script>
             <div class="alert-box alert-success">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">🎉 FLAG FOUND!</h3>
+                <h3 class="shophub-alert-title">🎉 FLAG FOUND!</h3>
                 <p>{{ flag }}</p>
             </div>
             <div class="alert-box alert-info">
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem; color: #93c5fd;">Vulnerability Exploited</h3>
+                <h3 class="shophub-alert-title-info">Vulnerability Exploited</h3>
                 <p>You successfully logged into the admin account! You achieved this by modifying the <code>username</code> parameter in the profile page URL and extracting the hidden admin password via IDOR.</p>
             </div>
         {% endif %}
@@ -75,25 +75,25 @@
                     <span class="info-label">Member Since</span>
                     <span class="info-value">January 2024</span>
                 </div>
-                <div class="info-item" style="border: none;">
+                <div class="info-item shophub-info-item-last">
                     <span class="info-label">Password</span>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <span style="color: var(--text-muted);">•••••••••••••••</span>
-                        <button style="background: none; border: none; color: var(--primary-light); cursor: pointer; font-size: 0.9rem;">Change</button>
+                    <div class="shophub-password-row">
+                        <span class="shophub-password-dots">•••••••••••••••</span>
+                        <button class="shophub-btn-change-pwd">Change</button>
                     </div>
                 </div>
             </div>
             
-            <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem;">
-                <button class="btn-action" style="background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-muted);">Cancel</button>
+            <div class="shophub-profile-actions">
+                <button class="btn-action shophub-btn-cancel">Cancel</button>
                 <button class="btn-action">Save Changes</button>
             </div>
         </div>
         
-        <div class="profile-card" style="opacity: 0.7;">
-            <h3 class="section-title" style="font-size: 1.25rem;">🔒 Two-Factor Authentication</h3>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Add an extra layer of security to your account by enabling 2FA.</p>
-            <button class="btn-action" style="background: var(--bg-dark); border: 1px solid var(--primary); color: var(--primary-light);">Configue 2FA</button>
+        <div class="profile-card shophub-profile-card-disabled">
+            <h3 class="section-title shophub-section-title-small">🔒 Two-Factor Authentication</h3>
+            <p class="shophub-2fa-desc">Add an extra layer of security to your account by enabling 2FA.</p>
+            <button class="btn-action shophub-btn-2fa">Configue 2FA</button>
         </div>
     </div>
 {% endblock %}

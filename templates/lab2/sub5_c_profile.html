@@ -24,10 +24,10 @@
             <div class="dv-dot dv-dot-red"></div>
             <div class="dv-dot dv-dot-yellow"></div>
             <div class="dv-dot dv-dot-green"></div>
-            <div style="margin-left: 1rem; font-size: 0.75rem; color: var(--dv-muted);">user@vault:~/records/{{ user.username }}</div>
+            <div class="dv-terminal-path">user@vault:~/records/{{ user.username }}</div>
         </div>
         <div class="dv-terminal-body">
-            <h2 style="margin-bottom: 1.5rem; color: #fff;">>> FETCHING USER_PROFILE...</h2>
+            <h2 class="dv-terminal-fetching">>> FETCHING USER_PROFILE...</h2>
             
             <div class="dv-data-grid">
                 <div class="dv-data-item">
@@ -44,13 +44,13 @@
                 </div>
                 <div class="dv-data-item">
                     <div class="dv-item-label">Security_Clearance</div>
-                    <div class="dv-item-value" style="color: var(--dv-primary);">LVL_{{ "9" if user.role == 'admin' else "1" }} ({{ user.role.upper() }})</div>
+                    <div class="dv-item-value dv-item-value-primary">LVL_{{ "9" if user.role == 'admin' else "1" }} ({{ user.role.upper() }})</div>
                 </div>
             </div>
 
-            <div style="margin-top: 3rem;">
-                <h3 style="color: #fff; margin-bottom: 1rem;">>> SYSTEM_LOGS</h3>
-                <div style="color: var(--dv-muted); font-size: 0.85rem; border: 1px solid var(--dv-border); padding: 1rem; background: #000;">
+            <div class="dv-sys-logs-container">
+                <h3 class="dv-sys-logs-title">>> SYSTEM_LOGS</h3>
+                <div class="dv-sys-logs-content">
                     [2026-02-08 14:46:12] SESSION_INIT SUCCESSFUL
                     <br>
                     [2026-02-08 14:46:13] RSA_KEY_VERIFIED

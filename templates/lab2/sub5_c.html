@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<div id="dvModal" class="dv-modal-overlay" style="display: {% if error %}flex{% else %}none{% endif %};">
+<div id="dvModal" class="dv-modal-overlay {% if error %}active{% endif %}">
     <div class="dv-modal-card">
         <button onclick="document.getElementById('dvModal').style.display='none'" class="dv-modal-close">&times;</button>
         <h2 class="dv-modal-title">/AUTHENTICATE</h2>
@@ -42,7 +42,7 @@
              <label class="dv-label">ACCESS_CODE</label>
              <input type="password" name="password" class="dv-input" placeholder="view123">
              
-             <button type="submit" class="dv-btn" style="width: 100%; margin-top: 1rem;">INITIATE_SESSION</button>
+             <button type="submit" class="dv-btn dv-btn-full">INITIATE_SESSION</button>
         </form>
     </div>
 </div>

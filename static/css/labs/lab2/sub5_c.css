@@ -112,6 +112,11 @@
     align-items: center; 
     justify-content: center; 
     z-index: 1000;
+    display: none;
+}
+
+.dv-modal-overlay.active {
+    display: flex;
 }
 
 .dv-modal-card {
@@ -219,3 +224,41 @@
 }
 
 .dv-btn-exit:hover { color: #fff; border-color: var(--dv-primary); }
+
+/* Extracted from Profile HTML */
+.dv-terminal-path {
+    margin-left: 1rem;
+    font-size: 0.75rem;
+    color: var(--dv-text-muted);
+}
+
+.dv-terminal-fetching {
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+
+.dv-item-value-primary {
+    color: var(--dv-primary);
+}
+
+.dv-sys-logs-container {
+    margin-top: 3rem;
+}
+
+.dv-sys-logs-title {
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.dv-sys-logs-content {
+    color: var(--dv-text-muted);
+    font-size: 0.85rem;
+    border: 1px solid var(--dv-border);
+    padding: 1rem;
+    background: #000;
+}
+
+.dv-btn-full {
+    width: 100%;
+    margin-top: 1rem;
+}

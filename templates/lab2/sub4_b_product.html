@@ -4,47 +4,47 @@
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_b.css') }}">
     <header class="luxe-header">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab2_4b') }}" style="color: #94a3b8; font-size: 0.875rem; text-decoration: none;">&larr; Back to Shop</a>
+        <div class="luxe-header-inner">
+            <a href="{{ url_for('lab2_4b') }}" class="luxe-back-link">&larr; Back to Shop</a>
             <div class="luxe-brand">LUXE JEWELRY</div>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: #0f172a; border-radius: 4px; border: 1px solid #1e293b;">
-        <div style="display: flex; gap: 2rem; align-items: flex-start;">
-            <div style="flex: 1; height: 300px; background: #1e293b; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+    <div class="luxe-product-detail-container">
+        <div class="luxe-product-detail-flex">
+            <div class="luxe-product-image-box">
                 💎
             </div>
-            <div style="flex: 1;">
-                <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: #fbbf24; margin-bottom: 1rem;">{{ product.name }}</h1>
-                <p style="font-size: 1rem; color: #94a3b8; margin-bottom: 1.5rem;">{{ product.description }}</p>
-                <div style="font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 2rem;">
+            <div class="luxe-product-info-box">
+                <h1 class="luxe-product-detail-name">{{ product.name }}</h1>
+                <p class="luxe-product-detail-desc">{{ product.description }}</p>
+                <div class="luxe-product-detail-price">
                     ${{ product.price }}
                 </div>
                 
-                <div style="background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-left: 2px solid #fbbf24; margin-bottom: 2rem;">
-                    <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        CURATED BY: <strong style="color: white;">
+                <div class="luxe-uploader-box">
+                    <p class="luxe-uploader-text">
+                        CURATED BY: <strong class="luxe-uploader-strong">
                             {% if product.username == 'admin' %}
-                                <a href="{{ url_for('lab2_4_admin_collection', user=product.uploader_guid) }}" style="color: #fbbf24; text-decoration: underline;">{{ product.username }}</a>
+                                <a href="{{ url_for('lab2_4_admin_collection', user=product.uploader_guid) }}" class="luxe-uploader-link">{{ product.username }}</a>
                             {% else %}
-                                <a href="{{ url_for('lab2_4b_account', user=product.uploader_guid) }}" style="color: #fbbf24; text-decoration: underline;">{{ product.username }}</a>
+                                <a href="{{ url_for('lab2_4b_account', user=product.uploader_guid) }}" class="luxe-uploader-link">{{ product.username }}</a>
                             {% endif %}
                         </strong>
                     </p>
-                    <p style="color: #64748b; font-size: 0.75rem;">
+                    <p class="luxe-uploader-ref">
                         STORE REFERENCE ID: {{ product.uploader_guid }}
                     </p>
                     {% if request.args.get('user') == product.username or session.get('username') == product.username %}
-                    <p style="color: #fbbf24; font-weight: bold; margin-top: 1rem; font-size: 0.875rem;">
+                    <p class="luxe-uploader-owner">
                         ✦ You Uploaded this Product ✦
                     </p>
                     {% endif %}
                 </div>
                 
-                <button style="width: 100%; padding: 1rem; font-size: 1rem; background: #fbbf24; color: #0f172a; border: none; font-weight: bold; cursor: pointer; border-radius: 2px;">ADD TO COLLECTION</button>
+                <button class="luxe-add-collection-btn">ADD TO COLLECTION</button>
             </div>
         </div>
     </div>

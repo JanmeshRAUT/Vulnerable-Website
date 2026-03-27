@@ -1,25 +1,23 @@
 {% extends 'base.html' %}
-{% block title %}Bean & Brew - Premium Coffee Supplies{% endblock %}
+{% block title %}Bean &amp; Brew - Premium Coffee Supplies | Lab 1.2{% endblock %}
 
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab1/sub2.css') }}">
     <!-- Custom Header for Lab 1.2 (Coffee Shop Theme) -->
     <header class="coffee-header">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab1') }}" style="color: #D7CCC8; font-size: 0.9rem; text-decoration: none; transition: color 0.2s;">&larr; Back to Labs</a>
-            <div class="brand">
-                ☕ Bean & Brew
-            </div>
+        <div class="coffee-brand">
+            <a href="{{ url_for('lab1') }}" class="coffee-back-btn">&larr; Back to Labs</a>
+            ☕ Bean &amp; Brew
         </div>
         
-        <div style="display: flex; align-items: center; gap: 2rem;">
-            <nav style="display: flex; gap: 1.5rem; font-size: 1rem;">
-                <a href="#" style="color: #FFF8DC; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;">Shop</a>
-                <a href="#" style="color: #FFF8DC; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;">Our Story</a>
-                <a href="#" style="color: #FFF8DC; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.2s;">Brew Guides</a>
+        <div class="header-actions">
+            <nav class="coffee-nav">
+                <a href="#">Shop</a>
+                <a href="#">Our Story</a>
+                <a href="#">Brew Guides</a>
             </nav>
-            <div style="position: relative;">
-                <button class="btn" style="background: #D7CCC8; color: #3E2723; padding: 0.5rem 1rem; font-weight: 600; border-radius: 2rem;">
+            <div class="cart-container">
+                <button class="coffee-cart-btn">
                     🛒 Cart (0)
                 </button>
             </div>
@@ -30,21 +28,23 @@
 {% block content %}
     <!-- Hero Section -->
     <div class="coffee-hero">
-        <h1>Sustainable Sips</h1>
-        <p style="font-size: 1.25rem; opacity: 0.9; max-width: 600px; margin: 0 auto 2rem;">Discover our collection of eco-friendly coffee cups and premium accessories. Brew better, live greener.</p>
-        <button class="btn" style="background: #A1887F; color: white; padding: 0.75rem 2rem; font-size: 1.1rem; border: none; border-radius: 2rem; transition: transform 0.2s;">Explore Collection</button>
+        <div class="hero-content">
+            <h1>Sustainable Sips</h1>
+            <p class="coffee-subtitle">Discover our collection of eco-friendly coffee cups and premium accessories. Brew better, live greener.</p>
+            <button class="btn coffee-explore-btn">Explore Collection</button>
+        </div>
     </div>
 
-    <!-- Products Grid -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+    <!-- Products Grid Header -->
+    <div class="grid-header">
         <div>
             <h2 class="coffee-section-title">Our Products</h2>
-            <p style="color: #5D4037;">Hand-picked essentials for the modern coffee lover.</p>
+            <p class="section-desc">Hand-picked essentials for the modern coffee lover.</p>
         </div>
         
         <!-- Filter/Sort (Visual only) -->
-        <div style="display: flex; gap: 1rem;">
-             <select style="background: white; border: 1px solid #D7CCC8; padding: 0.5rem; border-radius: 0.5rem; color: #5D4037;">
+        <div class="coffee-filter">
+             <select>
                 <option>Sort by: Featured</option>
                 <option>Price: Low to High</option>
                 <option>Price: High to Low</option>
@@ -52,26 +52,27 @@
         </div>
     </div>
 
-    <div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+    <!-- Products Grid -->
+    <div class="card-grid card-grid-coffee">
         {% for product in products %}
-        <div class="card product-card-coffee">
+        <div class="product-card-coffee">
             <!-- Product Image -->
             <div class="product-image-container">
                 <!-- VULNERABLE IMAGE LOADING -->
                 <img src="{{ url_for('lab1_2_image', filename=product.image) }}" 
                      alt="{{ product.name }}"
-                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+                     loading="lazy">
             </div>
             
             <div class="product-content-coffee">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                    <h3 style="font-size: 1.1rem; font-weight: 700; color: #3E2723; line-height: 1.4;">{{ product.name }}</h3>
+                <div class="product-top">
+                    <h3 class="product-title">{{ product.name }}</h3>
                     <span class="price-tag-coffee">${{ product.price }}</span>
                 </div>
                 
-                <p style="color: #8D6E63; font-size: 0.9rem; margin-bottom: 1.5rem; flex: 1; line-height: 1.5;">{{ product.description }}</p>
+                <p class="product-desc">{{ product.description }}</p>
                 
-                <button class="btn btn-coffee" data-id="{{ product.id }}" onclick="addToCart(this.getAttribute('data-id'))">
+                <button class="btn-coffee" data-id="{{ product.id }}" onclick="addToCart(this.getAttribute('data-id'))">
                     Add to Cart
                 </button>
             </div>
@@ -79,12 +80,20 @@
         {% endfor %}
     </div>
 
-    <!-- Hint removed -->
-
     <script>
         function addToCart(id) {
-            alert('Added product ' + id + ' to cart!');
-
+            const btn = document.querySelector(`[data-id="${id}"]`);
+            if (btn) {
+                const original = btn.textContent;
+                btn.textContent = '✓ Added!';
+                btn.style.background = 'linear-gradient(135deg, #2e7d32, #388e3c)';
+                btn.style.color = '#fff';
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 1500);
+            }
         }
     </script>
 {% endblock %}

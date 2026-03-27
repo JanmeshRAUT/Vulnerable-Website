@@ -1,8 +1,6 @@
-
 {% extends 'base.html' %}
 {% block title %}SuperShop - Home{% endblock %}
 
-{% block header %}
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub3.css') }}">
     <!-- Fake Shop Header -->
@@ -133,7 +131,7 @@
             .then(data => {
                 const link = document.getElementById('admin-link');
                 if (link && data.is_admin) {
-                     link.style.color = '#22c55e'; // Green if admin
+                     link.classList.add('supershop-admin-granted');
                      link.innerText = '[ Admin Access granted! ]';
                 }
             });

@@ -1,32 +1,67 @@
 {% extends 'base.html' %}
 {% block title %}Lab 2.4: IDOR Variations{% endblock %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_menu.css') }}">
+{% endblock %}
+
 {% block content %}
-    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
-
-    <h2>Lab 2.4: Parameter Tampering (IDOR) - Choose a Variation</h2>
-    <div class="banner">
-        ⚠️ Manipulate URL parameters to access other accounts - Same vulnerability, different themes!
-    </div>
-
-    <div class="card-grid">
-        <div class="card">
-            <div class="variation-preview preview-auto">🚗</div>
-            <h3>Variation A: AutoParts</h3>
-            <p class="variation-desc">Strategic distribution of automotive components.</p>
-            <a href="{{ url_for('lab2_4') }}" class="btn">Start Variation A</a>
-        </div>
-        <div class="card">
-            <div class="variation-preview preview-shophub">💎</div>
-            <h3>Variation B: JewelryStore</h3>
-            <p class="variation-desc">Exclusive collection of luxury gemstones and jewelry.</p>
-            <a href="{{ url_for('lab2_4b') }}" class="btn">Start Variation B</a>
-        </div>
-        <div class="card">
-            <div class="variation-preview preview-tech">⚡</div>
-            <h3>Variation C: ElectroMart</h3>
-            <p class="variation-desc">High-speed electronics and consumer hardware.</p>
-            <a href="{{ url_for('lab2_4c') }}" class="btn">Start Variation C</a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab2') }}" class="back-link-premium">&larr; Back to Module 2</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab Variation Selection</p>
+            <h1 class="lab-sub-title">Lab 2.4: Parameter Tampering (IDOR)</h1>
         </div>
     </div>
+
+    <!-- Alert Banner -->
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Objective:</strong> Manipulate URL parameters to access other accounts - Same vulnerability, different themes!
+        </div>
+    </div>
+
+    <!-- Lab Grid -->
+    <div class="premium-lab-grid">
+
+        <a href="{{ url_for('lab2_4') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">🚗</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation A: AutoParts</h3>
+                <p>Strategic distribution of automotive components.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation A &rarr;</span>
+            </div>
+        </a>
+        <a href="{{ url_for('lab2_4b') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">💎</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation B: JewelryStore</h3>
+                <p>Exclusive collection of luxury gemstones and jewelry.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation B &rarr;</span>
+            </div>
+        </a>
+        <a href="{{ url_for('lab2_4c') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">⚡</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation C: ElectroMart</h3>
+                <p>High-speed electronics and consumer hardware.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation C &rarr;</span>
+            </div>
+        </a>
+    </div>
+</div>
 {% endblock %}

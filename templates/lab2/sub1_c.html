@@ -1,58 +1,62 @@
 {% extends 'base.html' %}
-{% block title %}FoodMart - Fresh Delivered{% endblock %}
+{% block title %}FoodMart - Fresh Delivered | Lab 2.1 C{% endblock %}
 
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_c.css') }}">
     <!-- Custom Header for Lab 2.1 C (FoodMart Theme) -->
     <header class="food-header">
-        <div style="display: flex; align-items: center; gap: 3rem;">
+        <div class="food-header-left">
             <!-- Brand -->
-            <a href="{{ url_for('lab2_1c') }}" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            <a href="{{ url_for('lab2_1c') }}" class="food-brand-link">
                 <span class="food-brand">FoodMart</span>
-                <span style="font-size: 2rem;">🥑</span>
+                <span class="food-brand-icon">🥑</span>
             </a>
             
             <!-- Navigation -->
-            <nav style="display: flex; gap: 2rem; margin-left: 1rem;">
-                <a href="#" style="color: #2c3e50; text-decoration: none; font-size: 1.1rem; font-weight: 600;">Groceries</a>
-                <a href="#" style="color: #2c3e50; text-decoration: none; font-size: 1.1rem; font-weight: 600;">Fresh Produce</a>
-                <a href="#" style="color: #e67e22; text-decoration: none; font-size: 1.1rem; font-weight: 700;">Deals</a>
+            <nav class="food-nav">
+                <a href="#">Groceries</a>
+                <a href="#">Fresh Produce</a>
+                <a href="#" class="food-nav-deals">Deals</a>
             </nav>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="background: white; border: 2px solid #bdc3c7; border-radius: 20px; padding: 0.5rem 1rem; display: flex; align-items: center;">
-                <span style="margin-right: 0.5rem;">📍</span>
-                <span style="color: #7f8c8d; font-size: 0.9rem;">My Location</span>
+        <div class="food-header-right">
+            <div class="food-location">
+                <span>📍</span>
+                <span class="food-location-text">My Location</span>
             </div>
-            <button class="btn btn-primary" style="padding: 0.5rem 1.5rem; border-radius: 20px;">Basket (0)</button>
+            <button class="btn food-basket-btn">Basket (0)</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
     <!-- Lab Context -->
-    <a href="{{ url_for('lab2_1_menu') }}" style="display: block; margin-bottom: 1.5rem; color: #7f8c8d; text-decoration: none; font-weight: 600;">&larr; Switch Theme</a>
+    <a href="{{ url_for('lab2_1_menu') }}" class="food-back-link">
+        <span>&larr;</span> Switch Theme
+    </a>
 
+    <!-- Hero -->
     <div class="hero-banner-food">
-        <div>
-            <h1>Organic & Fresh<br>Straight to Door</h1>
+        <div class="hero-content-left">
+            <h1>Organic &amp; Fresh<br>Straight to Door</h1>
             <p>Get $20 off your first order with code FRESH20</p>
             <a href="#" class="hero-btn-food">Shop Now</a>
         </div>
-        <div style="font-size: 6rem; padding-right: 2rem;">🥗</div>
+        <div class="hero-icon-right">🥗</div>
     </div>
 
     <!-- Categories -->
     <div class="category-scroll-food">
         <div class="category-pill-food active">All Items</div>
-        <div class="category-pill-food">Fruits & Veg</div>
+        <div class="category-pill-food">Fruits &amp; Veg</div>
         <div class="category-pill-food">Bakery</div>
         <div class="category-pill-food">Dairy</div>
         <div class="category-pill-food">Beverages</div>
         <div class="category-pill-food">Snacks</div>
     </div>
 
+    <!-- Product Grid -->
     <div class="product-grid-food">
         {% for product in products %}
         <div class="product-card-food">
@@ -63,11 +67,11 @@
                 {% if 'Avocado' in product.name %}🥑{% elif 'Bread' in product.name %}🍞{% elif 'Cheese' in product.name %}🧀{% else %}🧃{% endif %}
             </div>
             <div class="product-details-food">
-                <div class="product-title-food">{{ product.name }}</div>
-                <div class="product-desc-food">{{ product.desc }}</div>
+                <h3 class="product-title-food">{{ product.name }}</h3>
+                <p class="product-desc-food">{{ product.desc }}</p>
                 <div class="price-row-food">
-                    <div class="price-food">${{ product.price }}</div>
-                    <button class="add-btn-food">+</button>
+                    <span class="price-food">${{ product.price }}</span>
+                    <button class="add-btn-food" title="Add to Basket">+</button>
                 </div>
             </div>
         </div>

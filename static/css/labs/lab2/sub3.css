@@ -1,100 +1,491 @@
-/* Lab 2.3 SuperShop Styles */
+/* =========================================
+   Lab 2.3: SuperShop Premium Styles
+   ========================================= */
+
+/* Header */
 .supershop-header {
-    background: #1e293b;
-    color: white;
-    padding: 1rem 2rem;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    padding: 1rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.supershop-header > div:first-child {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.supershop-header-container {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.supershop-back-link {
+    color: #8b5cf6;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.supershop-back-link:hover {
+    background: rgba(139, 92, 246, 0.2);
+    color: white;
+    transform: translateX(-3px);
 }
 
 .supershop-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
-    letter-spacing: -0.025em;
-    color: var(--accent);
+    font-weight: 900;
+    font-size: 1.8rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff, #c4b5fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.supershop-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
 .supershop-search {
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    border: none;
-    background: #334155;
-    color: #e2e8f0;
-    font-size: 0.875rem;
-    width: 250px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 99px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 0.95rem;
+    width: 300px;
+    transition: all 0.3s ease;
+}
+
+.supershop-search:focus {
+    width: 350px;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #8b5cf6;
+    outline: none;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.supershop-search::placeholder {
+    color: #94a3b8;
+}
+
+.supershop-cart-btn {
+    background: rgba(139, 92, 246, 0.15) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    color: white !important;
+    padding: 0.6rem 1.25rem !important;
+    border-radius: 99px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.supershop-cart-btn:hover {
+    background: rgba(139, 92, 246, 0.3) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+}
+
+.supershop-cart-badge {
+    font-size: 0.85rem;
+    font-weight: 800;
+    background: #8b5cf6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 99px;
+}
+
+.supershop-user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 1.5rem;
 }
 
 .user-avatar-supershop {
-    width: 32px;
-    height: 32px;
-    background: var(--accent);
-    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 800;
+    font-size: 1.1rem;
     color: white;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
-.supershop-hero {
-    background: linear-gradient(to right, #2563eb, #7c3aed);
-    border-radius: 1rem;
-    padding: 3rem;
+.supershop-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.supershop-username {
+    font-weight: 700;
     color: white;
-    margin-bottom: 3rem;
+    font-size: 0.95rem;
+}
+
+.supershop-logout-link {
+    color: #a78bfa;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.supershop-logout-link:hover {
+    color: #ddd6fe;
+}
+
+.supershop-login-btn {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    padding: 0.75rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    transition: all 0.3s ease;
+}
+
+.supershop-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
+}
+
+/* Hero Section */
+.supershop-hero {
+    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.2) 0%, rgba(15, 23, 42, 1) 100%), 
+                url('https://images.unsplash.com/photo-1555529733-0e670560f7e1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    border-radius: 24px;
+    padding: 8rem 4rem;
+    color: white;
+    margin: 3rem 0 4rem;
     text-align: center;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.supershop-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.9));
+    z-index: 1;
 }
 
 .supershop-hero h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
+    font-size: 4.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+    letter-spacing: -0.03em;
+    background: linear-gradient(to right, #ffffff, #ddd6fe);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.supershop-hero-subtitle {
+    font-size: 1.3rem;
+    color: #c4b5fd;
+    margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
 }
 
 .supershop-hero-btn {
     background: white;
-    color: #2563eb;
-    font-weight: bold;
+    color: #6d28d9;
+    font-weight: 800;
+    font-size: 1.1rem;
     border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 0.5rem;
+    padding: 1rem 3rem;
+    border-radius: 99px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.product-grid-supershop {
+.supershop-hero-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(255, 255, 255, 0.3);
+}
+
+/* Product Section */
+.supershop-section-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 2.5rem;
+    color: white;
+    letter-spacing: -0.02em;
+    position: relative;
+    display: inline-block;
+}
+
+.supershop-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: #8b5cf6;
+    border-radius: 2px;
+}
+
+.product-grid-supershop, .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
+    padding-bottom: 5rem;
 }
 
 .product-card-supershop {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    border: 1px solid #334155;
+    padding: 0 !important;
+}
+
+.product-card-supershop:hover {
+    transform: translateY(-10px) !important;
+    border-color: rgba(139, 92, 246, 0.4) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(139, 92, 246, 0.15) !important;
 }
 
 .product-image-placeholder-supershop {
-    height: 200px;
-    background: #334155;
-    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    height: 240px;
+    background: radial-gradient(circle at center, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #475569;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+}
+
+.product-image-placeholder-supershop::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    box-shadow: inset 0 -20px 20px -20px rgba(0,0,0,0.5);
+}
+
+.supershop-product-content {
+    padding: 1.5rem 1.5rem 0;
+    flex-grow: 1;
+}
+
+.supershop-product-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.75rem;
+}
+
+.supershop-product-desc {
     color: #94a3b8;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
 }
 
+.supershop-product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.supershop-product-price {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #a78bfa;
+}
+
+.supershop-add-to-cart {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #c4b5fd;
+    padding: 0.65rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.supershop-add-to-cart:hover {
+    background: #8b5cf6;
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+/* Footer */
 .footer-supershop {
-    background: #1e293b;
-    padding: 4rem 2rem 2rem;
-    margin-top: auto;
-    border-top: 1px solid #334155;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 5rem 2rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
 }
 
+.supershop-footer-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4rem;
+    margin-bottom: 4rem;
+}
+
+.supershop-footer-brand {
+    font-weight: 900;
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #ffffff, #c4b5fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.supershop-footer-desc {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.supershop-footer-heading {
+    color: white;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.supershop-footer-list {
+    list-style: none;
+    padding: 0;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 2.2;
+}
+
+.supershop-footer-list li a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.supershop-footer-list li a:hover {
+    color: #c4b5fd;
+}
+
+.supershop-admin-link {
+    color: #ef4444 !important;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.supershop-admin-link:hover {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.supershop-admin-granted {
+    color: #22c55e !important;
+}
+
+.supershop-newsletter-input {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.supershop-newsletter-input:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.supershop-subscribe-btn {
+    width: 100%;
+    background: #8b5cf6;
+    color: white;
+    border: none;
+    padding: 0.85rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.supershop-subscribe-btn:hover {
+    background: #7c3aed;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.supershop-footer-copyright {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.85rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Login Modal */
 .login-modal-supershop {
     display: none;
     position: fixed;
@@ -102,239 +493,219 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.7);
+    background: rgba(3, 4, 7, 0.85);
+    backdrop-filter: blur(10px);
     z-index: 1000;
     align-items: center;
     justify-content: center;
 }
 
-.login-input-supershop {
-    width: 100%;
-    padding: 0.75rem;
-    background: #0f172a;
-    border: 1px solid #334155;
-    color: white;
-    border-radius: 0.375rem;
-}
-/* Header Navigation Components */
-.supershop-header-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.supershop-back-link {
-    color: #64748b;
-    font-size: 0.875rem;
-    text-decoration: none;
-}
-
-.supershop-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.supershop-cart-btn {
-    background: transparent;
-    padding: 0.5rem;
-}
-
-.supershop-cart-badge {
-    font-size: 0.8rem;
-    background: var(--accent);
-    color: white;
-    padding: 0 5px;
-    border-radius: 9999px;
-}
-
-.supershop-user-section {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border-left: 1px solid #475569;
-    padding-left: 1rem;
-}
-
-.supershop-user-info {
-    font-size: 0.875rem;
-}
-
-.supershop-username {
-    display: block;
-    font-weight: 500;
-}
-
-.supershop-logout-link {
-    color: #94a3b8;
-    font-size: 0.75rem;
-}
-
-.supershop-login-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-}
-
-/* Hero Section */
-.supershop-hero-subtitle {
-    font-size: 1.25rem;
-    opacity: 0.9;
-    margin-bottom: 2rem;
-}
-
-/* Product Section */
-.supershop-section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    border-left: 4px solid var(--accent);
-    padding-left: 1rem;
-}
-
-.supershop-product-content {
-    flex-grow: 1;
-}
-
-.supershop-product-name {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.supershop-product-desc {
-    color: #94a3b8;
-    font-size: 0.875rem;
-    margin-bottom: 1rem;
-}
-
-.supershop-product-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid #334155;
-}
-
-.supershop-product-price {
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--text-primary);
-}
-
-.supershop-add-to-cart {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-}
-
-/* Footer */
-.supershop-footer-grid {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.supershop-footer-brand {
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: white;
-    margin-bottom: 1rem;
-}
-
-.supershop-footer-desc {
-    color: #94a3b8;
-    font-size: 0.875rem;
-}
-
-.supershop-footer-heading {
-    color: white;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.supershop-footer-list {
-    list-style: none;
-    padding: 0;
-    color: #94a3b8;
-    font-size: 0.875rem;
-    line-height: 2;
-}
-
-.supershop-admin-link {
-    color: var(--danger);
-    font-weight: bold;
-}
-
-.supershop-newsletter-input {
-    width: 100%;
-    padding: 0.5rem;
-    background: #334155;
-    border: none;
-    border-radius: 0.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.supershop-subscribe-btn {
-    width: 100%;
-}
-
-.supershop-footer-copyright {
-    text-align: center;
-    color: #64748b;
-    font-size: 0.75rem;
-    padding-top: 2rem;
-    border-top: 1px solid #334155;
-}
-
-/* Login Modal */
 .supershop-login-modal-card {
     width: 100%;
-    max-width: 400px;
-    padding: 2rem;
+    max-width: 420px;
+    padding: 3rem 2.5rem !important;
     position: relative;
-    animation: fadeIn 0.2s;
+    animation: modalSlideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: rgba(15, 23, 42, 0.95) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(139, 92, 246, 0.15) !important;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(30px) scale(0.95); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .supershop-modal-close-btn {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #94a3b8;
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.supershop-modal-close-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
 }
 
 .supershop-signin-title {
-    text-align: center;
-    margin-bottom: 1.5rem;
+    text-align: left;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
 }
 
-.supershop-form-group {
-    margin-bottom: 1rem;
-}
-
-.supershop-password-group {
+.supershop-form-group, .supershop-password-group {
     margin-bottom: 1.5rem;
 }
 
 .supershop-form-label {
     display: block;
     margin-bottom: 0.5rem;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.login-input-supershop {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.login-input-supershop:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 
 .supershop-login-submit-btn {
     width: 100%;
-    padding: 0.75rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.supershop-login-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
 }
 
 .supershop-login-hint {
-    text-align: center;
-    margin-top: 1rem;
-    font-size: 0.8rem;
+    text-align: left;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
     color: #64748b;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.supershop-login-hint code {
+    color: #a78bfa;
+    background: rgba(139, 92, 246, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Standalone Login Page Styles */
+.supershop-login-page-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.supershop-login-page-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.supershop-login-page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.supershop-login-page-title {
+    color: var(--accent);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.supershop-login-page-subtitle {
+    color: var(--text-secondary);
+}
+
+.supershop-login-page-alert {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.supershop-login-page-group {
+    margin-bottom: 1.5rem;
+}
+
+.supershop-login-page-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.supershop-login-page-input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--border);
+    background-color: #0f172a;
+    color: white;
+}
+
+.supershop-login-page-group-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.supershop-login-page-forgot {
+    font-size: 0.875rem;
+    color: var(--accent);
+}
+
+.supershop-login-page-submit {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.supershop-login-page-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.supershop-login-page-signup {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.supershop-login-page-demo {
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+
+.supershop-login-page-group-pw {
+    margin-bottom: 2rem;
 }

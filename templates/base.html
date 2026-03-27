@@ -42,10 +42,6 @@
                 </div>
                 <nav class="header-nav-flex">
                     <a href="{{ url_for('home') }}" class="nav-link-custom">Modules</a>
-                    <a href="{{ url_for('product_list') }}" class="nav-link-custom">Catalog</a>
-                    <a href="{{ url_for('cart') }}" class="nav-link-custom">
-                        🛒 Cart
-                    </a>
                     
                     <div class="nav-divider"></div>
                     
@@ -75,14 +71,7 @@
         <footer class="footer-main">
             <div class="container">
                 <div class="footer-grid">
-                    <div class="footer-section">
-                        <h4>Shopping</h4>
-                        <div class="footer-links">
-                            <a href="{{ url_for('product_list') }}" class="footer-link">Browse Products</a>
-                            <a href="{{ url_for('cart') }}" class="footer-link">Shopping Cart</a>
-                            <a href="{{ url_for('orders') if session.get('user_id') else url_for('login') }}" class="footer-link">Track Orders</a>
-                        </div>
-                    </div>
+
                     <div class="footer-section">
                         <h4>Support</h4>
                         <div class="footer-links">

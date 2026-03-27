@@ -1,58 +1,67 @@
 {% extends 'base.html' %}
 {% block title %}Lab 2.5: Password Disclosure Variations{% endblock %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_menu.css') }}">
+{% endblock %}
+
 {% block content %}
-    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
-
-    <h2>Lab 2.5: Password Disclosure - Choose a Variation</h2>
-    <div class="banner">
-        ⚠️ All variations have the same vulnerability but different themes. Practice with different perspectives!
-    </div>
-
-    <div class="card-grid">
-        <!-- Variation A: ShopHub -->
-        <div class="card">
-            <div class="variation-preview preview-shophub">
-                🛍️
-            </div>
-            <h3>Variation A: ShopHub</h3>
-            <p class="variation-desc">E-commerce platform with user profiles</p>
-            <p class="variation-meta">
-                <strong>Credentials:</strong><br>
-                Login: <code>user:password</code><br>
-                Target: <code>admin</code> (find password in profile)
-            </p>
-            <a href="{{ url_for('lab2_5') }}" class="btn btn-shophub">Start Variation A</a>
-        </div>
-        
-        <!-- Variation B: CloudMart -->
-        <div class="card">
-            <div class="variation-preview preview-cloudmart">
-                ☁️
-            </div>
-            <h3>Variation B: CloudMart</h3>
-            <p class="variation-desc">Cloud marketplace with account system</p>
-            <p class="variation-meta">
-                <strong>Credentials:</strong><br>
-                Login: <code>guest:guest123</code><br>
-                Target: <code>root</code> (find password in account)
-            </p>
-            <a href="{{ url_for('lab2_5b') }}" class="btn btn-cloudmart">Start Variation B</a>
-        </div>
-        
-        <!-- Variation C: DataVault -->
-        <div class="card">
-            <div class="variation-preview preview-datavault">
-                🗄️
-            </div>
-            <h3>Variation C: DataVault</h3>
-            <p class="variation-desc">Data storage with user information</p>
-            <p class="variation-meta">
-                <strong>Credentials:</strong><br>
-                Login: <code>viewer:view123</code><br>
-                Target: <code>owner</code> (find password in info page)
-            </p>
-            <a href="{{ url_for('lab2_5c') }}" class="btn btn-datavault">Start Variation C</a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab2') }}" class="back-link-premium">&larr; Back to Module 2</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab Variation Selection</p>
+            <h1 class="lab-sub-title">Lab 2.5: Password Disclosure</h1>
         </div>
     </div>
+
+    <!-- Alert Banner -->
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Objective:</strong> All variations have the same vulnerability but different themes. Practice with different perspectives!
+        </div>
+    </div>
+
+    <!-- Lab Grid -->
+    <div class="premium-lab-grid">
+
+        <a href="{{ url_for('lab2_5') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">⚙️</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation A: ShopHub</h3>
+                <p>E-commerce platform with user profiles.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation A &rarr;</span>
+            </div>
+        </a>
+        <a href="{{ url_for('lab2_5b') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">☁️</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation B: CloudMart</h3>
+                <p>Enterprise cloud solutions with client portal.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation B &rarr;</span>
+            </div>
+        </a>
+        <a href="{{ url_for('lab2_5c') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">🛡️</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation C: DataVault</h3>
+                <p>Secure archive system with strict access terminal.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation C &rarr;</span>
+            </div>
+        </a>
+    </div>
+</div>
 {% endblock %}

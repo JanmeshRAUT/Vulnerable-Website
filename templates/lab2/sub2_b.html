@@ -4,19 +4,19 @@
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub2_b.css') }}">
 <header class="book-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <div style="font-size: 2rem;">🦉</div>
+    <div class="book-header-left">
+        <div class="book-icon">🦉</div>
         <a href="{{ url_for('lab2_2b') }}" class="book-brand">
             The Literary Corner
         </a>
     </div>
-    <nav style="display: flex; gap: 2rem; font-family: 'Helvetica Neue', sans-serif; font-size: 0.95rem;">
-        <a href="#" style="color: #555; text-decoration: none;">Bestsellers</a>
-        <a href="#" style="color: #555; text-decoration: none;">New Arrivals</a>
-        <a href="#" style="color: #555; text-decoration: none;">Fiction</a>
-        <a href="#" style="color: #555; text-decoration: none;">Non-Fiction</a>
+    <nav class="book-nav-menu">
+        <a href="#">Bestsellers</a>
+        <a href="#">New Arrivals</a>
+        <a href="#">Fiction</a>
+        <a href="#">Non-Fiction</a>
     </nav>
-    <div style="display: flex; gap: 1.5rem; color: #2c3e50;">
+    <div class="book-header-right">
         <span>🔍</span>
         <span>👤</span>
         <span>🛒</span>
@@ -26,16 +26,13 @@
 
 {% block content %}
 <!-- Lab Context -->
-<div style="max-width: 1200px; margin: 1rem auto; padding: 0 2rem;">
-    <a href="{{ url_for('lab2_2_menu') }}"
-        style="color: #7f8c8d; text-decoration: none; font-family: 'Helvetica Neue', sans-serif; font-size: 0.9rem;">&larr;
-        Back to Lab Menu</a>
+<div class="book-context-container">
+    <a href="{{ url_for('lab2_2_menu') }}" class="book-back-link">&larr; Back to Lab Menu</a>
 </div>
 
 <div class="hero-section-book">
-    <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #2c3e50;">Stories That Matter</h1>
-    <p style="font-size: 1.2rem; color: #7f8c8d; max-width: 600px; margin: 0 auto; line-height: 1.6;">Explore our
-        curated collection of eternal classics and modern masterpieces. Find your next great adventure today.</p>
+    <h1 class="book-hero-title">Stories That Matter</h1>
+    <p class="book-hero-subtitle">Explore our curated collection of eternal classics and modern masterpieces. Find your next great adventure today.</p>
 </div>
 
 <script>

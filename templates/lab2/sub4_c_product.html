@@ -4,8 +4,8 @@
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_c.css') }}">
     <header class="electro-header">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab2_4c') }}" style="color: #bfdbfe; font-size: 0.875rem; text-decoration: none;">&larr; Back to Shop</a>
+        <div class="electro-header-inner">
+            <a href="{{ url_for('lab2_4c') }}" class="electro-back-link">&larr; Back to Shop</a>
             <div class="electro-brand">
                 <span>E</span> ElectroMart
             </div>
@@ -14,41 +14,41 @@
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 800px; margin: 3rem auto; padding: 2.5rem; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
-        <div style="display: flex; gap: 3rem; align-items: flex-start;">
-            <div style="flex: 1; height: 350px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+    <div class="electro-product-detail-container">
+        <div class="electro-product-detail-flex">
+            <div class="electro-product-image-box">
                 ⚡
             </div>
-            <div style="flex: 1;">
-                <h1 style="font-size: 2.25rem; font-weight: 800; color: #1e293b; margin-bottom: 1rem; line-height: 1.2;">{{ product.name }}</h1>
-                <p style="font-size: 1.125rem; color: #64748b; margin-bottom: 2rem;">{{ product.description }}</p>
-                <div style="font-size: 2rem; font-weight: 800; color: #2563eb; margin-bottom: 2.5rem;">
+            <div class="electro-product-info-box">
+                <h1 class="electro-product-detail-name">{{ product.name }}</h1>
+                <p class="electro-product-detail-desc">{{ product.description }}</p>
+                <div class="electro-product-detail-price">
                     ${{ product.price }}
                 </div>
                 
-                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 2.5rem;">
-                    <h3 style="font-size: 0.875rem; color: #475569; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Product Details</h3>
-                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.25rem;">
-                        Uploaded by: <strong style="color: #1e293b;">
+                <div class="electro-details-box">
+                    <h3 class="electro-details-title">Product Details</h3>
+                    <p class="electro-details-text">
+                        Uploaded by: <strong class="electro-details-strong">
                             {% if product.username == 'admin' %}
-                                <a href="{{ url_for('lab2_4_admin_collection', user=product.uploader_guid) }}" style="color: #2563eb; text-decoration: underline;">{{ product.username }}</a>
+                                <a href="{{ url_for('lab2_4_admin_collection', user=product.uploader_guid) }}" class="electro-details-link">{{ product.username }}</a>
                             {% else %}
-                                <a href="{{ url_for('lab2_4c_account', username=product.uploader_guid) }}" style="color: #2563eb; text-decoration: underline;">{{ product.username }}</a>
+                                <a href="{{ url_for('lab2_4c_account', username=product.uploader_guid) }}" class="electro-details-link">{{ product.username }}</a>
                             {% endif %}
                         </strong>
                     </p>
-                    <p style="color: #94a3b8; font-size: 0.75rem;">
+                    <p class="electro-details-ref">
                         Store Reference ID: {{ product.uploader_guid }}
                     </p>
                     {% if request.args.get('username') == product.username or session.get('username') == product.username %}
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; color: #10b981; font-weight: 700; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="background: #10b981; color: white; border-radius: 50%; width: 1.25rem; height: 1.25rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">✓</span>
+                    <div class="electro-owner-banner">
+                        <span class="electro-owner-check">✓</span>
                         You Uploaded this Product
                     </div>
                     {% endif %}
                 </div>
                 
-                <button style="width: 100%; padding: 1.25rem; font-size: 1.125rem; background: #2563eb; color: white; border: none; font-weight: 700; cursor: pointer; border-radius: 8px; transition: background 0.2s;">Add to Cart</button>
+                <button class="electro-add-cart-btn">Add to Cart</button>
             </div>
         </div>
     </div>

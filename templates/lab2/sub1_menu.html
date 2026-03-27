@@ -1,32 +1,67 @@
 {% extends 'base.html' %}
-{% block title %}Lab 2.1: Robots.txt Variations{% endblock %}
+{% block title %}Lab 2.1: Robots.txt Variations | Lab Center{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub1_menu.css') }}">
+{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('lab2') }}" class="btn">Back to Lab 2</a>
-
-    <h2>Lab 2.1: Robots.txt Disclosure - Choose a Variation</h2>
-    <div class="banner">
-        ⚠️ Find the hidden admin page disclosed in robots.txt - Same vulnerability, different themes!
-    </div>
-
-    <div class="card-grid">
-        <div class="card">
-            <div class="variation-preview preview-auto">💻</div>
-            <h3>Variation A: TechStore</h3>
-            <p class="variation-desc">Premium technology electronics catalog.</p>
-            <a href="{{ url_for('lab2_1') }}" class="btn">Start Variation A</a>
-        </div>
-        <div class="card">
-            <div class="variation-preview preview-fashion">👗</div>
-            <h3>Variation B: FashionHub</h3>
-            <p class="variation-desc">Modern clothing and accessories marketplace.</p>
-            <a href="{{ url_for('lab2_1b') }}" class="btn">Start Variation B</a>
-        </div>
-        <div class="card">
-            <div class="variation-preview preview-food">🍔</div>
-            <h3>Variation C: FoodMart</h3>
-            <p class="variation-desc">Local gourmet food delivery service.</p>
-            <a href="{{ url_for('lab2_1c') }}" class="btn">Start Variation C</a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab2') }}" class="back-link-premium">&larr; Back to Module 2</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab Variation Selection</p>
+            <h1 class="lab-sub-title">Lab 2.1: Robots.txt Disclosure</h1>
         </div>
     </div>
+
+    <!-- Alert Banner -->
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Objective:</strong> Find the hidden admin page disclosed in robots.txt - Same vulnerability, different themes!
+        </div>
+    </div>
+
+    <!-- Lab Grid -->
+    <div class="premium-lab-grid">
+
+        <a href="{{ url_for('lab2_1') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">💻</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation A: TechStore</h3>
+                <p>Premium technology electronics catalog. The future is here.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation A &rarr;</span>
+            </div>
+        </a>
+        <a href="{{ url_for('lab2_1b') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">👗</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation B: FashionHub</h3>
+                <p>Modern clothing and accessories marketplace with elegant design.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation B &rarr;</span>
+            </div>
+        </a>
+        <a href="{{ url_for('lab2_1c') }}" class="premium-lab-card">
+            <div class="premium-card-header">
+                <div class="premium-card-icon">🍔</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Variation C: FoodMart</h3>
+                <p>Local gourmet food delivery service and grocery supplier.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation C &rarr;</span>
+            </div>
+        </a>
+    </div>
+</div>
 {% endblock %}

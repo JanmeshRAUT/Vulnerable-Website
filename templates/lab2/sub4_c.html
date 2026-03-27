@@ -4,59 +4,59 @@
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub4_c.css') }}">
     <header class="electro-header">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab2_4_menu') }}" style="color: #bfdbfe; font-size: 0.875rem; text-decoration: none;">&larr; Back</a>
+        <div class="electro-header-brand-container">
+            <a href="{{ url_for('lab2_4_menu') }}" class="electro-back-link">&larr; Back</a>
             <div class="electro-brand">
                 <span>E</span> ElectroMart
             </div>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="electro-header-nav-container">
             <div class="search-container-electro">
                 <input type="text" placeholder="Search tech..." class="search-input-electro">
                 <span class="search-icon-electro">🔍</span>
             </div>
-            <button onclick="document.getElementById('loginModal').style.display='flex'" style="background: white; color: #2563eb; border: none; padding: 0.5rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Login</button>
+            <button onclick="document.getElementById('loginModal').style.display='flex'" class="electro-login-btn">Login</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="display: flex; gap: 2rem; margin-top: 2rem;">
+    <div class="electro-layout-grid">
         <!-- Sidebar Navigation -->
         <div class="electro-sidebar">
             <div class="card electro-sidebar-card">
-                <h3 style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">Categories</h3>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem; font-weight: 500;">
-                    <li><a href="#" style="color: #2563eb; text-decoration: none;">All Products</a></li>
-                    <li><a href="#" style="color: #334155; text-decoration: none;">Computing</a></li>
-                    <li><a href="#" style="color: #334155; text-decoration: none;">Mobile Devices</a></li>
-                    <li><a href="#" style="color: #334155; text-decoration: none;">Home Audio</a></li>
-                    <li><a href="#" style="color: #334155; text-decoration: none;">Gaming</a></li>
+                <h3 class="electro-sidebar-title">Categories</h3>
+                <ul class="electro-sidebar-list">
+                    <li><a href="#" class="electro-sidebar-link-active">All Products</a></li>
+                    <li><a href="#" class="electro-sidebar-link">Computing</a></li>
+                    <li><a href="#" class="electro-sidebar-link">Mobile Devices</a></li>
+                    <li><a href="#" class="electro-sidebar-link">Home Audio</a></li>
+                    <li><a href="#" class="electro-sidebar-link">Gaming</a></li>
                 </ul>
             </div>
         </div>
 
-        <div style="flex-grow: 1;">
+        <div class="electro-main-content">
             <div class="electro-hero">
                 <div>
                     <h2>Next-Gen Tech is Here</h2>
-                    <p style="color: #94a3b8;">Save up to 40% on 2026 models this week.</p>
+                    <p class="electro-hero-subtitle">Save up to 40% on 2026 models this week.</p>
                 </div>
-                <button style="background: #2563eb; color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Shop Sale</button>
+                <button class="electro-hero-btn">Shop Sale</button>
             </div>
 
             <div class="card-grid">
                 {% for product in products %}
-                <div class="card product-card-electro" style="cursor: pointer;" onclick="window.location='{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}'">
+                <div class="card product-card-electro electro-product-card-interactive" onclick="window.location='{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}';">
                     <div class="product-image-electro">
                         ⚡
                     </div>
-                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">
-                        <a href="{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}" style="color: inherit; text-decoration: none;">{{ product.name }}</a>
+                    <h4 class="electro-product-title">
+                        <a href="{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}" class="electro-product-link">{{ product.name }}</a>
                     </h4>
-                    <p style="color: #64748b; font-size: 0.8rem; margin-bottom: 1rem;">{{ product.description }}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                    <p class="electro-product-desc">{{ product.description }}</p>
+                    <div class="electro-product-action-row">
                         <span class="electro-price">${{ product.price }}</span>
                         <button class="electro-add-btn">+</button>
                     </div>
@@ -69,19 +69,19 @@
     <!-- Login Modal -->
     <div id="loginModal" class="modal-electro">
         <div class="card modal-content-electro">
-            <h2 style="text-align: center; margin-bottom: 2rem; color: #1e293b;">ElectroMart Auth</h2>
+            <h2 class="electro-modal-title">ElectroMart Auth</h2>
             <form action="{{ url_for('lab2_4c_login') }}" method="POST">
-                <div style="margin-bottom: 1.25rem;">
-                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Username</label>
+                <div class="electro-form-group">
+                    <label class="electro-form-label">Username</label>
                     <input type="text" name="username" required class="login-input-electro">
                 </div>
-                <div style="margin-bottom: 2rem;">
-                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Password</label>
+                <div class="electro-form-group mb-2">
+                    <label class="electro-form-label">Password</label>
                     <input type="password" name="password" required class="login-input-electro">
                 </div>
                 <button type="submit" class="btn-signin-electro">Sign In</button>
             </form>
-            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: #94a3b8;">Default: user / password</p>
+            <p class="electro-modal-hint">Default: user / password</p>
         </div>
     </div>
 {% endblock %}
