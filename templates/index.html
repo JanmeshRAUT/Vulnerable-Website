@@ -85,9 +85,7 @@ navigation #} {% block content %}
         Utilize the server's identity to probe internal networks and access
         loopback services.
       </p>
-      <button class="btn" disabled style="cursor: not-allowed; opacity: 0.6">
-        Unavailable
-      </button>
+      <a href="{{ url_for('lab4') }}" class="btn">View Module</a>
     </div>
 
     <!-- Lab 5: File Upload -->
@@ -101,9 +99,7 @@ navigation #} {% block content %}
         Achieve remote code execution by exploiting unrestricted file upload
         functionality.
       </p>
-      <button class="btn" disabled style="cursor: not-allowed; opacity: 0.6">
-        Unavailable
-      </button>
+      <a href="{{ url_for('lab5') }}" class="btn">View Module</a>
     </div>
 
     <!-- Lab 6: OS Command Injection -->
@@ -117,9 +113,7 @@ navigation #} {% block content %}
         Inject system commands through application inputs to compromise the
         underlying host.
       </p>
-      <button class="btn" disabled style="cursor: not-allowed; opacity: 0.6">
-        Unavailable
-      </button>
+      <a href="{{ url_for('lab6') }}" class="btn">View Module</a>
     </div>
 
     <!-- Lab 7: SQL Injection -->

@@ -1,42 +1,8 @@
 {% extends 'base.html' %}
-{% block title %}SecureShop - Lab 3.2 [UNAVAILABLE]{% endblock %}
+{% block title %}SecureShop - Lab 3.2{% endblock %}
 
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/multi-factor.css') }}">
-    <style>
-        .lab-unavailable-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(20, 20, 20, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-        
-        .unavailable-message {
-            text-align: center;
-            color: white;
-            padding: 3rem;
-            border: 2px solid #ff6b6b;
-            border-radius: 8px;
-            background: rgba(255, 107, 107, 0.1);
-        }
-        
-        .unavailable-message h1 {
-            margin: 0 0 1rem 0;
-            font-size: 2.5rem;
-            color: #ff6b6b;
-        }
-        
-        .unavailable-message p {
-            margin: 0.5rem 0;
-            font-size: 1.1rem;
-        }
-    </style>
     <header class="l3-header theme-shop">
         <div class="l3-header-left">
             <a href="{{ url_for('lab3') }}" class="l3-nav-back">&larr; Back</a>
@@ -50,14 +16,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="lab-unavailable-overlay">
-    <div class="unavailable-message">
-        <h1>⚠️ Lab 3.2 Unavailable</h1>
-        <p>This module is currently disabled for maintenance.</p>
-        <p>Please return to <a href="{{ url_for('lab3') }}" style="color: #4ecdc4; text-decoration: underline;">Lab 3 Menu</a></p>
-    </div>
-</div>
-
     <div class="theme-shop">
         <div class="l3-hero" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=1200&q=80') center/cover no-repeat; color: white; padding: 4rem 2rem; border-radius: 1rem; margin-bottom: 2rem;">
             <h1>Welcome to SecureShop</h1>
