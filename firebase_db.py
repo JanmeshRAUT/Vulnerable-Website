@@ -26,6 +26,24 @@ class FirebaseDataStore:
             or os.environ.get("SERVICE_ACCOUNT_JSON_BASE64", "").strip()
         )
 
+        # Common dashboard mistake: pasting KEY=VALUE into value field.
+        for key_prefix in (
+            "FIREBASE_SERVICE_ACCOUNT_JSON=",
+            "SERVICE_ACCOUNT_JSON=",
+            "FIREBASE_SERVICE_ACCOUNT_JSON_BASE64=",
+            "SERVICE_ACCOUNT_JSON_BASE64=",
+        ):
+            if raw_json.startswith(key_prefix):
+                raw_json = raw_json[len(key_prefix):].strip()
+            if base64_json.startswith(key_prefix):
+                base64_json = base64_json[len(key_prefix):].strip()
+
+        # Strip accidental wrapping quotes around payloads.
+        if len(raw_json) >= 2 and raw_json[0] == raw_json[-1] and raw_json[0] in {'"', "'"}:
+            raw_json = raw_json[1:-1]
+        if len(base64_json) >= 2 and base64_json[0] == base64_json[-1] and base64_json[0] in {'"', "'"}:
+            base64_json = base64_json[1:-1]
+
         # Prefer base64 payloads in hosted environments to avoid escaping issues.
         if base64_json:
             try:
