@@ -291,8 +291,13 @@
                       <span class="solved-lab-chip">{{ student.total_solved }} solved</span>
                       <button
                         class="icon-btn"
-                        onclick='showSolvedLabs({{ {
+                        onclick='showSolvedLabsCard({{ {
                           "username": student.username,
+                          "email": student.email,
+                          "enrollment_id": student.enrollment_id,
+                          "is_approved": student.is_approved,
+                          "total_solved": student.total_solved,
+                          "labs_enrolled": student.labs_enrolled,
                           "solved_labs": student.solved_labs
                         } | tojson }})'>
                         View
@@ -305,7 +310,7 @@
                   <td>
                     <button
                       class="icon-btn"
-                      onclick='showStudentDossier({{ {
+                      onclick='showStudentCard({{ {
                         "username": student.username,
                         "email": student.email,
                         "enrollment_id": student.enrollment_id,
@@ -328,6 +333,59 @@
               <p>No research subjects are currently enrolled in the platform.</p>
             </div>
             {% endif %}
+          </div>
+        </div>
+
+        <div class="panel detail-panel" id="subject-detail-panel">
+          <div class="panel-header">
+            <div class="panel-title">🗂 Subject Detail Workspace</div>
+            <span class="text-muted text-sm" id="detail-panel-status">Select a subject to inspect details.</span>
+          </div>
+          <div class="panel-body">
+            <div id="subject-detail-empty" class="empty-state compact-empty-state">
+              <div class="empty-icon">🧭</div>
+              <h3>No Subject Selected</h3>
+              <p>Use the View buttons in the table to inspect profile details or solved labs in this workspace.</p>
+            </div>
+
+            <div id="subject-detail-card" class="subject-detail-card" hidden>
+              <div class="subject-detail-top">
+                <div class="subject-detail-identity">
+                  <div class="subject-detail-avatar" id="detail-avatar">?</div>
+                  <div>
+                    <div class="subject-detail-name" id="detail-name">Unknown</div>
+                    <div class="subject-detail-email" id="detail-email">—</div>
+                  </div>
+                </div>
+                <div class="subject-detail-badges">
+                  <span class="badge" id="detail-status-badge">Pending</span>
+                  <span class="badge badge-user" id="detail-mode-badge">Profile</span>
+                </div>
+              </div>
+
+              <div class="detail-stats-grid">
+                <div class="detail-stat-card">
+                  <div class="detail-stat-label">Enrollment ID</div>
+                  <div class="detail-stat-value mono" id="detail-enrollment">—</div>
+                </div>
+                <div class="detail-stat-card">
+                  <div class="detail-stat-label">Solved Units</div>
+                  <div class="detail-stat-value" id="detail-solved-count">0 / 0</div>
+                </div>
+                <div class="detail-stat-card">
+                  <div class="detail-stat-label">Progress</div>
+                  <div class="detail-stat-value" id="detail-progress">0%</div>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <div class="detail-section-header">
+                  <div class="detail-section-title">Solved Labs</div>
+                  <span class="text-muted text-sm" id="detail-solved-meta">No telemetry loaded.</span>
+                </div>
+                <div class="detail-lab-grid" id="detail-lab-grid"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -582,44 +640,74 @@
     .catch(() => alert('Network error — check server connection.'));
   }
 
-  function showStudentDossier(student) {
+  function renderStudentDetail(student, mode) {
     const solvedLabs = Array.isArray(student.solved_labs) ? student.solved_labs : [];
-    const solvedSummary = solvedLabs.length
-      ? solvedLabs.map(lab => {
-          const route = lab.lab_path ? ` @ ${lab.lab_path}` : '';
-          return `${lab.label || lab.lab_id}${lab.variation ? ` (${lab.variation})` : ''}${route}`;
-        }).join('\n')
-      : 'No labs solved yet';
+    const emptyState = document.getElementById('subject-detail-empty');
+    const card = document.getElementById('subject-detail-card');
+    const grid = document.getElementById('detail-lab-grid');
+    const statusBadge = document.getElementById('detail-status-badge');
+    const modeBadge = document.getElementById('detail-mode-badge');
 
-    const lines = [
-      `Subject: ${student.username || 'Unknown'}`,
-      `Email: ${student.email || 'Unknown'}`,
-      `Enrollment ID: ${student.enrollment_id || '—'}`,
-      `Status: ${student.is_approved ? 'Active' : 'Pending'}`,
-      `Solved: ${student.total_solved || 0} / ${student.labs_enrolled || 0}`,
-      '',
-      'Solved labs:',
-      solvedSummary
-    ];
+    emptyState.hidden = true;
+    card.hidden = false;
 
-    alert(lines.join('\n'));
+    document.getElementById('detail-panel-status').textContent =
+      mode === 'solved'
+        ? `Showing exact solved units for ${student.username || 'Unknown'}.`
+        : `Showing subject dossier for ${student.username || 'Unknown'}.`;
+
+    document.getElementById('detail-avatar').textContent = (student.username || '?').slice(0, 1).toUpperCase();
+    document.getElementById('detail-name').textContent = student.username || 'Unknown';
+    document.getElementById('detail-email').textContent = student.email || '—';
+    document.getElementById('detail-enrollment').textContent = student.enrollment_id || '—';
+    document.getElementById('detail-solved-count').textContent = `${student.total_solved || 0} / ${student.labs_enrolled || 0}`;
+
+    const progress = student.labs_enrolled ? Math.round(((student.total_solved || 0) / student.labs_enrolled) * 100) : 0;
+    document.getElementById('detail-progress').textContent = `${progress}%`;
+    document.getElementById('detail-solved-meta').textContent =
+      solvedLabs.length ? `${solvedLabs.length} solved unit${solvedLabs.length === 1 ? '' : 's'} recorded.` : 'No solved units recorded yet.';
+
+    statusBadge.textContent = student.is_approved ? 'Active' : 'Pending';
+    statusBadge.className = `badge ${student.is_approved ? 'badge-active' : 'badge-pending'}`;
+    modeBadge.textContent = mode === 'solved' ? 'Solved Labs' : 'Profile';
+    modeBadge.className = `badge ${mode === 'solved' ? 'badge-active' : 'badge-user'}`;
+
+    grid.innerHTML = '';
+
+    if (!solvedLabs.length) {
+      grid.innerHTML = `
+        <div class="detail-lab-empty">
+          <div class="empty-icon">📭</div>
+          <div>No solved labs yet for this subject.</div>
+        </div>
+      `;
+      return;
+    }
+
+    solvedLabs.forEach(lab => {
+      const item = document.createElement('div');
+      item.className = 'detail-lab-card';
+      item.innerHTML = `
+        <div class="detail-lab-title-row">
+          <div class="detail-lab-title">${lab.label || lab.lab_id}</div>
+          <span class="solved-lab-chip">${lab.variation || 'default'}</span>
+        </div>
+        <div class="detail-lab-meta">
+          <span class="mono">Exact ID: ${lab.lab_id || '—'}</span>
+          <span class="mono">Family: ${lab.canonical_lab_id || '—'}</span>
+        </div>
+        <div class="detail-lab-route">${lab.lab_path || 'Route unavailable'}</div>
+      `;
+      grid.appendChild(item);
+    });
   }
 
-  function showSolvedLabs(student) {
-    const solvedLabs = Array.isArray(student.solved_labs) ? student.solved_labs : [];
-    const solvedSummary = solvedLabs.length
-      ? solvedLabs.map(lab => {
-          const route = lab.lab_path ? ` | Route: ${lab.lab_path}` : '';
-          const canonical = lab.canonical_lab_id ? ` | Family: ${lab.canonical_lab_id}` : '';
-          return `${lab.label || lab.lab_id} -> ${lab.variation || 'default'}${canonical}${route}`;
-        }).join('\n')
-      : 'No labs solved yet';
+  function showStudentCard(student) {
+    renderStudentDetail(student, 'profile');
+  }
 
-    alert([
-      `Solved labs for ${student.username || 'Unknown'}`,
-      '',
-      solvedSummary
-    ].join('\n'));
+  function showSolvedLabsCard(student) {
+    renderStudentDetail(student, 'solved');
   }
 
   // Auto-switch to authorization tab if there are pending requests
