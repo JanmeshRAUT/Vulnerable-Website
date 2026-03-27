@@ -243,6 +243,7 @@
                   <th>Status</th>
                   <th>Progress</th>
                   <th>Solves</th>
+                  <th>Solved Labs</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -285,7 +286,32 @@
                     </span>
                   </td>
                   <td>
-                    <button class="icon-btn" onclick="alert('Dossier: {{ student.email }}')">View</button>
+                    {% if student.solved_labs %}
+                    <div class="solved-lab-list">
+                      {% for solved_lab in student.solved_labs %}
+                      <span class="solved-lab-chip" title="Variation: {{ solved_lab.variation or 'default' }}">
+                        {{ solved_lab.lab_id }}
+                      </span>
+                      {% endfor %}
+                    </div>
+                    {% else %}
+                    <span class="text-muted text-sm">No labs solved yet</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <button
+                      class="icon-btn"
+                      onclick='showStudentDossier({{ {
+                        "username": student.username,
+                        "email": student.email,
+                        "enrollment_id": student.enrollment_id,
+                        "is_approved": student.is_approved,
+                        "total_solved": student.total_solved,
+                        "labs_enrolled": student.labs_enrolled,
+                        "solved_labs": student.solved_labs
+                      } | tojson }})'>
+                      View
+                    </button>
                   </td>
                 </tr>
                 {% endfor %}
@@ -550,6 +576,26 @@
       }
     })
     .catch(() => alert('Network error — check server connection.'));
+  }
+
+  function showStudentDossier(student) {
+    const solvedLabs = Array.isArray(student.solved_labs) ? student.solved_labs : [];
+    const solvedSummary = solvedLabs.length
+      ? solvedLabs.map(lab => `${lab.lab_id}${lab.variation ? ` (${lab.variation})` : ''}`).join('\n')
+      : 'No labs solved yet';
+
+    const lines = [
+      `Subject: ${student.username || 'Unknown'}`,
+      `Email: ${student.email || 'Unknown'}`,
+      `Enrollment ID: ${student.enrollment_id || '—'}`,
+      `Status: ${student.is_approved ? 'Active' : 'Pending'}`,
+      `Solved: ${student.total_solved || 0} / ${student.labs_enrolled || 0}`,
+      '',
+      'Solved labs:',
+      solvedSummary
+    ];
+
+    alert(lines.join('\n'));
   }
 
   // Auto-switch to authorization tab if there are pending requests

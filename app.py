@@ -248,9 +248,18 @@ def admin_students():
     # Calculate aggregate stats from Firebase data
     for student in students:
         progress = firebase_store.get_user_progress(student.get('email'))
+        solved_labs = []
+        for lab_id, entry in sorted(progress.items(), key=lambda item: item[0]):
+            if entry.get('is_solved'):
+                solved_labs.append({
+                    'lab_id': lab_id,
+                    'variation': entry.get('variation')
+                })
+
         student['labs_enrolled'] = len(progress)
         student['labs_approved'] = len(progress) # All are approved now as per user req
-        student['total_solved'] = sum(1 for p in progress.values() if p.get('is_solved'))
+        student['solved_labs'] = solved_labs
+        student['total_solved'] = len(solved_labs)
         student['avg_progress'] = student['total_solved'] / len(progress) * 100 if progress else 0
 
     # Fetch pending users for authorization
