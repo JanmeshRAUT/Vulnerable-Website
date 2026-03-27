@@ -30,11 +30,14 @@ class FirebaseDataStore:
             project_id = os.environ.get("FIREBASE_PROJECT_ID", "").strip()
 
             if service_account_json:
+                print(f"[Firebase] Initializing via SERVICE_ACCOUNT_JSON env var")
                 credential_data = json.loads(service_account_json)
                 cred = credentials.Certificate(credential_data)
             elif os.path.exists(credential_path):
+                print(f"[Firebase] Initializing via credential file: {credential_path}")
                 cred = credentials.Certificate(credential_path)
             else:
+                print(f"[Firebase] Initializing via Application Default Credentials")
                 cred = credentials.ApplicationDefault()
 
             options = {}
@@ -50,11 +53,14 @@ class FirebaseDataStore:
             self.firestore = firestore
             self.db = firestore.client()
             self.is_ready = True
+            print("[Firebase] Initialization successful. Client ready.")
             return True
         except Exception as exc:
             self.is_ready = False
             self.last_error = str(exc)
-            print(f"[Firebase] Disabled: {exc}")
+            print(f"[Firebase] CRITICAL INITIALIZATION ERROR: {exc}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def upsert_user(self, user_id, username, role=None, email=None, full_name=None, guid=None, enrollment_id=None, is_approved=False):

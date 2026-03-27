@@ -444,6 +444,7 @@ def google_callback():
     # 5. Session Finalization
     if firebase_user:
         # Check if user is authorized by Command Center
+        print(f"[AUTH] User profile retrieved. Approval status: {firebase_user.get('is_approved')}")
         if not firebase_user.get('is_approved') and firebase_user.get('role') != 'admin':
             return render_template('auth_pending.html', user=firebase_user)
 
@@ -463,7 +464,8 @@ def google_callback():
             return redirect(url_for('admin_students'))
         return redirect(url_for('home'))
         
-    return redirect(url_for('login', error="Authentication flow failed"))
+    print(f"[AUTH] FINAL FAILURE: No firebase user found after all attempts for {email}")
+    return redirect(url_for('login', error="Authentication flow failed. Please check server logs."))
 
 @app.route('/login', methods=['GET'])
 def login():
