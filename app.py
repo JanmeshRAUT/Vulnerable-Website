@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 import shutil
 import secrets
 from authlib.integrations.flask_client import OAuth
+from werkzeug.middleware.proxy_fix import ProxyFix
 from firebase_db import FirebaseDataStore
 
 try:
@@ -41,10 +42,12 @@ app = Flask(__name__)
 # USE ENVIRONMENT VARIABLES FOR PRODUCTION SECRETS
 app.secret_key = os.environ.get('SECRET_KEY', 'default_vulnerable_key_replace_in_prod')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=14)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 if IS_VERCEL:
     app.config['DB_NAME'] = '/tmp/database.db'
     app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
+    app.config['PREFERRED_URL_SCHEME'] = 'https'
     FLAG_BASE_PATH = '/tmp'
 else:
     app.config['DB_NAME'] = os.path.join(BASE_PATH, 'database.db')
@@ -68,6 +71,13 @@ google = oauth.register(
         'scope': 'openid email profile'
     }
 )
+
+
+def get_google_redirect_uri():
+    configured = (os.environ.get('GOOGLE_REDIRECT_URI') or '').strip()
+    if configured:
+        return configured
+    return url_for('google_callback', _external=True)
 
 firebase_store = FirebaseDataStore(BASE_PATH)
 firebase_store.initialize()
@@ -412,7 +422,7 @@ def google_login():
     if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
         session['oauth_next'] = next_url
 
-    redirect_uri = url_for('google_callback', _external=True)
+    redirect_uri = get_google_redirect_uri()
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/auth/google/callback')
