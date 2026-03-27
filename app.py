@@ -17,9 +17,9 @@ from authlib.integrations.flask_client import OAuth
 # Get base directory (works for both EXE and script execution)
 def get_base_path():
     """Get the base path for resources (works for both dev and PyInstaller)"""
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         # Running as compiled executable - extract temp directory
-        return sys._MEIPASS
+        return getattr(sys, '_MEIPASS')
     else:
         # Running as script - use current directory
         return os.path.dirname(os.path.abspath(__file__))
@@ -2251,7 +2251,6 @@ def lab4_1_stock():
         return "Missing stockApi parameter", 400
     
     # VULNERABILITY: SSRF
-    import requests
     try:
         # We use a trick to allow requests to localhost/127.0.0.1 if it's targeted
         # In a real scenario, this would just be requests.get(stock_api)
@@ -2337,7 +2336,6 @@ def lab4_1b_product(product_id):
 @app.route('/stock/check')
 def stock_check_api():
     product_id = request.args.get('id')
-    import random
     return f"Success: {random.randint(10, 100)} units available for Item-{product_id}."
 
 # Simulated External Admin for 4.1
@@ -2373,7 +2371,6 @@ def admin_delete_user():
 def lab5():
     return render_template('lab5/index.html')
 
-import uuid
 
 # LAB 5.1: Remote Code Execution via Web Shell Upload
 # Menu Selection
@@ -3107,7 +3104,7 @@ def lab8_1_a(page='home'):
         page = 'login'
     
     # Handle search page with XSS detection
-    search_data: dict[str, object] = {'detected': False, 'flag': None, 'query': ''}
+    search_data = {'detected': False, 'flag': '', 'query': ''}
     if page == 'search' and logged_in:
         if request.method == 'POST' and 'search_btn' in request.form:
             search_query = request.form.get('search_query', '').strip()
@@ -3156,7 +3153,7 @@ def lab8_1_b(page='gallery'):
         page = 'login'
     
     # Handle upload page with XSS detection
-    upload_result = {}
+    upload_result = {'detected': False, 'flag': None, 'meta': ''}
     if page == 'upload' and logged_in:
         if request.method == 'POST' and 'upload_btn' in request.form:
             image_alt = request.form.get('image_alt', '').strip()
@@ -3167,7 +3164,7 @@ def lab8_1_b(page='gallery'):
                 for pattern in xss_patterns:
                     if pattern in image_alt_lower:
                         upload_result['detected'] = True
-                        upload_result['flag'] = get_random_flag('lab8')
+                        upload_result['flag'] = str(get_random_flag('lab8'))
                         break
             
             upload_result['alt_text'] = image_alt
@@ -3205,7 +3202,7 @@ def lab8_1_c(page='portfolio'):
         page = 'login'
     
     # Handle create page with XSS detection
-    create_result = {}
+    create_result = {'detected': False, 'flag': ''}
     if page == 'create' and logged_in:
         if request.method == 'POST' and 'create_btn' in request.form:
             project_desc = request.form.get('project_desc', '').strip()
@@ -3216,7 +3213,7 @@ def lab8_1_c(page='portfolio'):
                 for pattern in xss_patterns:
                     if pattern in project_desc_lower:
                         create_result['detected'] = True
-                        create_result['flag'] = get_random_flag('lab8')
+                        create_result['flag'] = str(get_random_flag('lab8'))
                         break
             
             create_result['description'] = project_desc
@@ -3269,7 +3266,7 @@ def lab8_1_d(page='home'):
                         post_result = {
                             'content': post_content,
                             'detected': True,
-                            'flag': get_random_flag('lab8')
+                            'flag': str(get_random_flag('lab8'))
                         }
                         break
             
@@ -3313,7 +3310,7 @@ def lab8_1_e(page='dashboard'):
         page = 'login'
     
     # Handle upload page with XSS detection
-    upload_result = {}
+    upload_result = {'detected': False, 'flag': None, 'meta': ''}
     if page == 'upload' and logged_in:
         if request.method == 'POST' and 'upload_btn' in request.form:
             doc_source = request.form.get('doc_source', '').strip()
@@ -3324,7 +3321,7 @@ def lab8_1_e(page='dashboard'):
                 for pattern in xss_patterns:
                     if pattern in doc_source_lower:
                         upload_result['detected'] = True
-                        upload_result['flag'] = get_random_flag('lab8')
+                        upload_result['flag'] = str(get_random_flag('lab8'))
                         break
             
             upload_result['source'] = doc_source
