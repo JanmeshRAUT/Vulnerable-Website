@@ -162,21 +162,21 @@ def get_or_generate_flag(user_id, lab_id, variation='default'):
     prefix = lab_id.split('_')[0]
     return f"FLAG{{{prefix}_{variation}_{short_hash}}}"
 
-def generate_lab_flags(lab_id, guid):
-    """Generate all variations for a lab based on subject GUID"""
+def generate_lab_flags(lab_id, identity_key):
+    """Generate all variations for a lab based on stable subject identity."""
     return {
-        'variation_A': get_or_generate_flag(guid, lab_id, 'variation_A'),
-        'variation_B': get_or_generate_flag(guid, lab_id, 'variation_B'),
-        'variation_C': get_or_generate_flag(guid, lab_id, 'variation_C'),
-        'default': get_or_generate_flag(guid, lab_id, 'default')
+        'variation_A': get_or_generate_flag(identity_key, lab_id, 'variation_A'),
+        'variation_B': get_or_generate_flag(identity_key, lab_id, 'variation_B'),
+        'variation_C': get_or_generate_flag(identity_key, lab_id, 'variation_C'),
+        'default': get_or_generate_flag(identity_key, lab_id, 'default')
     }
 
 def get_random_flag(lab_id, variation='default'):
     """Compatibility wrapper for legacy lab routes to use dynamic flags"""
-    user_id = session.get('user_id')
-    if not user_id:
+    identity_key = session.get('guid') or session.get('user_id')
+    if not identity_key:
         return "FLAG{unauthenticated_research_lock}"
-    return get_or_generate_flag(user_id, lab_id, variation)
+    return get_or_generate_flag(identity_key, lab_id, variation)
 
 @app.route('/submit_flag', methods=['POST'])
 @login_required
@@ -193,8 +193,18 @@ def submit_flag():
     # Retrieve expected flags from user session (dynamic)
     expected_flags = session.get('lab_flags', {}).get(lab_id, [])
     if not expected_flags:
-        # Regenerate if session timed out or missing
-        expected_flags = list(generate_lab_flags(lab_id, session.get('guid')).values())
+        # Regenerate if session timed out or missing.
+        identity_key = session.get('guid') or session.get('user_id')
+        expected_flags = list(generate_lab_flags(lab_id, identity_key).values())
+
+        # Backward compatibility for users whose visible flags were generated
+        # from the old user_id-only derivation before this fix.
+        legacy_identity_key = session.get('user_id')
+        if legacy_identity_key and legacy_identity_key != identity_key:
+            expected_flags.extend(generate_lab_flags(lab_id, legacy_identity_key).values())
+
+    # Normalize whitespace and guard against duplicate entries.
+    expected_flags = {str(flag).strip() for flag in expected_flags if flag}
     
     if submitted_flag in expected_flags:
         # Record success in Firebase
