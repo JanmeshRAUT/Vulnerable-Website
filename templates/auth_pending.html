@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Acquisition Pending - RESEARCH_OPS{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<div style="height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);">
+    <div class="glass-morphism animate-fade-in" style="padding: 4rem; max-width: 600px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+        <div style="font-size: 4rem; margin-bottom: 2rem;">🛡️</div>
+        <h1 style="font-size: 2.2rem; margin-bottom: 1rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Vetting in Progress</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
+            Security protocols have flagged your registration for administrative review. The **Operational Command Center** must verify your clinical intent before laboratory systems can be initialized.
+        </p>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: left; margin-bottom: 2rem;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.8rem;">Session Telemetry</div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; font-family: monospace; font-size: 0.9rem;">
+                <div>STATUS: <span style="color: #ffc107;">AWAITING_AUTH</span></div>
+                <div>IDENTITY: <span style="color: var(--primary-color);">{{ user.username }}</span></div>
+                <div>ID_STRING: <span style="color: var(--text-muted);">{{ user.enrollment_id or 'GEN_FAIL' }}</span></div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Disconnect Session</a>
+            <button onclick="location.reload()" class="btn btn-primary">Refresh Signal</button>
+        </div>
+        
+        <p style="margin-top: 3rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Signal Acquisition: v4.2.0-STABLE</p>
+    </div>
+</div>
+
+<style>
+.animate-fade-in { animation: fadeIn 0.8s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}

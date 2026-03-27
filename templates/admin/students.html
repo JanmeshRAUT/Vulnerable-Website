@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Research Operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+{% set pending_count = pending_users | length %}
+{% set total_subjects = students | length %}
+{% set total_solved = students | sum(attribute='total_solved') %}
+
+<div class="admin-layout">
+
+  <!-- ═══════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════ -->
+  <aside class="admin-sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <div class="name">RESEARCH_OPS</div>
+        <div class="sub">Command Center v4</div>
+      </div>
+    </div>
+
+    <div class="sidebar-body">
+
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
+          <span class="nav-icon">📊</span> Dashboard
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Management</div>
+        <button class="nav-item" id="nav-subjects" onclick="switchTab('subjects')">
+          <span class="nav-icon">👥</span> Research Subjects
+        </button>
+        <button class="nav-item" id="nav-authorization" onclick="switchTab('authorization')">
+          <span class="nav-icon">🔐</span> Authorization Queue
+          {% if pending_count > 0 %}
+          <span class="nav-badge">{{ pending_count }}</span>
+          {% endif %}
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Intelligence</div>
+        <button class="nav-item" id="nav-activity" onclick="switchTab('activity')">
+          <span class="nav-icon">📡</span> Live Activity Feed
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">System</div>
+        <button class="nav-item" id="nav-labs" onclick="switchTab('labs')">
+          <span class="nav-icon">🧪</span> Lab Registry
+        </button>
+        <button class="nav-item" id="nav-logs" onclick="switchTab('logs')">
+          <span class="nav-icon">📜</span> Audit Logs
+        </button>
+      </div>
+
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="admin-profile">
+        <div class="profile-avatar">A</div>
+        <div class="profile-info">
+          <div class="pname">ADMIN_ROOT</div>
+          <div class="prole">● System Online</div>
+        </div>
+      </div>
+      <a href="{{ url_for('logout') }}" class="btn-logout">↩ Disconnect & Exit</a>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════ -->
+  <main class="admin-main">
+
+    <!-- TOP BAR -->
+    <div class="admin-topbar">
+      <div class="topbar-breadcrumb">
+        <span>RESEARCH_OPS</span>
+        <span class="sep">›</span>
+        <span class="current" id="breadcrumb-current">Dashboard</span>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-status">
+          <span class="pulse-dot"></span>
+          NOMINAL
+        </div>
+        <button class="topbar-btn" onclick="location.reload()">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div class="admin-page-body">
+
+      <!-- ━━━━━━━━━━━━━━━━━━ TAB: DASHBOARD ━━━━━━━━━━━━━━━━━━ -->
+      <div id="tab-dashboard" class="tab-pane active">
+        <div class="page-header">
+          <h2>Operational Dashboard</h2>
+          <p>High-level overview of laboratory health and subject engagement metrics.</p>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-label">🔵 Active Subjects</div>
+            <div class="stat-value">{{ total_subjects }}</div>
+            <div class="stat-trend up">↑ Registered users</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-label">🟡 Pending Authorization</div>
+            <div class="stat-value">{{ pending_count }}</div>
+            <div class="stat-trend {% if pending_count > 0 %}warn{% endif %}">
+              {% if pending_count > 0 %}⚠ Requires action{% else %}All clear{% endif %}
+            </div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">🟢 Successful Exploits</div>
+            <div class="stat-value">{{ solved_data | length }}</div>
+            <div class="stat-trend up">↑ Labs compromised</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-label">🟣 Platform Uptime</div>
+            <div class="stat-value">99.8<small style="font-size:1rem;opacity:0.6">%</small></div>
+            <div class="stat-trend up">Stable — 0 incidents</div>
+          </div>
+        </div>
+
+        <!-- Two columns -->
+        <div class="two-col mb-sm">
+          <!-- Recent Activity -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">📡 Recent Exploit Events</div>
+              <span class="flex-gap-sm"><span class="pulse-dot"></span><span class="text-muted text-sm">Live</span></span>
+            </div>
+            <div class="feed-list">
+              {% if solved_data %}
+                {% for log in solved_data[:6] %}
+                <div class="feed-entry">
+                  <div class="feed-dot"></div>
+                  <div class="feed-content">
+                    <div>
+                      <span class="feed-user">{{ log.email or 'Unknown' }}</span>
+                      &nbsp;compromised&nbsp;
+                      <span class="feed-lab">{{ log.lab_id }}</span>
+                    </div>
+                    <div class="feed-meta">ENTRY: {{ log.variation }} &nbsp;·&nbsp; {{ log.solved_at or '—' }}</div>
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="empty-state">
+                  <div class="empty-icon">📭</div>
+                  <h3>No Events Yet</h3>
+                  <p>Awaiting signal acquisition from laboratory subjects.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Subject Breakdown -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">👥 Subject Engagement</div>
+            </div>
+            <div class="panel-body">
+              <!-- Mini activity visualization -->
+              <div class="text-muted text-sm mb-1">Weekly solve activity (mock)</div>
+              <div class="mini-chart mb-sm">
+                {% set heights = [20, 35, 15, 55, 40, 70, 30, 60, 45, 80, 50, 65] %}
+                {% for h in heights %}
+                <div class="chart-bar" style="height: {{ h }}%;"></div>
+                {% endfor %}
+              </div>
+              <div class="divider"></div>
+              <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span class="text-muted text-sm">Total subjects enrolled</span>
+                  <span class="mono" style="color:var(--text-primary);">{{ total_subjects }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span class="text-muted text-sm">Awaiting authorization</span>
+                  <span class="mono" style="color:var(--status-warning);">{{ pending_count }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span class="text-muted text-sm">Total labs solved (all)</span>
+                  <span class="mono" style="color:var(--status-success);">{{ solved_data | length }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span class="text-muted text-sm">Platform status</span>
+                  <span class="badge badge-active">OPERATIONAL</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% if pending_count > 0 %}
+        <!-- Quick-action banner for pending -->
+        <div class="panel" style="border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.03);">
+          <div class="panel-header" style="border-color: rgba(245,158,11,0.1);">
+            <div class="panel-title" style="color: var(--status-warning);">⚠ {{ pending_count }} Authorization Request{{ 's' if pending_count != 1 }} Pending</div>
+            <button class="topbar-btn" onclick="switchTab('authorization')">Review Now →</button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+
+      <!-- ━━━━━━━━━━━━━━━━━━ TAB: SUBJECTS ━━━━━━━━━━━━━━━━━━ -->
+      <div id="tab-subjects" class="tab-pane">
+        <div class="page-header">
+          <h2>Research Subjects</h2>
+          <p>Comprehensive progress and profile data for all registered subjects.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">👥 Subject Registry <span class="text-muted text-sm">({{ total_subjects }} records)</span></div>
+          </div>
+          <div class="panel-body no-pad">
+            {% if students %}
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Subject Identity</th>
+                  <th>Enrollment ID</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th>Solves</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student in students %}
+                <tr>
+                  <td>
+                    <div class="subject-cell">
+                      <div class="subject-avatar">{{ student.username[0]|upper if student.username else '?' }}</div>
+                      <div>
+                        <div class="subject-name">{{ student.username }}</div>
+                        <div class="subject-email">{{ student.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="mono text-muted">{{ student.enrollment_id or '—' }}</span></td>
+                  <td>
+                    <span class="badge {% if student.role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">
+                      {{ student.role | upper }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if student.is_approved %}
+                      <span class="badge badge-active">Active</span>
+                    {% else %}
+                      <span class="badge badge-pending">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="mini-progress">
+                      <div class="mini-progress-track">
+                        <div class="mini-progress-fill" style="width: {{ (student.avg_progress or 0)|round|int }}%;"></div>
+                      </div>
+                      <span class="mini-progress-label">{{ (student.avg_progress or 0)|round|int }}%</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="solved-val {% if student.total_solved == 0 %}solved-zero{% endif %}">
+                      {{ student.total_solved }} / {{ student.labs_enrolled }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="icon-btn" onclick="alert('Dossier: {{ student.email }}')">View</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <h3>No Subjects Registered</h3>
+              <p>No research subjects are currently enrolled in the platform.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ━━━━━━━━━━━━━━━━━ TAB: AUTHORIZATION ━━━━━━━━━━━━━━━━━ -->
+      <div id="tab-authorization" class="tab-pane">
+        <div class="page-header">
+          <h2>Authorization Queue</h2>
+          <p>Review and approve or deny pending subject account activations.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🔐 Pending Requests
+              {% if pending_count > 0 %}
+              <span class="nav-badge" style="margin-left:0.5rem;">{{ pending_count }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="panel-body">
+            {% if pending_users %}
+              {% for user in pending_users %}
+              <div class="pending-card" id="pending-{{ loop.index }}">
+                <div class="pending-identity">
+                  <div class="pending-avatar">{{ user.username[0]|upper if user.username else '?' }}</div>
+                  <div>
+                    <div class="pending-name">{{ user.username }}</div>
+                    <div class="pending-email">{{ user.email }}</div>
+                    <span class="pending-enroll">{{ user.enrollment_id or 'NO ENROLLMENT ID' }}</span>
+                  </div>
+                </div>
+                <div class="pending-actions">
+                  <span class="badge badge-pending" style="margin-right:0.5rem;">PENDING</span>
+                  <button class="btn-approve" onclick="approveUser('{{ user.email }}', '1', {{ loop.index }})">✓ Authorize</button>
+                  <button class="btn-deny" onclick="approveUser('{{ user.email }}', '0', {{ loop.index }})">✕ Deny</button>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <h3>No Pending Requests</h3>
+                <p>All access requests have been processed. The authorization queue is clear.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ━━━━━━━━━━━━━━━━━━ TAB: ACTIVITY FEED ━━━━━━━━━━━━━━━━━━ -->
+      <div id="tab-activity" class="tab-pane">
+        <div class="page-header">
+          <h2>Live Activity Feed</h2>
+          <p>Real-time telemetry of laboratory exploits and subject interactions.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📡 Exploit Signal Log</div>
+            <span class="flex-gap-sm"><span class="pulse-dot"></span><span class="text-muted text-sm">Live sensor data</span></span>
+          </div>
+          <div class="feed-list">
+            {% if solved_data %}
+              {% for log in solved_data %}
+              <div class="feed-entry">
+                <div class="feed-dot"></div>
+                <div class="feed-content">
+                  <div>
+                    <span class="feed-user">{{ log.email or '—' }}</span>
+                    &nbsp;successfully compromised&nbsp;
+                    <span class="feed-lab">{{ log.lab_id }}</span>
+                    {% if log.variation %}
+                    <span class="text-muted text-sm">({{ log.variation }})</span>
+                    {% endif %}
+                  </div>
+                  <div class="feed-meta">
+                    TS: {{ log.solved_at or 'TIMESTAMP UNAVAILABLE' }}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">
+                <div class="empty-icon">📡</div>
+                <h3>Awaiting Signal Acquisition</h3>
+                <p>No exploit events have been recorded. Sensors are active and listening.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ━━━━━━━━━━━━━━━━━━ TAB: LAB REGISTRY ━━━━━━━━━━━━━━━━━━ -->
+      <div id="tab-labs" class="tab-pane">
+        <div class="page-header">
+          <h2>Lab Registry</h2>
+          <p>Overview of all deployed vulnerability laboratory modules.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🧪 Deployed Modules</div>
+          </div>
+          <div class="panel-body no-pad">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Lab ID</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Difficulty</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="mono">lab1</span></td>
+                  <td>Path Traversal Suite</td>
+                  <td><span class="badge badge-user">FILE SYSTEM</span></td>
+                  <td><span style="color:var(--status-success);font-size:0.8rem;font-weight:600;">Easy</span></td>
+                  <td><span class="badge badge-active">DEPLOYED</span></td>
+                </tr>
+                <tr>
+                  <td><span class="mono">lab2</span></td>
+                  <td>Access Control Bypass</td>
+                  <td><span class="badge badge-user">AUTH</span></td>
+                  <td><span style="color:var(--status-warning);font-size:0.8rem;font-weight:600;">Medium</span></td>
+                  <td><span class="badge badge-active">DEPLOYED</span></td>
+                </tr>
+                <tr>
+                  <td><span class="mono">lab3</span></td>
+                  <td>SQL Injection Suite</td>
+                  <td><span class="badge badge-user">DATABASE</span></td>
+                  <td><span style="color:var(--status-warning);font-size:0.8rem;font-weight:600;">Medium</span></td>
+                  <td><span class="badge badge-active">DEPLOYED</span></td>
+                </tr>
+                <tr>
+                  <td><span class="mono">lab4</span></td>
+                  <td>XSS / Injection</td>
+                  <td><span class="badge badge-user">CLIENT-SIDE</span></td>
+                  <td><span style="color:var(--status-danger);font-size:0.8rem;font-weight:600;">Hard</span></td>
+                  <td><span class="badge badge-active">DEPLOYED</span></td>
+                </tr>
+                <tr>
+                  <td><span class="mono">lab5</span></td>
+                  <td>IDOR / BOLA</td>
+                  <td><span class="badge badge-user">API</span></td>
+                  <td><span style="color:var(--status-danger);font-size:0.8rem;font-weight:600;">Hard</span></td>
+                  <td><span class="badge badge-active">DEPLOYED</span></td>
+                </tr>
+                <tr>
+                  <td><span class="mono">lab6–8</span></td>
+                  <td>Advanced Modules</td>
+                  <td><span class="badge badge-admin">MIXED</span></td>
+                  <td><span style="color:var(--accent-primary);font-size:0.8rem;font-weight:600;">Expert</span></td>
+                  <td><span class="badge badge-active">DEPLOYED</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ━━━━━━━━━━━━━━━━━━ TAB: AUDIT LOGS ━━━━━━━━━━━━━━━━━━ -->
+      <div id="tab-logs" class="tab-pane">
+        <div class="page-header">
+          <h2>Audit Logs</h2>
+          <p>System-level authentication events and administrative actions.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📜 Kernel Event Stream</div>
+            <span class="badge badge-pending">LEVEL 5 CLEARANCE</span>
+          </div>
+          <div class="panel-body">
+            <div style="background:var(--bg-base);border-radius:6px;border:1px solid var(--border-subtle);padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-muted);line-height:2;">
+              <div><span style="color:var(--status-success);">[SYSTEM]</span> Research Operations Command Center initialized</div>
+              <div><span style="color:var(--status-info);">[AUTH]</span> Firebase data store connected &amp; ready</div>
+              <div><span style="color:var(--status-info);">[AUTH]</span> Admin session established</div>
+              {% for student in students[:3] %}
+              <div><span style="color:var(--text-muted);">[REGISTRY]</span> Subject registered: {{ student.email }}</div>
+              {% endfor %}
+              {% if solved_data %}
+              {% for log in solved_data[:3] %}
+              <div><span style="color:var(--status-warning);">[EXPLOIT]</span> {{ log.email }} → {{ log.lab_id }} — flag captured</div>
+              {% endfor %}
+              {% endif %}
+              <div><span style="color:var(--status-muted);">[SYS]</span> <span style="opacity:0.5;">Further logs restricted to LEVEL_5 clearance.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-page-body -->
+  </main>
+</div>
+
+<script>
+  const TABS = ['dashboard','subjects','authorization','activity','labs','logs'];
+  const LABELS = {
+    dashboard:     'Dashboard',
+    subjects:      'Research Subjects',
+    authorization: 'Authorization Queue',
+    activity:      'Live Activity Feed',
+    labs:          'Lab Registry',
+    logs:          'Audit Logs',
+  };
+
+  function switchTab(id) {
+    TABS.forEach(t => {
+      document.getElementById('tab-' + t).classList.toggle('active', t === id);
+      const nav = document.getElementById('nav-' + t);
+      if (nav) nav.classList.toggle('active', t === id);
+    });
+    document.getElementById('breadcrumb-current').textContent = LABELS[id] || id;
+  }
+
+  function approveUser(email, isApproved, cardIndex) {
+    const action = isApproved === '1' ? 'authorize' : 'deny';
+    if (!confirm(`Confirm: ${action} access for ${email}?`)) return;
+
+    const formData = new URLSearchParams();
+    formData.append('email', email);
+    formData.append('is_approved', isApproved);
+
+    fetch('/admin/approve_user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const card = document.getElementById('pending-' + cardIndex);
+        if (card) {
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(20px)';
+          setTimeout(() => { card.remove(); location.reload(); }, 400);
+        } else {
+          location.reload();
+        }
+      } else {
+        alert('Error: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(() => alert('Network error — check server connection.'));
+  }
+
+  // Auto-switch to authorization tab if there are pending requests
+  window.addEventListener('load', function () {
+    {% if pending_count > 0 %}
+    switchTab('authorization');
+    {% endif %}
+  });
+</script>
+</body>
+</html>

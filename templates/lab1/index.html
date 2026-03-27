@@ -25,7 +25,7 @@
     </div>
 
     <!-- Lab Grid -->
-    <div class="premium-lab-grid">
+    <div class="premium-lab-grid animate-fade-in">
         <!-- Lab 1.1 -->
         <a href="{{ url_for('lab1_1') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
             <div class="premium-card-header">
@@ -72,4 +72,9 @@
         </a>
     </div>
 </div>
+
+<style>
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fadeIn 0.4s ease-out; }
+</style>
 {% endblock %}

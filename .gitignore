@@ -17,6 +17,9 @@ build/
 *.sqlite3
 database.db
 
+# Firebase service account (NEVER commit — use Vercel env vars instead)
+firebase-service-account.json
+
 # Logs
 *.log
 logs/

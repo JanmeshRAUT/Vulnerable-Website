@@ -2,31 +2,45 @@
 {% block title %}Sign In - RESEARCH_OPS{% endblock %}
 
 {% block content %}
-<div class="login-form-container">
-    <div class="login-form-content card">
-        <div class="login-form-header">
-            <h1>Sign In</h1>
-            <p>Continue securely with your Google account.</p>
+<div class="auth-container">
+    <div class="auth-card glass-morphism animate-fade-in">
+        <div class="auth-header">
+            <div class="auth-logo-icon">🔑</div>
+            <h1>Research Portal</h1>
+            <p>Welcome back. Please sign in to access your research modules.</p>
         </div>
 
         {% if error %}
-        <div class="auth-error">
-            <strong>Error:</strong> {{ error }}
+        <div class="auth-error-box ripple-in">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>{{ error }}</span>
         </div>
         {% endif %}
 
-        <a href="{{ url_for('google_login', next=next_url) }}" class="auth-google-btn auth-google-btn-primary">
-            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" class="auth-google-icon">
-            Sign In with Google
-        </a>
+        <div class="auth-methods">
+            <a href="{{ url_for('google_login', next=next_url, source='login') }}" class="google-auth-button">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google Logo">
+                <span>Continue with Google</span>
+            </a>
 
-        <p class="auth-security-note">Google OAuth is the only sign-in method enabled for this application.</p>
+            <div class="auth-divider">
+                <span>Identity Verification</span>
+            </div>
 
-        <div class="auth-form-footer">
-            <p>Don't have an account?
-                <a href="{{ url_for('register') }}">Create one</a>
-            </p>
+            <div class="auth-info-box">
+                <h4 class="auth-info-title">Joining Requirements</h4>
+                <p>Ensure you have completed the <strong>Join Platform</strong> process first. Your identity is linked to your Google account and Enrollment ID during that initial step.</p>
+            </div>
         </div>
+
+        <div class="auth-footer">
+            <p>New to the platform? <a href="{{ url_for('register') }}" class="accent-link">Join now</a></p>
+        </div>
+    </div>
+    
+    <div class="auth-background-decoration">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
     </div>
 </div>
 {% endblock %}

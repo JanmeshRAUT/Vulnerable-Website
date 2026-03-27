@@ -1,4 +1,3 @@
-
 import os
 import sys
 import sqlite3
@@ -8,7 +7,7 @@ import string
 import random
 import re
 import uuid
-from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g, send_file, send_from_directory, Response, g, jsonify
 from datetime import datetime, timedelta
 import shutil
 import secrets
@@ -22,6 +21,10 @@ try:
 except Exception:
     # Keep running if python-dotenv is unavailable in some environments.
     pass
+
+# For local development, allow HTTP for OAuth.
+if not os.environ.get('VERCEL'):
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Get base directory (works for both EXE and script execution)
 def get_base_path():
@@ -67,6 +70,10 @@ google = oauth.register(
     client_id=os.environ.get('GOOGLE_CLIENT_ID', 'placeholder-id'),
     client_secret=os.environ.get('GOOGLE_CLIENT_SECRET', 'placeholder-secret'),
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
+    token_url='https://oauth2.googleapis.com/token',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
+    redirect_uri=os.environ.get('GOOGLE_REDIRECT_URI', 'http://127.0.0.1:5000/auth/google/callback'),
     client_kwargs={
         'scope': 'openid email profile'
     }
@@ -83,328 +90,219 @@ firebase_store = FirebaseDataStore(BASE_PATH)
 firebase_store.initialize()
 
 
-def sync_user_profile_to_firebase(user_row):
-    if not user_row:
-        return
-
-    firebase_store.upsert_user(
-        user_id=user_row['id'],
-        username=user_row['username'],
-        role=user_row['role'],
-        email=user_row['email'],
-        full_name=user_row['full_name'],
-        guid=user_row['guid']
-    )
-
-
-def sync_user_lab_state_to_firebase(user_id):
-    if not firebase_store.is_ready:
-        return
-
-    db = get_db()
-    enrollments_rows = db.execute(
-        'SELECT lab_id, enrolled_date, status, completion_percentage, last_accessed FROM lab_enrollments WHERE user_id = ?',
-        (user_id,)
-    ).fetchall()
-
-    progress_rows = db.execute(
-        '''
-        SELECT
-            lab_id,
-            SUM(CASE WHEN task_completed = 1 THEN 1 ELSE 0 END) AS tasks_completed,
-            SUM(CASE WHEN flag_found = 1 THEN 1 ELSE 0 END) AS flags_found,
-            COUNT(*) AS sections_tracked,
-            MAX(completion_time) AS last_completion_time
-        FROM lab_progress
-        WHERE user_id = ?
-        GROUP BY lab_id
-        ''',
-        (user_id,)
-    ).fetchall()
-
-    enrollments = [dict(row) for row in enrollments_rows]
-    progress_summary = {row['lab_id']: dict(row) for row in progress_rows}
-    firebase_store.sync_lab_state(user_id, enrollments, progress_summary)
-
 # -------------------------
-# FLAG SYSTEM - 3 Random Flags per Lab
+# AUTHENTICATION HELPERS
 # -------------------------
-LAB_FLAGS = {
-    'lab1': [
-        'FLAG{file_system_traversal_alpha}',
-        'FLAG{directory_enumeration_beta}',
-        'FLAG{path_manipulation_gamma}'
-    ],
-    'lab2_1': [
-        'FLAG{resource_disclosure_delta}',
-        'FLAG{metadata_exposure_epsilon}',
-        'FLAG{directory_listing_zeta}'
-    ],
-    'lab2_2': [
-        'FLAG{logic_bypass_eta}',
-        'FLAG{hidden_endpoint_theta}',
-        'FLAG{source_code_analysis_iota}'
-    ],
-    'lab2_3': [
-        'FLAG{session_hijacking_kappa}',
-        'FLAG{privilege_escalation_lambda}',
-        'FLAG{token_manipulation_mu}'
-    ],
-    'lab2_4': [
-        'FLAG{object_reference_nu}',
-        'FLAG{identifier_tampering_xi}',
-        'FLAG{access_control_omicron}'
-    ],
-    'lab2_5': [
-        'FLAG{information_leakage_pi}',
-        'FLAG{credential_exposure_rho}',
-        'FLAG{data_disclosure_sigma}'
-    ],
-    'lab3_1': [
-        'FLAG{weak_validation_tau}',
-        'FLAG{enum_prediction_upsilon}',
-        'FLAG{authentication_bypass_phi}'
-    ],
-    'lab3_2': [
-        'FLAG{mfa_weakness_chi}',
-        'FLAG{otp_bypass_psi}',
-        'FLAG{verification_flaw_omega}'
-    ],
-    'lab4': [
-        'FLAG{internal_access_alpha2}',
-        'FLAG{service_probing_beta2}',
-        'FLAG{network_recon_gamma2}'
-    ],
-    'lab5_1': [
-        'FLAG{upload_validation_delta2}',
-        'FLAG{file_execution_epsilon2}',
-        'FLAG{storage_bypass_zeta2}'
-    ],
-    'lab5_2': [
-        'FLAG{content_verification_eta2}',
-        'FLAG{type_confusion_theta2}',
-        'FLAG{filter_evasion_iota2}'
-    ],
-    'lab6': [
-        'FLAG{command_execution_kappa2}',
-        'FLAG{system_control_lambda2}',
-        'FLAG{process_injection_mu2}'
-    ],
-    'lab7': [
-        'FLAG{query_manipulation_nu2}',
-        'FLAG{database_access_xi2}',
-        'FLAG{record_extraction_omicron2}'
-    ],
-    'lab8': [
-        'FLAG{script_injection_pi2}',
-        'FLAG{context_escape_rho2}',
-        'FLAG{dom_manipulation_sigma2}'
-    ]
-}
+from functools import wraps
 
-def get_random_flag(lab_id):
-    """Get a random flag from the available flags for a lab"""
-    if lab_id in LAB_FLAGS:
-        return random.choice(LAB_FLAGS[lab_id])
-    return "FLAG{unknown_challenge}"
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login', next=request.path))
+        return f(*args, **kwargs)
+    return decorated_function
 
-# -------------------------
-# DATABASE SETUP
-# -------------------------
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(app.config['DB_NAME'])
-        db.row_factory = sqlite3.Row
-    return db
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
-def init_db():
-    with app.app_context():
-        db = get_db()
-        cursor = db.cursor()
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login', next=request.path))
         
-        # Create Users Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                role TEXT DEFAULT 'user',
-                email TEXT,
-                full_name TEXT,
-                guid TEXT UNIQUE
-            )
-        ''')
+        # Identity Verification via Session Registry
+        if session.get('role') != 'admin':
+            return render_template('error.html', message="Administrative clearance required."), 403
+        return f(*args, **kwargs)
+    return decorated_function
 
-        # Create Products Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS products (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                description TEXT,
-                price REAL,
-                image_url TEXT,
-                stock INTEGER DEFAULT 100,
-                uploaded_by INTEGER,
-                FOREIGN KEY (uploaded_by) REFERENCES users(id)
-            )
-        ''')
+@app.before_request
+def enforce_lab_locks():
+    """Global access controller for the laboratory environment"""
+    path = request.path.lower()
+    
+    # Bypass protection for system, authentication, and admin assets
+    if not path.startswith('/lab'):
+        return
+        
+    print(f"[SECURITY] Access attempt to {path} from {request.remote_addr}")
+    
+    if 'user_id' not in session:
+        print(f"[SECURITY] Blocked unauthenticated access to {path}")
+        return redirect(url_for('login', next=request.path))
+    
+    # Authorized subjects (Admins) bypass the vetting protocol
+    if session.get('role') == 'admin':
+        return
+        
+    # Standard subjects must be vetted by the Command Center
+    email = session.get('email')
+    user = firebase_store.get_user_by_email(email)
+    
+    if not user or not user.get('is_approved'):
+        print(f"[SECURITY] Blocked unvetted subject {email} from entering {path}")
+        return render_template('auth_pending.html', user=user or {'email': email})
 
-        # Create Orders Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER,
-                order_date TEXT,
-                total REAL,
-                status TEXT
-            )
-        ''')
+# -------------------------
+# DYNAMIC RESEARCH DELIVERABLES (FLAGS)
+# -------------------------
+def get_or_generate_flag(user_id, lab_id, variation='default'):
+    """Generate a reproducible, unique research deliverable for a subject"""
+    # Use user_id and lab_id as a seed for consistent flag generation across sessions
+    # without requiring persistent database storage.
+    import hashlib
+    seed_string = f"{user_id}-{lab_id}-{variation}-{app.secret_key}"
+    hash_obj = hashlib.sha256(seed_string.encode())
+    short_hash = hash_obj.hexdigest()[:12]
+    
+    prefix = lab_id.split('_')[0]
+    return f"FLAG{{{prefix}_{variation}_{short_hash}}}"
 
-        # Create Lab Enrollments Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS lab_enrollments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                lab_id TEXT NOT NULL,
-                enrolled_date TEXT NOT NULL,
-                status TEXT DEFAULT 'in_progress',
-                completion_percentage INTEGER DEFAULT 0,
-                last_accessed TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                UNIQUE(user_id, lab_id)
-            )
-        ''')
+def generate_lab_flags(lab_id, guid):
+    """Generate all variations for a lab based on subject GUID"""
+    return {
+        'variation_A': get_or_generate_flag(guid, lab_id, 'variation_A'),
+        'variation_B': get_or_generate_flag(guid, lab_id, 'variation_B'),
+        'variation_C': get_or_generate_flag(guid, lab_id, 'variation_C'),
+        'default': get_or_generate_flag(guid, lab_id, 'default')
+    }
 
-        # Create Lab Progress Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS lab_progress (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                lab_id TEXT NOT NULL,
-                section_id TEXT,
-                task_completed BOOLEAN DEFAULT 0,
-                flag_found BOOLEAN DEFAULT 0,
-                flag_value TEXT,
-                completion_time TEXT,
-                notes TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                UNIQUE(user_id, lab_id, section_id)
-            )
-        ''')
+def get_random_flag(lab_id, variation='default'):
+    """Compatibility wrapper for legacy lab routes to use dynamic flags"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return "FLAG{unauthenticated_research_lock}"
+    return get_or_generate_flag(user_id, lab_id, variation)
 
-        # Create Assignments Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS assignments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                lab_id TEXT NOT NULL,
-                title TEXT NOT NULL,
-                description TEXT,
-                due_date TEXT,
-                created_date TEXT,
-                max_score INTEGER DEFAULT 100
-            )
-        ''')
+@app.route('/submit_flag', methods=['POST'])
+@login_required
+def submit_flag():
+    """Verify research deliverable and record in Cloud Firestore"""
+    lab_id = request.form.get('lab_id')
+    variation = request.form.get('variation', 'default')
+    submitted_flag = request.form.get('flag', '').strip()
+    email = session.get('email')
 
-        # Create Assignment Submissions Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS assignment_submissions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                assignment_id INTEGER NOT NULL,
-                submission_date TEXT NOT NULL,
-                file_path TEXT,
-                content TEXT,
-                status TEXT DEFAULT 'submitted',
-                score INTEGER,
-                feedback TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (assignment_id) REFERENCES assignments(id)
-            )
-        ''')
+    if not lab_id or not submitted_flag:
+        return jsonify({'success': False, 'error': 'Deliverable content missing.'}), 400
 
-        # Create Lab Grades Table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS lab_grades (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                lab_id TEXT NOT NULL,
-                score INTEGER,
-                grade TEXT,
-                feedback TEXT,
-                graded_date TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                UNIQUE(user_id, lab_id)
-            )
-        ''')
+    # Retrieve expected flags from user session (dynamic)
+    expected_flags = session.get('lab_flags', {}).get(lab_id, [])
+    if not expected_flags:
+        # Regenerate if session timed out or missing
+        expected_flags = list(generate_lab_flags(lab_id, session.get('guid')).values())
+    
+    if submitted_flag in expected_flags:
+        # Record success in Firebase
+        firebase_store.submit_lab_progress(email, lab_id, variation, submitted_flag, True, "Deliverable accepted.")
+        return jsonify({'success': True, 'message': 'Research deliverable verified and serialized.'})
+    else:
+        # Record attempt in Firebase
+        firebase_store.submit_lab_progress(email, lab_id, variation, submitted_flag, False, "Incorrect deliverable.")
+        return jsonify({'success': False, 'error': 'Invalid deliverable signal.'})
 
-        # Seed Data - Users
-        # Check if users exist
-        cursor.execute('SELECT count(*) FROM users')
-        if cursor.fetchone()[0] == 0:
-            # Generate random admin password (8-12 characters, alphanumeric)
-            password_length = secrets.choice(range(8, 13))
-            admin_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(password_length))
-            
-            admin_guid = uuid.uuid4().hex
-            user_guid = uuid.uuid4().hex
-            alice_guid = uuid.uuid4().hex
-            
-            cursor.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES ('admin', ?, 'admin', 'admin@vulnerable.com', 'System Administrator', ?)", (admin_password, admin_guid))
-            cursor.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES ('user', 'password', 'user', 'user@vulnerable.com', 'Regular User', ?)", (user_guid,))
-            cursor.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES ('alice', 'alice123', 'user', 'alice@vulnerable.com', 'Alice Wonderland', ?)", (alice_guid,))
-            
-            print(f"[INIT] Admin password generated: {admin_password}")
+@app.route('/admin/students')
+@admin_required
+def admin_students():
+    """View and manage research subjects and their lab telemetry via Firestore"""
+    # Fetch all students from Firebase
+    all_users = firebase_store.get_all_users()
+    students = [u for u in all_users if u.get('role') != 'admin']
+    
+    # Calculate aggregate stats from Firebase data
+    for student in students:
+        progress = firebase_store.get_user_progress(student.get('email'))
+        student['labs_enrolled'] = len(progress)
+        student['labs_approved'] = len(progress) # All are approved now as per user req
+        student['total_solved'] = sum(1 for p in progress.values() if p.get('is_solved'))
+        student['avg_progress'] = student['total_solved'] / len(progress) * 100 if progress else 0
 
-        # Seed Data - Products
-        cursor.execute('SELECT count(*) FROM products')
-        if cursor.fetchone()[0] == 0:
-            # Get user IDs
-            cursor.execute('SELECT id FROM users WHERE username = "user"')
-            user_id = cursor.fetchone()[0]
-            cursor.execute('SELECT id FROM users WHERE username = "alice"')
-            alice_id = cursor.fetchone()[0]
-            cursor.execute('SELECT id FROM users WHERE username = "admin"')
-            admin_id = cursor.fetchone()[0]
-            
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Vulnerable T-Shirt', 'Limited edition vulnerable item', 29.99, 'tshirt.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Insecure Hoodie', 'Keeps you warm, keeps your data exposed', 49.99, 'hoodie.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('SQLi Mug', 'Select * from drinks', 15.00, 'mug.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('XSS Payload Coffee', 'Inject your caffeine safely', 18.50, 'coffee.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('CSRF Protection Hat', 'Keeps your cookies safe', 25.00, 'hat.jpg', ?)", (admin_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Smart TV 55', '4K Smart TV', 499.99, 'tv.jpg', ?)", (admin_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Gaming Mouse', 'RGB gaming mouse', 59.99, 'mouse.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Mechanical Keyboard', 'Blue switches', 89.99, 'keyboard.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Noise Cancelling Headphones', 'Silence your environment', 199.99, 'headphones.jpg', ?)", (admin_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Smartphone Pro', 'Latest Gen Smartphone', 999.99, 'phone.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Gold Necklace', '18k gold necklace', 299.99, 'necklace1.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Silver Watch', 'Elegant silver watch', 150.00, 'watch1.jpg', ?)", (admin_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Diamond Necklace', 'Diamond studded necklace', 999.99, 'necklace2.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Smart Watch', 'Fitness tracking watch', 199.99, 'watch2.jpg', ?)", (alice_id,))
-            cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Pearl Necklace', 'Classic pearl necklace', 120.00, 'necklace3.jpg', ?)", (admin_id,))
+    # Fetch pending users for authorization
+    pending_users = [u for u in students if not u.get('is_approved')]
+    
+    # Fetch solved labs feed from Firebase
+    solved_data = firebase_store.get_solved_labs_feed()
 
-            
-        # Seed Data - Lab 6 Flag File (in writable directory)
-        flag_path = os.path.join(FLAG_BASE_PATH, 'flag.txt')
-        if not os.path.exists(flag_path):
-            with open(flag_path, 'w') as f:
-                f.write(LAB_FLAGS['lab6'][0])
+    return render_template('admin/students.html', 
+                          students=students, 
+                          solved_data=solved_data,
+                          pending_users=pending_users)
 
-        db.commit()
+@app.route('/admin/approve', methods=['POST'])
+@admin_required
+def approve_enrollment():
+    """Approve or reject a lab enrollment"""
+    user_email = request.form.get('user_email')
+    lab_id = request.form.get('lab_id')
+    new_status = request.form.get('status') # 'approved' or 'rejected'
+    
+    if not user_email or not lab_id or new_status not in ['approved', 'rejected', 'pending']:
+        return jsonify({'error': 'Invalid parameters'}), 400
+        
+    firebase_store.update_lab_enrollment_status(user_email, lab_id, new_status)
+    
+    return jsonify({'success': True, 'message': f'Enrollment {new_status} successfully.'})
 
-# Initialize DB on start
-if not os.path.exists(app.config['DB_NAME']):
-    init_db()
-else:
-    # Re-run init to ensure tables exist if deleted
-    init_db()
+@app.route('/lab/enroll/<lab_id>', methods=['POST'])
+@login_required
+def request_lab_enrollment(lab_id):
+    """Student requests access to a specific lab"""
+    user_email = session['email']
+    
+    # Check if already enrolled
+    existing = firebase_store.get_lab_enrollment(user_email, lab_id)
+    if existing:
+        return jsonify({'success': False, 'error': 'Already enrolled or pending.'})
+    
+    try:
+        firebase_store.create_lab_enrollment(user_email, lab_id, 'pending')
+        return jsonify({'success': True, 'message': 'Access request sent for authorization.'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
+def check_lab_access(lab_id):
+    """Helper to verify if a user has approved access to a lab"""
+    if session.get('role') == 'admin': return True
+    user_email = session.get('email')
+    enrollment = firebase_store.get_lab_enrollment(user_email, lab_id)
+    
+    if not enrollment: return 'unattached'
+    return enrollment.get('approval_status')
+
+@app.route('/admin/approve_user', methods=['POST'])
+@admin_required
+def approve_user():
+    """Approve or reject a user's account via Cloud Firestore"""
+    email = request.form.get('email') # Use email as ID for Firebase
+    user_id = request.form.get('user_id') # Fallback if email not provided
+    is_approved = request.form.get('is_approved') == '1'
+
+    if not email and not user_id:
+        return jsonify({'error': 'Subject identifier required'}), 400
+
+    # If we only have user_id, find email from list or skip
+    if not email:
+        all_u = firebase_store.get_all_users()
+        email = next((u['email'] for u in all_u if str(u.get('user_id')) == str(user_id)), None)
+
+    if not email:
+        return jsonify({'error': 'Subject not found in registry'}), 404
+
+    firebase_store.update_user_approval(email, is_approved)
+    
+    status_message = "authorized" if is_approved else "denied"
+    return jsonify({'success': True, 'message': f'Research subject {status_message}.'})
+
+# -------------------------
+# INITIALIZATION (DECOMMISSIONED)
+# -------------------------
+# Legacy SQLite initialization logic has been removed.
+# The laboratory now operates as a pure serverless entity via Cloud Firestore.
+
+# -------------------------
+# INITIALIZATION (REMOVED SQLITE)
+# -------------------------
+# The laboratory now relies exclusively on Cloud Firestore for all persistence.
+# SQLite logic has been decommissioned to ensure global synchronization.
 
 # -------------------------
 # MAIN ROUTES
@@ -419,57 +317,148 @@ def home():
 @app.route('/auth/google')
 def google_login():
     next_url = request.args.get('next', '')
+    auth_source = (request.args.get('source') or 'login').strip().lower()
+    if auth_source not in {'login', 'register'}:
+        auth_source = 'login'
+
+    session['oauth_source'] = auth_source
     if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
         session['oauth_next'] = next_url
 
     redirect_uri = get_google_redirect_uri()
+    print(f"[OAUTH] Starting Google OAuth. Mode: {auth_source}, Redirect: {redirect_uri}")
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/auth/google/callback')
 def google_callback():
-    token = google.authorize_access_token()
-    userinfo = token.get('userinfo')
+    redirect_uri = get_google_redirect_uri()
+    print(f"[OAUTH] Received Google Callback. Redirect URI used in auth_redirect: {redirect_uri}")
+    try:
+        # Revert to standard call; OAUTHLIB_INSECURE_TRANSPORT=1 should fix the original issue
+        token = google.authorize_access_token()
+    except Exception as e:
+        print(f"[OAUTH] Token exchange failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return redirect(url_for('login', error=f"OAuth token error: {str(e)}. Tip: Access via 127.0.0.1 instead of localhost."))
+    
+    try:
+        userinfo = token.get('userinfo')
+        if not userinfo:
+            # If userinfo not in token, fetch it explicitly
+            userinfo = google.get('userinfo').json()
+    except Exception as e:
+        print(f"Userinfo retrieval error: {e}")
+        import traceback
+        traceback.print_exc()
+        return redirect(url_for('login', error="Failed to retrieve user information"))
+    
+    auth_source = session.pop('oauth_source', 'login')
     
     if not userinfo:
-        firebase_store.track_auth_event('google_login_failed_userinfo')
         return redirect(url_for('login', error="Google authentication failed: no user info received"))
 
     # Researcher branded logic remains but uses real data
     email = userinfo.get('email')
     full_name = userinfo.get('name')
     if not email:
-        firebase_store.track_auth_event('google_login_failed_missing_email')
         return redirect(url_for('login', error="Google authentication failed: email not available"))
 
-    username = email.split('@')[0] # Basic assumption for display
+    # ==========================================
+    # FIREBASE-DEPENDENT LOGIN (SOURCE OF TRUTH)
+    # ==========================================
     
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+    # 1. Always check Firebase first for the latest profile/role
+    print(f"[AUTH] Pulling source-of-truth profile from Firebase for {email}")
+    firebase_user = firebase_store.get_user_by_email(email)
     
-    if not user:
-        # Create user from real Google data
-        try:
-            db.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES (?, ?, ?, ?, ?, ?)", 
-                      (username, 'OAUTH_USER_PROTECTED_LOGOUT', 'user', email, full_name, uuid.uuid4().hex))
-            db.commit()
-            user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
-        except sqlite3.IntegrityError:
-             # Handle rare conflict where username exists but email differs
-             user = db.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+    # 2. Handle Login Flow
+    if auth_source == 'login':
+        if not firebase_user:
+            # User doesn't exist in the cloud yet
+            print(f"[AUTH] Login failed: {email} does not exist in Firebase.")
+            return redirect(url_for('register', error='No account found. Please Join the platform first.'))
+            
+    # 3. Handle Registration (Join) Flow
+    elif auth_source == 'register':
+        if firebase_user:
+            return redirect(url_for('login', error='Identity already initialized in Firebase. Please sign in.'))
+            
+        # Get pending data from session
+        pending = session.pop('pending_join', None)
+        if not pending:
+            return redirect(url_for('register', error='Session expired. Please start identity initialization again.'))
+            
+        # Create in Firebase
+        selected_username = pending['username']
+        enrollment_id = pending['enrollment_id']
+        
+        # Check collision before final creation
+        # This check needs to be done against Firebase now
+        if firebase_store.get_user_by_username(selected_username):
+             return redirect(url_for('register', error='Username already claimed.'))
+        if firebase_store.get_user_by_enrollment_id(enrollment_id):
+            return redirect(url_for('register', error='Enrollment ID already exists.'))
 
-    if user:
-        session['user_id'] = user['id']
-        session['username'] = user['username']
-        session['role'] = user['role']
-        sync_user_profile_to_firebase(user)
-        sync_user_lab_state_to_firebase(user['id'])
-        firebase_store.track_auth_event('google_login_success', user_id=user['id'], username=user['username'], email=user['email'])
+        # Generate a unique user_id (Firebase auto-generates doc ID, but we might need an internal int ID)
+        # For simplicity, let's use a random int for user_id for now, or Firebase doc ID can be used.
+        # Assuming user_id is an integer for compatibility with existing session logic.
+        new_user_id = random.randint(100000, 999999) # Placeholder for a unique ID
+        firebase_store.upsert_user(
+            user_id=new_user_id,
+            username=selected_username,
+            role='user',
+            email=email,
+            full_name=full_name,
+            guid=uuid.uuid4().hex,
+            enrollment_id=enrollment_id,
+            is_approved=False # New users are not approved by default
+        )
+        firebase_user = firebase_store.get_user_by_email(email) # Re-fetch the newly created user
+        print(f"[AUTH] New identity {email} committed to Firebase.")
+
+    # 4. Global Identifier Management
+    firebase_user = firebase_store.get_user_by_email(email)
+    
+    if not firebase_user:
+        # Initial Acquisition
+        selected_username = email.split('@')[0]
+        enrollment_id = f"SUB-{random.randint(1000, 9999)}"
+        firebase_store.upsert_user(
+            user_id=random.randint(10000, 99999),
+            username=selected_username,
+            role='user',
+            email=email,
+            full_name=full_name,
+            guid=uuid.uuid4().hex,
+            enrollment_id=enrollment_id,
+            is_approved=False
+        )
+        firebase_user = firebase_store.get_user_by_email(email)
+
+    # 5. Session Finalization
+    if firebase_user:
+        # Check if user is authorized by Command Center
+        if not firebase_user.get('is_approved') and firebase_user.get('role') != 'admin':
+            return render_template('auth_pending.html', user=firebase_user)
+
+        session['user_id'] = firebase_user.get('user_id')
+        session['username'] = firebase_user.get('username')
+        session['role'] = firebase_user.get('role', 'user')
+        session['email'] = email
+        session['guid'] = firebase_user.get('guid')
+        session.permanent = True
+        
+        # Redirection Logic
         next_url = session.pop('oauth_next', '')
         if next_url and next_url.startswith('/') and not next_url.startswith('//'):
             return redirect(next_url)
+        
+        if firebase_user.get('role') == 'admin':
+            return redirect(url_for('admin_students'))
         return redirect(url_for('home'))
         
-    return redirect(url_for('login', error="Account creation via Google failed"))
+    return redirect(url_for('login', error="Authentication flow failed"))
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -489,64 +478,51 @@ def login():
 
 @app.route('/logout')
 def logout():
-    firebase_store.track_auth_event(
-        'logout',
-        user_id=session.get('user_id'),
-        username=session.get('username')
-    )
     session.clear()
     return redirect(url_for('home'))
 
-
-@app.after_request
-def sync_usage_to_firebase(response):
-    if not firebase_store.is_ready:
-        return response
-
-    try:
-        user_id = session.get('user_id')
-        if not user_id:
-            return response
-
-        path = request.path or ''
-        if path.startswith('/static'):
-            return response
-
-        query_string = request.query_string.decode('utf-8', errors='ignore')[:500]
-        client_ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '')[:120]
-        user_agent = (request.headers.get('User-Agent') or '')[:300]
-
-        firebase_store.track_user_activity(
-            user_id=user_id,
-            username=session.get('username'),
-            role=session.get('role'),
-            path=path,
-            method=request.method,
-            status_code=response.status_code,
-            query_string=query_string,
-            ip_address=client_ip,
-            user_agent=user_agent,
-        )
-
-        if path.startswith('/lab'):
-            sync_user_lab_state_to_firebase(user_id)
-    except Exception as exc:
-        print(f"[Firebase] Activity sync skipped: {exc}")
-
-    return response
-
-@app.route('/register', methods=['GET'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if session.get('user_id'):
         return redirect(url_for('home'))
 
+    error = request.args.get('error')
     next_url = request.args.get('next', '')
+
+    if request.method == 'POST':
+        username = (request.form.get('username') or '').strip()
+        enrollment_id = (request.form.get('enrollment_id') or '').strip().upper()
+        next_url = request.form.get('next', '')
+
+        if not re.match(r'^[A-Za-z0-9_.-]{3,30}$', username):
+            error = 'Username must be 3-30 characters and use letters, numbers, dot, underscore, or hyphen.'
+            return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
+
+        if not re.match(r'^[A-Z0-9-]{4,30}$', enrollment_id):
+            error = 'Enrollment ID must be 4-30 characters and use uppercase letters, numbers, or hyphen.'
+            return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
+
+        # Registry Collision Check via Firebase
+        all_users = firebase_store.get_all_users()
+        if any(u.get('username','').lower() == username.lower() for u in all_users):
+            error = 'Username already claimed in global registry.'
+            return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
+
+        if any(u.get('enrollment_id','') == enrollment_id for u in all_users):
+            error = 'Enrollment ID already synchronized.'
+            return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
+
+        session['pending_join'] = {'username': username, 'enrollment_id': enrollment_id}
+        if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
+            session['oauth_next'] = next_url
+        return redirect(url_for('google_login', next=next_url, source='register'))
+
     if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
         session['oauth_next'] = next_url
     else:
         next_url = ''
 
-    return render_template('register.html', next_url=next_url)
+    return render_template('register.html', error=error, next_url=next_url)
 
 @app.route('/orders')
 def orders():
@@ -564,18 +540,27 @@ def orders():
 
 @app.route('/products')
 def product_list():
-    db = get_db()
-    products = db.execute('SELECT * FROM products').fetchall()
+    # Research Equipment Inventory (Static High-Fidelity)
+    products = [
+        {'id': 1, 'name': 'Signal Interceptor Pro', 'price': 299.99, 'description': 'Advanced packet capture device.', 'image': 'prod_1.png'},
+        {'id': 2, 'name': 'Biometric Bypass Kit', 'price': 450.00, 'description': 'Simulates authorized access signals.', 'image': 'prod_2.png'},
+        {'id': 3, 'name': 'Quantum Cryptography Dongle', 'price': 120.00, 'description': 'Hardware-level encryption bypass.', 'image': 'prod_3.png'}
+    ]
     return render_template('product_list.html', products=products)
 
 @app.route('/product/<int:product_id>')
 def product_detail(product_id):
-    db = get_db()
-    product = db.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
+    # Retrieve from Inventory
+    products = [
+        {'id': 1, 'name': 'Signal Interceptor Pro', 'price': 299.99, 'description': 'Advanced packet capture device.', 'image': 'prod_1.png'},
+        {'id': 2, 'name': 'Biometric Bypass Kit', 'price': 450.00, 'description': 'Simulates authorized access signals.', 'image': 'prod_2.png'},
+        {'id': 3, 'name': 'Quantum Cryptography Dongle', 'price': 120.00, 'description': 'Hardware-level encryption bypass.', 'image': 'prod_3.png'}
+    ]
+    product = next((p for p in products if p['id'] == product_id), None)
     if product:
         return render_template('product_detail.html', product=product)
     else:
-        return "Product not found", 404
+        return "Equipment not found in registry", 404
 
 @app.route('/cart')
 def cart():
@@ -600,52 +585,40 @@ def help():
 # -------------------------
 @app.route('/dashboard')
 def student_dashboard():
-    """Main student dashboard showing labs, progress, and assignments"""
+    """Main student dashboard showing labs, progress, and assignments via Firestore"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    user_id = session['user_id']
-    db = get_db()
-    cursor = db.cursor()
+    email = session.get('email')
+    user = firebase_store.get_user_by_email(email)
     
-    # Fetch user info
-    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
-    user = cursor.fetchone()
+    if not user:
+        return redirect(url_for('login'))
+        
+    # Fetch enrolled lab progress from Cloud Firestore
+    progress = firebase_store.get_user_progress(email)
     
-    # Fetch enrolled labs
-    cursor.execute('''
-        SELECT * FROM lab_enrollments 
-        WHERE user_id = ? 
-        ORDER BY enrolled_date DESC
-    ''', (user_id,))
-    enrollments = cursor.fetchall()
+    # Format for template compatibility
+    enrollments = [
+        {
+            'lab_id': str(lab_id),
+            'completion_percentage': 100 if bool(data.get('is_solved')) else 50,
+            'status': 'completed' if bool(data.get('is_solved')) else 'in_progress',
+            'last_accessed': data.get('timestamp')
+        }
+        for lab_id, data in progress.items()
+    ]
+    solved_count = sum(1 for e in enrollments if e['status'] == 'completed')
     
-    # Fetch pending assignments
-    cursor.execute('''
-        SELECT a.*, 
-               (SELECT COUNT(*) FROM assignment_submissions 
-                WHERE assignment_id = a.id AND user_id = ?) as submitted
-        FROM assignments a
-        ORDER BY a.due_date ASC
-    ''', (user_id,))
-    assignments = cursor.fetchall()
+    overall_progress = (float(solved_count) / 5.0) * 100.0 if enrollments else 0.0
+        
+    # Mock assignments for UI completeness
+    assignments = [
+        {'id': 1, 'title': 'Initial Vulnerability Discovery', 'due_date': '2026-04-01', 'submitted': False},
+        {'id': 2, 'title': 'Advanced Payload Construction', 'due_date': '2026-04-15', 'submitted': False}
+    ]
     
-    # Calculate overall progress
-    cursor.execute('''
-        SELECT AVG(completion_percentage) as avg_progress
-        FROM lab_enrollments
-        WHERE user_id = ?
-    ''', (user_id,))
-    progress_data = cursor.fetchone()
-    overall_progress = progress_data['avg_progress'] or 0
-    
-    # Fetch grades for completed labs
-    cursor.execute('''
-        SELECT * FROM lab_grades
-        WHERE user_id = ?
-        ORDER BY graded_date DESC
-    ''', (user_id,))
-    grades = cursor.fetchall()
+    grades = []
     
     return render_template('student_dashboard.html', 
                          user=user,
@@ -656,211 +629,104 @@ def student_dashboard():
 
 
 @app.route('/dashboard/enroll', methods=['POST'])
-def enroll_lab():
-    """Enroll a student in a lab"""
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user_id = session['user_id']
+@login_required
+def dashboard_enroll_lab():
+    """Enroll a student in a lab via Cloud Firestore"""
+    email = session.get('email')
     lab_id = request.form.get('lab_id')
     
     if not lab_id:
-        return jsonify({'error': 'Lab ID required'}), 400
-    
-    db = get_db()
-    cursor = db.cursor()
+        return jsonify({'error': 'Lab identifier required'}), 400
     
     try:
-        # datetime import moved to top
-        cursor.execute('''
-            INSERT INTO lab_enrollments (user_id, lab_id, enrolled_date, status)
-            VALUES (?, ?, ?, 'in_progress')
-        ''', (user_id, lab_id, datetime.now().isoformat()))
-        db.commit()
-        return jsonify({'success': True, 'message': 'Successfully enrolled in lab'})
-    except sqlite3.IntegrityError:
-        return jsonify({'error': 'Already enrolled in this lab'}), 400
+        # Check if already enrolled in Firebase
+        existing = firebase_store.get_lab_enrollment(email, lab_id)
+        if existing:
+            return jsonify({'error': 'Subject already enrolled in this telemetry sequence.'}), 400
+            
+        firebase_store.create_lab_enrollment(email, lab_id, 'approved') # Auto-approve for dashboard enroll
+        return jsonify({'success': True, 'message': 'Successfully enrolled in lab telemetry.'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
 @app.route('/dashboard/progress/<lab_id>', methods=['GET', 'POST'])
+@login_required
 def lab_progress(lab_id):
-    """View and update lab progress"""
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
+    """View and update lab progress via Firestore"""
+    email = session.get('email')
     
-    user_id = session['user_id']
-    db = get_db()
-    cursor = db.cursor()
-    
-    # Check if user is enrolled in this lab
-    cursor.execute('''
-        SELECT * FROM lab_enrollments 
-        WHERE user_id = ? AND lab_id = ?
-    ''', (user_id, lab_id))
-    enrollment = cursor.fetchone()
-    
+    # Check enrollment in Firebase
+    enrollment = firebase_store.get_lab_enrollment(email, lab_id)
     if not enrollment:
         return redirect(url_for('student_dashboard'))
     
     if request.method == 'POST':
         section_id = request.form.get('section_id')
-        task_completed = request.form.get('task_completed') == 'true'
-        flag_found = request.form.get('flag_found') == 'true'
-        flag_value = request.form.get('flag_value', '')
-        notes = request.form.get('notes', '')
+        is_solved = request.form.get('task_completed') == 'true'
+        flag = request.form.get('flag_value', '')
         
-        cursor.execute('''
-            INSERT OR REPLACE INTO lab_progress 
-            (user_id, lab_id, section_id, task_completed, flag_found, flag_value, completion_time, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (user_id, lab_id, section_id, task_completed, flag_found, flag_value, 
-              datetime.now().isoformat(), notes))
-        
-        # Update enrollment progress percentage
-        cursor.execute('''
-            SELECT COUNT(*) as total, 
-                   SUM(CASE WHEN task_completed = 1 THEN 1 ELSE 0 END) as completed
-            FROM lab_progress
-            WHERE user_id = ? AND lab_id = ?
-        ''', (user_id, lab_id))
-        progress = cursor.fetchone()
-        
-        if progress['total'] > 0:
-            completion_pct = (progress['completed'] / progress['total']) * 100
-            cursor.execute('''
-                UPDATE lab_enrollments 
-                SET completion_percentage = ?
-                WHERE user_id = ? AND lab_id = ?
-            ''', (int(completion_pct), user_id, lab_id))
-        
-        cursor.execute('UPDATE lab_enrollments SET last_accessed = ? WHERE user_id = ? AND lab_id = ?', 
-                      (datetime.now().isoformat(), user_id, lab_id))
-        db.commit()
-        
-        return jsonify({'success': True, 'message': 'Progress updated'})
+        firebase_store.submit_lab_progress(email, lab_id, section_id, flag, is_solved, "Progress update.")
+        return jsonify({'success': True, 'message': 'Progress serialized to Cloud.'})
     
-    # GET request - fetch progress
-    cursor.execute('''
-        SELECT * FROM lab_progress
-        WHERE user_id = ? AND lab_id = ?
-        ORDER BY section_id
-    ''', (user_id, lab_id))
-    progress_entries = cursor.fetchall()
+    # GET request - fetch progress from Firebase
+    progress = firebase_store.get_user_progress(email)
+    lab_data = progress.get(lab_id, {})
     
     return render_template('lab_progress.html',
                          lab_id=lab_id,
                          enrollment=enrollment,
-                         progress_entries=progress_entries)
+                         progress_entries=[lab_data] if lab_data else [])
 
 
 @app.route('/dashboard/assignments')
+@login_required
 def assignments_page():
-    """View all assignments"""
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
-    user_id = session['user_id']
-    db = get_db()
-    cursor = db.cursor()
-    
-    # Fetch all assignments with submission status
-    cursor.execute('''
-        SELECT a.*, 
-               COALESCE(
-                   (SELECT submission_date FROM assignment_submissions 
-                    WHERE assignment_id = a.id AND user_id = ? 
-                    ORDER BY submission_date DESC LIMIT 1),
-                   NULL
-               ) as last_submission
-        FROM assignments a
-        ORDER BY a.due_date ASC
-    ''', (user_id,))
-    assignments = cursor.fetchall()
-    
+    """View all assignments (Static Registry)"""
+    assignments = [
+        {'id': 1, 'title': 'Lab 1: Path Traversal Reconnaissance', 'due_date': '2026-04-01', 'last_submission': None},
+        {'id': 2, 'title': 'Lab 2: Access Control Elevation', 'due_date': '2026-04-15', 'last_submission': None}
+    ]
     return render_template('assignments.html', assignments=assignments)
 
 
 @app.route('/dashboard/assignment/<int:assignment_id>', methods=['GET', 'POST'])
+@login_required
 def assignment_detail(assignment_id):
-    """View and submit assignment"""
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
-    user_id = session['user_id']
-    db = get_db()
-    cursor = db.cursor()
-    
-    # Fetch assignment
-    cursor.execute('SELECT * FROM assignments WHERE id = ?', (assignment_id,))
-    assignment = cursor.fetchone()
-    
-    if not assignment:
-        return "Assignment not found", 404
-    
-    if request.method == 'POST':
-        # datetime import moved to top
-        submission_content = request.form.get('submission_content', '')
-        
-        cursor.execute('''
-            INSERT INTO assignment_submissions 
-            (user_id, assignment_id, submission_date, content, status)
-            VALUES (?, ?, ?, ?, 'submitted')
-        ''', (user_id, assignment_id, datetime.now().isoformat(), submission_content))
-        db.commit()
-        
-        return redirect(url_for('assignment_submissions', assignment_id=assignment_id))
-    
-    # Fetch previous submissions
-    cursor.execute('''
-        SELECT * FROM assignment_submissions
-        WHERE user_id = ? AND assignment_id = ?
-        ORDER BY submission_date DESC
-    ''', (user_id, assignment_id))
-    submissions = cursor.fetchall()
-    
+    """View and submit assignment (Mock System)"""
     return render_template('assignment_detail.html',
-                         assignment=assignment,
-                         submissions=submissions)
+                         assignment={'id': assignment_id, 'title': 'Research Assignment'},
+                         submissions=[])
 
 
 @app.route('/dashboard/grades')
+@login_required
 def grades_page():
-    """View all grades and feedback"""
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
+    """View all grades and feedback (Firebase Profile Data)"""
+    email = session.get('email')
+    progress = firebase_store.get_user_progress(email)
     
-    user_id = session['user_id']
-    db = get_db()
-    cursor = db.cursor()
-    
-    # Fetch all grades
-    cursor.execute('''
-        SELECT * FROM lab_grades
-        WHERE user_id = ?
-        ORDER BY graded_date DESC
-    ''', (user_id,))
-    grades = cursor.fetchall()
-    
-    # Calculate average grade
-    cursor.execute('''
-        SELECT AVG(score) as avg_score, COUNT(*) as total_labs
-        FROM lab_grades
-        WHERE user_id = ?
-    ''', (user_id,))
-    statistics = cursor.fetchone()
-    
+    grades = []
+    for lab_id, data in progress.items():
+        if data.get('is_solved'):
+            grades.append({
+                'lab_id': lab_id,
+                'score': 100,
+                'feedback': 'Excellent research deliverable verified.',
+                'graded_date': data.get('timestamp')
+            })
+            
     return render_template('grades.html',
                          grades=grades,
-                         avg_score=statistics['avg_score'],
-                         total_labs=statistics['total_labs'])
+                         avg_score=100 if grades else 0,
+                         total_labs=len(grades))
 
 
 # -------------------------
 # LAB 1: Path Traversal (Multiple Variations)
 # -------------------------
 @app.route('/lab1')
+@login_required
 def lab1():
     return render_template('lab1/index.html')
 
@@ -878,6 +744,7 @@ def create_lab1_files(subdir, files):
 
 # LAB 1.1: DocuVault (Document Management)
 @app.route('/lab1/1')
+@login_required
 def lab1_1():
     files = [
         'Invoice_2024_001.pdf', 
@@ -904,6 +771,23 @@ def lab1_1_download():
     filename = request.args.get('file')
     if not filename:
         return "No file specified", 400
+    
+    # PHYSICAL SYSTEM FILE SIMULATION (Using etc/passwd)
+    if filename and ('etc/passwd' in filename.replace('\\', '/') or 'passwd' in filename.lower()):
+        try:
+            passwd_path = os.path.join(BASE_PATH, 'etc', 'passwd')
+            with open(passwd_path, 'r') as f:
+                lines = f.readlines()
+            
+            # Inject 3 unique flags for this subject into the template (Lines 2, 3, 4)
+            if len(lines) >= 4:
+                lines[1] = get_or_generate_flag(session['user_id'], 'lab1', 'variation_A') + "\n"
+                lines[2] = get_or_generate_flag(session['user_id'], 'lab1', 'variation_B') + "\n"
+                lines[3] = get_or_generate_flag(session['user_id'], 'lab1', 'variation_C') + "\n"
+                
+            return Response("".join(lines), mimetype='text/plain')
+        except Exception as e:
+            return f"Error accessing system file template: {e}", 500
     
     try:
         intended_dir = os.path.join(BASE_PATH, 'data', 'docuvault', 'invoices')
@@ -972,6 +856,22 @@ def lab1_2_image():
     if not filename:
         return "No filename specified", 400
     
+    # PHYSICAL SYSTEM FILE SIMULATION (Using etc/passwd)
+    if filename and ('etc/passwd' in filename.replace('\\', '/') or 'passwd' in filename.lower()):
+        try:
+            passwd_path = os.path.join(BASE_PATH, 'etc', 'passwd')
+            with open(passwd_path, 'r') as f:
+                lines = f.readlines()
+            if len(lines) >= 4:
+                # Use session email/id for flag generation
+                uid = session.get('user_id', 'anonymous')
+                lines[1] = get_or_generate_flag(uid, 'lab1', 'variation_A') + "\n"
+                lines[2] = get_or_generate_flag(uid, 'lab1', 'variation_B') + "\n"
+                lines[3] = get_or_generate_flag(uid, 'lab1', 'variation_C') + "\n"
+            return Response("".join(lines), mimetype='text/plain')
+        except Exception as e:
+            return f"Error: {e}", 500
+    
     # VULNERABILITY: Path Traversal
     # Intended directory is 'img' folder in root
     intended_dir = os.path.join(BASE_PATH, 'img')
@@ -1015,6 +915,21 @@ def lab1_3_image():
     image = request.args.get('image')
     if not image:
         return "No image specified", 400
+    
+    # PHYSICAL SYSTEM FILE SIMULATION (Using etc/passwd)
+    if image and ('etc/passwd' in image.replace('\\', '/') or 'passwd' in image.lower()):
+        try:
+            passwd_path = os.path.join(BASE_PATH, 'etc', 'passwd')
+            with open(passwd_path, 'r') as f:
+                lines = f.readlines()
+            if len(lines) >= 4:
+                uid = session.get('user_id', 'anonymous')
+                lines[1] = get_or_generate_flag(uid, 'lab1', 'variation_A') + "\n"
+                lines[2] = get_or_generate_flag(uid, 'lab1', 'variation_B') + "\n"
+                lines[3] = get_or_generate_flag(uid, 'uid', 'variation_C') + "\n" # Fix to variation_C
+            return Response("".join(lines), mimetype='text/plain')
+        except Exception as e:
+            return f"Error: {e}", 500
     
     # VULNERABILITY: Path Traversal
     # Intended directory is 'img' folder in root, but no path normalization
@@ -1262,20 +1177,21 @@ def handle_lab2_3_request(template_name, products):
     is_admin_cookie = request.cookies.get('Admin')
     
     if is_admin_cookie == 'true':
-        # Show admin page directly
-        db = get_db()
-        users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+        # Show admin page directly via Firebase telemetry
+        all_subjects = firebase_store.get_all_users()
+        # Filter for non-admin subjects for the display
+        users = [u for u in all_subjects if u.get('role') != 'admin']
         
         # Handle user deletion (POST request simulation)
         flag = None
         if request.method == 'POST':
-            flag = get_random_flag('lab2_3')
+            flag = get_or_generate_flag(session.get('user_id', 'anonymous'), 'lab2_3')
             users = [] # Clear users to simulate deletion
             
         return render_template('lab2/sub3_admin.html', users=users, flag=flag)
     
     # Otherwise, show regular store page
-    current_user = request.cookies.get('session')
+    current_user = request.cookies.get('session') or 'Guest Researcher'
     return render_template(template_name, products=products, username=current_user)
 
 # Variation A: MusicStore
@@ -1330,30 +1246,27 @@ def lab2_3_login_page():
     if request.method == 'POST':
         # VULNERABILITY RESTRUCTURE: Check if attacker injected Cookie directly into the POST request!
         if request.cookies.get('Admin') == 'true':
-            db = get_db()
-            users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+            users = [{'username': 'staff_alpha', 'role': 'user'}, {'username': 'staff_beta', 'role': 'user'}]
             return render_template('lab2/sub3_admin.html', users=users, flag=get_random_flag('lab2_3'))
 
         username = request.form.get('username')
         password = request.form.get('password')
-        target_theme = request.form.get('theme', 'music') # Hidden field in login form
+        target_theme = request.form.get('theme', 'music')
         
         if target_theme == 'sports': target_route = 'lab2_3_sports'
         elif target_theme == 'pets': target_route = 'lab2_3_pets'
         else: target_route = 'lab2_3_music'
 
-        db = get_db()
-        user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
-        
-        if user:
-            # SUCCESSFUL LOGIN
-            is_admin_val = 'false'
-            if user['role'] == 'admin':
-                is_admin_val = 'true'
-            
+        # Vulnerable Mock Registry
+        if username == 'admin' and password == 'admin123':
             resp = redirect(url_for(target_route))
-            resp.set_cookie('Admin', is_admin_val)
-            resp.set_cookie('session', user['username'])
+            resp.set_cookie('Admin', 'true')
+            resp.set_cookie('session', 'admin')
+            return resp
+        elif username == 'researcher' and password == 'researcher':
+            resp = redirect(url_for(target_route))
+            resp.set_cookie('Admin', 'false')
+            resp.set_cookie('session', 'researcher')
             return resp
         else:
              return redirect(url_for(target_route, login_error="Invalid Credentials"))
@@ -1381,14 +1294,12 @@ def lab2_3_admin():
     is_admin_cookie = request.cookies.get('Admin')
     
     if is_admin_cookie == 'true':
-        db = get_db()
-        users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
-        
+        users = [{'username': 'staff_alpha', 'role': 'user'}, {'username': 'staff_beta', 'role': 'user'}]
         # Handle user deletion (POST request simulation)
         flag = None
         if request.method == 'POST':
             flag = get_random_flag('lab2_3')
-            users = [] # Clear users to simulate deletion
+            users = []
             
         return render_template('lab2/sub3_admin.html', users=users, flag=flag)
     else:
@@ -1398,95 +1309,47 @@ def lab2_3_admin():
 # LAB 2.4: Parameter Tampering (IDOR)
 @app.route('/lab2/4')
 def lab2_4():
-    # Main store page for Lab 2.4
-    db = get_db()
-    products = db.execute('''
-        SELECT p.*, u.username, u.guid as uploader_guid 
-        FROM products p
-        LEFT JOIN users u ON p.uploaded_by = u.id
-    ''').fetchall()
-    
-    admin_user = db.execute('SELECT guid FROM users WHERE role = "admin"').fetchone()
-    admin_guid = admin_user['guid'] if admin_user else ''
-    
-    # No session/cookies - purely URL-based
-    return render_template('lab2/sub4.html', products=products, username=None, user_id=None, admin_guid=admin_guid)
+    # Simulated Inventory Registry
+    products = [
+        {'id': 1, 'name': 'Signal Interceptor', 'username': 'alpha_researcher', 'guid': 'user_guid_101'},
+        {'id': 3, 'name': 'Admin Access Key', 'username': 'root', 'guid': 'admin_guid_999'}
+    ]
+    return render_template('lab2/sub4.html', products=products, admin_guid='admin_guid_999')
 
 @app.route('/lab2/4/admin-collection')
 def lab2_4_admin_collection():
-    db = get_db()
-    products = db.execute('''
-        SELECT p.*, u.username, u.guid as uploader_guid 
-        FROM products p
-        LEFT JOIN users u ON p.uploaded_by = u.id
-        WHERE u.role = 'admin'
-    ''').fetchall()
+    products = [{'id': 3, 'name': 'Admin Access Key', 'username': 'root', 'guid': 'admin_guid_999'}]
     return render_template('lab2/sub4_admin_collection.html', products=products)
 
 @app.route('/lab2/4/login', methods=['GET', 'POST'])
 def lab2_4_login():
-    if request.method == 'GET':
-        return redirect(url_for('lab2_4'))
-    
+    if request.method == 'GET': return redirect(url_for('lab2_4'))
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
-        db = get_db()
-        user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
-        
-        if user:
-            # NO SESSION/COOKIES - Just redirect with guid in URL
-            # This makes the IDOR vulnerability more obvious
-            return redirect(url_for('lab2_4_myaccount', id=user['guid']))
-        else:
-            return redirect(url_for('lab2_4', login_error="Invalid Credentials"))
+        if username == 'test' and password == 'test':
+            return redirect(url_for('lab2_4_myaccount', id='user_guid_101'))
+        elif username == 'admin' and password == 'admin123':
+            return redirect(url_for('lab2_4_myaccount', id='admin_guid_999'))
+        return redirect(url_for('lab2_4', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4/my-account')
 def lab2_4_myaccount():
-    # VULNERABILITY: Trusts the 'id' parameter from URL without validation
-    account_username = request.args.get('id')
+    account_guid = request.args.get('id')
+    if not account_guid: return redirect(url_for('lab2_4'))
     
-    if not account_username:
-        return redirect(url_for('lab2_4'))
-        
-    if not account_username.isalnum():
-        return "Invalid GUID: Must be alphanumerical", 400
+    # Virtual Registry
+    users = {
+        'admin_guid_999': {'username': 'admin', 'role': 'admin', 'id': 99},
+        'user_guid_101': {'username': 'alpha_researcher', 'role': 'user', 'id': 101}
+    }
+    account_user = users.get(account_guid)
+    if not account_user: return "Identity not found", 404
     
-    # Fetch user data based on GUID from URL parameter (IDOR vulnerability)
-    db = get_db()
-    account_user = db.execute('SELECT * FROM users WHERE guid = ?', (account_username,)).fetchone()
-    
-    if not account_user:
-        return "User not found", 404
-    
-    # Check if this is admin account (username: 'admin')
     if account_user['role'] == 'admin':
-        # Show admin panel with flag immediately
-        users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
-        products = db.execute('''
-            SELECT p.*, u.username, u.guid as uploader_guid 
-            FROM products p
-            LEFT JOIN users u ON p.uploaded_by = u.id
-            WHERE p.uploaded_by = ?
-        ''', (account_user['id'],)).fetchall()
-        return render_template('lab2/sub4_admin.html', 
-                             account=account_user, 
-                             flag=get_random_flag('lab2_4'),
-                             users=users,
-                             products=products)
+        return render_template('lab2/sub4_admin.html', account=account_user, flag=get_random_flag('lab2_4'))
     
-    # Regular user account page - Show only products uploaded by this user
-    # VULNERABILITY: Still shows all products if accessed by different user via URL tampering
-    products = db.execute('''
-        SELECT p.*, u.username, u.guid as uploader_guid 
-        FROM products p
-        LEFT JOIN users u ON p.uploaded_by = u.id
-        WHERE p.uploaded_by = ?
-    ''', (account_user['id'],)).fetchall()
-    return render_template('lab2/sub4_account.html', 
-                         account=account_user, 
-                         products=products)
+    return render_template('lab2/sub4_account.html', account=account_user)
 
 @app.route('/lab2/4/logout')
 def lab2_4_logout():
@@ -1495,87 +1358,90 @@ def lab2_4_logout():
 
 @app.route('/lab2/4/product/<int:product_id>')
 def lab2_4_product(product_id):
-    db = get_db()
-    product = db.execute('''
-        SELECT p.*, u.username, u.guid as uploader_guid 
-        FROM products p
-        LEFT JOIN users u ON p.uploaded_by = u.id
-        WHERE p.id = ?
-    ''', (product_id,)).fetchone()
+    # Simulated Inventory Registry
+    products = [
+        {'id': 1, 'name': 'Signal Interceptor', 'price': 299, 'username': 'alpha_researcher', 'guid': 'user_guid_101'},
+        {'id': 2, 'name': 'Packet Sniffer', 'price': 150, 'username': 'beta_researcher', 'guid': 'user_guid_102'},
+        {'id': 3, 'name': 'Admin Access Key', 'price': 9999, 'username': 'root', 'guid': 'admin_guid_999'}
+    ]
+    product = next((p for p in products if p['id'] == product_id), None)
     
     if not product:
-        return "Product not found", 404
+        return "Object not found in telemetry registry", 404
         
     return render_template('lab2/sub4_product.html', product=product)
 
 # LAB 2.4 Variation B: JewelryStore (Parameter Tampering)
 @app.route('/lab2/4b')
 def lab2_4b():
-    db = get_db()
-    products = db.execute('SELECT p.*, u.username, u.guid as uploader_guid FROM products p LEFT JOIN users u ON p.uploaded_by = u.id WHERE p.description LIKE "%necklace%" OR p.description LIKE "%watch%" OR p.id > 10 LIMIT 20').fetchall()
+    # Simulated Luxury Inventory
+    products = [
+        {'id': 11, 'name': 'Obsidian Watch', 'price': 1200, 'username': 'curator', 'guid': 'curator_guid'},
+        {'id': 12, 'name': 'Diamond Necklace', 'price': 5000, 'username': 'admin', 'guid': 'admin_guid_123'}
+    ]
     return render_template('lab2/sub4_b.html', products=products)
 
 @app.route('/lab2/4b/login', methods=['POST'])
 def lab2_4b_login():
     username = request.form.get('username')
     password = request.form.get('password')
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
-    if user:
-        # VULNERABILITY: IDOR via 'user' parameter
-        return redirect(url_for('lab2_4b_account', user=user['guid']))
+    
+    # Vulnerable Mock Authentication
+    if username == 'test' and password == 'test':
+        return redirect(url_for('lab2_4b_account', user='test_guid_456'))
+    elif username == 'admin' and password == 'admin123':
+        return redirect(url_for('lab2_4b_account', user='admin_guid_123'))
     return redirect(url_for('lab2_4b', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4b/account')
 def lab2_4b_account():
     username_param = request.args.get('user')
     if not username_param: return redirect(url_for('lab2_4b'))
-    if not username_param.isalnum(): return "Invalid GUID: Must be alphanumerical", 400
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE guid = ?', (username_param,)).fetchone()
+    
+    # Virtual Registry
+    users = {
+        'admin_guid_123': {'username': 'admin', 'role': 'admin'},
+        'test_guid_456': {'username': 'test', 'role': 'user'}
+    }
+    user = users.get(username_param)
     if not user: return "User not found", 404
     
     if user['role'] == 'admin':
         return render_template('lab2/sub4_b_admin.html', account=user, flag=get_random_flag('lab2_4'))
     return render_template('lab2/sub4_b_account.html', account=user)
 
-@app.route('/lab2/4b/product/<int:product_id>')
-def lab2_4b_product(product_id):
-    db = get_db()
-    product = db.execute('''
-        SELECT p.*, u.username, u.guid as uploader_guid 
-        FROM products p
-        LEFT JOIN users u ON p.uploaded_by = u.id
-        WHERE p.id = ?
-    ''', (product_id,)).fetchone()
-    if not product: return "Product not found", 404
-    return render_template('lab2/sub4_b_product.html', product=product)
-
 # LAB 2.4 Variation C: ElectroMart (Parameter Tampering)
 @app.route('/lab2/4c')
 def lab2_4c():
-    db = get_db()
-    products = db.execute('SELECT p.*, u.username, u.guid as uploader_guid FROM products p LEFT JOIN users u ON p.uploaded_by = u.id LIMIT 20').fetchall()
+    # Simulated Electronic Inventory
+    products = [
+        {'id': 21, 'name': 'Neural Interface', 'price': 1500, 'username': 'tech_lead', 'guid': 'tech_lead_guid'},
+        {'id': 22, 'name': 'Encryption Key', 'price': 9999, 'username': 'admin', 'guid': 'admin_guid_456'}
+    ]
     return render_template('lab2/sub4_c.html', products=products)
 
 @app.route('/lab2/4c/login', methods=['POST'])
 def lab2_4c_login():
     username = request.form.get('username')
     password = request.form.get('password')
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
-    if user:
-        # VULNERABILITY: IDOR via 'username' parameter
-        return redirect(url_for('lab2_4c_account', username=user['guid']))
+    # Vulnerable Mock Authentication
+    if username == 'dev' and password == 'dev123':
+        return redirect(url_for('lab2_4c_account', username='dev_guid_789'))
+    elif username == 'admin' and password == 'admin456':
+        return redirect(url_for('lab2_4c_account', username='admin_guid_456'))
     return redirect(url_for('lab2_4c', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4c/account')
 def lab2_4c_account():
     username_param = request.args.get('username')
     if not username_param: return redirect(url_for('lab2_4c'))
-    if not username_param.isalnum(): return "Invalid GUID: Must be alphanumerical", 400
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE guid = ?', (username_param,)).fetchone()
+    
+    # Virtual Registry
+    users = {
+        'admin_guid_456': {'username': 'admin', 'role': 'admin'},
+        'dev_guid_789': {'username': 'dev', 'role': 'user'}
+    }
+    user = users.get(username_param)
     if not user: return "User not found", 404
     
     if user['role'] == 'admin':
@@ -1584,13 +1450,12 @@ def lab2_4c_account():
 
 @app.route('/lab2/4c/product/<int:product_id>')
 def lab2_4c_product(product_id):
-    db = get_db()
-    product = db.execute('''
-        SELECT p.*, u.username, u.guid as uploader_guid 
-        FROM products p
-        LEFT JOIN users u ON p.uploaded_by = u.id
-        WHERE p.id = ?
-    ''', (product_id,)).fetchone()
+    # Simulated Electronic Inventory
+    products = [
+        {'id': 21, 'name': 'Neural Interface', 'price': 1500, 'username': 'tech_lead', 'guid': 'tech_lead_guid'},
+        {'id': 22, 'name': 'Encryption Key', 'price': 9999, 'username': 'admin', 'guid': 'admin_guid_456'}
+    ]
+    product = next((p for p in products if p['id'] == product_id), None)
     if not product: return "Product not found", 404
     return render_template('lab2/sub4_c_product.html', product=product)
 
@@ -1598,10 +1463,12 @@ def lab2_4c_product(product_id):
 # LAB 2.5: Password Disclosure via IDOR
 @app.route('/lab2/5')
 def lab2_5():
-    # Main store page for Lab 2.5
+    # Main store page for Lab 2.5 (Simulated Environment)
     error = request.args.get('login_error')
-    db = get_db()
-    products = db.execute('SELECT * FROM products').fetchall()
+    products = [
+        {'id': 1, 'name': 'Secure Comms Link', 'price': 50},
+        {'id': 2, 'name': 'Identity Scrubber', 'price': 120}
+    ]
     return render_template('lab2/sub5.html', products=products, error=error)
 
 @app.route('/lab2/5/login', methods=['GET', 'POST'])
@@ -1613,36 +1480,31 @@ def lab2_5_login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        db = get_db()
-        user = db.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
+        # Vulnerable Mock Registry
+        users = {
+            'guest': {'username': 'guest', 'password': 'guestpassword', 'role': 'user', 'full_name': 'Guest Researcher'},
+            'admin': {'username': 'admin', 'password': 'admin_secret_999', 'role': 'admin', 'full_name': 'System Administrator'}
+        }
         
-        if user:
-            # If the user is admin, explicitly render the profile with the flag
+        user = users.get(username)
+        if user and user['password'] == password:
             if user['role'] == 'admin':
                 return render_template('lab2/sub5_profile.html', user=user, flag=get_random_flag('lab2_5'))
-            # VULNERABILITY: Redirect to profile with username parameter
-            # The profile page will expose the password in HTML
             return redirect(url_for('lab2_5_profile', username=user['username']))
         else:
             return redirect(url_for('lab2_5', login_error="Invalid Credentials"))
 
 @app.route('/lab2/5/profile')
 def lab2_5_profile():
-    # VULNERABILITY: Trusts username parameter and exposes password in HTML comment
+    # VULNERABILITY: IDOR Exposing Credentials
     username_param = request.args.get('username')
-    
-    if not username_param:
-        return redirect(url_for('lab2_5'))
+    users = {
+        'guest': {'username': 'guest', 'password': 'guestpassword', 'role': 'user', 'full_name': 'Guest Researcher'},
+        'admin': {'username': 'admin', 'password': 'admin_secret_999', 'role': 'admin', 'full_name': 'System Administrator'}
+    }
+    user = users.get(username_param)
+    if not user: return "Identity not found in registry", 404
 
-    # Fetch user data based on parameter
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
-    
-    if not user:
-         return "User not found", 404
-
-    # VULNERABILITY: Password is exposed in the template (hidden in HTML comment or hidden input)
-    # The flag is NOT returned here. The attacker must use the exposed password to log in.
     return render_template('lab2/sub5_profile.html', user=user, flag=None)
 
 @app.route('/lab2/5/logout')
@@ -1708,11 +1570,14 @@ def lab2_5b_profile():
         }
         flag = None
     else:
-        db = get_db()
-        user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
-        flag = None
-        if not user:
-             return "User not found", 404
+        if username_param == 'root':
+            user = {'username': 'root', 'password': 'cloud_secret_password_777', 'role': 'super_admin'}
+            flag = None
+        elif username_param == 'guest':
+            user = {'username': 'guest', 'password': 'guest123', 'role': 'user'}
+            flag = None
+        else:
+            return "Identity not found in Cloud registry", 404
 
     return render_template('lab2/sub5_b_profile.html', user=user, flag=flag)
 
@@ -1772,11 +1637,14 @@ def lab2_5c_profile():
         }
         flag = None
     else:
-        db = get_db()
-        user = db.execute('SELECT * FROM users WHERE username = ?', (username_param,)).fetchone()
+        # Mock Lookup
+        if username_param == 'owner':
+            user = {'username': 'owner', 'email': 'security@datavault_internal.net', 'role': 'system_owner'}
+        elif username_param == 'viewer':
+            user = {'username': 'viewer', 'email': 'viewer@datavault.net', 'role': 'viewer'}
+        else:
+            return "User not found", 404
         flag = None
-        if not user:
-             return "User not found", 404
 
     # VULNERABILITY: Password exposed in template comment
     return render_template('lab2/sub5_c_profile.html', user=user, flag=flag)
@@ -1799,32 +1667,23 @@ def lab3_1_menu():
 # LAB 3.1.1: Brute Force Attack - SecureVault
 @app.route('/lab3/1')
 def lab3_1():
-    import random # Local import to ensure it's available
+    import random
     
-    # 3. Pick Random Credentials from Wordlists
-    usernames_file = os.path.join('data', 'wordlists', 'usernames.txt')
-    passwords_file = os.path.join('data', 'wordlists', 'passwords.txt')
-    
-    with open(usernames_file, 'r') as f:
-        usernames = [line.strip() for line in f if line.strip()]
-    with open(passwords_file, 'r') as f:
-        passwords = [line.strip() for line in f if line.strip()]
+    # Brute Force Configuration (Simulated Data)
+    usernames = ['admin', 'researcher', 'guest', 'staff']
+    passwords = ['123456', 'password', 'welcome', 'admin123']
 
     target_user = random.choice(usernames)
     target_password = random.choice(passwords)
     
-    # 4. Store in Session (So we can verify later)
     session['lab3_1_target_user'] = target_user
     session['lab3_1_target_pass'] = target_password
     
-    # 5. Log for learning/debugging
-    print(f"\n[LAB 3.1 START] Integrity Check:")
-    print(f" -> Target User: {target_user}")
-    print(f" -> Target Pass: {target_password}")
-    print(f"----------------------------------------\n")
-    
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    # Products for the template
+    products = [
+        {'id': 1, 'name': 'Digital Shield', 'price': 99, 'image': 'prod_1.png'},
+        {'id': 2, 'name': 'Encrypted Storage', 'price': 150, 'image': 'prod_2.png'}
+    ]
     return render_template('lab3/sub1.html', products=products)
 
 
@@ -1845,20 +1704,13 @@ def lab3_1_login():
 
     # Scenario 2: Correct Username, Wrong Password
     if username == target_user:
-        # VULNERABILITY: User Enumeration
-        # Different error message allows attacker to know user exists
         error_msg = "Incorrect password."
-        # Optional: Add padding if you want length difference to be huge
-        # error_msg += " " * 100 
-        
-        db = get_db()
-        products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+        products = [{'id': 1, 'name': 'Digital Shield', 'price': 99}]
         return render_template('lab3/sub1.html', products=products, error=error_msg), 200
 
     # Scenario 3: Invalid Username
     # Default generic error message
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    products = [{'id': 1, 'name': 'Digital Shield', 'price': 99}]
     return render_template('lab3/sub1.html', products=products, error="Invalid username or password"), 200
 
 @app.route('/lab3/1/admin')
@@ -1866,8 +1718,7 @@ def lab3_1_admin():
     if not session.get('lab3_1_logged_in'):
         return redirect(url_for('lab3_1'))
     
-    db = get_db()
-    users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+    users = [{'username': 'staff_alpha', 'role': 'user'}, {'username': 'staff_beta', 'role': 'user'}]
     admin_user = session.get('lab3_1_username', 'admin')
     
     return render_template('lab3/sub1_admin.html', 
@@ -1894,13 +1745,9 @@ def lab3_1_delete_user():
 def lab3_1_2():
     import random
     
-    usernames_file = os.path.join('data', 'wordlists', 'usernames.txt')
-    passwords_file = os.path.join('data', 'wordlists', 'passwords.txt')
-    
-    with open(usernames_file, 'r') as f:
-        usernames = [line.strip() for line in f if line.strip()]
-    with open(passwords_file, 'r') as f:
-        passwords = [line.strip() for line in f if line.strip()]
+    # Brute Force Configuration (Luxury Variant)
+    usernames = ['executive', 'manager', 'admin', 'vip']
+    passwords = ['luxury123', 'diamond', 'platinum', 'gold']
 
     target_user = random.choice(usernames)
     target_password = random.choice(passwords)
@@ -1908,13 +1755,11 @@ def lab3_1_2():
     session['lab3_1_2_target_user'] = target_user
     session['lab3_1_2_target_pass'] = target_password
     
-    print(f"\n[LAB 3.1.2 START] Integrity Check:")
-    print(f" -> Target User: {target_user}")
-    print(f" -> Target Pass: {target_password}")
-    print(f"----------------------------------------\n")
-    
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    # Products for the template
+    products = [
+        {'id': 11, 'name': 'Gold Plated Server', 'price': 5000, 'image': 'prod_3.png'},
+        {'id': 12, 'name': 'Diamond Encrypted Hub', 'price': 8000, 'image': 'prod_4.png'}
+    ]
     return render_template('lab3/sub1_b.html', products=products)
 
 @app.route('/lab3/1/2/login', methods=['POST'])
@@ -1932,12 +1777,16 @@ def lab3_1_2_login():
 
     if username == target_user:
         error_msg = "Incorrect password."
-        db = get_db()
-        products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+        products = [
+            {'id': 11, 'name': 'Gold Plated Server', 'price': 5000, 'image': 'prod_3.png'},
+            {'id': 12, 'name': 'Diamond Encrypted Hub', 'price': 8000, 'image': 'prod_4.png'}
+        ]
         return render_template('lab3/sub1_b.html', products=products, error=error_msg), 200
 
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    products = [
+        {'id': 11, 'name': 'Gold Plated Server', 'price': 5000, 'image': 'prod_3.png'},
+        {'id': 12, 'name': 'Diamond Encrypted Hub', 'price': 8000, 'image': 'prod_4.png'}
+    ]
     return render_template('lab3/sub1_b.html', products=products, error="Invalid username or password"), 200
 
 @app.route('/lab3/1/2/admin')
@@ -1945,8 +1794,7 @@ def lab3_1_2_admin():
     if not session.get('lab3_1_2_logged_in'):
         return redirect(url_for('lab3_1_2'))
     
-    db = get_db()
-    users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+    users = [{'username': 'vip_alpha', 'role': 'user'}, {'username': 'vip_beta', 'role': 'user'}]
     admin_user = session.get('lab3_1_2_username', 'admin')
     
     return render_template('lab3/sub1_admin.html', 
@@ -1978,13 +1826,9 @@ def lab3_1_2_logout():
 def lab3_1_3():
     import random
     
-    usernames_file = os.path.join('data', 'wordlists', 'usernames.txt')
-    passwords_file = os.path.join('data', 'wordlists', 'passwords.txt')
-    
-    with open(usernames_file, 'r') as f:
-        usernames = [line.strip() for line in f if line.strip()]
-    with open(passwords_file, 'r') as f:
-        passwords = [line.strip() for line in f if line.strip()]
+    # Brute Force Configuration (Corporate Variant)
+    usernames = ['ceo', 'cfo', 'admin', 'it_support']
+    passwords = ['corporate2024', 'enterprise', 'security', 'password123']
 
     target_user = random.choice(usernames)
     target_password = random.choice(passwords)
@@ -1992,13 +1836,11 @@ def lab3_1_3():
     session['lab3_1_3_target_user'] = target_user
     session['lab3_1_3_target_pass'] = target_password
     
-    print(f"\n[LAB 3.1.3 START] Integrity Check:")
-    print(f" -> Target User: {target_user}")
-    print(f" -> Target Pass: {target_password}")
-    print(f"----------------------------------------\n")
-    
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    # Products for the template
+    products = [
+        {'id': 21, 'name': 'Enterprise Firewall', 'price': 12000, 'image': 'prod_5.png'},
+        {'id': 22, 'name': 'Corporate VPN Bridge', 'price': 4500, 'image': 'prod_6.png'}
+    ]
     return render_template('lab3/sub1_c.html', products=products)
 
 @app.route('/lab3/1/3/login', methods=['POST'])
@@ -2016,12 +1858,10 @@ def lab3_1_3_login():
 
     if username == target_user:
         error_msg = "Incorrect password."
-        db = get_db()
-        products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+        products = [{'id': 21, 'name': 'Enterprise Firewall', 'price': 12000}]
         return render_template('lab3/sub1_c.html', products=products, error=error_msg), 200
 
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    products = [{'id': 21, 'name': 'Enterprise Firewall', 'price': 12000}]
     return render_template('lab3/sub1_c.html', products=products, error="Invalid username or password"), 200
 
 @app.route('/lab3/1/3/admin')
@@ -2029,8 +1869,7 @@ def lab3_1_3_admin():
     if not session.get('lab3_1_3_logged_in'):
         return redirect(url_for('lab3_1_3'))
     
-    db = get_db()
-    users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+    users = [{'username': 'corp_alpha', 'role': 'user'}, {'username': 'corp_beta', 'role': 'user'}]
     admin_user = session.get('lab3_1_3_username', 'admin')
     
     return render_template('lab3/sub1_admin.html', 
@@ -2076,8 +1915,11 @@ def lab3_2():
     session.pop('lab3_2_username', None)
     session.pop('lab3_2_verified', None)
     
-    db = get_db()
-    products = db.execute('SELECT * FROM products LIMIT 6').fetchall()
+    # Simulated Inventory Registry
+    products = [
+        {'id': 1, 'name': 'Biometric Shield', 'price': 120},
+        {'id': 2, 'name': 'Quantum Key', 'price': 500}
+    ]
     return render_template('lab3/sub2.html', products=products)
 
 @app.route('/lab3/2/login', methods=['POST'])
@@ -3555,75 +3397,36 @@ def lab8_2_reset():
     return redirect(url_for('lab8_2'))
 
 
-# LAB 7.1: SQL Injection in WHERE Clause (Category Filter)
+# LAB 7.1: Virtual SQL Injection Protocol (Category Filter)
 @app.route('/lab7/1')
 def lab7_1():
-    category = request.args.get('category', '')
+    category = (request.args.get('category') or '').strip()
     
-    # Initialize database connection
-    db = get_db()
-    cursor = db.cursor()
+    # High-Fidelity Static Research Dataset
+    all_products = [
+        {'id': 1, 'name': 'Luxury Gift Box', 'category': 'Gifts', 'released': 1},
+        {'id': 2, 'name': 'Personalized Mug', 'category': 'Gifts', 'released': 1},
+        {'id': 3, 'name': 'Scented Candle Set', 'category': 'Lifestyle', 'released': 1},
+        {'id': 4, 'name': 'Leather Wallet', 'category': 'Accessories', 'released': 1},
+        {'id': 7, 'name': 'SECRET: Diamond Necklace', 'category': 'Gifts', 'released': 0},
+        {'id': 8, 'name': 'SECRET: Gold Cufflinks', 'category': 'Accessories', 'released': 0}
+    ]
     
-    # Ensure lab7_products table exists with sample data
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lab7_products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            description TEXT,
-            price REAL,
-            image_url TEXT,
-            released INTEGER DEFAULT 1,
-            category TEXT
-        )
-    ''')
-    
-    # Check if table is empty and seed data
-    cursor.execute('SELECT COUNT(*) FROM lab7_products')
-    if cursor.fetchone()[0] == 0:
-        products_data = [
-            ('Luxury Gift Box', 'Premium assortment of chocolates', 49.99, 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80', 1, 'Gifts'),
-            ('Personalized Mug', 'Custom photo coffee mug', 19.99, 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80', 1, 'Gifts'),
-            ('Scented Candle Set', 'Aromatherapy collection', 34.99, 'https://images.unsplash.com/photo-1602874801006-c2b5d9f6e1c7?auto=format&fit=crop&w=600&q=80', 1, 'Lifestyle'),
-            ('Leather Wallet', 'Genuine leather bifold', 59.99, 'https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=600&q=80', 1, 'Accessories'),
-            ('Wireless Earbuds', 'Noise-canceling audio', 89.99, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=80', 1, 'Tech'),
-            ('Designer Watch', 'Limited edition timepiece', 299.99, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80', 1, 'Accessories'),
-            
-            # UNRELEASED PRODUCTS (released = 0)
-            ('SECRET: Diamond Necklace', 'Exclusive VIP gift - Coming Soon', 1999.99, 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80', 0, 'Gifts'),
-            ('SECRET: Gold Cufflinks', 'Premium executive accessory', 499.99, 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?auto=format&fit=crop&w=600&q=80', 0, 'Accessories'),
-            ('SECRET: Smart Home Hub', 'Next-gen AI assistant', 399.99, 'https://images.unsplash.com/photo-1558089687-e28ddf4e8e5f?auto=format&fit=crop&w=600&q=80', 0, 'Tech')
-        ]
-        
-        cursor.executemany('''
-            INSERT INTO lab7_products (name, description, price, image_url, released, category)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', products_data)
-        db.commit()
-    
-    # VULNERABILITY: SQL Injection in WHERE clause
-    # The category parameter is directly concatenated into the SQL query
-    # Normal query: SELECT * FROM lab7_products WHERE category = 'Gifts' AND released = 1
-    # Exploit: category='+OR+1=1-- will bypass the released check
-    
+    # Virtual SQL Execution Logic
     flag = None
-    if category:
-        # VULNERABLE CODE - Direct string concatenation
-        query = f"SELECT * FROM lab7_products WHERE category = '{category}' AND released = 1"
+    products = []
+    
+    # Simulation: Detect ' OR 1=1 -- equivalent bypass
+    is_bypass = "' OR" in category.upper() or "'OR" in category.upper() or "1=1" in category
+    
+    if not category:
+        products = [p for p in all_products if p['released'] == 1]
+    elif is_bypass:
+        products = all_products # Unleash all products (including unreleased)
+        flag = get_random_flag('lab7')
     else:
-        query = "SELECT * FROM lab7_products WHERE released = 1"
-    
-    try:
-        cursor.execute(query)
-        products = cursor.fetchall()
+        products = [p for p in all_products if p['category'].lower() == category.lower() and p['released'] == 1]
         
-        # Award flag if UNION injection is detected (more results than expected or SQL injection keywords)
-        if category and ('UNION' in category.upper() or 'OR' in category.upper()):
-            flag = get_random_flag('lab7')
-    except Exception as e:
-        # If SQL error occurs, show it (helpful for learning)
-        products = []
-        print(f"SQL Error: {e}")
-    
     return render_template('lab7/sub1_home.html', products=products, category=category, flag=flag)
 
 @app.route('/lab7/1/menu')
@@ -3632,294 +3435,102 @@ def lab7_1_menu():
 
 @app.route('/lab7/1/b', methods=['GET', 'POST'])
 def lab7_1_b():
-    db = get_db()
-    cursor = db.cursor()
+    # Simulated Staff Registry
+    flag = None
+    error = None
+    success = False
     
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lab7_staff (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT
-        )
-    ''')
-    
-    cursor.execute('SELECT COUNT(*) FROM lab7_staff')
-    if cursor.fetchone()[0] == 0:
-        cursor.execute("INSERT INTO lab7_staff (username, password, role) VALUES ('admin', 'super_secret_complex_pass_123', 'administrator')")
-        cursor.execute("INSERT INTO lab7_staff (username, password, role) VALUES ('j.doe', 'password123', 'staff')")
-        db.commit()
-
     if request.method == 'POST':
-        username = request.form.get('username', '')
-        password = request.form.get('password', '')
+        username = (request.form.get('username') or '').strip()
+        password = (request.form.get('password') or '').strip()
         
-        # VULNERABLE QUERY - String concats allow auth bypass like username: admin' --
-        query = f"SELECT * FROM lab7_staff WHERE username = '{username}' AND password = '{password}'"
-        print(f"Executing: {query}")
+        # Virtual AUTH Bypass Detection
+        is_bypass = "' OR" in username.upper() or "'OR" in username.upper() or "' --" in username or "'--" in username
         
-        try:
-            cursor.execute(query)
-            user = cursor.fetchone()
+        if (username == 'admin' and password == 'super_complex_pass_999') or is_bypass:
+            success = True
+            flag = get_random_flag('lab7')
+            return render_template('lab7/sub1_b_home.html', success=True, flag=flag, query="SIMULATED AUTH BYPASS")
+        else:
+            error = "Invalid credentials in virtual registry."
             
-            if user:
-                # Login successful
-                if user[3] == 'administrator':
-                    return render_template('lab7/sub1_b_home.html', success=True, flag=get_random_flag('lab7'), query=query)
-                else:
-                    return render_template('lab7/sub1_b_home.html', success=True, flag="Logged in as regular staff.", query=query)
-            else:
-                return render_template('lab7/sub1_b_home.html', error="Invalid username or password", query=query)
-        except Exception as e:
-            return render_template('lab7/sub1_b_home.html', error=f"SQL Error: {e}", query=query)
-            
-    return render_template('lab7/sub1_b_home.html')
+    return render_template('lab7/sub1_b_home.html', error=error)
 
 @app.route('/lab7/1/c')
 def lab7_1_c():
-    category = request.args.get('category', '')
-    db = get_db()
-    cursor = db.cursor()
+    category = (request.args.get('category') or '').strip()
     
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lab7_pets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            breed TEXT,
-            price REAL,
-            image_url TEXT,
-            available INTEGER DEFAULT 1,
-            type TEXT
-        )
-    ''')
+    # Virtual Pet Shop Dataset
+    all_pets = [
+        {'name': 'Buddy', 'breed': 'Golden Retriever', 'price': 800, 'type': 'Dogs', 'available': 1},
+        {'name': 'Luna', 'breed': 'Siamese Cat', 'price': 400, 'type': 'Cats', 'available': 1},
+        {'name': 'Nemo', 'breed': 'Clownfish', 'price': 25, 'type': 'Fish', 'available': 1}
+    ]
     
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lab7_admin_creds (
-            username TEXT,
-            password TEXT
-        )
-    ''')
+    # Simulation: UNION Attack Detection
+    is_union = 'UNION' in category.upper()
+    flag = get_random_flag('lab7') if is_union else None
     
-    cursor.execute('SELECT COUNT(*) FROM lab7_pets')
-    if cursor.fetchone()[0] == 0:
-        pets_data = [
-            # Dogs
-            ('Buddy', 'Golden Retriever', 800.00, 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            ('Max', 'German Shepherd', 750.00, 'https://images.unsplash.com/photo-1568393691622-2d9f6b4f6a3e?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            ('Charlie', 'Labrador Retriever', 850.00, 'https://images.unsplash.com/photo-1633722715463-d30628cad4d1?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            ('Rocky', 'Bulldog', 950.00, 'https://images.unsplash.com/photo-1583337137474-e92b38b1a08a?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            ('Daisy', 'Poodle', 600.00, 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            ('Cooper', 'Beagle', 500.00, 'https://images.unsplash.com/photo-1611003228941-98852ba62227?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            ('Bella', 'Husky', 700.00, 'https://images.unsplash.com/photo-1605537345935-d5a2c273266e?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            ('Sadie', 'Cocker Spaniel', 650.00, 'https://images.unsplash.com/photo-1600298881974-6be191ceeda1?auto=format&fit=crop&w=600&q=80', 1, 'Dogs'),
-            
-            # Cats
-            ('Luna', 'Siamese Cat', 400.00, 'https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            ('Whiskers', 'Persian Cat', 450.00, 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            ('Mittens', 'Tabby Cat', 250.00, 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            ('Shadow', 'Black Cat', 300.00, 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            ('Snowball', 'White Cat', 350.00, 'https://images.unsplash.com/photo-1553882900-f2b06423b1a7?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            ('Tiger', 'Bengal Cat', 550.00, 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            ('Smokey', 'Russian Blue', 400.00, 'https://images.unsplash.com/photo-1606214174585-fe31582dc1d7?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            ('Ginger', 'Orange Tabby', 280.00, 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&w=600&q=80', 1, 'Cats'),
-            
-            # Fish
-            ('Nemo', 'Clownfish', 25.00, 'https://images.unsplash.com/photo-1524704796725-9fc3044a58b2?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            ('Bubbles', 'Goldfish', 15.00, 'https://images.unsplash.com/photo-1535266842546-a05a90ad7789?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            ('Dory', 'Blue Tang', 30.00, 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            ('Finn', 'Betta Fish', 20.00, 'https://images.unsplash.com/photo-1536882240095-0379873feb4e?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            ('Coral', 'Coral Reef', 40.00, 'https://images.unsplash.com/photo-1583212192454-1fe6229603b7?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            ('Scales', 'Angelfish', 28.00, 'https://images.unsplash.com/photo-1535946613881-e72cf28c9d1b?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            ('Flash', 'Tetra Fish', 12.00, 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            ('Spots', 'Spotted Fish', 22.00, 'https://images.unsplash.com/photo-1575614032303-e970f716972a?auto=format&fit=crop&w=600&q=80', 1, 'Fish'),
-            
-            # Birds
-            ('Polly', 'African Grey Parrot', 500.00, 'https://images.unsplash.com/photo-1444464666175-1642bebf3031?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
-            ('Tweety', 'Canary', 80.00, 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
-            ('Squawk', 'Macaw', 600.00, 'https://images.unsplash.com/photo-1535081749551-fdc5a1d5b9d1?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
-            ('Chirp', 'Cockatiel', 200.00, 'https://images.unsplash.com/photo-1544923408-75c5dbd02676?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
-            ('Sky', 'Blue Jay', 150.00, 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
-            ('Rainbow', 'Lovebird', 120.00, 'https://images.unsplash.com/photo-1512453575869-c55f5f6f0c1a?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
-            ('Feather', 'Finch', 50.00, 'https://images.unsplash.com/photo-1456717174519-93ff41c351c7?auto=format&fit=crop&w=600&q=80', 1, 'Birds'),
-            
-            # Reptiles
-            ('Scaly', 'Bearded Dragon', 350.00, 'https://images.unsplash.com/photo-1550258987-920a2eae7d1f?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
-            ('Hissy', 'Ball Python', 300.00, 'https://images.unsplash.com/photo-1597163625128-7a0ee3dbe463?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
-            ('Ziggy', 'Leopard Gecko', 200.00, 'https://images.unsplash.com/photo-1600298881974-6be191ceeda1?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
-            ('Iggy', 'Green Iguana', 400.00, 'https://images.unsplash.com/photo-1623284026819-34a44a9a2ccc?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
-            ('Silky', 'Corn Snake', 250.00, 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
-            ('Tex', 'Tortoise', 450.00, 'https://images.unsplash.com/photo-1551883287-ecba61f90b4b?auto=format&fit=crop&w=600&q=80', 1, 'Reptiles'),
-            
-            # Rabbits
-            ('Floppy', 'Holland Lop', 150.00, 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
-            ('Hoppy', 'Dwarf Rabbit', 120.00, 'https://images.unsplash.com/photo-1585288981271-ddfe805f9b39?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
-            ('Nibbles', 'Lop-Eared', 140.00, 'https://images.unsplash.com/photo-1585288979521-e82c40f00f9f?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
-            ('Cotton', 'Angora Rabbit', 200.00, 'https://images.unsplash.com/photo-1585288981035-87b9316b6a36?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
-            ('Pepper', 'Black Rabbit', 130.00, 'https://images.unsplash.com/photo-1585288981037-f14c3fac413c?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
-            ('Snowpuff', 'White Fluffy Rabbit', 160.00, 'https://images.unsplash.com/photo-1585288981038-8f1f5e4e4f4a?auto=format&fit=crop&w=600&q=80', 1, 'Rabbits'),
-        ]
-        
-        cursor.executemany('''
-            INSERT INTO lab7_pets (name, breed, price, image_url, available, type)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', pets_data)
-        
-        cursor.execute("INSERT INTO lab7_admin_creds (username, password) VALUES ('administrator', '" + get_random_flag('lab7') + "')")
-        db.commit()
-    
-    # VULNERABLE TO UNION ATTACK
-    query = f"SELECT name, breed, price, image_url FROM lab7_pets WHERE type = '{category}' AND available = 1"
-    
-    flag = None
-    sql_error = None
-    try:
-        cursor.execute(query)
-        pets = cursor.fetchall()
-        
-        # Award flag if UNION-based SQL injection is detected
-        if category and 'UNION' in category.upper():
-            flag = get_random_flag('lab7')
-    except Exception as e:
-        pets = []
-        sql_error = str(e)
-        print(f"SQL Error: {e}")
-    
-    return render_template('lab7/sub1_c_home.html', products=pets, category=category, flag=flag, query=query, sql_error=sql_error)
+    pets = [p for p in all_pets if str(p.get('type','')).lower() == category.lower()] if category and not is_union else all_pets
+    return render_template('lab7/sub1_c_home.html', products=pets, category=category, flag=flag)
 
 @app.route('/lab7/1/d')
 def lab7_1_d():
     emp_id = request.args.get('id', '1')
     
-    db = get_db()
-    cursor = db.cursor()
+    # Virtual Employee Directory
+    employees = [
+        {'id': 1, 'name': 'John Doe', 'role': 'Sales', 'is_public': 1},
+        {'id': 2, 'name': 'Jane Smith', 'role': 'Marketing', 'is_public': 1},
+        {'id': 3, 'name': 'Gabe Admin', 'role': 'CEO', 'is_public': 0}
+    ]
     
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lab7_employees (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            role TEXT,
-            email TEXT,
-            is_public INTEGER DEFAULT 1
-        )
-    ''')
+    # Simulation: IDOR / Integer Injection
+    is_injection = 'OR' in emp_id.upper() or '--' in emp_id
+    flag = get_random_flag('lab7') if is_injection else None
     
-    cursor.execute('SELECT COUNT(*) FROM lab7_employees')
-    if cursor.fetchone()[0] == 0:
-        emp_data = [
-            ('John Doe', 'Sales', 'john.doe@corp.local', 1),
-            ('Jane Smith', 'Marketing', 'jane.smith@corp.local', 1),
-            ('Bob Sec', 'IT Support', 'bob@corp.local', 1),
-            ('Gabe Admin', 'CEO', 'gabe.awp@corp.local - ' + get_random_flag('lab7'), 0)
-        ]
-        
-        cursor.executemany('''
-            INSERT INTO lab7_employees (name, role, email, is_public)
-            VALUES (?, ?, ?, ?)
-        ''', emp_data)
-        db.commit()
-    
-    # VULNERABLE INTEGER BASED (no quotes)
-    query = f"SELECT * FROM lab7_employees WHERE id = {emp_id} AND is_public = 1"
-    
-    flag = None
-    try:
-        cursor.execute(query)
-        employees = cursor.fetchall()
-        
-        # Award flag if integer-based SQL injection is detected (OR, UNION, comments)
-        if emp_id and ('OR' in emp_id.upper() or 'UNION' in emp_id.upper() or '--' in emp_id or '/*' in emp_id):
-            flag = get_random_flag('lab7')
-    except Exception as e:
-        employees = []
-        print(f"SQL Error: {e}")
-    
-    return render_template('lab7/sub1_d_home.html', employees=employees, emp_id=emp_id, flag=flag)
+    results = employees if is_injection else [e for e in employees if str(e['id']) == emp_id and e['is_public'] == 1]
+    return render_template('lab7/sub1_d_home.html', employees=results, emp_id=emp_id, flag=flag)
 
 # ========================
 # LAB 7.2: Office Login System
 # ========================
-
 @app.route('/lab7/2')
 def lab7_2():
     return render_template('lab7/sub2_index.html')
 
 @app.route('/lab7/2/login', methods=['GET', 'POST'])
 def lab7_2_login():
-    db = get_db()
-    cursor = db.cursor()
-    
-    # Create office users table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lab7_office_users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            employee_id TEXT NOT NULL,
-            username TEXT NOT NULL,
-            password TEXT NOT NULL,
-            department TEXT,
-            role TEXT,
-            email TEXT
-        )
-    ''')
-    
-    cursor.execute('SELECT COUNT(*) FROM lab7_office_users')
-    if cursor.fetchone()[0] == 0:
-        office_users = [
-            ('E001', 'john.smith', 'secure_pass_2024!', 'Sales', 'staff', 'john.smith@office.local'),
-            ('E002', 'sarah.jones', 'welcome123', 'Marketing', 'staff', 'sarah.jones@office.local'),
-            ('E003', 'admin_office', 'SuperSecure#Pass456', 'IT', 'administrator', 'admin@office.local'),
-            ('E004', 'director', 'DirectorPass789', 'Executive', 'director', 'director@office.local'),
-        ]
-        
-        cursor.executemany('''
-            INSERT INTO lab7_office_users (employee_id, username, password, department, role, email)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', office_users)
-        db.commit()
-
+    # Simulated Office Auth Registry
     error = None
     success = False
     flag = None
-    query = None
     user_info = None
 
     if request.method == 'POST':
-        username = request.form.get('username', '')
-        password = request.form.get('password', '')
+        username = (request.form.get('username') or '').strip()
+        password = (request.form.get('password') or '').strip()
         
-        # VULNERABLE QUERY - SQL Injection in authentication
-        # Example bypass: username = "admin_office' --" password can be anything
-        query = f"SELECT * FROM lab7_office_users WHERE username = '{username}' AND password = '{password}'"
+        # Virtual SQLi Bypass Logic
+        is_bypass = "' OR" in username.upper() or "'OR" in username.upper() or "' --" in username or "1=1" in password
         
-        try:
-            cursor.execute(query)
-            user = cursor.fetchone()
-            
-            if user:
-                success = True
-                user_info = {
-                    'employee_id': user[1],
-                    'username': user[2],
-                    'department': user[4],
-                    'role': user[5],
-                    'email': user[6]
-                }
-                
-                # Award flag if SQL injection keywords detected
-                if "'" in username or '--' in username or '/*' in username or 'OR' in username.upper():
-                    flag = get_random_flag('lab7')
-                elif "'" in password or '--' in password or '/*' in password or 'OR' in password.upper():
-                    flag = get_random_flag('lab7')
-            else:
-                error = "Invalid username or password"
-                
-        except Exception as e:
-            error = f"Database Error: {str(e)}"
+        if (username == 'admin_office' and password == 'office_pass_789') or is_bypass:
+            success = True
+            user_info = {
+                'employee_id': 'E-999',
+                'username': username,
+                'department': 'Operations',
+                'role': 'Administrator',
+                'email': 'admin@virtual_office.io'
+            }
+            flag = get_random_flag('lab7')
+        else:
+            error = "Invalid virtual credentials."
     
     return render_template('lab7/sub2_login.html', 
                           error=error, 
                           success=success, 
                           flag=flag,
-                          query=query,
                           user_info=user_info)
 
 # LAB 6.1: OS Command Injection via Stock Check
@@ -4006,6 +3617,5 @@ def lab6_1_c_check_stock():
 
 
 if __name__ == '__main__':
-    init_db()
-    # Debug is only for local manual running
-    app.run(debug=not IS_VERCEL, host='0.0.0.0', port=5000)
+    # Cloud-Native Initialization: Local DB sequence decommissioned
+    app.run(debug=not IS_VERCEL, use_reloader=False, host='0.0.0.0', port=5000)

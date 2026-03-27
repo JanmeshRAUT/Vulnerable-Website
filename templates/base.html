@@ -46,6 +46,9 @@
                     <div class="nav-divider"></div>
                     
                     {% if session.get('user_id') %}
+                        {% if session.get('role') == 'admin' %}
+                            <a href="{{ url_for('admin_students') }}" class="nav-link-custom">Admin Console</a>
+                        {% endif %}
                         <a href="{{ url_for('orders') }}" class="nav-link-custom">Orders</a>
                         <span class="user-badge">
                             ID: <strong>{{ session.get('username') }}</strong>
@@ -64,6 +67,46 @@
             {% block layout_container %}
             <div class="container container-padding-top">
                 {% block content %}{% endblock %}
+
+                <!-- STATIC FLAG SUBMISSION PANEL (Appears at bottom of ALL Labs) -->
+                {% if '/lab' in request.path and session.get('user_id') %}
+                <div class="lab-submission-panel glass-morphism animate-slide-up" style="margin-top: 5rem; padding: 3rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); border-top: 4px solid var(--primary-color);">
+                    <div style="text-align: center; margin-bottom: 2.5rem;">
+                        <h2 style="font-size: 2rem; margin-bottom: 0.5rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Submit Research Deliverable</h2>
+                        <p style="color: var(--text-muted); font-size: 1.1rem;">Submit the security tokens found during your exploitation of this module.</p>
+                    </div>
+
+                    <div style="max-width: 600px; margin: 0 auto; background: rgba(0,0,0,0.2); padding: 2.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <form onsubmit="handleWidgetSubmit(event)" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Variation</label>
+                                    <select onchange="syncWidgetVariation(this)" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 1rem; border-radius: 8px;">
+                                        <option value="variation_A">Variation A</option>
+                                        <option value="variation_B">Variation B</option>
+                                        <option value="variation_C">Variation C</option>
+                                        <option value="default" selected>Default</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Discovered Flag</label>
+                                    <input type="text" oninput="syncWidgetFlag(this)" placeholder="FLAG{...}" required style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--warning-color); padding: 1rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem;">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="padding: 1rem; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px;">UPLOAD RESEARCH FLAG</button>
+                        </form>
+                    </div>
+                </div>
+
+                <script>
+                function syncWidgetVariation(el) {
+                    document.getElementById('widget-variation').value = el.value;
+                }
+                function syncWidgetFlag(el) {
+                    document.getElementById('widget-flag-input').value = el.value;
+                }
+                </script>
+                {% endif %}
             </div>
             {% endblock %}
         </main>
@@ -113,6 +156,106 @@
                 </div>
             </div>
         </footer>
+        <!-- FLOATING FLAG SUBMISSION WIDGET (Persistent across Labs) -->
+        {% if session.get('user_id') %}
+        <div id="flag-widget" class="glass-morphism animate-slide-up" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); width: 300px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4 style="margin: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-color);">Research Deliverable Intake</h4>
+            </div>
+            
+            <form id="widget-flag-form" onsubmit="handleWidgetSubmit(event)">
+                <input type="hidden" id="widget-lab-id" value="{{ lab_id or '' }}">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Variation</label>
+                    <select id="widget-variation" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 6px;">
+                        <option value="variation_A">Variation A</option>
+                        <option value="variation_B">Variation B</option>
+                        <option value="variation_C">Variation C</option>
+                        <option value="default" selected>Default</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Clinical Flag</label>
+                    <input type="text" id="widget-flag-input" placeholder="FLAG{...}" required style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: var(--warning-color); padding: 0.8rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-weight: 700;">Submit Research Deliverable</button>
+            </form>
+            <div id="widget-status" style="margin-top: 1rem; font-size: 0.85rem; text-align: center;"></div>
+        </div>
+
+        <button id="flag-toggle-btn" onclick="toggleFlagWidget()" class="glass-morphism" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 999; width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            🚩
+        </button>
+
+        <script>
+        function toggleFlagWidget() {
+            const widget = document.getElementById('flag-widget');
+            const btn = document.getElementById('flag-toggle-btn');
+            if(widget.style.display === 'none' || widget.style.display === '') {
+                widget.style.display = 'block';
+                btn.style.display = 'none';
+            } else {
+                widget.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        function handleWidgetSubmit(e) {
+            e.preventDefault();
+            const labId = document.getElementById('widget-lab-id').value || detectLabId();
+            const variation = document.getElementById('widget-variation').value;
+            const flag = document.getElementById('widget-flag-input').value;
+            const statusDiv = document.getElementById('widget-status');
+            
+            if(!labId) {
+                statusDiv.innerHTML = '<span style="color: #ffc107;">Error: Could not identify Lab ID.</span>';
+                return;
+            }
+
+            statusDiv.innerHTML = '<span style="color: var(--text-muted);">Verifying Deliverable...</span>';
+
+            const formData = new URLSearchParams();
+            formData.append('lab_id', labId);
+            formData.append('variation', variation);
+            formData.append('flag', flag);
+
+            fetch('/submit_flag', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    statusDiv.innerHTML = `<span style="color: #28a745;">✓ ${data.message}</span>`;
+                    document.getElementById('widget-flag-input').value = '';
+                    setTimeout(toggleFlagWidget, 2000);
+                } else {
+                    statusDiv.innerHTML = `<span style="color: #dc3545;">✗ ${data.error}</span>`;
+                }
+            })
+            .catch(err => {
+                statusDiv.innerHTML = '<span style="color: #dc3545;">Connection Error.</span>';
+            });
+        }
+
+        function detectLabId() {
+            const path = window.location.pathname;
+            // Examples: /lab1/1 -> lab1_1, /lab2/1 -> lab2_1
+            const match = path.match(/\/lab(\d+)\/(\d+)/);
+            if(match) return `lab${match[1]}_${match[2]}`;
+            if(path.includes('lab1')) return 'lab1';
+            return null;
+        }
+
+        // Show toggle button only on lab pages
+        if(window.location.pathname.includes('/lab')) {
+            document.getElementById('flag-toggle-btn').style.display = 'flex';
+        } else {
+            document.getElementById('flag-toggle-btn').style.display = 'none';
+        }
+        </script>
+        {% endif %}
     </div>
 </body>
 </html>

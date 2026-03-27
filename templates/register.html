@@ -1,36 +1,63 @@
 {% extends 'base.html' %}
-{% block title %}Create Account - RESEARCH_OPS{% endblock %}
+{% block title %}Join Platform - RESEARCH_OPS{% endblock %}
 
 {% block content %}
-<div class="register-form-container">
-    <div class="register-form-content card">
-        <div class="register-form-header">
-            <h1>Create Account</h1>
-            <p>Sign up securely with your Google account.</p>
+<div class="auth-container">
+    <div class="auth-card glass-morphism animate-fade-in">
+        <div class="auth-header">
+            <div class="auth-logo-icon">🚀</div>
+            <h1>Initialize Identity</h1>
+            <p>Join the research collective by providing your unique identity identifiers.</p>
         </div>
 
         {% if error %}
-        <div class="auth-error">
-            <strong>Error:</strong> {{ error }}
+        <div class="auth-error-box ripple-in">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>{{ error }}</span>
         </div>
         {% endif %}
 
-        <a href="{{ url_for('google_login', next=next_url) }}" class="auth-google-btn auth-google-btn-primary">
-            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" class="auth-google-icon">
-            Create Account with Google
-        </a>
+        <form method="POST" class="auth-form-premium">
+            <input type="hidden" name="next" value="{{ next_url or '' }}">
 
-        <p class="auth-security-note">Google OAuth is the only sign-up method enabled for this application.</p>
+            <div class="input-group">
+                <label for="username">Preferred Username</label>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" value="{{ username or '' }}" placeholder="e.g. researcher_alpha" required autocomplete="off">
+                </div>
+                <span class="input-hint">Used for public module displays</span>
+            </div>
 
-        <div class="auth-form-footer">
-            <p>Already have an account?
-                <a href="{{ url_for('login') }}">Sign in</a>
-            </p>
+            <div class="input-group">
+                <label for="enrollment_id">Security Enrollment ID</label>
+                <div class="input-wrapper">
+                    <input type="text" id="enrollment_id" name="enrollment_id" value="{{ enrollment_id or '' }}" placeholder="e.g. CS-2026-X01" required autocomplete="off">
+                </div>
+                <span class="input-hint">Obtain this from your administrator</span>
+            </div>
+
+            <button type="submit" class="auth-submit-button-premium">
+                <span>Join and Verify Identity</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </button>
+        </form>
+
+        <div class="auth-divider">
+            <span>Security Note</span>
         </div>
 
-        <div class="auth-terms-box">
-            <p>By creating an account, you agree to our Terms of Service and Privacy Policy</p>
+        <div class="auth-info-box">
+            <p>After clicking <strong>Join</strong>, you will be redirected to Google to finalize your identity link. Ensure you use your institutional email.</p>
         </div>
+
+        <div class="auth-footer">
+            <p>Already joined? <a href="{{ url_for('login') }}" class="accent-link">Sign in here</a></p>
+        </div>
+    </div>
+    
+    <div class="auth-background-decoration">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
     </div>
 </div>
 {% endblock %}
