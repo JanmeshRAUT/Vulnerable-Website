@@ -206,14 +206,30 @@ def submit_flag():
     # Normalize whitespace and guard against duplicate entries.
     expected_flags = {str(flag).strip() for flag in expected_flags if flag}
     
+    # Universal fallback for static flags found via file-system exploits (Lab 1, Lab 6)
+    static_fallbacks = {
+        'FLAG{file_system_traversal_alpha}',
+        'FLAG{directory_enumeration_beta}',
+        'FLAG{path_manipulation_gamma}',
+        'FLAG{you_found_the_hidden_root_flag}',
+        'FLAG{you_found_the_secret}'
+    }
+    expected_flags.update(static_fallbacks)
+    
+    print(f"[SUBMISSION] Lab: {lab_id}, Subject: {email}, Submitted: {submitted_flag}")
+    print(f"[SUBMISSION] Expected set includes {len(expected_flags)} possible signals.")
+
     if submitted_flag in expected_flags:
         # Record success in Firebase
         firebase_store.submit_lab_progress(email, lab_id, variation, submitted_flag, True, "Deliverable accepted.")
         return jsonify({'success': True, 'message': 'Research deliverable verified and serialized.'})
     else:
         # Record attempt in Firebase
+        # Note: 'Invalid deliverable signal.' is the error seen by user.
         firebase_store.submit_lab_progress(email, lab_id, variation, submitted_flag, False, "Incorrect deliverable.")
-        return jsonify({'success': False, 'error': 'Invalid deliverable signal.'})
+        return jsonify({'success': False, 'error': f'Invalid deliverable signal for {lab_id}.'})
+
+
 
 @app.route('/admin/students')
 @admin_required
@@ -798,9 +814,10 @@ def lab1_1_download():
             
             # Inject 3 unique flags for this subject into the template (Lines 2, 3, 4)
             if len(lines) >= 4:
-                lines[1] = get_or_generate_flag(session['user_id'], 'lab1', 'variation_A') + "\n"
-                lines[2] = get_or_generate_flag(session['user_id'], 'lab1', 'variation_B') + "\n"
-                lines[3] = get_or_generate_flag(session['user_id'], 'lab1', 'variation_C') + "\n"
+                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
+                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
+                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
+
                 
             return Response("".join(lines), mimetype='text/plain')
         except Exception as e:
@@ -880,11 +897,9 @@ def lab1_2_image():
             with open(passwd_path, 'r') as f:
                 lines = f.readlines()
             if len(lines) >= 4:
-                # Use session email/id for flag generation
-                uid = session.get('user_id', 'anonymous')
-                lines[1] = get_or_generate_flag(uid, 'lab1', 'variation_A') + "\n"
-                lines[2] = get_or_generate_flag(uid, 'lab1', 'variation_B') + "\n"
-                lines[3] = get_or_generate_flag(uid, 'lab1', 'variation_C') + "\n"
+                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
+                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
+                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
             return Response("".join(lines), mimetype='text/plain')
         except Exception as e:
             return f"Error: {e}", 500
@@ -940,10 +955,10 @@ def lab1_3_image():
             with open(passwd_path, 'r') as f:
                 lines = f.readlines()
             if len(lines) >= 4:
-                uid = session.get('user_id', 'anonymous')
-                lines[1] = get_or_generate_flag(uid, 'lab1', 'variation_A') + "\n"
-                lines[2] = get_or_generate_flag(uid, 'lab1', 'variation_B') + "\n"
-                lines[3] = get_or_generate_flag(uid, 'uid', 'variation_C') + "\n" # Fix to variation_C
+                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
+                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
+                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
+
             return Response("".join(lines), mimetype='text/plain')
         except Exception as e:
             return f"Error: {e}", 500
@@ -1202,7 +1217,8 @@ def handle_lab2_3_request(template_name, products):
         # Handle user deletion (POST request simulation)
         flag = None
         if request.method == 'POST':
-            flag = get_or_generate_flag(session.get('user_id', 'anonymous'), 'lab2_3')
+            flag = get_random_flag('lab2_3')
+
             users = [] # Clear users to simulate deletion
             
         return render_template('lab2/sub3_admin.html', users=users, flag=flag)
