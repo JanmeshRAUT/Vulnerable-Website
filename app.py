@@ -73,7 +73,6 @@ google = oauth.register(
     authorize_url='https://accounts.google.com/o/oauth2/v2/auth',
     token_url='https://oauth2.googleapis.com/token',
     userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
-    redirect_uri=os.environ.get('GOOGLE_REDIRECT_URI', 'http://127.0.0.1:5000/auth/google/callback'),
     client_kwargs={
         'scope': 'openid email profile'
     }
@@ -81,10 +80,16 @@ google = oauth.register(
 
 
 def get_google_redirect_uri():
+    """Build the OAuth redirect URI, forcing https on Vercel/production."""
     configured = (os.environ.get('GOOGLE_REDIRECT_URI') or '').strip()
     if configured:
         return configured
-    return url_for('google_callback', _external=True)
+    # Auto-build from request context
+    uri = url_for('google_callback', _external=True)
+    # Force https if running behind Vercel's proxy (or any HTTPS host)
+    if os.environ.get('VERCEL') or os.environ.get('FORCE_HTTPS'):
+        uri = uri.replace('http://', 'https://', 1)
+    return uri
 
 firebase_store = FirebaseDataStore(BASE_PATH)
 firebase_store.initialize()
