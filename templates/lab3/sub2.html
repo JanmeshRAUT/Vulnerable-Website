@@ -2,49 +2,49 @@
 {% block title %}SecureShop - Lab 3.2{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/multi-factor.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub2.css') }}">
     <header class="l3-header theme-shop">
         <div class="l3-header-left">
-            <a href="{{ url_for('lab3') }}" class="l3-nav-back">&larr; Back</a>
-            <div class="l3-brand">🔒 SecureShop</div>
+            <a href="{{ url_for('lab3_2_menu') }}" class="l3-nav-back">&larr; Back Options</a>
+            <div class="l3-brand"> SecureShop</div>
         </div>
-        
         <div class="l3-header-right">
-            <button onclick="document.getElementById('loginModal').style.display='flex'" class="l3-btn l3-btn-white">Login</button>
+            <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="l3-btn l3-btn-white">Login</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
     <div class="theme-shop">
-        <div class="l3-hero" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=1200&q=80') center/cover no-repeat; color: white; padding: 4rem 2rem; border-radius: 1rem; margin-bottom: 2rem;">
+        <div class="l3-hero">
             <h1>Welcome to SecureShop</h1>
-            <p style="font-size: 1.2rem; margin-top: 0.5rem; opacity: 0.9;">Protected by advanced 2FA security</p>
+            <p>Protected by advanced 2FA security</p>
         </div>
 
-        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main);">Featured Products</h2>
+        <div class="l3-section-head">
+            <h2>Featured Services</h2>
+        </div>
         
         <div class="l3-grid">
             {% for product in products %}
-            <div class="l3-card" style="overflow: hidden;">
-                <div class="l3-card-img-wrapper" style="height: 200px; width: 100%; overflow: hidden;">
-                    <!-- Dynamic images based on loop index -->
+            <div class="l3-card">
+                <div class="l3-card-img-wrapper">
                     {% set img_urls = [
-                        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80',
-                        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80',
-                        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80',
-                        'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80',
-                        'https://images.unsplash.com/photo-1572569028738-411a0977d4aa?w=400&q=80',
-                        'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&q=80'
+                        'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&q=80',
+                        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80',
+                        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80',
+                        'https://images.unsplash.com/photo-1496096265110-f83ad7f96608?w=400&q=80',
+                        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&q=80',
+                        'https://images.unsplash.com/photo-1562813733-b31f71025d54?w=400&q=80'
                     ] %}
-                    <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+                    <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" class="l3-product-image">
                 </div>
                 <div class="l3-card-content">
-                    <h3 style="margin-bottom: 0.5rem;">{{ product.name }}</h3>
-                    <p style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">{{ product.description }}</p>
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description }}</p>
                     <div class="l3-card-footer">
                         <span class="l3-price">${{ product.price }}</span>
-                        <button class="l3-btn l3-btn-primary" style="width: auto;">Buy Now</button>
+                        <button class="l3-btn l3-btn-primary">Buy Now</button>
                     </div>
                 </div>
             </div>
@@ -54,8 +54,8 @@
         <!-- LOGIN MODAL -->
         <div id="loginModal" class="l3-modal-overlay">
             <div class="l3-modal-card">
-                <button onclick="document.getElementById('loginModal').style.display='none'" class="l3-close-btn">&times;</button>
-                <h2 class="l3-modal-title">🔒 Secure Login</h2>
+                <button onclick="const m = document.getElementById('loginModal'); m.classList.remove('active'); setTimeout(() => m.style.display='none', 300);" class="l3-close-btn">&times;</button>
+                <h2 class="l3-modal-title"> Secure Login</h2>
                 <form id="loginForm">
                     <div class="l3-form-group">
                         <label class="l3-label">Username</label>
@@ -106,4 +106,3 @@
         });
     </script>
 {% endblock %}
-

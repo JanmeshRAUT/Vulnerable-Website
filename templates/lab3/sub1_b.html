@@ -2,7 +2,7 @@
 {% block title %}PremiumVault - Elite Digital Asset Management{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/premium-vault.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub1_b.css') }}">
     <!-- Professional Header Navigation - Luxury Theme -->
     <header class="pv-header">
         <div class="pv-header-container">
@@ -37,7 +37,7 @@
             <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-hero">Enter Portal</button>
         </div>
         <div class="hero-image">
-            <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?w=600&q=80" alt="Luxury Security" class="hero-img">
+            <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?w=600&q=80" alt="Hero" class="hero-img">
         </div>
     </section>
 
@@ -76,19 +76,15 @@
         <div class="products-grid">
             {% for product in products %}
             <div class="product-card">
-                <div class="product-image-wrapper">
-                    <!-- Dynamic images based on index -->
-                    {% set img_urls = [
-                        'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&q=80',
-                        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80',
-                        'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&q=80',
-                        'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80',
-                        'https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=400&q=80',
-                        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80'
-                    ] %}
-                    <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" class="product-image">
+                <div class="product-image-wrapper" style="background: rgba(15,23,42,0.5); display: flex; align-items: center; justify-content: center; font-size: 4rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--sv-primary);">
+                    {% if loop.index0 % 6 == 0 %}
+                    {% elif loop.index0 % 6 == 1 %}
+                    {% elif loop.index0 % 6 == 2 %}
+                    {% elif loop.index0 % 6 == 3 %}
+                    {% elif loop.index0 % 6 == 4 %}
+                    {% else %}{% endif %}
                     <div class="product-overlay">
-                        <button class="btn-secondary">View Asset</button>
+                        <button class="btn-secondary">Preview</button>
                     </div>
                 </div>
                 <div class="product-content">
@@ -148,7 +144,7 @@
             </div>
             
             {% if error %}
-            <div id="errorMsg" class="error-message alert-error" style="display: block;">
+            <div id="errorMsg" class="error-message alert-error show-error">
                 <span class="error-icon">⚠️</span>
                 <span>{{ error }}</span>
             </div>

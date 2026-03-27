@@ -1,31 +1,29 @@
 {% extends 'base.html' %}
-{% block title %}Product Detail - {{ product.name }}{% endblock %}
+{% block title %}Retail - {{ product.name }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab4_1a.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/sub1.css') }}">
 {% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('lab4_1') }}" class="btn">&larr; Back to Shop</a>
+    <div class="l4-base theme-a">
+        <a href="{{ url_for('lab4_1') }}" class="l4-nav-back">&larr; Back to Shop</a>
 
-    <div class="detail-container-a">
-        <div class="detail-card-a">
-            <div class="detail-image-box-a" style="padding: 0; background: #000; overflow: hidden;">
-                <img src="{{ product.image }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+        <div class="l4-detail-grid">
+            <div class="l4-img-wrapper" class="l4-detail-img-box">
+                <img src="{{ product.image }}" alt="{{ product.name }}">
             </div>
-            <div class="detail-content-a">
-                <div class="detail-header-a">
-                    <h1>{{ product.name }}</h1>
-                    <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">{{ product.description }}</p>
-                </div>
-                <div class="detail-price-a">${{ product.price }}</div>
+            <div class="l4-detail-content">
+                <h1>{{ product.name }}</h1>
+                <p class="l4-detail-desc">{{ product.description }}</p>
+                <div class="l4-detail-price">${{ product.price }}</div>
                 
-                <div class="stock-box-a">
+                <div class="l4-stock-box">
                     <form action="{{ url_for('lab4_1_stock') }}" method="POST" id="stockForm">
-                        <input type="hidden" name="stockApi" value="http://localhost/stock/check?id={{ product.id }}">
-                        <button type="submit" class="stock-btn-a">Check Stock</button>
+                        <input type="hidden" name="stockApi" value="http://localhost:5000/stock/check?id={{ product.id }}">
+                        <button type="submit" class="l4-btn" class="l4-btn-block">Check Stock Status</button>
                     </form>
-                    <div id="stockResult" class="stock-result-a"></div>
+                    <div id="stockResult" class="l4-stock-result"></div>
                 </div>
             </div>
         </div>
@@ -35,13 +33,13 @@
         document.getElementById('stockForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const resultDiv = document.getElementById('stockResult');
-            resultDiv.innerText = "Checking...";
-            resultDiv.style.color = "#94a3b8";
+            resultDiv.innerText = "Checking stock...";
+            resultDiv.className = "l4-stock-result";
             
             const formData = new FormData(this);
             const urlEncodedData = new URLSearchParams(formData).toString();
 
-            fetch('/product/stock', {
+            fetch('/lab4/1/stock', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -52,18 +50,18 @@
             .then(data => {
                 if (data.includes('Success')) {
                      resultDiv.innerHTML = data;
-                     resultDiv.style.color = "#10b981";
+                     resultDiv.classList.add('l4-result-success');
                 } else if (data.includes('403') || data.includes('Admin')) {
-                     // If SSRF returns the admin page content
-                     resultDiv.innerHTML = "<div style='color: #fbbf24; border: 1px solid #fbbf24; padding: 1rem; background: rgba(251, 191, 36, 0.1);'>" + data + "</div>";
+                     resultDiv.innerHTML = data;
+                     resultDiv.classList.add('l4-result-warning');
                 } else {
                      resultDiv.innerText = data;
-                     resultDiv.style.color = "#10b981";
+                     resultDiv.classList.add('l4-result-success');
                 }
             })
             .catch(err => {
                 resultDiv.innerText = "Error: " + err;
-                resultDiv.style.color = "#ef4444";
+                resultDiv.classList.add('l4-result-error');
             });
         });
     </script>

@@ -2,7 +2,7 @@
 {% block title %}SecureVault - Enterprise Digital Asset Management{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/secure-vault.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub1.css') }}">
 <!-- Professional Header Navigation -->
 <header class="sv-header">
     <div class="sv-header-container">
@@ -41,9 +41,8 @@
             class="btn-hero">Get Started</button>
     </div>
     <div class="hero-image">
-        <img src="https://images.unsplash.com/photo-1563986768609-322da13e56e1?w=400&q=80" alt="Security"
-            class="hero-img">
-    </div>
+            <img src="https://images.unsplash.com/photo-1563986768609-322da13e56e1?w=400&q=80" alt="Hero" class="hero-img">
+        </div>
 </section>
 
 <!-- Features Section -->
@@ -81,20 +80,17 @@
     <div class="products-grid">
         {% for product in products %}
         <div class="product-card">
-                <!-- Dynamic images based on index -->
-                {% set img_urls = [
-                    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&q=80',
-                    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80',
-                    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80',
-                    'https://images.unsplash.com/photo-1496096265110-f83ad7f96608?w=400&q=80',
-                    'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&q=80',
-                    'https://images.unsplash.com/photo-1562813733-b31f71025d54?w=400&q=80'
-                ] %}
-                <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" class="product-image">
-                <div class="product-overlay">
-                    <button class="btn-secondary">Preview</button>
-                </div>
-            </div>
+            <div class="product-image-wrapper" style="background: rgba(15,23,42,0.5); display: flex; align-items: center; justify-content: center; font-size: 4rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--sv-primary);">
+                    {% if loop.index0 % 6 == 0 %}
+                    {% elif loop.index0 % 6 == 1 %}
+                    {% elif loop.index0 % 6 == 2 %}
+                    {% elif loop.index0 % 6 == 3 %}
+                    {% elif loop.index0 % 6 == 4 %}
+                    {% else %}{% endif %}
+                    <div class="product-overlay">
+                        <button class="btn-secondary">Preview</button>
+                    </div>
+                </div> 
             <div class="product-content">
                 <h3 class="product-title">{{ product.name }}</h3>
                 <p class="product-desc">{{ product.description }}</p>
@@ -155,7 +151,7 @@
         </div>
 
         {% if error %}
-        <div id="errorMsg" class="error-message alert-error" style="display: block;">
+        <div id="errorMsg" class="error-message alert-error show-error">
             <span class="error-icon">⚠️</span>
             <span>{{ error }}</span>
         </div>
@@ -188,10 +184,10 @@
 
         <div class="modal-footer">
             <p>Don't have an account? <a href="#" class="link-primary">Request access</a></p>
-            <p style="margin-top: 0.8rem; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.8rem;">
+            <p class="modal-test-accounts">
                 Sandbox access:
-                <br><code style="background: rgba(0,0,0,0.2); padding: 0.2rem 0.4rem; border-radius: 2px;">wiener</code> / <code style="background: rgba(0,0,0,0.2); padding: 0.2rem 0.4rem; border-radius: 2px;">peter</code>
-                <br>or <code style="background: rgba(0,0,0,0.2); padding: 0.2rem 0.4rem; border-radius: 2px;">carlos</code> / <code style="background: rgba(0,0,0,0.2); padding: 0.2rem 0.4rem; border-radius: 2px;">montoya</code>
+                <br><code class="test-user">wiener</code> / <code class="test-pass">peter</code>
+                <br>or <code class="test-user">carlos</code> / <code class="test-pass">montoya</code>
             </p>
         </div>
     </div>

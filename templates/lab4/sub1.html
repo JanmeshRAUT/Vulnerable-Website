@@ -1,27 +1,32 @@
 {% extends 'base.html' %}
-{% block title %}Lab 4.1a: Store Inventory{% endblock %}
+{% block title %}Lab 4.1A: Store Inventory (Retail){% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab4_1a.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/sub1.css') }}">
 {% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('lab4_1_menu') }}" class="btn">Back to Menu</a>
-    
-    <div class="lab-header-a">
-        <h2 style="margin-bottom: 2rem;">Lab 4.1A: Store Inventory (Local Network)</h2>
+    <div class="l4-base theme-a">
+        <a href="{{ url_for('lab4_1_menu') }}" class="l4-nav-back">&larr; Back to Menu</a>
         
-        <div class="card-grid">
+        <div class="l4-header">
+            <h2 class="l4-title">Lab 4.1A: Store Inventory (Retail)</h2>
+            <p class="l4-subtitle">Basic SSRF against local network</p>
+        </div>
+        
+        <div class="l4-grid">
             {% for product in products %}
-            <div class="product-card-a">
-                <div class="product-image-a" style="padding: 0; background: #000; overflow: hidden;">
-                    <img src="{{ product.image }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="l4-card">
+                <div class="l4-img-wrapper">
+                    <img src="{{ product.image }}" alt="{{ product.name }}">
                 </div>
-                <h3 class="product-title-a">{{ product.name }}</h3>
-                <p class="product-desc-a">{{ product.description }}</p>
-                <div class="product-footer-a">
-                    <span class="price-tag-a">${{ product.price }}</span>
-                    <a href="{{ url_for('lab4_1_product', product_id=product.id) }}" class="btn-a">View Details</a>
+                <div class="l4-content">
+                    <h3 class="l4-card-title">{{ product.name }}</h3>
+                    <p class="l4-card-desc">{{ product.description }}</p>
+                    <div class="l4-footer">
+                        <span class="l4-price">${{ product.price }}</span>
+                        <a href="{{ url_for('lab4_1_product' if 'theme-a' == 'theme-a' else 'lab4_1b_product' if 'theme-a' == 'theme-b' else 'lab4_1c_product', product_id=product.id) }}" class="l4-btn">View Details</a>
+                    </div>
                 </div>
             </div>
             {% endfor %}

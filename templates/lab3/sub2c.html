@@ -1,79 +1,78 @@
 {% extends 'base.html' %}
-{% block title %}CloudDrive - Cloud Storage{% endblock %}
+{% block title %}CloudDrive - Lab 3.2{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/multi-factor.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub2.css') }}">
     <header class="l3-header theme-cloud">
         <div class="l3-header-left">
-            <a href="{{ url_for('lab3_2_menu') }}" class="l3-nav-back">&larr; Back</a>
-            <div class="l3-brand">☁️ CloudDrive</div>
+            <a href="{{ url_for('lab3_2_menu') }}" class="l3-nav-back">&larr; Back Options</a>
+            <div class="l3-brand"> CloudDrive</div>
         </div>
-        
         <div class="l3-header-right">
-            <button onclick="document.getElementById('loginModal').style.display='flex'" class="l3-btn l3-btn-white">Sign In</button>
+            <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="l3-btn l3-btn-white">Login</button>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
     <div class="theme-cloud">
-        <div class="l3-hero" style="background: linear-gradient(rgba(14, 165, 233, 0.9), rgba(14, 165, 233, 0.7)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&q=80') center/cover no-repeat; color: white; padding: 4rem 2rem; border-radius: 1rem; margin-bottom: 2rem;">
+        <div class="l3-hero">
             <h1>Welcome to CloudDrive</h1>
-            <p style="font-size: 1.2rem; margin-top: 0.5rem; opacity: 0.9;">Secure cloud storage for all your files</p>
+            <p>Protected by advanced 2FA security</p>
         </div>
 
+        <div class="l3-section-head">
+            <h2>Featured Services</h2>
+        </div>
+        
         <div class="l3-grid">
-            <div class="l3-card" style="text-align: center; overflow: hidden;">
-                <div style="height: 160px; overflow: hidden;">
-                     <img src="https://images.unsplash.com/photo-1544396821-4dd40b938ad3?w=400&q=80" alt="Storage" style="width: 100%; height: 100%; object-fit: cover;">
+            {% for product in products %}
+            <div class="l3-card">
+                <div class="l3-card-img-wrapper">
+                    {% set img_urls = [
+                        'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&q=80',
+                        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80',
+                        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80',
+                        'https://images.unsplash.com/photo-1496096265110-f83ad7f96608?w=400&q=80',
+                        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&q=80',
+                        'https://images.unsplash.com/photo-1562813733-b31f71025d54?w=400&q=80'
+                    ] %}
+                    <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" class="l3-product-image">
                 </div>
-                <div class="l3-card-content" style="padding: 1.5rem;">
-                    <h3>File Storage</h3>
-                    <p>Store, access, and share files securely from anywhere</p>
-                </div>
-            </div>
-            <div class="l3-card" style="text-align: center; overflow: hidden;">
-                <div style="height: 160px; overflow: hidden;">
-                     <img src="https://images.unsplash.com/photo-1531297461136-82lw8b2a082c?w=400&q=80" alt="Sync" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="l3-card-content" style="padding: 1.5rem;">
-                    <h3>Auto Sync</h3>
-                    <p>Seamlessly sync across all your devices in real-time</p>
-                </div>
-            </div>
-            <div class="l3-card" style="text-align: center; overflow: hidden;">
-                <div style="height: 160px; overflow: hidden;">
-                     <img src="https://images.unsplash.com/photo-1563986768609-322da13e56e1?w=400&q=80" alt="Security" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="l3-card-content" style="padding: 1.5rem;">
-                    <h3>2FA Protected</h3>
-                    <p>Advanced security features to keep your data safe</p>
+                <div class="l3-card-content">
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description }}</p>
+                    <div class="l3-card-footer">
+                        <span class="l3-price">${{ product.price }}</span>
+                        <button class="l3-btn l3-btn-primary">Buy Now</button>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
 
-
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" class="l3-modal-overlay">
-        <div class="l3-modal-card">
-            <button onclick="document.getElementById('loginModal').style.display='none'" class="l3-close-btn">&times;</button>
-            <h2 class="l3-modal-title">☁️ Sign In</h2>
-            <form id="loginForm">
-                <div class="l3-form-group">
-                    <label class="l3-label">Username</label>
-                    <input type="text" name="username" id="username" required class="l3-input">
-                </div>
-                <div class="l3-form-group last">
-                    <label class="l3-label">Password</label>
-                    <input type="password" name="password" id="password" required class="l3-input">
-                </div>
-                <div id="errorMsg" class="l3-error-msg"></div>
-                <button type="submit" class="l3-btn l3-btn-primary">Sign In</button>
-                <div class="l3-test-accounts">
-                    Test accounts:<br>
-                    <code>user1:pass1</code> or <code>admin:admin2024</code>
-                </div>
-            </form>
+        <!-- LOGIN MODAL -->
+        <div id="loginModal" class="l3-modal-overlay">
+            <div class="l3-modal-card">
+                <button onclick="const m = document.getElementById('loginModal'); m.classList.remove('active'); setTimeout(() => m.style.display='none', 300);" class="l3-close-btn">&times;</button>
+                <h2 class="l3-modal-title"> Secure Login</h2>
+                <form id="loginForm">
+                    <div class="l3-form-group">
+                        <label class="l3-label">Username</label>
+                        <input type="text" name="username" id="username" required class="l3-input">
+                    </div>
+                    <div class="l3-form-group last">
+                        <label class="l3-label">Password</label>
+                        <input type="password" name="password" id="password" required class="l3-input">
+                    </div>
+                    <div id="errorMsg" class="l3-error-msg"></div>
+                    <button type="submit" class="l3-btn l3-btn-primary">Login</button>
+                    <div class="l3-test-accounts">
+                        Test accounts:<br>
+                        <code>wiener:peter</code> or <code>carlos:montoya</code>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

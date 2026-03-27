@@ -2,7 +2,7 @@
 {% block title %}DataGuard Pro - Professional Data Security{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab3/corporate-vault.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub1_c.css') }}">
     <!-- Professional Header Navigation - Corporate Theme -->
     <header class="cv-header">
         <div class="cv-header-container">
@@ -37,7 +37,7 @@
             <button onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)" class="btn-hero">Sign In</button>
         </div>
         <div class="hero-image">
-            <img src="https://images.unsplash.com/photo-1558494949-efdeb6bf80d1?w=600&q=80" alt="Professional Security" class="hero-img">
+            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80" alt="Hero" class="hero-img">
         </div>
     </section>
 
@@ -76,19 +76,15 @@
         <div class="products-grid">
             {% for product in products %}
             <div class="product-card">
-                <div class="product-image-wrapper">
-                    <!-- Dynamic images based on index -->
-                    {% set img_urls = [
-                        'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80',
-                        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&q=80',
-                        'https://images.unsplash.com/photo-1504384308090-c54be3855833?w=400&q=80',
-                        'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&q=80',
-                        'https://images.unsplash.com/photo-1517433456452-f9633a875f98?w=400&q=80',
-                        'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&q=80'
-                    ] %}
-                    <img src="{{ img_urls[loop.index0 % 6] }}" alt="{{ product.name }}" class="product-image">
+                <div class="product-image-wrapper" style="background: rgba(15,23,42,0.5); display: flex; align-items: center; justify-content: center; font-size: 4rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--sv-primary);">
+                    {% if loop.index0 % 6 == 0 %}
+                    {% elif loop.index0 % 6 == 1 %}
+                    {% elif loop.index0 % 6 == 2 %}
+                    {% elif loop.index0 % 6 == 3 %}
+                    {% elif loop.index0 % 6 == 4 %}
+                    {% else %}{% endif %}
                     <div class="product-overlay">
-                        <button class="btn-secondary">Learn More</button>
+                        <button class="btn-secondary">Preview</button>
                     </div>
                 </div>
                 <div class="product-content">
@@ -148,7 +144,7 @@
             </div>
             
             {% if error %}
-            <div id="errorMsg" class="error-message alert-error" style="display: block;">
+            <div id="errorMsg" class="error-message alert-error show-error">
                 <span class="error-icon">⚠️</span>
                 <span>{{ error }}</span>
             </div>

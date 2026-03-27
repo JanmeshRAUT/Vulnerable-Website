@@ -1,19 +1,19 @@
 /* ================================
    PAGE: LAB 3 DASHBOARD
-   Authentication Module Layout (2025 Refined)
+   Authentication Module — Premium Glassmorphic (2025)
    ================================ */
 
 :root {
     --auth-primary: #8b5cf6; /* VIOLET-500 */
     --auth-secondary: #06b6d4; /* CYAN-500 */
-    --auth-surface: rgba(255, 255, 255, 0.7); /* LIGHT surface with transparency */
-    --auth-dark: #f8f9fa; /* Light background */
-    --text-muted: #6b7280; /* SLATE 500 */
-    --text-main: #111827; /* SLATE 900 */
-    --glass-border: rgba(0, 0, 0, 0.06);
+    --auth-surface: rgba(30, 41, 59, 0.6);
+    --auth-dark: #0f172a;
+    --text-muted: #94a3b8;
+    --text-main: #f8fafc;
+    --glass-border: rgba(255, 255, 255, 0.08);
 }
 
-/* Page Container (Responsive) */
+/* Page Container */
 .lab3-container {
     max-width: 1200px;
     margin: 4rem auto;
@@ -29,20 +29,21 @@
     gap: 0.75rem;
     margin-bottom: 3rem;
     padding: 0.75rem 1.25rem;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(99, 102, 241, 0.02));
-    border: 1.5px solid #e5e7eb;
+    background: rgba(139, 92, 246, 0.06);
+    border: 1px solid rgba(139, 92, 246, 0.15);
     border-radius: 99px;
-    color: #6b7280;
+    color: #94a3b8;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
 }
 
 .btn-back:hover {
-    color: #111827;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
-    border-color: rgba(99, 102, 241, 0.2);
+    color: #ffffff;
+    background: rgba(139, 92, 246, 0.12);
+    border-color: rgba(139, 92, 246, 0.3);
     transform: translateX(-4px);
 }
 
@@ -60,11 +61,12 @@
     gap: 3rem;
     align-items: center;
     padding: 3rem;
-    background: linear-gradient(120deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
-    border: 1.5px solid #e5e7eb;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(139, 92, 246, 0.12);
     border-radius: 24px;
     backdrop-filter: blur(24px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -81,28 +83,38 @@
     z-index: -1;
 }
 
+.lab-module-header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+}
+
 .lab-header-icon {
     font-size: 3.5rem;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.04));
-    color: #6366f1;
+    background: rgba(139, 92, 246, 0.1);
+    color: #a78bfa;
     width: 96px;
     height: 96px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 20px;
-    border: 1.5px solid #e5e7eb;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
 }
 
 .lab-title {
     font-size: 3rem;
-    font-weight: 800;
+    font-weight: 900;
     line-height: 1.1;
     letter-spacing: -0.03em;
-    color: var(--text-main);
     margin: 0 0 1rem 0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .lab-subtitle {
@@ -114,19 +126,21 @@
     max-width: 65ch;
 }
 
-/* Warning Banner (Refined) */
+/* Warning Banner */
 .lab-warning-banner {
     display: flex;
     align-items: flex-start;
     gap: 1.5rem;
     padding: 1.5rem 2rem;
-    background: rgba(234, 179, 8, 0.05);
-    border: 1px solid rgba(234, 179, 8, 0.15);
-    border-radius: 12px;
+    background: rgba(245, 158, 11, 0.06);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 16px;
     margin-bottom: 4rem;
     font-size: 0.95rem;
     color: #e2e8f0;
     backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.05);
+    border-left: 4px solid rgba(245, 158, 11, 0.5);
 }
 
 .warning-icon {
@@ -162,15 +176,15 @@
         padding: 2rem;
         gap: 1.5rem;
     }
-    
+
     .lab-header-icon {
         margin: 0 auto;
     }
-    
+
     .lab-title {
         font-size: 2.25rem;
     }
-    
+
     .lab-card-grid {
         grid-template-columns: 1fr;
     }

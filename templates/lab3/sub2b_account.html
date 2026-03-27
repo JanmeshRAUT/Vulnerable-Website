@@ -1,101 +1,79 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard - BankSecure{% endblock %}
+{% block title %}My Account - BankSecure{% endblock %}
 
 {% block header %}
-    <header style="background: #059669; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="{{ url_for('lab3_2_menu') }}" style="color: #d1fae5; font-size: 0.875rem; text-decoration: none;">&larr; Back to Variations</a>
-            <div style="font-weight: 700; font-size: 1.5rem;">🏦 BankSecure</div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub2.css') }}">
+    <header class="l3-header theme-bank">
+        <div class="l3-header-left">
+            <a href="{{ url_for('lab3') }}" class="l3-nav-back">&larr; Lab Menu</a>
+            <div class="l3-brand"> BankSecure</div>
         </div>
-        <div>
-            <span style="margin-right: 1rem; color: #d1fae5;">👤 {{ username }}</span>
-            <a href="{{ url_for('lab3_2b_logout') }}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Logout</a>
+        <div class="l3-header-right">
+            <span class="l3-text-muted"> {{ username }}</span>
+            <a href="{{ url_for('lab3_2b_logout') }}" class="l3-btn btn-danger">Logout</a>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div style="max-width: 1000px; margin: 0 auto;">
-        <h2 style="margin-bottom: 2rem;">Account Dashboard</h2>
+    <div class="theme-bank l3-account-container">
+        <h2 class="l3-account-title">My Account</h2>
         
         {% if flag %}
             <script>
                 alert("Congratulations! {{ flag }}");
             </script>
-            <div class="alert alert-success" style="margin-bottom: 2rem;">
-                <strong>🎉 FLAG CAPTURED!</strong> {{ flag }}
+            <div class="alert alert-success l3-mb-2">
+                <strong> FLAG CAPTURED!</strong> {{ flag }}
             </div>
-            <div class="alert alert-error" style="margin-bottom: 2rem;">
+            <div class="alert alert-error l3-mb-2">
                 <strong>Vulnerability Exploited:</strong> You bypassed two-factor authentication!
                 <br><br>
                 <strong>How it worked:</strong>
-                <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                    <li>Logged in as <code>bob:bob456</code></li>
+                <ol class="l3-list">
+                    <li>Logged in as <code>carlos:montoya</code></li>
                     <li>Redirected to 2FA verification page</li>
-                    <li>Instead of entering the code, you manually navigated to <code>/lab3/2b/dashboard</code></li>
+                    <li>Instead of entering the code, you manually navigated to the account page</li>
                     <li>The application only checked if you were logged in, NOT if you completed 2FA!</li>
                 </ol>
             </div>
         {% endif %}
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div class="card">
-                <h3 style="color: #059669;">Account Balance</h3>
-                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">$12,450.00</p>
-                <p style="color: #94a3b8; font-size: 0.875rem;">Available Balance</p>
-            </div>
-            <div class="card">
-                <h3 style="color: #059669;">Savings</h3>
-                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">$5,230.50</p>
-                <p style="color: #94a3b8; font-size: 0.875rem;">Total Savings</p>
-            </div>
-            <div class="card">
-                <h3 style="color: #059669;">Credit Card</h3>
-                <p style="font-size: 2rem; font-weight: bold; margin: 1rem 0;">$1,850.00</p>
-                <p style="color: #94a3b8; font-size: 0.875rem;">Current Balance</p>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h3>Account Information</h3>
-            <div style="margin-top: 1.5rem;">
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>Account ID:</strong>
-                    <span>{{ username }}</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>Email:</strong>
-                    <span>{{ username }}@banksecure.com</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>2FA Status:</strong>
-                    <span style="color: {% if verified %}#10b981{% else %}#ef4444{% endif %};">
-                        {% if verified %}✅ Verified{% else %}⚠️ Not Verified (Bypassed!){% endif %}
-                    </span>
-                </div>
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <strong>Account Type:</strong>
-                    <span style="color: {% if username == 'bob' %}#fbbf24{% else %}#94a3b8{% endif %};">
-                        {% if username == 'bob' %}Premium Account{% else %}Standard Account{% endif %}
-                    </span>
+        <div class="l3-card l3-mb-2">
+            <div class="l3-card-content">
+                <h3>Account Information</h3>
+                <div class="l3-info-grid">
+                    <div class="l3-info-row">
+                        <strong class="l3-info-label">Username:</strong>
+                        <span>{{ username }}</span>
+                    </div>
+                    <div class="l3-info-row">
+                        <strong class="l3-info-label">Email:</strong>
+                        <span>{{ username }}@banksecure.com</span>
+                    </div>
+                    <div class="l3-info-row">
+                        <strong class="l3-info-label">2FA Status:</strong>
+                        <span class="{{ 'l3-status-success' if verified else 'l3-status-danger' }}">
+                            {% if verified %} Verified{% else %} Not Verified (Bypassed!){% endif %}
+                        </span>
+                    </div>
+                    <div class="l3-info-row">
+                        <strong class="l3-info-label">Account Type:</strong>
+                        <span class="{{ 'l3-status-warning' if username == 'carlos' else 'l3-status-muted' }}">
+                            {% if username == 'carlos' %}Premium Member{% else %}Standard Member{% endif %}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="card" style="margin-top: 2rem;">
-            <h3>Recent Transactions</h3>
-            <div style="margin-top: 1rem;">
-                <div style="display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #334155;">
-                    <span>Transfer to John Doe</span>
-                    <span style="color: #ef4444;">-$250.00</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #334155;">
-                    <span>Salary Deposit</span>
-                    <span style="color: #10b981;">+$3,500.00</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 1rem;">
-                    <span>Online Purchase</span>
-                    <span style="color: #ef4444;">-$89.99</span>
+        <div class="l3-card l3-mt-2">
+            <div class="l3-card-content">
+                <h3>Security Settings</h3>
+                <p class="l3-text-muted l3-mt-1">Manage your security preferences</p>
+                <div class="l3-action-row">
+                    <button class="l3-btn l3-btn-primary">Change Password</button>
+                    <button class="l3-btn l3-btn-white">Enable 2FA</button>
                 </div>
             </div>
         </div>

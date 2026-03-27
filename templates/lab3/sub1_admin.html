@@ -2,94 +2,77 @@
 {% block title %}Administrator Portal - SecureVault{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='lab3/1/admin.css') }}">
-    <header class="admin-header">
-        <div class="admin-header-left">
-            <a href="{{ url_for('lab3') }}" class="admin-back-link">&larr; Lab Menu</a>
-            <div class="admin-title">
-                <span class="admin-icon">🔐</span>
-                <h1>SecureVault Admin</h1>
-            </div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub2.css') }}">
+    {% set theme = 'theme-shop' if variant == '1' else 'theme-bank' if variant == '2' else 'theme-cloud' %}
+    <header class="l3-header {{ theme }}">
+        <div class="l3-header-left">
+            <a href="{{ url_for('lab3') }}" class="l3-nav-back">&larr; Lab Menu</a>
+            <div class="l3-brand">🔒 SecureVault Admin</div>
         </div>
-        <div class="admin-header-right">
-            <div class="admin-user-info">
-                <span class="admin-user-icon">👤</span>
-                <span class="admin-username">{{ admin_username }}</span>
-            </div>
-            <a href="{% if variant == '2' %}{{ url_for('lab3_1_2_logout') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_logout') }}{% else %}{{ url_for('lab3_1_logout') }}{% endif %}" class="btn-logout">Logout</a>
+        <div class="l3-header-right">
+            <span class="l3-text-muted">👤 {{ admin_username }}</span>
+            <a href="{% if variant == '2' %}{{ url_for('lab3_1_2_logout') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_logout') }}{% else %}{{ url_for('lab3_1_logout') }}{% endif %}" class="l3-btn l3-btn-danger-outline">Logout</a>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div class="admin-container">
+    {% set theme = 'theme-shop' if variant == '1' else 'theme-bank' if variant == '2' else 'theme-cloud' %}
+    <div class="{{ theme }} l3-admin-container">
+        
         {% if flag %}
-            <!-- Success State -->
-            <div class="success-banner">
-                <div class="success-content">
-                    <h2 class="success-title">🎉 Challenge Complete!</h2>
-                    <p class="success-message">You successfully brute forced the admin credentials</p>
-                    <div class="flag-box">
-                        <p class="flag-label">Congratulations</p>
-                        <code class="flag-text">{{ flag }}</code>
-                    </div>
-                    <p class="success-subtitle">You've demonstrated the dangers of weak authentication without rate limiting</p>
-                    <div class="success-actions">
-                        <a href="{{ url_for('lab3_1') }}" class="btn-primary">Return to Store</a>
-                        <a href="{{ url_for('lab3') }}" class="btn-secondary">Lab Menu</a>
-                    </div>
-                </div>
+            <div class="alert alert-success l3-mb-2">
+                <strong>🎉 Challenge Complete!</strong> {{ flag }}
+                <br>
+                <small>You successfully brute forced the admin credentials.</small>
+            </div>
+            <div class="l3-admin-title-box">
+                <a href="{{ url_for('lab3_1') }}" class="l3-btn l3-btn-primary">Return to Store</a>
             </div>
         {% else %}
-            <!-- Admin Panel -->
-            <div class="admin-panel">
-                <div class="panel-header">
-                    <h2 class="panel-title">User Management System</h2>
-                    <p class="panel-subtitle">Manage registered users and system accounts</p>
-                </div>
+            
+            <div class="l3-admin-title-box">
+                <h2 class="l3-admin-title">User Management System</h2>
+                <p class="l3-admin-subtitle">Manage registered users and system accounts</p>
+            </div>
 
-                <div class="user-management-section">
+            <div class="l3-card l3-mb-2">
+                <div class="l3-card-content">
                     {% if users %}
-                        <div class="users-list">
-                            <div class="list-header">
-                                <div class="col-username">Username</div>
-                                <div class="col-email">Email Address</div>
-                                <div class="col-id">User ID</div>
-                                <div class="col-action">Action</div>
-                            </div>
-                            
-                            {% for user in users %}
-                            <div class="user-row">
-                                <div class="col-username">
-                                    <p class="user-name">{{ user.username }}</p>
-                                </div>
-                                <div class="col-email">
-                                    <p class="user-email">{{ user.email or 'No email registered' }}</p>
-                                </div>
-                                <div class="col-id">
-                                    <code class="user-id">{{ user.id }}</code>
-                                </div>
-                                <div class="col-action">
-                                    <form method="POST" action="{% if variant == '2' %}{{ url_for('lab3_1_2_delete_user') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_delete_user') }}{% else %}{{ url_for('lab3_1_delete_user') }}{% endif %}" class="delete-form">
-                                        <button type="submit" class="btn-danger btn-sm" onclick="return confirm('Delete this user?');">
-                                            ⛔ Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            {% endfor %}
+                        <div class="l3-admin-grid-header">
+                            <div>Username</div>
+                            <div>Email Address</div>
+                            <div>User ID</div>
+                            <div>Action</div>
                         </div>
+                        
+                        {% for user in users %}
+                        <div class="l3-admin-grid-row">
+                            <div class="l3-user-name">{{ user.username }}</div>
+                            <div class="l3-text-muted">{{ user.email or 'No email' }}</div>
+                            <div><code class="l3-user-id">{{ user.id }}</code></div>
+                            <div>
+                                <form method="POST" action="{% if variant == '2' %}{{ url_for('lab3_1_2_delete_user') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_delete_user') }}{% else %}{{ url_for('lab3_1_delete_user') }}{% endif %}">
+                                    <button type="submit" class="l3-btn l3-btn-danger-outline" onclick="return confirm('Delete this user?');">
+                                        ⛔ Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
                     {% else %}
-                        <div class="empty-state">
-                            <p class="empty-icon">👥</p>
-                            <p class="empty-text">No users to display</p>
+                        <div class="l3-empty-users">
+                            <div class="l3-empty-icon">👥</div>
+                            <p class="l3-text-muted">No users to display</p>
                         </div>
                     {% endif %}
                 </div>
+            </div>
 
-                <div class="admin-info-box">
-                    <h3>ℹ️ Administration Notes</h3>
-                    <ul>
+            <div class="l3-card">
+                <div class="l3-card-content l3-admin-notes">
+                    <h3 class="l3-notes-title">ℹ️ Administration Notes</h3>
+                    <ul class="l3-notes-list">
                         <li>You have full access to user management functions</li>
                         <li>All deletions are permanent and cannot be undone</li>
                         <li>Changes are logged in the system audit trail</li>
@@ -97,6 +80,7 @@
                     </ul>
                 </div>
             </div>
+            
         {% endif %}
     </div>
 {% endblock %}

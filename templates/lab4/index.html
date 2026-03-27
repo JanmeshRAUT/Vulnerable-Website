@@ -1,71 +1,45 @@
 {% extends 'base.html' %}
-{% block title %}SSRF Command Center - SecureNet{% endblock %}
+{% block title %}Module 4 - SSRF | Lab Center{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab4/secure-net.css') }}">
-<header class="sn-header">
-    <div class="container sn-header-content">
-        <div class="sn-brand">
-            <span class="sn-brand-icon">🛡️</span>
-            SecureNet
-        </div>
-        <div class="sn-status">
-            <div class="sn-status-dot"></div>
-            SYSTEM ONLINE
-        </div>
-    </div>
-</header>
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-    <!-- Hero Section -->
-    <section class="sn-hero">
-        <div class="sn-hero-content">
-            <span class="sn-tag">Advanced Security Module</span>
-            <h1 class="sn-title">SSRF Command Center</h1>
-            <p class="sn-subtitle">Master the art of Server-Side Request Forgery. Bypass perimeter security and access internal infrastructure.</p>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('home') }}" class="back-link-premium">&larr; Back to Dashboard</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Module 4</p>
+            <h1 class="lab-sub-title">Server-Side Request Forgery</h1>
         </div>
-    </section>
-
-    <div class="container">
-        <!-- Lab Grid -->
-        <div class="sn-grid">
-            <!-- Lab 4.1 -->
-            <div class="sn-card">
-                <div class="sn-card-header">
-                    <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&q=80" alt="Internal Access" class="sn-card-img">
-                </div>
-                <div class="sn-card-body">
-                    <h3 class="sn-card-title">
-                        <span>🏢</span> 4.1: Internal Loopback Access
-                    </h3>
-                    <p class="sn-card-desc">Target the application's own local loopback interface. Exploit a vulnerable stock checking API to access the protected admin panel at <code class="sn-code">/admin</code>.</p>
-                    <a href="{{ url_for('lab4_1_menu') }}" class="sn-btn">
-                        <span>⚡</span> Initialize Lab
-                    </a>
-                </div>
-            </div>
-
-
-        </div>
-
-        <!-- Terminal Hint -->
-        <div class="sn-terminal">
-            <div class="sn-terminal-line">
-                <span class="sn-prompt">root@securenet:~$</span>
-                <span class="sn-cmd">./check_security_posture.sh</span>
-            </div>
-            <div class="sn-terminal-line section-output">
-                <span class="sn-output">Analyzing network boundaries... [WARNING]</span>
-            </div>
-            <div class="sn-terminal-line section-output">
-                <span class="sn-output">Internal services exposed via public interface. Vulnerability detected.</span>
-            </div>
-            <div class="sn-terminal-line section-output">
-                <span class="sn-output">Recommendation: Use intercepting proxies (Burp Suite/OWASP ZAP) to manipulate request parameters.</span>
-            </div>
-        </div>
-
-        <div style="height: 4rem;"></div>
+        <p class="lab-header-desc">Master the art of SSRF attacks. Bypass perimeter security and access internal infrastructure through vulnerable server-side requests.</p>
     </div>
+
+    <!-- Alert Banner -->
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Advanced Security Module:</strong> Exploit vulnerable stock checking APIs to access protected admin panels and internal services. Use intercepting proxies for best results.
+        </div>
+    </div>
+
+    <!-- Lab Grid -->
+    <div class="premium-lab-grid">
+        <!-- Lab 4.1 -->
+        <a href="{{ url_for('lab4_1_menu') }}" class="premium-lab-card" style="--card-color: #10b981;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">🏢</div>
+                <div class="premium-card-badge">Lab 4.1</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Internal Loopback Access</h3>
+                <p>Target the application's own local loopback interface. Exploit a vulnerable stock checking API to access the protected admin panel at <code>/admin</code>.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Initialize Lab &rarr;</span>
+            </div>
+        </a>
+    </div>
+</div>
 {% endblock %}

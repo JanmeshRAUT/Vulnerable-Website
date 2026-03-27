@@ -1,0 +1,13 @@
+.git
+.github
+venv
+__pycache__
+*.pyc
+dist
+build
+*.spec
+*.db
+.pytest_cache
+*.bat
+docker-compose.yml
+Dockerfile

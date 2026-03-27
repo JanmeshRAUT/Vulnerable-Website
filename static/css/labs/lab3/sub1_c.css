@@ -803,3 +803,66 @@ a {
         padding: 0 1rem;
     }
 }
+/* Image Placeholders added to remove Unsplash deps */
+.hero-image-placeholder {
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem;
+    border-radius: 20px;
+    height: 100%;
+    min-height: 400px;
+    box-shadow: var(--sv-shadow, 0 10px 30px rgba(0,0,0,0.5));
+    border: 1px solid var(--sv-border, rgba(255,255,255,0.1));
+}
+
+.product-image-placeholder {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.product-card:hover .product-image-placeholder {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.product-image-placeholder .product-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-image-placeholder .product-overlay {
+    opacity: 1;
+}
+
+/* Modal Dynamic Extensions */
+.show-error { display: block; }
+.modal-test-accounts { 
+    margin-top: 0.8rem; 
+    font-size: 0.75rem; 
+    color: #94a3b8; 
+    border-top: 1px solid rgba(255,255,255,0.1); 
+    padding-top: 0.8rem; 
+}
+.test-user { background: rgba(0,0,0,0.2); padding: 0.2rem 0.4rem; border-radius: 2px; }
+.test-pass { background: rgba(0,0,0,0.2); padding: 0.2rem 0.4rem; border-radius: 2px; }
+
+/* Fixes for Login Modal overrides */
+.alert-error { display: none; }
+.alert-error.show-error { display: flex !important; }
+.checkbox-group { justify-content: center; margin-top: 1rem; }
+.checkbox-group input[type="checkbox"] { width: auto; margin: 0; display: inline-block; cursor: pointer; }
+.form-hint { text-align: left; }

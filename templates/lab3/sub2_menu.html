@@ -1,59 +1,75 @@
 {% extends 'base.html' %}
-{% block title %}Lab 3.2: 2FA Bypass Variations{% endblock %}
+{% block title %}Lab 3.2: 2FA Bypass Variations | Lab Center{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/index.css') }}">
+{% endblock %}
 
 {% block content %}
-
-<a href="{{ url_for('lab3') }}" class="btn">Back to Lab 3</a>
-
-    <h2>Lab 3.2: 2FA Bypass - Choose a Variation</h2>
-    <div class="banner">
-        ⚠️ All variations have the same vulnerability but different themes. Practice with different perspectives!
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab3') }}" class="back-link-premium">&larr; Back to Module 3</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab Variation Selection</p>
+            <h1 class="lab-sub-title">Lab 3.2: 2FA Bypass</h1>
+        </div>
+        <p class="lab-header-desc">All variations have the same vulnerability but different themes. Practice bypassing multi-factor authentication from different perspectives.</p>
     </div>
 
-    <div class="card-grid">
+    <!-- Alert Banner -->
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Objective:</strong> Bypass 2FA verification by exploiting logic flaws in the authentication flow. Same core vulnerability, different brand contexts!
+        </div>
+    </div>
+
+    <!-- Lab Grid -->
+    <div class="premium-lab-grid">
         <!-- Variation A: SecureShop -->
-        <div class="card">
-            <div class="variation-preview preview-shophub">
-                🔒
+        <a href="{{ url_for('lab3_2') }}" class="premium-lab-card" style="--card-color: #8b5cf6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.2);">🔒</div>
+                <div class="premium-card-badge">3.2.A</div>
             </div>
-            <h3>Variation A: SecureShop</h3>
-            <p class="variation-desc">E-commerce platform with 2FA protection</p>
-            <p class="variation-meta">
-                <strong>Credentials:</strong><br>
-                User: <code>wiener:peter</code><br>
-                Target: <code>carlos:montoya</code>
-            </p>
-            <a href="{{ url_for('lab3_2') }}" class="btn">Start Variation A</a>
-        </div>
-        
+            <div class="premium-card-body">
+                <h3>SecureShop</h3>
+                <p>E-commerce platform with 2FA protection.<br><code>wiener:peter</code> → Target: <code>carlos:montoya</code></p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation A &rarr;</span>
+            </div>
+        </a>
+
         <!-- Variation B: BankSecure -->
-        <div class="card">
-            <div class="variation-preview preview-medical">
-                🏦
+        <a href="{{ url_for('lab3_2b') }}" class="premium-lab-card" style="--card-color: #10b981;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">🏦</div>
+                <div class="premium-card-badge">3.2.B</div>
             </div>
-            <h3>Variation B: BankSecure</h3>
-            <p class="variation-desc">Online banking with 2FA authentication</p>
-            <p class="variation-meta">
-                <strong>Credentials:</strong><br>
-                User: <code>alice:alice123</code><br>
-                Target: <code>bob:bob456</code>
-            </p>
-            <a href="{{ url_for('lab3_2b') }}" class="btn">Start Variation B</a>
-        </div>
-        
+            <div class="premium-card-body">
+                <h3>BankSecure</h3>
+                <p>Online banking with 2FA authentication.<br><code>alice:alice123</code> → Target: <code>bob:bob456</code></p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation B &rarr;</span>
+            </div>
+        </a>
+
         <!-- Variation C: CloudDrive -->
-        <div class="card">
-            <div class="variation-preview preview-datavault">
-                ☁️
+        <a href="{{ url_for('lab3_2c') }}" class="premium-lab-card" style="--card-color: #ef4444;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">☁️</div>
+                <div class="premium-card-badge">3.2.C</div>
             </div>
-            <h3>Variation C: CloudDrive</h3>
-            <p class="variation-desc">Cloud storage with 2FA security</p>
-            <p class="variation-meta">
-                <strong>Credentials:</strong><br>
-                User: <code>user1:pass1</code><br>
-                Target: <code>admin:admin2024</code>
-            </p>
-            <a href="{{ url_for('lab3_2c') }}" class="btn">Start Variation C</a>
-        </div>
+            <div class="premium-card-body">
+                <h3>CloudDrive</h3>
+                <p>Cloud storage with 2FA security.<br><code>user1:pass1</code> → Target: <code>admin:admin2024</code></p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Variation C &rarr;</span>
+            </div>
+        </a>
     </div>
+</div>
 {% endblock %}
