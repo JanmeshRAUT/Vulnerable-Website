@@ -288,11 +288,15 @@
                   <td>
                     {% if student.solved_labs %}
                     <div class="solved-lab-list">
-                      {% for solved_lab in student.solved_labs %}
-                      <span class="solved-lab-chip" title="Variation: {{ solved_lab.variation or 'default' }}">
-                        {{ solved_lab.lab_id }}
-                      </span>
-                      {% endfor %}
+                      <span class="solved-lab-chip">{{ student.total_solved }} solved</span>
+                      <button
+                        class="icon-btn"
+                        onclick='showSolvedLabs({{ {
+                          "username": student.username,
+                          "solved_labs": student.solved_labs
+                        } | tojson }})'>
+                        View
+                      </button>
                     </div>
                     {% else %}
                     <span class="text-muted text-sm">No labs solved yet</span>
@@ -581,7 +585,10 @@
   function showStudentDossier(student) {
     const solvedLabs = Array.isArray(student.solved_labs) ? student.solved_labs : [];
     const solvedSummary = solvedLabs.length
-      ? solvedLabs.map(lab => `${lab.lab_id}${lab.variation ? ` (${lab.variation})` : ''}`).join('\n')
+      ? solvedLabs.map(lab => {
+          const route = lab.lab_path ? ` @ ${lab.lab_path}` : '';
+          return `${lab.label || lab.lab_id}${lab.variation ? ` (${lab.variation})` : ''}${route}`;
+        }).join('\n')
       : 'No labs solved yet';
 
     const lines = [
@@ -596,6 +603,23 @@
     ];
 
     alert(lines.join('\n'));
+  }
+
+  function showSolvedLabs(student) {
+    const solvedLabs = Array.isArray(student.solved_labs) ? student.solved_labs : [];
+    const solvedSummary = solvedLabs.length
+      ? solvedLabs.map(lab => {
+          const route = lab.lab_path ? ` | Route: ${lab.lab_path}` : '';
+          const canonical = lab.canonical_lab_id ? ` | Family: ${lab.canonical_lab_id}` : '';
+          return `${lab.label || lab.lab_id} -> ${lab.variation || 'default'}${canonical}${route}`;
+        }).join('\n')
+      : 'No labs solved yet';
+
+    alert([
+      `Solved labs for ${student.username || 'Unknown'}`,
+      '',
+      solvedSummary
+    ].join('\n'));
   }
 
   // Auto-switch to authorization tab if there are pending requests

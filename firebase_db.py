@@ -215,7 +215,7 @@ class FirebaseDataStore:
             print(f"[Firebase] Approval update failed for {email}: {e}")
             return False
 
-    def submit_lab_progress(self, email, lab_id, variation, flag, is_correct, message=""):
+    def submit_lab_progress(self, email, lab_id, variation, flag, is_correct, message="", canonical_lab_id=None, exact_lab_id=None, lab_path=None):
         """Record a research deliverable submission"""
         db = self.db
         fs = self.firestore
@@ -223,10 +223,14 @@ class FirebaseDataStore:
             return
         try:
             # Progress record
-            progress_ref = db.collection("lab_progress").document(email).collection("labs").document(lab_id)
+            progress_doc_id = exact_lab_id or lab_id
+            progress_ref = db.collection("lab_progress").document(email).collection("labs").document(progress_doc_id)
             
             payload = {
-                "lab_id": lab_id,
+                "lab_id": progress_doc_id,
+                "canonical_lab_id": canonical_lab_id or lab_id,
+                "exact_lab_id": progress_doc_id,
+                "lab_path": lab_path,
                 "variation": variation,
                 "last_flag_submitted": flag,
                 "is_solved": bool(is_correct),
@@ -239,7 +243,10 @@ class FirebaseDataStore:
                 # Aggregate solved record for monitoring
                 db.collection("solved_labs").add({
                     "email": email,
-                    "lab_id": lab_id,
+                    "lab_id": progress_doc_id,
+                    "canonical_lab_id": canonical_lab_id or lab_id,
+                    "exact_lab_id": progress_doc_id,
+                    "lab_path": lab_path,
                     "variation": variation,
                     "solved_at": fs.SERVER_TIMESTAMP
                 })

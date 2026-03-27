@@ -100,6 +100,125 @@ def get_google_redirect_uri():
 firebase_store = FirebaseDataStore(BASE_PATH)
 firebase_store.initialize()
 
+TRACKABLE_LAB_UNITS = [
+    {'id': 'lab1_1', 'canonical_id': 'lab1', 'label': 'Lab 1.1', 'path': '/lab1/1'},
+    {'id': 'lab1_2', 'canonical_id': 'lab1', 'label': 'Lab 1.2', 'path': '/lab1/2'},
+    {'id': 'lab1_3', 'canonical_id': 'lab1', 'label': 'Lab 1.3', 'path': '/lab1/3'},
+    {'id': 'lab2_1_a', 'canonical_id': 'lab2_1', 'label': 'Lab 2.1 A', 'path': '/lab2/1'},
+    {'id': 'lab2_1_b', 'canonical_id': 'lab2_1', 'label': 'Lab 2.1 B', 'path': '/lab2/1/b'},
+    {'id': 'lab2_1_c', 'canonical_id': 'lab2_1', 'label': 'Lab 2.1 C', 'path': '/lab2/1/c'},
+    {'id': 'lab2_2_a', 'canonical_id': 'lab2_2', 'label': 'Lab 2.2 A', 'path': '/lab2/2'},
+    {'id': 'lab2_2_b', 'canonical_id': 'lab2_2', 'label': 'Lab 2.2 B', 'path': '/lab2/2/bookstore'},
+    {'id': 'lab2_2_c', 'canonical_id': 'lab2_2', 'label': 'Lab 2.2 C', 'path': '/lab2/2/gamezone'},
+    {'id': 'lab2_3_a', 'canonical_id': 'lab2_3', 'label': 'Lab 2.3 Music', 'path': '/lab2/3/music'},
+    {'id': 'lab2_3_b', 'canonical_id': 'lab2_3', 'label': 'Lab 2.3 Sports', 'path': '/lab2/3/sports'},
+    {'id': 'lab2_3_c', 'canonical_id': 'lab2_3', 'label': 'Lab 2.3 Pets', 'path': '/lab2/3/pets'},
+    {'id': 'lab2_4_a', 'canonical_id': 'lab2_4', 'label': 'Lab 2.4 A', 'path': '/lab2/4'},
+    {'id': 'lab2_4_b', 'canonical_id': 'lab2_4', 'label': 'Lab 2.4 B', 'path': '/lab2/4b'},
+    {'id': 'lab2_4_c', 'canonical_id': 'lab2_4', 'label': 'Lab 2.4 C', 'path': '/lab2/4c'},
+    {'id': 'lab2_5_a', 'canonical_id': 'lab2_5', 'label': 'Lab 2.5 A', 'path': '/lab2/5'},
+    {'id': 'lab2_5_b', 'canonical_id': 'lab2_5', 'label': 'Lab 2.5 B', 'path': '/lab2/5b'},
+    {'id': 'lab2_5_c', 'canonical_id': 'lab2_5', 'label': 'Lab 2.5 C', 'path': '/lab2/5c'},
+    {'id': 'lab3_1_a', 'canonical_id': 'lab3_1', 'label': 'Lab 3.1 A', 'path': '/lab3/1'},
+    {'id': 'lab3_1_b', 'canonical_id': 'lab3_1', 'label': 'Lab 3.1 B', 'path': '/lab3/1/2'},
+    {'id': 'lab3_1_c', 'canonical_id': 'lab3_1', 'label': 'Lab 3.1 C', 'path': '/lab3/1/3'},
+    {'id': 'lab3_2_a', 'canonical_id': 'lab3_2', 'label': 'Lab 3.2 A', 'path': '/lab3/2'},
+    {'id': 'lab3_2_b', 'canonical_id': 'lab3_2', 'label': 'Lab 3.2 B', 'path': '/lab3/2b'},
+    {'id': 'lab3_2_c', 'canonical_id': 'lab3_2', 'label': 'Lab 3.2 C', 'path': '/lab3/2c'},
+    {'id': 'lab4_1_a', 'canonical_id': 'lab4', 'label': 'Lab 4.1 A', 'path': '/lab4/1'},
+    {'id': 'lab4_1_b', 'canonical_id': 'lab4', 'label': 'Lab 4.1 B', 'path': '/lab4/1/b'},
+    {'id': 'lab4_1_c', 'canonical_id': 'lab4', 'label': 'Lab 4.1 C', 'path': '/lab4/1/c'},
+    {'id': 'lab5_1_a', 'canonical_id': 'lab5_1', 'label': 'Lab 5.1 A', 'path': '/lab5/1'},
+    {'id': 'lab5_1_b', 'canonical_id': 'lab5_1', 'label': 'Lab 5.1 B', 'path': '/lab5/1/b'},
+    {'id': 'lab5_1_c', 'canonical_id': 'lab5_1', 'label': 'Lab 5.1 C', 'path': '/lab5/1/c'},
+    {'id': 'lab5_2_a', 'canonical_id': 'lab5_2', 'label': 'Lab 5.2 A', 'path': '/lab5/2'},
+    {'id': 'lab5_2_b', 'canonical_id': 'lab5_2', 'label': 'Lab 5.2 B', 'path': '/lab5/2/b'},
+    {'id': 'lab5_2_c', 'canonical_id': 'lab5_2', 'label': 'Lab 5.2 C', 'path': '/lab5/2/c'},
+    {'id': 'lab6_1_a', 'canonical_id': 'lab6', 'label': 'Lab 6.1 A', 'path': '/lab6/1'},
+    {'id': 'lab6_1_b', 'canonical_id': 'lab6', 'label': 'Lab 6.1 B', 'path': '/lab6/1/b'},
+    {'id': 'lab6_1_c', 'canonical_id': 'lab6', 'label': 'Lab 6.1 C', 'path': '/lab6/1/c'},
+    {'id': 'lab7_1_a', 'canonical_id': 'lab7', 'label': 'Lab 7.1 A', 'path': '/lab7/1'},
+    {'id': 'lab7_1_b', 'canonical_id': 'lab7', 'label': 'Lab 7.1 B', 'path': '/lab7/1/b'},
+    {'id': 'lab7_1_c', 'canonical_id': 'lab7', 'label': 'Lab 7.1 C', 'path': '/lab7/1/c'},
+    {'id': 'lab7_1_d', 'canonical_id': 'lab7', 'label': 'Lab 7.1 D', 'path': '/lab7/1/d'},
+    {'id': 'lab7_2_a', 'canonical_id': 'lab7', 'label': 'Lab 7.2', 'path': '/lab7/2'},
+    {'id': 'lab8_1_a', 'canonical_id': 'lab8', 'label': 'Lab 8.1 A', 'path': '/lab8/1/a'},
+    {'id': 'lab8_1_b', 'canonical_id': 'lab8', 'label': 'Lab 8.1 B', 'path': '/lab8/1/b'},
+    {'id': 'lab8_1_c', 'canonical_id': 'lab8', 'label': 'Lab 8.1 C', 'path': '/lab8/1/c'},
+    {'id': 'lab8_1_d', 'canonical_id': 'lab8', 'label': 'Lab 8.1 D', 'path': '/lab8/1/d'},
+    {'id': 'lab8_1_e', 'canonical_id': 'lab8', 'label': 'Lab 8.1 E', 'path': '/lab8/1/e'},
+    {'id': 'lab8_2_a', 'canonical_id': 'lab8_2', 'label': 'Lab 8.2', 'path': '/lab8/2'},
+    {'id': 'lab9_1_a', 'canonical_id': 'lab9', 'label': 'Lab 9', 'path': '/lab9'},
+]
+
+TRACKABLE_LAB_ID_INDEX = {unit['id']: unit for unit in TRACKABLE_LAB_UNITS}
+TRACKABLE_LAB_PATH_INDEX = {unit['path']: unit for unit in TRACKABLE_LAB_UNITS}
+
+
+def get_total_trackable_lab_units():
+    return len(TRACKABLE_LAB_UNITS)
+
+
+def normalize_lab_path(lab_path):
+    if not lab_path:
+        return None
+    normalized = str(lab_path).strip().lower()
+    if not normalized.startswith('/'):
+        normalized = '/' + normalized
+    if len(normalized) > 1:
+        normalized = normalized.rstrip('/')
+    return normalized
+
+
+def resolve_lab_context(lab_id=None, exact_lab_id=None, lab_path=None):
+    normalized_path = normalize_lab_path(lab_path)
+    unit = None
+
+    if exact_lab_id and exact_lab_id in TRACKABLE_LAB_ID_INDEX:
+        unit = TRACKABLE_LAB_ID_INDEX[exact_lab_id]
+    elif normalized_path:
+        if normalized_path in TRACKABLE_LAB_PATH_INDEX:
+            unit = TRACKABLE_LAB_PATH_INDEX[normalized_path]
+        else:
+            for candidate_path in sorted(TRACKABLE_LAB_PATH_INDEX.keys(), key=len, reverse=True):
+                if normalized_path.startswith(candidate_path + '/'):
+                    unit = TRACKABLE_LAB_PATH_INDEX[candidate_path]
+                    break
+
+    if unit:
+        return {
+            'exact_lab_id': unit['id'],
+            'canonical_lab_id': unit['canonical_id'],
+            'label': unit['label'],
+            'lab_path': unit['path'],
+        }
+
+    return {
+        'exact_lab_id': exact_lab_id or lab_id,
+        'canonical_lab_id': lab_id or exact_lab_id,
+        'label': exact_lab_id or lab_id,
+        'lab_path': normalized_path,
+    }
+
+
+def build_solved_lab_records(progress):
+    solved_labs = []
+    for lab_id, entry in sorted(progress.items(), key=lambda item: item[0]):
+        context = resolve_lab_context(
+            lab_id=entry.get('canonical_lab_id') or lab_id,
+            exact_lab_id=entry.get('exact_lab_id') or lab_id,
+            lab_path=entry.get('lab_path')
+        )
+        if entry.get('is_solved'):
+            solved_labs.append({
+                'lab_id': context['exact_lab_id'],
+                'canonical_lab_id': context['canonical_lab_id'],
+                'label': context['label'],
+                'variation': entry.get('variation') or 'default',
+                'lab_path': context['lab_path'],
+            })
+    return solved_labs
+
 
 # -------------------------
 # AUTHENTICATION HELPERS
@@ -189,25 +308,30 @@ def get_random_flag(lab_id, variation='default'):
 def submit_flag():
     """Verify research deliverable and record in Cloud Firestore"""
     lab_id = request.form.get('lab_id')
+    exact_lab_id = request.form.get('exact_lab_id')
+    lab_path = request.form.get('lab_path')
     variation = request.form.get('variation', 'default')
     submitted_flag = request.form.get('flag', '').strip()
     email = session.get('email')
+    lab_context = resolve_lab_context(lab_id=lab_id, exact_lab_id=exact_lab_id, lab_path=lab_path)
+    canonical_lab_id = lab_context.get('canonical_lab_id')
+    resolved_exact_lab_id = lab_context.get('exact_lab_id')
 
-    if not lab_id or not submitted_flag:
+    if not canonical_lab_id or not resolved_exact_lab_id or not submitted_flag:
         return jsonify({'success': False, 'error': 'Deliverable content missing.'}), 400
 
     # Retrieve expected flags from user session (dynamic)
-    expected_flags = session.get('lab_flags', {}).get(lab_id, [])
+    expected_flags = session.get('lab_flags', {}).get(canonical_lab_id, [])
     if not expected_flags:
         # Regenerate if session timed out or missing.
         identity_key = session.get('guid') or session.get('user_id')
-        expected_flags = list(generate_lab_flags(lab_id, identity_key).values())
+        expected_flags = list(generate_lab_flags(canonical_lab_id, identity_key).values())
 
         # Backward compatibility for users whose visible flags were generated
         # from the old user_id-only derivation before this fix.
         legacy_identity_key = session.get('user_id')
         if legacy_identity_key and legacy_identity_key != identity_key:
-            expected_flags.extend(generate_lab_flags(lab_id, legacy_identity_key).values())
+            expected_flags.extend(generate_lab_flags(canonical_lab_id, legacy_identity_key).values())
 
     # Normalize whitespace and guard against duplicate entries.
     expected_flags = {str(flag).strip() for flag in expected_flags if flag}
@@ -222,18 +346,41 @@ def submit_flag():
     }
     expected_flags.update(static_fallbacks)
     
-    print(f"[SUBMISSION] Lab: {lab_id}, Subject: {email}, Submitted: {submitted_flag}")
+    print(
+        f"[SUBMISSION] Canonical Lab: {canonical_lab_id}, Exact Lab: {resolved_exact_lab_id}, "
+        f"Subject: {email}, Submitted: {submitted_flag}"
+    )
     print(f"[SUBMISSION] Expected set includes {len(expected_flags)} possible signals.")
 
     if submitted_flag in expected_flags:
         # Record success in Firebase
-        firebase_store.submit_lab_progress(email, lab_id, variation, submitted_flag, True, "Deliverable accepted.")
+        firebase_store.submit_lab_progress(
+            email,
+            resolved_exact_lab_id,
+            variation,
+            submitted_flag,
+            True,
+            "Deliverable accepted.",
+            canonical_lab_id=canonical_lab_id,
+            exact_lab_id=resolved_exact_lab_id,
+            lab_path=lab_context.get('lab_path')
+        )
         return jsonify({'success': True, 'message': 'Research deliverable verified and serialized.'})
     else:
         # Record attempt in Firebase
         # Note: 'Invalid deliverable signal.' is the error seen by user.
-        firebase_store.submit_lab_progress(email, lab_id, variation, submitted_flag, False, "Incorrect deliverable.")
-        return jsonify({'success': False, 'error': f'Invalid deliverable signal for {lab_id}.'})
+        firebase_store.submit_lab_progress(
+            email,
+            resolved_exact_lab_id,
+            variation,
+            submitted_flag,
+            False,
+            "Incorrect deliverable.",
+            canonical_lab_id=canonical_lab_id,
+            exact_lab_id=resolved_exact_lab_id,
+            lab_path=lab_context.get('lab_path')
+        )
+        return jsonify({'success': False, 'error': f'Invalid deliverable signal for {resolved_exact_lab_id}.'})
 
 
 
@@ -248,19 +395,16 @@ def admin_students():
     # Calculate aggregate stats from Firebase data
     for student in students:
         progress = firebase_store.get_user_progress(student.get('email'))
-        solved_labs = []
-        for lab_id, entry in sorted(progress.items(), key=lambda item: item[0]):
-            if entry.get('is_solved'):
-                solved_labs.append({
-                    'lab_id': lab_id,
-                    'variation': entry.get('variation')
-                })
+        solved_labs = build_solved_lab_records(progress)
 
-        student['labs_enrolled'] = len(progress)
-        student['labs_approved'] = len(progress) # All are approved now as per user req
+        student['labs_enrolled'] = get_total_trackable_lab_units()
+        student['labs_approved'] = get_total_trackable_lab_units()
         student['solved_labs'] = solved_labs
         student['total_solved'] = len(solved_labs)
-        student['avg_progress'] = student['total_solved'] / len(progress) * 100 if progress else 0
+        student['avg_progress'] = (
+            student['total_solved'] / float(get_total_trackable_lab_units()) * 100
+            if get_total_trackable_lab_units() else 0
+        )
 
     # Fetch pending users for authorization
     pending_users = [u for u in students if not u.get('is_approved')]
@@ -645,6 +789,7 @@ def student_dashboard():
         
     # Fetch enrolled lab progress from Cloud Firestore
     progress = firebase_store.get_user_progress(email)
+    solved_labs = build_solved_lab_records(progress)
     
     # Format for template compatibility
     enrollments = [
@@ -656,9 +801,10 @@ def student_dashboard():
         }
         for lab_id, data in progress.items()
     ]
-    solved_count = sum(1 for e in enrollments if e['status'] == 'completed')
+    solved_count = len(solved_labs)
     
-    overall_progress = (float(solved_count) / 5.0) * 100.0 if enrollments else 0.0
+    total_lab_units = get_total_trackable_lab_units()
+    overall_progress = (float(solved_count) / float(total_lab_units)) * 100.0 if total_lab_units else 0.0
         
     # Mock assignments for UI completeness
     assignments = [
@@ -673,7 +819,8 @@ def student_dashboard():
                          enrollments=enrollments,
                          assignments=assignments,
                          overall_progress=int(overall_progress),
-                         grades=grades)
+                         grades=grades,
+                         total_lab_units=total_lab_units)
 
 
 @app.route('/dashboard/enroll', methods=['POST'])
