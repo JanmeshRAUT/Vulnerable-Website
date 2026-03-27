@@ -1,5 +1,6 @@
 import json
 import os
+import base64
 
 
 class FirebaseDataStore:
@@ -14,6 +15,44 @@ class FirebaseDataStore:
         value = os.environ.get("FIREBASE_ENABLED", "false")
         return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
+    def _parse_service_account_env(self):
+        """Parse Firebase service account JSON from env in multiple safe formats."""
+        raw_json = (
+            os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
+            or os.environ.get("SERVICE_ACCOUNT_JSON", "").strip()
+        )
+        base64_json = (
+            os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON_BASE64", "").strip()
+            or os.environ.get("SERVICE_ACCOUNT_JSON_BASE64", "").strip()
+        )
+
+        # Prefer base64 payloads in hosted environments to avoid escaping issues.
+        if base64_json:
+            try:
+                decoded = base64.b64decode(base64_json).decode("utf-8")
+                return json.loads(decoded), "SERVICE_ACCOUNT_JSON_BASE64 env var"
+            except Exception as exc:
+                raise ValueError(f"Invalid base64 service account JSON: {exc}") from exc
+
+        if not raw_json:
+            return None, None
+
+        # 1) Direct JSON object
+        try:
+            return json.loads(raw_json), "SERVICE_ACCOUNT_JSON env var"
+        except json.JSONDecodeError:
+            pass
+
+        # 2) Double-escaped JSON string (common in CI/env dashboards)
+        try:
+            normalized = raw_json.encode("utf-8").decode("unicode_escape")
+            return json.loads(normalized), "SERVICE_ACCOUNT_JSON env var (decoded escapes)"
+        except Exception as exc:
+            raise ValueError(
+                "SERVICE_ACCOUNT_JSON could not be parsed. Use strict JSON with double quotes "
+                "or provide SERVICE_ACCOUNT_JSON_BASE64."
+            ) from exc
+
     def initialize(self):
         if not self._is_enabled():
             return False
@@ -26,12 +65,11 @@ class FirebaseDataStore:
             if not credential_path:
                 credential_path = os.path.join(self.base_path, "firebase-service-account.json")
 
-            service_account_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
             project_id = os.environ.get("FIREBASE_PROJECT_ID", "").strip()
+            credential_data, credential_source = self._parse_service_account_env()
 
-            if service_account_json:
-                print(f"[Firebase] Initializing via SERVICE_ACCOUNT_JSON env var")
-                credential_data = json.loads(service_account_json)
+            if credential_data:
+                print(f"[Firebase] Initializing via {credential_source}")
                 cred = credentials.Certificate(credential_data)
             elif os.path.exists(credential_path):
                 print(f"[Firebase] Initializing via credential file: {credential_path}")
