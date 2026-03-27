@@ -5,8 +5,8 @@
 <div class="login-form-container">
     <div class="login-form-content card">
         <div class="login-form-header">
-            <h1>Welcome Back</h1>
-            <p>Sign in to your RESEARCH_OPS account</p>
+            <h1>Sign In</h1>
+            <p>Continue securely with your Google account.</p>
         </div>
 
         {% if error %}
@@ -15,36 +15,18 @@
         </div>
         {% endif %}
 
-        <form method="POST" class="auth-form">
-            <div class="auth-form-field">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-
-            <div class="auth-form-field">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-
-            <button type="submit" class="btn auth-submit-btn">Sign In</button>
-        </form>
-
-        <div class="auth-divider">OR</div>
-
-        <a href="{{ url_for('google_login') }}" class="auth-google-btn">
+        <a href="{{ url_for('google_login', next=next_url) }}" class="auth-google-btn auth-google-btn-primary">
             <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" class="auth-google-icon">
             Sign In with Google
         </a>
+
+        <p class="auth-security-note">Google OAuth is the only sign-in method enabled for this application.</p>
 
         <div class="auth-form-footer">
             <p>Don't have an account?
                 <a href="{{ url_for('register') }}">Create one</a>
             </p>
         </div>
-    </div>
-
-    <div class="test-accounts">
-        <p>Test accounts: <strong>admin</strong> / <strong>user</strong> / <strong>alice</strong></p>
     </div>
 </div>
 {% endblock %}

@@ -9,10 +9,18 @@ import random
 import re
 import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 import shutil
 import secrets
 from authlib.integrations.flask_client import OAuth
+from firebase_db import FirebaseDataStore
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    # Keep running if python-dotenv is unavailable in some environments.
+    pass
 
 # Get base directory (works for both EXE and script execution)
 def get_base_path():
@@ -32,6 +40,7 @@ IS_VERCEL = os.environ.get('VERCEL') == '1'
 app = Flask(__name__)
 # USE ENVIRONMENT VARIABLES FOR PRODUCTION SECRETS
 app.secret_key = os.environ.get('SECRET_KEY', 'default_vulnerable_key_replace_in_prod')
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=14)
 
 if IS_VERCEL:
     app.config['DB_NAME'] = '/tmp/database.db'
@@ -59,6 +68,53 @@ google = oauth.register(
         'scope': 'openid email profile'
     }
 )
+
+firebase_store = FirebaseDataStore(BASE_PATH)
+firebase_store.initialize()
+
+
+def sync_user_profile_to_firebase(user_row):
+    if not user_row:
+        return
+
+    firebase_store.upsert_user(
+        user_id=user_row['id'],
+        username=user_row['username'],
+        role=user_row['role'],
+        email=user_row['email'],
+        full_name=user_row['full_name'],
+        guid=user_row['guid']
+    )
+
+
+def sync_user_lab_state_to_firebase(user_id):
+    if not firebase_store.is_ready:
+        return
+
+    db = get_db()
+    enrollments_rows = db.execute(
+        'SELECT lab_id, enrolled_date, status, completion_percentage, last_accessed FROM lab_enrollments WHERE user_id = ?',
+        (user_id,)
+    ).fetchall()
+
+    progress_rows = db.execute(
+        '''
+        SELECT
+            lab_id,
+            SUM(CASE WHEN task_completed = 1 THEN 1 ELSE 0 END) AS tasks_completed,
+            SUM(CASE WHEN flag_found = 1 THEN 1 ELSE 0 END) AS flags_found,
+            COUNT(*) AS sections_tracked,
+            MAX(completion_time) AS last_completion_time
+        FROM lab_progress
+        WHERE user_id = ?
+        GROUP BY lab_id
+        ''',
+        (user_id,)
+    ).fetchall()
+
+    enrollments = [dict(row) for row in enrollments_rows]
+    progress_summary = {row['lab_id']: dict(row) for row in progress_rows}
+    firebase_store.sync_lab_state(user_id, enrollments, progress_summary)
 
 # -------------------------
 # FLAG SYSTEM - 3 Random Flags per Lab
@@ -352,6 +408,10 @@ def home():
 # -------------------------
 @app.route('/auth/google')
 def google_login():
+    next_url = request.args.get('next', '')
+    if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
+        session['oauth_next'] = next_url
+
     redirect_uri = url_for('google_callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
@@ -361,11 +421,16 @@ def google_callback():
     userinfo = token.get('userinfo')
     
     if not userinfo:
+        firebase_store.track_auth_event('google_login_failed_userinfo')
         return redirect(url_for('login', error="Google authentication failed: no user info received"))
 
     # Researcher branded logic remains but uses real data
     email = userinfo.get('email')
     full_name = userinfo.get('name')
+    if not email:
+        firebase_store.track_auth_event('google_login_failed_missing_email')
+        return redirect(url_for('login', error="Google authentication failed: email not available"))
+
     username = email.split('@')[0] # Basic assumption for display
     
     db = get_db()
@@ -386,58 +451,97 @@ def google_callback():
         session['user_id'] = user['id']
         session['username'] = user['username']
         session['role'] = user['role']
+        sync_user_profile_to_firebase(user)
+        sync_user_lab_state_to_firebase(user['id'])
+        firebase_store.track_auth_event('google_login_success', user_id=user['id'], username=user['username'], email=user['email'])
+        next_url = session.pop('oauth_next', '')
+        if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+            return redirect(next_url)
         return redirect(url_for('home'))
         
     return redirect(url_for('login', error="Account creation via Google failed"))
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET'])
 def login():
-    error = request.args.get('error')
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        # Intentionally vulnerable logic handled in labs
-        # This is the "safe" standard login for the base app (still weak plaintext)
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
-        user = cursor.fetchone()
+    if session.get('user_id'):
+        return redirect(url_for('home'))
 
-        if user:
-            session['user_id'] = user['id']
-            session['username'] = user['username']
-            session['role'] = user['role']
-            return redirect(url_for('home'))
-        else:
-            error = 'Invalid Credentials'
-            
-    return render_template('login.html', error=error)
+    error = request.args.get('error')
+    next_url = request.args.get('next', '')
+
+    # Only allow local redirects to avoid open redirect abuse.
+    if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
+        session['oauth_next'] = next_url
+    else:
+        next_url = ''
+
+    return render_template('login.html', error=error, next_url=next_url)
 
 @app.route('/logout')
 def logout():
+    firebase_store.track_auth_event(
+        'logout',
+        user_id=session.get('user_id'),
+        username=session.get('username')
+    )
     session.clear()
     return redirect(url_for('home'))
 
-@app.route('/register', methods=['GET', 'POST'])
+
+@app.after_request
+def sync_usage_to_firebase(response):
+    if not firebase_store.is_ready:
+        return response
+
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return response
+
+        path = request.path or ''
+        if path.startswith('/static'):
+            return response
+
+        query_string = request.query_string.decode('utf-8', errors='ignore')[:500]
+        client_ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '')[:120]
+        user_agent = (request.headers.get('User-Agent') or '')[:300]
+
+        firebase_store.track_user_activity(
+            user_id=user_id,
+            username=session.get('username'),
+            role=session.get('role'),
+            path=path,
+            method=request.method,
+            status_code=response.status_code,
+            query_string=query_string,
+            ip_address=client_ip,
+            user_agent=user_agent,
+        )
+
+        if path.startswith('/lab'):
+            sync_user_lab_state_to_firebase(user_id)
+    except Exception as exc:
+        print(f"[Firebase] Activity sync skipped: {exc}")
+
+    return response
+
+@app.route('/register', methods=['GET'])
 def register():
-    # Simple registration
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        db = get_db()
-        try:
-            db.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
-            db.commit()
-            return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
-            return "Username already exists"
-    return render_template('register.html')
+    if session.get('user_id'):
+        return redirect(url_for('home'))
+
+    next_url = request.args.get('next', '')
+    if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
+        session['oauth_next'] = next_url
+    else:
+        next_url = ''
+
+    return render_template('register.html', next_url=next_url)
 
 @app.route('/orders')
 def orders():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login', next=request.path))
     
     # Mock orders for demonstration
     # In a real app this would query the DB for the user's orders

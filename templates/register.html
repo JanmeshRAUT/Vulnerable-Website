@@ -5,8 +5,8 @@
 <div class="register-form-container">
     <div class="register-form-content card">
         <div class="register-form-header">
-            <h1>Join RESEARCH_OPS</h1>
-            <p>Start your security research journey</p>
+            <h1>Create Account</h1>
+            <p>Sign up securely with your Google account.</p>
         </div>
 
         {% if error %}
@@ -15,37 +15,12 @@
         </div>
         {% endif %}
 
-        <form method="POST" class="auth-form">
-            <div class="auth-form-field">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-                <p class="auth-form-help">Between 3-20 characters</p>
-            </div>
-
-            <div class="auth-form-field">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-                <p class="auth-form-help">Must be at least 8 characters</p>
-            </div>
-
-            <div class="form-requirements">
-                <h4>Password Requirements</h4>
-                <ul>
-                    <li>At least 8 characters</li>
-                    <li>Mix of letters and numbers</li>
-                    <li>One special character (!@#$%)</li>
-                </ul>
-            </div>
-
-            <button type="submit" class="btn auth-submit-btn">Create Account</button>
-        </form>
-
-        <div class="auth-divider">OR</div>
-
-        <a href="{{ url_for('google_login') }}" class="auth-google-btn">
+        <a href="{{ url_for('google_login', next=next_url) }}" class="auth-google-btn auth-google-btn-primary">
             <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" class="auth-google-icon">
             Create Account with Google
         </a>
+
+        <p class="auth-security-note">Google OAuth is the only sign-up method enabled for this application.</p>
 
         <div class="auth-form-footer">
             <p>Already have an account?

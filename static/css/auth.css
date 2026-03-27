@@ -5,20 +5,33 @@
 /* Login Page */
 .login-form-container {
     max-width: 480px;
-    margin: 6rem auto;
+    margin: 4rem auto 5rem;
+    position: relative;
+}
+
+.login-form-container::before {
+    content: '';
+    position: absolute;
+    inset: -30px -20px auto;
+    height: 240px;
+    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.22), transparent 72%);
+    filter: blur(18px);
+    z-index: 0;
+    pointer-events: none;
 }
 
 .login-form-content {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 16px;
     padding: 2.5rem;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 18px 44px rgba(2, 8, 23, 0.5);
     position: relative;
     overflow: hidden;
+    z-index: 1;
 }
 
-.login-form-content::before {
+.login-form-content::after {
     content: '';
     position: absolute;
     top: 0;
@@ -34,7 +47,8 @@
 }
 
 .login-form-header h1 {
-    font-size: 2rem;
+    font-size: 2.1rem;
+    letter-spacing: -0.02em;
     margin: 0 0 0.5rem;
 }
 
@@ -88,7 +102,7 @@
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
 }
 
 /* Form Field */
@@ -101,15 +115,17 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     color: var(--text-muted);
 }
 
 .auth-form-field input {
-    padding: 0.75rem 1rem;
-    background: var(--bg-primary);
+    padding: 0.85rem 1rem;
+    background: rgba(15, 23, 42, 0.7);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 8px;
     color: var(--text-main);
     font-family: inherit;
     font-size: 1rem;
@@ -119,13 +135,47 @@
 }
 
 .auth-form-field input::placeholder {
-    color: #475569;
+    color: #64748b;
 }
 
 .auth-form-field input:focus {
     outline: none;
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px var(--glow-color);
+}
+
+.auth-options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.15rem;
+}
+
+.remember-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.remember-check input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--accent-primary);
+}
+
+.forgot-link {
+    color: #c7d2fe;
+    font-size: 0.88rem;
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    color: #e0e7ff;
+    text-decoration: underline;
 }
 
 .auth-form-help {
@@ -137,9 +187,16 @@
 /* Submit Button */
 .auth-submit-btn {
     width: 100%;
-    padding: 0.875rem;
+    padding: 0.95rem;
     font-size: 1rem;
     margin-top: 0.5rem;
+}
+
+.auth-security-note {
+    margin: 1rem 0 0;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
 }
 
 /* Form Footer */
@@ -179,7 +236,7 @@
 /* Test Accounts Info */
 .test-accounts {
     text-align: center;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     color: var(--text-secondary);
     font-size: 0.85rem;
 }
@@ -220,20 +277,6 @@
     font-size: 0.9rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .login-form-container,
-    .register-form-container {
-        margin: 2rem auto;
-        max-width: 90%;
-    }
-
-    .login-form-content,
-    .register-form-content {
-        padding: 1.5rem;
-    }
-}
-
 /* Google Login Button */
 .auth-google-btn {
     display: flex;
@@ -255,9 +298,13 @@
     cursor: pointer;
 }
 
+.auth-google-btn-primary {
+    margin-top: 0;
+}
+
 .auth-google-btn:hover {
     background: #f8f9fa;
-    box-shadow: 0 1px 2px 0 rgba(60,64,67,.30), 0 1px 3px 1px rgba(60,64,67,.15);
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
 .auth-google-icon {
@@ -282,9 +329,28 @@
 }
 
 .auth-divider:not(:empty)::before {
-    margin-right: .75em;
+    margin-right: 0.75em;
 }
 
 .auth-divider:not(:empty)::after {
-    margin-left: .75em;
+    margin-left: 0.75em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-form-container,
+    .register-form-container {
+        margin: 2rem auto;
+        max-width: 90%;
+    }
+
+    .login-form-content,
+    .register-form-content {
+        padding: 1.5rem;
+    }
+
+    .auth-options-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
