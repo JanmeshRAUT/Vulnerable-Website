@@ -12,6 +12,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 from datetime import datetime
 import shutil
 import secrets
+from authlib.integrations.flask_client import OAuth
 
 # Get base directory (works for both EXE and script execution)
 def get_base_path():
@@ -29,7 +30,8 @@ BASE_PATH = get_base_path()
 IS_VERCEL = os.environ.get('VERCEL') == '1'
 
 app = Flask(__name__)
-app.secret_key = 'super_secret_key_that_is_not_secure_at_all'
+# USE ENVIRONMENT VARIABLES FOR PRODUCTION SECRETS
+app.secret_key = os.environ.get('SECRET_KEY', 'default_vulnerable_key_replace_in_prod')
 
 if IS_VERCEL:
     app.config['DB_NAME'] = '/tmp/database.db'
@@ -45,6 +47,18 @@ try:
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 except Exception:
     pass
+
+# REAL GOOGLE OAUTH CONFIGURATION
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get('GOOGLE_CLIENT_ID', 'placeholder-id'),
+    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET', 'placeholder-secret'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
 
 # -------------------------
 # FLAG SYSTEM - 3 Random Flags per Lab
@@ -333,9 +347,52 @@ else:
 def home():
     return render_template('index.html')
 
+# -------------------------
+# REAL GOOGLE OAUTH ROUTES
+# -------------------------
+@app.route('/auth/google')
+def google_login():
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/auth/google/callback')
+def google_callback():
+    token = google.authorize_access_token()
+    userinfo = token.get('userinfo')
+    
+    if not userinfo:
+        return redirect(url_for('login', error="Google authentication failed: no user info received"))
+
+    # Researcher branded logic remains but uses real data
+    email = userinfo.get('email')
+    full_name = userinfo.get('name')
+    username = email.split('@')[0] # Basic assumption for display
+    
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+    
+    if not user:
+        # Create user from real Google data
+        try:
+            db.execute("INSERT INTO users (username, password, role, email, full_name, guid) VALUES (?, ?, ?, ?, ?, ?)", 
+                      (username, 'OAUTH_USER_PROTECTED_LOGOUT', 'user', email, full_name, uuid.uuid4().hex))
+            db.commit()
+            user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+        except sqlite3.IntegrityError:
+             # Handle rare conflict where username exists but email differs
+             user = db.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+
+    if user:
+        session['user_id'] = user['id']
+        session['username'] = user['username']
+        session['role'] = user['role']
+        return redirect(url_for('home'))
+        
+    return redirect(url_for('login', error="Account creation via Google failed"))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
+    error = request.args.get('error')
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -3839,4 +3896,5 @@ def lab6_1_c_check_stock():
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Debug is only for local manual running
+    app.run(debug=not IS_VERCEL, host='0.0.0.0', port=5000)
