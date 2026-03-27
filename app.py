@@ -9,6 +9,9 @@ import random
 import re
 import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, send_from_directory, g, jsonify
+from datetime import datetime
+import shutil
+import secrets
 
 # Get base directory (works for both EXE and script execution)
 def get_base_path():
@@ -22,13 +25,26 @@ def get_base_path():
 
 BASE_PATH = get_base_path()
 
+# Detect Vercel Environment
+IS_VERCEL = os.environ.get('VERCEL') == '1'
+
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_that_is_not_secure_at_all'
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['DB_NAME'] = 'database.db'
 
-# Ensure upload directory exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+if IS_VERCEL:
+    app.config['DB_NAME'] = '/tmp/database.db'
+    app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
+    FLAG_BASE_PATH = '/tmp'
+else:
+    app.config['DB_NAME'] = os.path.join(BASE_PATH, 'database.db')
+    app.config['UPLOAD_FOLDER'] = os.path.join(BASE_PATH, 'static', 'uploads')
+    FLAG_BASE_PATH = BASE_PATH
+
+# Ensure upload directory exists (silent fail on read-only FS)
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+except Exception:
+    pass
 
 # -------------------------
 # FLAG SYSTEM - 3 Random Flags per Lab
@@ -148,10 +164,7 @@ def init_db():
 
         # Create Products Table
         cursor.execute('''
-            DROP TABLE IF EXISTS products
-        ''')
-        cursor.execute('''
-            CREATE TABLE products (
+            CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 description TEXT,
@@ -256,8 +269,6 @@ def init_db():
         cursor.execute('SELECT count(*) FROM users')
         if cursor.fetchone()[0] == 0:
             # Generate random admin password (8-12 characters, alphanumeric)
-            import secrets
-            import string
             password_length = secrets.choice(range(8, 13))
             admin_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(password_length))
             
@@ -299,12 +310,11 @@ def init_db():
             cursor.execute("INSERT INTO products (name, description, price, image_url, uploaded_by) VALUES ('Pearl Necklace', 'Classic pearl necklace', 120.00, 'necklace3.jpg', ?)", (admin_id,))
 
             
-        # Seed Data - Orders (Optional, since we mock it in route for simplicity unless Lab 6 uses DB)
-        # But let's add some rows anyway
-        cursor.execute('SELECT count(*) FROM orders')
-        if cursor.fetchone()[0] == 0:
-            cursor.execute("INSERT INTO orders (user_id, order_date, total, status) VALUES (2, '2024-01-15', 29.99, 'Delivered')")
-            cursor.execute("INSERT INTO orders (user_id, order_date, total, status) VALUES (2, '2024-02-10', 49.99, 'Processing')")
+        # Seed Data - Lab 6 Flag File (in writable directory)
+        flag_path = os.path.join(FLAG_BASE_PATH, 'flag.txt')
+        if not os.path.exists(flag_path):
+            with open(flag_path, 'w') as f:
+                f.write(LAB_FLAGS['lab6'][0])
 
         db.commit()
 
@@ -490,7 +500,7 @@ def enroll_lab():
     cursor = db.cursor()
     
     try:
-        from datetime import datetime
+        # datetime import moved to top
         cursor.execute('''
             INSERT INTO lab_enrollments (user_id, lab_id, enrolled_date, status)
             VALUES (?, ?, ?, 'in_progress')
@@ -619,7 +629,7 @@ def assignment_detail(assignment_id):
         return "Assignment not found", 404
     
     if request.method == 'POST':
-        from datetime import datetime
+        # datetime import moved to top
         submission_content = request.form.get('submission_content', '')
         
         cursor.execute('''
@@ -1147,6 +1157,12 @@ def lab2_3_login_page():
         return redirect(url_for(target_route))
 
     if request.method == 'POST':
+        # VULNERABILITY RESTRUCTURE: Check if attacker injected Cookie directly into the POST request!
+        if request.cookies.get('Admin') == 'true':
+            db = get_db()
+            users = db.execute('SELECT * FROM users WHERE role != "admin"').fetchall()
+            return render_template('lab2/sub3_admin.html', users=users, flag=get_random_flag('lab2_3'))
+
         username = request.form.get('username')
         password = request.form.get('password')
         target_theme = request.form.get('theme', 'music') # Hidden field in login form
@@ -1164,14 +1180,9 @@ def lab2_3_login_page():
             if user['role'] == 'admin':
                 is_admin_val = 'true'
             
-            # If admin, redirect to admin page directly? 
-            # Actually, standard flow checks cookie on the main page.
-            # So we redirect back to the store main page.
-            
             resp = redirect(url_for(target_route))
-            
             resp.set_cookie('Admin', is_admin_val)
-            resp.set_cookie('session', '5i06DbK0e5AUWufFfpCk8BnxM1sU81Me')
+            resp.set_cookie('session', user['username'])
             return resp
         else:
              return redirect(url_for(target_route, login_error="Invalid Credentials"))
@@ -1205,7 +1216,7 @@ def lab2_3_admin():
         # Handle user deletion (POST request simulation)
         flag = None
         if request.method == 'POST':
-            flag = "FLAG{cookie_manipulation_is_sweet}"
+            flag = get_random_flag('lab2_3')
             users = [] # Clear users to simulate deletion
             
         return render_template('lab2/sub3_admin.html', users=users, flag=flag)
@@ -2405,7 +2416,6 @@ def lab5_1_logout():
     # Cleanup: Delete user files on logout
     uid = session.get('lab5_1_uid')
     if uid:
-        import shutil
         base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
@@ -2564,7 +2574,6 @@ def lab5_2_logout():
     # Cleanup
     uid = session.get('lab5_2_uid')
     if uid:
-        import shutil
         base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
@@ -2840,7 +2849,6 @@ def lab5_1_b_logout():
     # Cleanup
     uid = session.get('lab5_1_b_uid')
     if uid:
-        import shutil
         base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
@@ -2932,7 +2940,6 @@ def lab5_1_c_logout():
     # Cleanup
     uid = session.get('lab5_1_c_uid')
     if uid:
-        import shutil
         base_dir = BASE_PATH
         user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
@@ -3043,7 +3050,7 @@ def lab8_1_a(page='home'):
         page = 'login'
     
     # Handle search page with XSS detection
-    search_data = {}
+    search_data: dict[str, object] = {'detected': False, 'flag': None, 'query': ''}
     if page == 'search' and logged_in:
         if request.method == 'POST' and 'search_btn' in request.form:
             search_query = request.form.get('search_query', '').strip()
@@ -3054,7 +3061,7 @@ def lab8_1_a(page='home'):
                 for pattern in xss_patterns:
                     if pattern in search_query_lower:
                         search_data['detected'] = True
-                        search_data['flag'] = get_random_flag('lab8')
+                        search_data['flag'] = str(get_random_flag('lab8'))
                         break
             
             search_data['query'] = search_query
