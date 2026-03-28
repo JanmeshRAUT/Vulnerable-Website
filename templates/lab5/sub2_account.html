@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}My Profile - Lab 5.2{% endblock %}
+{% block title %}My Expedition Profile - SummitTrail{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
@@ -20,17 +20,17 @@
             </div>
             
             <h3 class="profile-name">{{ username }}</h3>
-            <p class="profile-badge">Verified User</p>
+            <p class="profile-badge">Expedition Member</p>
             
             <div class="profile-nav">
                 <a href="{{ url_for('lab5') }}" class="btn-tech-outline nav-sidemenu-item" style="color: #94a3b8; border-color: rgba(255,255,255,0.1);">
                     <span class="menu-icon">⬅️</span> Exit Lab
                 </a>
                 <a href="{{ url_for('lab5_2') }}" class="btn-tech-outline nav-sidemenu-item">
-                    <span class="menu-icon">🏠</span> Store Home
+                    <span class="menu-icon">🏕️</span> Outfitters Home
                 </a>
                 <a href="#" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-active">
-                    <span class="menu-icon">⚙️</span> Settings
+                    <span class="menu-icon">🧭</span> Member Profile
                 </a>
                 <a href="{{ url_for('lab5_2_logout') }}" class="btn-tech-outline nav-sidemenu-item nav-sidemenu-danger">
                     <span class="menu-icon">🚪</span> Sign Out
@@ -44,8 +44,8 @@
         <div class="glass content-card">
             <div class="content-header">
                 <div>
-                    <h1 class="content-title">Lab 5.2 Profile</h1>
-                    <p class="auth-subtitle">Content-Type Restriction Bypass Challenge</p>
+                    <h1 class="content-title">Profile Settings</h1>
+                    <p class="auth-subtitle">Trip portrait upload workflow with a declared MIME-type policy.</p>
                 </div>
             </div>
 
@@ -53,7 +53,7 @@
             <div class="upload-section">
                 <h3 class="section-title">
                     <span class="section-icon">📸</span> 
-                    Avatar Upload
+                    Expedition Portrait Upload
                 </h3>
 
                 {% if message %}
@@ -71,28 +71,35 @@
                 <form action="{{ url_for('lab5_2_upload') }}" method="POST" enctype="multipart/form-data">
                     <div class="upload-zone" onclick="document.getElementById('avatar-input').click()">
                         <div class="upload-placeholder-icon">☁️</div>
-                        <p class="upload-text-main">Click to choose a file</p>
-                        <p class="upload-text-sub">Only Image files allowed (JPEG/PNG)</p>
+                        <p class="upload-text-main">Click to choose a trail portrait</p>
+                        <p class="upload-text-sub">Only uploads declared as <code>image/jpeg</code> or <code>image/png</code> are accepted by the media gate.</p>
                         <input type="file" name="avatar" id="avatar-input" class="d-none" onchange="this.form.submit()">
                     </div>
                     
                     <div class="upload-actions">
                         <button type="button" class="btn-upload-primary" onclick="document.getElementById('avatar-input').click()">
-                            <span>⬆️</span> Upload Avatar
+                            <span>⬆️</span> Upload Portrait
                         </button>
                     </div>
                 </form>
+
             </div>
+
+            {% if flag %}
+            <div class="upload-message-success">
+                Research deliverable captured: <code>{{ flag }}</code>
+            </div>
+            {% endif %}
 
             <!-- Personal Info (Read Only) -->
             <div class="info-grid">
                 <div class="form-group">
                     <label class="form-label">Full Name</label>
-                    <input type="text" class="form-input input-readonly" value="Carlos Montoya" readonly>
+                    <input type="text" class="form-input input-readonly" value="Wiener Summit" readonly>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input input-readonly" value="carlos@vulnerable-ecommerce.com" readonly>
+                    <label class="form-label">Membership Tier</label>
+                    <input type="text" class="form-input input-readonly" value="Alpine Explorer" readonly>
                 </div>
             </div>
             

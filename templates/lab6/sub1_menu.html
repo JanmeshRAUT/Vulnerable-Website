@@ -1,117 +1,70 @@
 {% extends 'base.html' %}
-{% block title %}Lab 6.1: Mission Select{% endblock %}
+{% block title %}Lab 6.1: Variation Selection{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
-<style>
-    .mission-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
-    }
-    .mission-card {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 1rem;
-        padding: 2rem;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-    .mission-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-    }
-    .mission-icon {
-        font-size: 3rem;
-        margin-bottom: 1.5rem;
-    }
-    .mission-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-    .mission-desc {
-        color: #94a3b8;
-        margin-bottom: 2rem;
-        flex-grow: 1;
-    }
-    .btn-mission {
-        width: 100%;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s;
-        display: block;
-        box-sizing: border-box;
-    }
-    
-    /* Theme A: MegaMart (Green) */
-    .theme-a:hover { border-color: #10b981; }
-    .btn-theme-a { background: #10b981; color: white; border: none; }
-    .btn-theme-a:hover { background: #059669; }
-    
-    /* Theme B: AutoParts Pro (Red) */
-    .theme-b:hover { border-color: #ef4444; }
-    .btn-theme-b { background: #ef4444; color: white; border: none; }
-    .btn-theme-b:hover { background: #dc2626; }
-    
-    /* Theme C: PharmaCare (Cyan) */
-    .theme-c:hover { border-color: #06b6d4; }
-    .btn-theme-c { background: #06b6d4; color: white; border: none; }
-    .btn-theme-c:hover { background: #0891b2; }
-</style>
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="lab5-hero">
-    <h1>Select Target System</h1>
-    <p class="lab5-hero-desc">
-        Choose a retail system to exploit. Each uses a vulnerable stock checking mechanism that executes OS commands without sanitization.
-    </p>
-</div>
-
-<div class="container animate-fade-in lab5-container-max">
-    <div class="mission-grid">
-        <!-- Variation A -->
-        <div class="mission-card theme-a">
-            <div class="mission-icon">🛒</div>
-            <h3 class="mission-title">MegaMart</h3>
-            <p class="mission-desc">
-                Large retail chain. Their inventory system checks stock levels via shell commands. Exploit the storeID parameter.
-            </p>
-            <a href="{{ url_for('lab6_1') }}" class="btn-mission btn-theme-a">Access System &rarr;</a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab6') }}" class="back-link-premium">&larr; Back to Module 6</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab 6.1</p>
+            <h1 class="lab-sub-title">Command Injection via Stock Check</h1>
         </div>
+        <p class="lab-header-desc">Choose a target system, intercept a stock-check request in Burp Suite, and inject shell syntax into the stock-location parameter to return command output directly in the response.</p>
+    </div>
 
-        <!-- Variation B -->
-        <div class="mission-card theme-b">
-            <div class="mission-icon">🔧</div>
-            <h3 class="mission-title">AutoParts Pro</h3>
-            <p class="mission-desc">
-                Automotive parts supplier. Warehouse management executes legacy scripts. Target the locationID field.
-            </p>
-            <a href="{{ url_for('lab6_1_b') }}" class="btn-mission btn-theme-b">Enter Portal &rarr;</a>
-        </div>
-
-        <!-- Variation C -->
-        <div class="mission-card theme-c">
-            <div class="mission-icon">💊</div>
-            <h3 class="mission-title">PharmaCare</h3>
-            <p class="mission-desc">
-                Pharmaceutical distributor. Prescription verification runs system checks. Inject via the branchID parameter.
-            </p>
-            <a href="{{ url_for('lab6_1_c') }}" class="btn-mission btn-theme-c">Access Database &rarr;</a>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Recommended Test:</strong> Modify the location parameter to <code>1|whoami</code>. A successful exploit should reveal the name of the current operating-system user.
         </div>
     </div>
-    
-    <div style="text-align: center; margin-top: 4rem;">
-        <a href="{{ url_for('lab6') }}" style="color: #64748b; text-decoration: none;">&larr; Back to Lab 6 Overview</a>
+
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab6_1') }}" class="premium-lab-card" style="--card-color: #10b981;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">🛒</div>
+                <div class="premium-card-badge">6.1.A</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>MegaMart</h3>
+                <p>Retail stock checker vulnerable through the <code>storeId</code> parameter. Change it to <code>1|whoami</code> to reveal the current server user.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access System &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab6_1_b') }}" class="premium-lab-card" style="--card-color: #ef4444;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">🔧</div>
+                <div class="premium-card-badge">6.1.B</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>AutoParts Pro</h3>
+                <p>Warehouse lookup flow vulnerable through <code>locationId</code>. The backend returns raw shell output when the parameter is manipulated.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Enter Portal &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab6_1_c') }}" class="premium-lab-card" style="--card-color: #06b6d4;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.2);">💊</div>
+                <div class="premium-card-badge">6.1.C</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>PharmaCare</h3>
+                <p>Branch verification system vulnerable through <code>branchId</code>. Inject shell syntax and observe the returned command output.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access Database &rarr;</span>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

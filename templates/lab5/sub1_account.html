@@ -72,7 +72,7 @@
                     <div class="upload-zone" onclick="document.getElementById('avatar-input').click()">
                         <div class="upload-placeholder-icon">☁️</div>
                         <p class="upload-text-main">Click to choose a file</p>
-                        <p class="upload-text-sub">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                        <p class="upload-text-sub">Upload any avatar image first, then swap to a PHP payload using the same feature.</p>
                         <input type="file" name="avatar" id="avatar-input" class="d-none" onchange="this.form.submit()">
                     </div>
                     
@@ -85,7 +85,14 @@
                         </button>
                     </div>
                 </form>
+
             </div>
+
+            {% if flag %}
+            <div class="upload-message-success">
+                Research deliverable captured: <code>{{ flag }}</code>
+            </div>
+            {% endif %}
 
             <!-- Personal Info (Read Only) -->
             <div class="info-grid">

@@ -1,117 +1,70 @@
 {% extends 'base.html' %}
-{% block title %}Lab 5.2: Mission Select{% endblock %}
+{% block title %}Lab 5.2: Variation Selection{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
-<style>
-    .mission-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
-    }
-    .mission-card {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 1rem;
-        padding: 2rem;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-    .mission-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-    }
-    .mission-icon {
-        font-size: 3rem;
-        margin-bottom: 1.5rem;
-    }
-    .mission-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-    .mission-desc {
-        color: #94a3b8;
-        margin-bottom: 2rem;
-        flex-grow: 1;
-    }
-    .btn-mission {
-        width: 100%;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s;
-        display: block;
-        box-sizing: border-box;
-    }
-    
-    /* Theme A: TechZone (Blue) */
-    .theme-a:hover { border-color: #3b82f6; }
-    .btn-theme-a { background: #3b82f6; color: white; border: none; }
-    .btn-theme-a:hover { background: #2563eb; }
-    
-    /* Theme B: Global Logistics (Orange) */
-    .theme-b:hover { border-color: #f97316; }
-    .btn-theme-b { background: #f97316; color: white; border: none; }
-    .btn-theme-b:hover { background: #ea580c; }
-    
-    /* Theme C: SecureBank (Purple) */
-    .theme-c:hover { border-color: #8b5cf6; }
-    .btn-theme-c { background: #8b5cf6; color: white; border: none; }
-    .btn-theme-c:hover { background: #7c3aed; }
-</style>
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="lab5-hero">
-    <h1>Select Target Environment</h1>
-    <p class="lab5-hero-desc">
-        Choose a simulation scenario to test the Content-Type Bypass vulnerability. Each scenario represents a different corporate entity with unique security contexts.
-    </p>
-</div>
-
-<div class="container animate-fade-in lab5-container-max">
-    <div class="mission-grid">
-        <!-- Variation A -->
-        <div class="mission-card theme-a">
-            <div class="mission-icon">🛡️</div>
-            <h3 class="mission-title">TechZone</h3>
-            <p class="mission-desc">
-                High-end electronics retailer. Vulnerability lies within the secure customer profile avatar upload system.
-            </p>
-            <a href="{{ url_for('lab5_2') }}" class="btn-mission btn-theme-a">Infiltrate TechZone &rarr;</a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab5') }}" class="back-link-premium">&larr; Back to Module 5</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab Variation Selection</p>
+            <h1 class="lab-sub-title">Lab 5.2: Content-Type Bypass</h1>
         </div>
+        <p class="lab-header-desc">These environments keep the same upload theme as Lab 5.1, but the challenge shifts to bypassing weak MIME-type validation rather than exploiting fully unrestricted execution.</p>
+    </div>
 
-        <!-- Variation B -->
-        <div class="mission-card theme-b">
-            <div class="mission-icon">📦</div>
-            <h3 class="mission-title">Global Logistics</h3>
-            <p class="mission-desc">
-                International shipping giant. Drivers upload proof of delivery photos. Bypass the image format checks.
-            </p>
-            <a href="{{ url_for('lab5_2_b') }}" class="btn-mission btn-theme-b">Access Portal &rarr;</a>
-        </div>
-
-        <!-- Variation C -->
-        <div class="mission-card theme-c">
-            <div class="mission-icon">🏦</div>
-            <h3 class="mission-title">SecureBank</h3>
-            <p class="mission-desc">
-                Fintech startup. Users upload KYC documents (ID/Passport scans). Target the document verification service.
-            </p>
-            <a href="{{ url_for('lab5_2_c') }}" class="btn-mission btn-theme-c">Enter System &rarr;</a>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Operator Note:</strong> Focus on mismatches between the declared <code>Content-Type</code> header and the actual uploaded file content. The UI is familiar, but the defense is slightly stronger.
         </div>
     </div>
-    
-    <div style="text-align: center; margin-top: 4rem;">
-        <a href="{{ url_for('lab5') }}" style="color: #64748b; text-decoration: none;">&larr; Back to Lab 5 Overview</a>
+
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab5_2') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">🛡️</div>
+                <div class="premium-card-badge">5.2.A</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>TechZone</h3>
+                <p>Retail avatar upload workflow with a MIME check that can still be bypassed by controlling the request metadata.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Infiltrate TechZone &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab5_2_b') }}" class="premium-lab-card" style="--card-color: #f97316;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2);">📦</div>
+                <div class="premium-card-badge">5.2.B</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Global Logistics</h3>
+                <p>Delivery-photo workflow where the application trusts the MIME declaration more than the underlying file.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access Portal &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab5_2_c') }}" class="premium-lab-card" style="--card-color: #8b5cf6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.2);">🏦</div>
+                <div class="premium-card-badge">5.2.C</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>SecureBank</h3>
+                <p>KYC document verification flow where uploaded content can bypass policy if the HTTP metadata looks safe enough.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Enter System &rarr;</span>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

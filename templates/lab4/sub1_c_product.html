@@ -17,6 +17,9 @@
                 <h1>{{ product.name }}</h1>
                 <p class="l4-detail-desc">{{ product.description }}</p>
                 <div class="l4-detail-price">${{ product.price }}</div>
+                <p class="l4-detail-desc" style="margin-top: 1rem; padding: 0.85rem 1rem; border-left: 3px solid #f59e0b; background: rgba(245, 158, 11, 0.08);">
+                    Research note: the exploit path is <code>http://localhost/admin</code> first, then the delete endpoint shown in the returned HTML: <code>/admin/delete?username=carlos</code>.
+                </p>
                 
                 <div class="l4-stock-box">
                     <form action="{{ url_for('lab4_1c_stock') }}" method="POST" id="stockForm">

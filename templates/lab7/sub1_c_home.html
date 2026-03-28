@@ -1,60 +1,30 @@
 {% extends 'base.html' %}
-{% block title %}PetShop - Premium Pet Adoption{% endblock %}
+{% block title %}Summit Supply - Expedition Gear{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
 <style>
-    .pet-nav { border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
-    .pet-brand { color: #f97316 !important; }
-    .pet-hero { background: linear-gradient(135deg, rgba(154, 52, 18, 0.4), rgba(234, 88, 12, 0.2)); border-color: rgba(249, 115, 22, 0.2); padding: 3rem 0; position: relative; }
-    .pet-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-    .pet-hero-desc { color: #cbd5e1; font-size: 1.1rem; max-width: 700px; }
-    .challenge-box { background: rgba(249, 115, 22, 0.05); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 6px; padding: 1.5rem; margin-bottom: 2rem; color: #cbd5e1; }
-    .challenge-box strong { color: #fb923c; }
-    .search-section { background: rgba(30, 41, 59, 0.5); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; border: 1px solid rgba(249, 115, 22, 0.1); }
-    .search-box { display: flex; max-width: 800px; margin: 0 auto; gap: 1rem; }
-    .search-input { flex: 1; padding: 1rem; border: 1px solid rgba(249, 115, 22, 0.3); background: rgba(15, 23, 42, 0.8); color: white; border-radius: 6px; transition: all 0.2s; }
-    .search-input:focus { outline: none; border-color: #f97316; background: rgba(15, 23, 42, 0.9); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
-    .search-btn { padding: 1rem 2rem; background: #f97316; border: 2px solid #f97316; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
-    .search-btn:hover { background: #ea580c; border-color: #ea580c; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4); }
-    .search-btn:focus { outline: 2px solid #fb923c; outline-offset: 2px; }
-    .pet-filter-section { margin-bottom: 2rem; }
-    .pet-filter-title { color: #e2e8f0; font-weight: 600; margin-bottom: 1rem; }
-    .pet-filter-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-    .pet-filter-btn { padding: 0.5rem 1.25rem; border: 2px solid rgba(249, 115, 22, 0.3); background: transparent; color: #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-weight: 500; }
-    .pet-filter-btn:hover { border-color: #f97316; color: #f97316; }
-    .pet-filter-btn.active { background: #f97316; border-color: #f97316; color: white; }
-    .gift-products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
-    .gift-product-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(249, 115, 22, 0.1); border-radius: 10px; overflow: hidden; transition: all 0.3s ease; }
-    .gift-product-card:hover { transform: translateY(-5px); border-color: rgba(249, 115, 22, 0.3); box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.15); }
-    .gift-product-img-wrapper { width: 100%; height: 250px; overflow: hidden; }
-    .gift-product-img { width: 100%; height: 100%; object-fit: cover; }
-    .gift-product-body { padding: 1.5rem; }
-    .gift-product-title { margin: 0 0 0.5rem 0; color: #e2e8f0; font-size: 1.1rem; font-weight: 600; }
-    .gift-product-desc { margin: 0.25rem 0; color: #94a3b8; font-size: 0.9rem; }
-    .gift-product-badge { display: inline-block; background: rgba(249, 115, 22, 0.2); color: #fb923c; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; margin-bottom: 0.75rem; }
-    .gift-product-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
-    .gift-price { font-size: 1.25rem; font-weight: 700; color: #fb923c; }
-    .gift-btn-cart { background: #f97316; color: white; border: 2px solid #f97316; padding: 0.625rem 1.25rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-    .gift-btn-cart:hover { background: #ea580c; border-color: #ea580c; }
-    .gift-empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
-    .gift-empty-state p { font-size: 1.1rem; margin: 0; }
     .btn-tech-outline { display: inline-block; padding: 0.625rem 1.25rem; background: transparent; color: #f97316; border: 2px solid #f97316; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
-    .btn-tech-outline:hover { background: rgba(249, 115, 22, 0.1); color: #fb923c; border-color: #fb923c; }
+    .btn-tech-outline:hover { background: rgba(249, 115, 22, 0.1); color: #fdba74; border-color: #fdba74; }
     .btn-tech-outline:focus { outline: 2px solid #f97316; outline-offset: 2px; }
-    .featured-section { background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05)); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; }
-    .featured-title { color: #fb923c; font-weight: 600; margin-bottom: 1rem; }
+    .summit-accent { color: #f97316; }
+    .summit-badge { background: rgba(249, 115, 22, 0.15); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .summit-filter-btn.active { background: #f97316; border-color: #f97316; color: #fff; }
+    .summit-filter-btn:hover { border-color: #f97316; color: #fdba74; }
+    .summit-price { color: #fdba74; }
+    .summit-cart { background: #f97316; }
+    .summit-cart:hover { background: #ea580c; }
 </style>
 {% endblock %}
 
 {% block layout_container %}
 <div class="gift-main-content">
-<nav class="pet-nav glass">
+<nav class="gift-nav glass" style="border-bottom: 1px solid rgba(249, 115, 22, 0.2);">
     <div class="container animate-fade-in lab5-container-fluid gift-nav-content">
-        <a href="{{ url_for('lab7_1_c') }}" class="pet-brand">
-            <span style="font-size: 1.75rem;">🐾</span>
-            <span>PetShop</span>
+        <a href="{{ url_for('lab7_1_c') }}" class="gift-brand">
+            <span style="font-size: 1.75rem;">⛰️</span>
+            <span class="summit-accent">Summit Supply</span>
         </a>
         <div class="nav-actions">
             <a href="{{ url_for('lab7_1_menu') }}" class="btn-tech-outline">Exit System</a>
@@ -67,148 +37,81 @@
         <a href="{{ url_for('lab7') }}" style="color: #64748b; text-decoration: none;">Lab 7</a>
         <span style="color: #475569;"> / </span>
         <a href="{{ url_for('lab7_1_menu') }}" style="color: #64748b; text-decoration: none;">SQL Injection Challenges</a>
-        <span style="color: #475569;"> / PetShop</span>
+        <span style="color: #475569;"> / Summit Supply</span>
     </div>
 </div>
 
-<header class="pet-hero animate-fade-in">
-    <div class="container" style="padding: 1rem;">
-        <h1>🐾 Premium Pet Adoption</h1>
-        <p class="pet-hero-desc">
-            Welcome to our premium pet adoption service. Browse our extensive catalog of available pets and find your perfect companion. 
-            All animals are health-checked and ready for their new homes.
-        </p>
+<header class="gift-hero animate-fade-in" style="background: linear-gradient(135deg, rgba(154, 52, 18, 0.35), rgba(15, 23, 42, 0.75)); border-color: rgba(249, 115, 22, 0.2);">
+    <div class="gift-hero-content">
+        <span class="gift-hero-subtitle">Field-Tested Gear for Cold Starts</span>
+        <h1>Mountain Systems.<br>Hidden Drops.</h1>
+        <p>Summit Supply provisions mission-ready outdoor hardware, expedition kits, and controlled-release prototypes for remote operations teams.</p>
     </div>
 </header>
 
 <main class="container animate-fade-in lab5-container-max">
-    <!-- Challenge Context -->
-    <div class="challenge-box">
-        <strong>⚠️ Challenge Objective:</strong> This pet shop has a vulnerable search feature that uses SQL queries. 
-        Use SQL injection techniques to extract data from the database beyond what's normally visible. 
-        Explore table structures and find hidden information using UNION-based attacks.
+    <div class="glass content-card" style="padding: 1.5rem 1.75rem; margin-bottom: 2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div>
+                <p style="margin:0 0 0.35rem 0;color:#fdba74;font-size:0.8rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Lab 7.1.C</p>
+                <h3 style="margin:0;color:#fff;">Catalog Overview</h3>
+            </div>
+            <span class="status-badge summit-badge">SQL Injection</span>
+        </div>
+        <p style="margin:1rem 0 0 0;color:#94a3b8;line-height:1.7;">Examine the Summit Supply category workflow and determine whether altered filter values can expose products that should remain unreleased.</p>
     </div>
 
-    <!-- SQL Query Display -->
-    <div style="background: rgba(15, 23, 42, 0.8); border-left: 4px solid #3b82f6; padding: 1.5rem; margin-bottom: 2rem; border-radius: 6px; font-family: monospace; color: #60a5fa; font-size: 0.9rem; word-break: break-all;">
-        <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem; font-weight: 600; font-family: sans-serif;">Current SQL Query:</div>
-        <code>{{ query }}</code>
-    </div>
-
-    <!-- Attack Hints -->
-    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.5rem; margin-bottom: 2rem; border-radius: 6px;">
-        <div style="color: #60a5fa; font-weight: 600; margin-bottom: 1rem;">💡 SQL Injection Hints:</div>
-        <ul style="color: #cbd5e1; margin: 0; padding-left: 1.5rem;">
-            <li style="margin-bottom: 0.75rem;"><strong>Column Count:</strong> The query returns 4 columns (name, breed, price, image_url)</li>
-            <li style="margin-bottom: 0.75rem;"><strong>Hidden Table:</strong> There's a table called <code style="color: #60a5fa;">lab7_admin_creds</code> with admin credentials</li>
-            <li style="margin-bottom: 0.75rem;"><strong>UNION Syntax:</strong> <code style="color: #60a5fa;">Type' UNION SELECT col1, col2, col3, col4 FROM hidden_table--</code></li>
-            <li style="margin-bottom: 0.75rem;"><strong>Example Payload:</strong> Try searching for: <code style="color: #fbbf24; background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 3px;">Dogs' UNION SELECT username, password, '1', '1' FROM lab7_admin_creds--</code></li>
-            <li><strong>Tip:</strong> The admin password field contains the flag!</li>
-        </ul>
-    </div>
-
-    <!-- Featured Section -->
-    <div class="featured-section">
-        <div class="featured-title">🌟 Featured Collections</div>
-        <p style="color: #cbd5e1; margin: 0;">
-            Browse our popular pet categories below or use advanced search to find specific pet types and characteristics.
+    <div class="gift-filter-section">
+        <h2 class="gift-filter-title">Browse by Category</h2>
+        <div class="gift-filter-buttons">
+            <a href="{{ url_for('lab7_1_c') }}" class="gift-filter-btn summit-filter-btn {% if not category %}active{% endif %}">All Products</a>
+            <a href="{{ url_for('lab7_1_c', category='Adventure') }}" class="gift-filter-btn summit-filter-btn {% if category == 'Adventure' %}active{% endif %}">Adventure</a>
+            <a href="{{ url_for('lab7_1_c', category='Camping') }}" class="gift-filter-btn summit-filter-btn {% if category == 'Camping' %}active{% endif %}">Camping</a>
+            <a href="{{ url_for('lab7_1_c', category='Bags') }}" class="gift-filter-btn summit-filter-btn {% if category == 'Bags' %}active{% endif %}">Bags</a>
+            <a href="{{ url_for('lab7_1_c', category='Apparel') }}" class="gift-filter-btn summit-filter-btn {% if category == 'Apparel' %}active{% endif %}">Apparel</a>
+        </div>
+        {% if category %}
+        <p class="gift-filter-info">
+            Showing products in: <strong style="color: #fdba74;">{{ category }}</strong>
         </p>
+        {% endif %}
     </div>
 
-    <!-- Search Section -->
-    <div class="search-section">
-        <form class="search-box" action="{{ url_for('lab7_1_c') }}" method="GET">
-            <input type="text" name="category" class="search-input" value="{{ category }}" placeholder="Search pets by type (Dogs, Cats, Fish...)" autocomplete="off">
-            <button type="submit" class="search-btn">🔍 Search</button>
-        </form>
-    </div>
-
-    <!-- Quick Filters -->
-    <div class="pet-filter-section">
-        <div class="pet-filter-title">Popular Types:</div>
-        <div class="pet-filter-buttons">
-            <a href="{{ url_for('lab7_1_c', category='Dogs') }}" class="pet-filter-btn {% if category == 'Dogs' %}active{% endif %}">🐕 Dogs</a>
-            <a href="{{ url_for('lab7_1_c', category='Cats') }}" class="pet-filter-btn {% if category == 'Cats' %}active{% endif %}">🐈 Cats</a>
-            <a href="{{ url_for('lab7_1_c', category='Fish') }}" class="pet-filter-btn {% if category == 'Fish' %}active{% endif %}">🐠 Fish</a>
-            <a href="{{ url_for('lab7_1_c', category='Birds') }}" class="pet-filter-btn {% if category == 'Birds' %}active{% endif %}">🦜 Birds</a>
-            <a href="{{ url_for('lab7_1_c', category='Reptiles') }}" class="pet-filter-btn {% if category == 'Reptiles' %}active{% endif %}">🦎 Reptiles</a>
-            <a href="{{ url_for('lab7_1_c', category='Rabbits') }}" class="pet-filter-btn {% if category == 'Rabbits' %}active{% endif %}">🐰 Rabbits</a>
-            <a href="{{ url_for('lab7_1_c') }}" class="pet-filter-btn">All Types</a>
-        </div>
-    </div>
-
-    <!-- Results Section -->
-    <div>
-        <h2 style="color: #e2e8f0; margin-bottom: 1.5rem;">
-            {% if category %}Available {{ category }}{% else %}All Available Pets{% endif %}
-        </h2>
-
-        <div class="gift-products-grid">
-            {% if products %}
-                {% for product in products %}
-                <div class="gift-product-card">
-                    <div class="gift-product-img-wrapper">
-                        <img src="{{ product[3] }}" alt="{{ product[0] }}" class="gift-product-img" onerror="this.src='https://via.placeholder.com/600x400?text=Pet+Available';">
-                    </div>
-                    <div class="gift-product-body">
-                        <span class="gift-product-badge">✓ Available</span>
-                        <h3 class="gift-product-title">{{ product[0] }}</h3>
-                        <p class="gift-product-desc"><strong>Breed:</strong> {{ product[1] }}</p>
-                        <p class="gift-product-desc"><strong>Status:</strong> Ready for Adoption</p>
-                        <div class="gift-product-actions">
-                            <div class="gift-price">${{ "%.2f"|format(product[2]) }}</div>
-                            <button class="gift-btn-cart">Adopt Now</button>
-                        </div>
+    <div class="gift-products-grid">
+        {% if products %}
+            {% for product in products %}
+            <div class="gift-product-card" style="border-color: rgba(249, 115, 22, 0.12);">
+                <div class="gift-product-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1516939884455-1445c8652f83?auto=format&fit=crop&w=900&q=80" alt="{{ product.name }}" class="gift-product-img">
+                </div>
+                <div class="gift-product-body">
+                    <h3 class="gift-product-title">
+                        {{ product.name }}
+                        {% if product.released == 0 %}
+                        <span class="unreleased-badge">UNRELEASED</span>
+                        {% endif %}
+                    </h3>
+                    <p class="gift-product-desc">Category: {{ product.category }}</p>
+                    <div class="gift-product-actions">
+                        <div class="gift-price summit-price">${{ '329.00' if product.released == 0 else '119.00' }}</div>
+                        <button class="gift-btn-cart summit-cart">Stage Order</button>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-                <div class="gift-empty-state">
-                    <p>🔍 No pets found matching your search criteria.</p>
-                    <p style="font-size: 0.9rem; margin-top: 1rem; color: #64748b;">Try searching for Dogs, Cats, or Fish</p>
-                </div>
-            {% endif %}
-        </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="gift-empty-state">
+                <p>No products found in this category.</p>
+            </div>
+        {% endif %}
     </div>
 </main>
 
-{% if sql_error %}
-<div style="position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4); z-index: 1000; max-width: 400px; border: 1px solid rgba(239, 68, 68, 0.3); animation: slideIn 0.3s ease-out;">
-    <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 0.5rem; font-weight: 600;">⚠️ SQL Error Detected</p>
-    <p style="margin: 0; font-family: monospace; font-size: 0.85rem; color: #fca5a5; word-break: break-all;">{{ sql_error }}</p>
-</div>
-<style>
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
-{% endif %}
-
 {% if flag %}
-<div style="position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(16, 185, 129, 0.95)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4); z-index: 1000; max-width: 400px; border: 1px solid rgba(34, 197, 94, 0.3); animation: slideIn 0.3s ease-out;">
-    <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 0.5rem; font-weight: 600;">🎉 Challenge Completed!</p>
-    <p style="margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 1rem;">SQL Injection Successful</p>
-    <p style="margin: 0; font-family: monospace; font-size: 0.9rem; color: white; word-break: break-all; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; border-left: 3px solid rgba(255,255,255,0.3);">{{ flag }}</p>
+<div style="position: fixed; top: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 400px;">
+    <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem;">Challenge Completed</p>
+    <p style="margin: 0; font-family: monospace; font-size: 1.1rem; color: white; word-break: break-all;">{{ flag }}</p>
 </div>
-<style>
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
 {% endif %}
 </div>
 {% endblock %}

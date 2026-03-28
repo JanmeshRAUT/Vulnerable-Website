@@ -1,206 +1,117 @@
 {% extends 'base.html' %}
-{% block title %}Staff Portal - Internal Portal{% endblock %}
+{% block title %}OfficeCore - Work Essentials{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
 <style>
-    .staff-nav { border-bottom: 1px solid rgba(59, 130, 246, 0.2); }
-    .staff-brand { color: #3b82f6 !important; }
-    .staff-hero { background: linear-gradient(135deg, rgba(30, 58, 138, 0.4), rgba(59, 130, 246, 0.2)); border-color: rgba(59, 130, 246, 0.2); padding: 3rem 0; }
-    .staff-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-    .staff-hero-desc { color: #cbd5e1; font-size: 1.1rem; max-width: 600px; }
-    .staff-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 3rem 0; }
-    .staff-feature { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 1.5rem; }
-    .staff-feature-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    .staff-feature-title { color: #e2e8f0; font-weight: 600; margin-bottom: 0.5rem; }
-    .staff-feature-desc { color: #94a3b8; font-size: 0.9rem; }
-    .auth-container { max-width: 500px; margin: 3rem auto; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 2.5rem; }
-    .auth-title { text-align: center; margin-bottom: 1.5rem; color: #e2e8f0; font-size: 1.5rem; }
-    .form-group { margin-bottom: 1.5rem; }
-    .form-group label { display: block; margin-bottom: 0.5rem; color: #cbd5e1; font-weight: 500; }
-    .form-control { width: 100%; padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; color: white; transition: all 0.2s; }
-    .form-control:focus { outline: none; border-color: #3b82f6; background: rgba(15, 23, 42, 0.9); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    .btn-login { width: 100%; padding: 0.875rem; background: #3b82f6; color: white; border: 2px solid #3b82f6; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
-    .btn-login:hover { background: #2563eb; border-color: #2563eb; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
-    .btn-login:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
-    .btn-primary { display: inline-block; padding: 1rem 2rem; background: #3b82f6; color: white; border: 2px solid #3b82f6; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; text-align: center; }
-    .btn-primary:hover { background: #2563eb; border-color: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3); }
     .btn-tech-outline { display: inline-block; padding: 0.625rem 1.25rem; background: transparent; color: #3b82f6; border: 2px solid #3b82f6; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
-    .btn-tech-outline:hover { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: #60a5fa; }
+    .btn-tech-outline:hover { background: rgba(59, 130, 246, 0.1); color: #93c5fd; border-color: #93c5fd; }
     .btn-tech-outline:focus { outline: 2px solid #3b82f6; outline-offset: 2px; }
-    .alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; }
-    .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; padding: 1.5rem; border-radius: 6px; }
-    .dev-note { margin-top: 2rem; padding: 1rem; background: rgba(0,0,0,0.4); border-left: 3px solid #3b82f6; color: #94a3b8; font-size: 0.85rem; word-break: break-all; border-radius: 4px; }
-    .divider { text-align: center; margin: 2rem 0; color: #64748b; }
-    .divider::before { content: ''; display: block; height: 1px; background: rgba(59, 130, 246, 0.2); margin-bottom: 1rem; }
-    .divider::after { content: ''; display: block; height: 1px; background: rgba(59, 130, 246, 0.2); margin-top: 1rem; }
-    .hint-box { background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; padding: 1rem; margin-bottom: 2rem; color: #cbd5e1; }
-    .hint-box strong { color: #60a5fa; }
-    .page-section { display: none; }
-    .page-section.active { display: block; }
-    .cta-button { display: inline-block; padding: 1.25rem 3rem; background: #3b82f6; color: white; border: 2px solid #3b82f6; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; font-size: 1.1rem; }
-    .cta-button:hover { background: #2563eb; border-color: #2563eb; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); }
-    .cta-button:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
-    .back-btn { display: inline-block; padding: 0.75rem 1.5rem; background: transparent; color: #64748b; border: 2px solid #64748b; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
-    .back-btn:hover { color: #94a3b8; border-color: #94a3b8; background: rgba(100, 116, 139, 0.05); }
-    .login-header { text-align: center; margin-bottom: 2rem; }
-    .login-header h2 { font-size: 2rem; margin-bottom: 0.5rem; }
-    .cta-section { text-align: center; padding: 3rem 0; }
-    .nav-login-btn { display: inline-block; padding: 0.625rem 1.25rem; background: #3b82f6; color: white; border: 2px solid #3b82f6; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-decoration: none; margin-right: 0.75rem; }
-    .nav-login-btn:hover { background: #2563eb; border-color: #2563eb; }
-    .nav-login-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .office-accent { color: #3b82f6; }
+    .office-badge { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .office-filter-btn.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+    .office-filter-btn:hover { border-color: #3b82f6; color: #93c5fd; }
+    .office-price { color: #93c5fd; }
+    .office-cart { background: #3b82f6; }
+    .office-cart:hover { background: #2563eb; }
 </style>
 {% endblock %}
 
 {% block layout_container %}
 <div class="gift-main-content">
-<nav class="staff-nav glass">
+<nav class="gift-nav glass" style="border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
     <div class="container animate-fade-in lab5-container-fluid gift-nav-content">
-        <a href="{{ url_for('lab7_1_b') }}" class="staff-brand">
-            <span style="font-size: 1.75rem;">🔐</span>
-            <span>Staff Portal</span>
+        <a href="{{ url_for('lab7_1_b') }}" class="gift-brand">
+            <span style="font-size: 1.75rem;">💼</span>
+            <span class="office-accent">OfficeCore</span>
         </a>
         <div class="nav-actions">
-            <button class="nav-login-btn" onclick="showLoginPage()">🔐 Login</button>
             <a href="{{ url_for('lab7_1_menu') }}" class="btn-tech-outline">Exit System</a>
         </div>
     </div>
 </nav>
 
-<main class="container animate-fade-in">
-    <div style="margin-bottom: 2rem; font-size: 0.9rem;">
+<div style="padding: 1rem; font-size: 0.9rem;">
+    <div class="container">
         <a href="{{ url_for('lab7') }}" style="color: #64748b; text-decoration: none;">Lab 7</a>
         <span style="color: #475569;"> / </span>
         <a href="{{ url_for('lab7_1_menu') }}" style="color: #64748b; text-decoration: none;">SQL Injection Challenges</a>
-        <span style="color: #475569;"> / Staff Portal</span>
+        <span style="color: #475569;"> / OfficeCore</span>
+    </div>
+</div>
+
+<header class="gift-hero animate-fade-in" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.35), rgba(15, 23, 42, 0.75)); border-color: rgba(59, 130, 246, 0.2);">
+    <div class="gift-hero-content">
+        <span class="gift-hero-subtitle">Operational Gear for Modern Teams</span>
+        <h1>Professional Tools.<br>Private Releases.</h1>
+        <p>OfficeCore curates high-trust accessories and workplace upgrades for executive teams, remote operators, and security-conscious departments.</p>
+    </div>
+</header>
+
+<main class="container animate-fade-in lab5-container-max">
+    <div class="glass content-card" style="padding: 1.5rem 1.75rem; margin-bottom: 2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div>
+                <p style="margin:0 0 0.35rem 0;color:#93c5fd;font-size:0.8rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Lab 7.1.B</p>
+                <h3 style="margin:0;color:#fff;">Catalog Overview</h3>
+            </div>
+            <span class="status-badge office-badge">SQL Injection</span>
+        </div>
+        <p style="margin:1rem 0 0 0;color:#94a3b8;line-height:1.7;">Inspect how the OfficeCore catalog reacts to unexpected category values and whether hidden inventory becomes visible outside the intended release flow.</p>
     </div>
 
-    {% if success %}
-        <div class="auth-container">
-            <div class="alert-success">
-                <h3 style="color: #6ee7b7;">✓ Authentication Successful</h3>
-                <p style="margin-top: 1rem;">You have successfully accessed the restricted area.</p>
-                <p style="margin-top: 1.5rem; font-family: monospace; font-size: 1rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 4px; word-break: break-all;">{{ flag }}</p>
-            </div>
-            <div style="text-align: center; margin-top: 2rem;">
-                <a href="{{ url_for('lab7_1_b') }}" class="btn-primary">New Login Attempt</a>
-            </div>
+    <div class="gift-filter-section">
+        <h2 class="gift-filter-title">Browse by Category</h2>
+        <div class="gift-filter-buttons">
+            <a href="{{ url_for('lab7_1_b') }}" class="gift-filter-btn office-filter-btn {% if not category %}active{% endif %}">All Products</a>
+            <a href="{{ url_for('lab7_1_b', category='Work') }}" class="gift-filter-btn office-filter-btn {% if category == 'Work' %}active{% endif %}">Work</a>
+            <a href="{{ url_for('lab7_1_b', category='Office') }}" class="gift-filter-btn office-filter-btn {% if category == 'Office' %}active{% endif %}">Office</a>
+            <a href="{{ url_for('lab7_1_b', category='Stationery') }}" class="gift-filter-btn office-filter-btn {% if category == 'Stationery' %}active{% endif %}">Stationery</a>
+            <a href="{{ url_for('lab7_1_b', category='Tech') }}" class="gift-filter-btn office-filter-btn {% if category == 'Tech' %}active{% endif %}">Tech</a>
         </div>
-    {% else %}
-        <!-- Landing Page Section -->
-        <div id="landing-page" class="page-section active">
-            <!-- Staff Portal Header -->
-            <header class="staff-hero animate-fade-in">
-                <div class="container" style="padding-top: 1rem; padding-bottom: 1rem;">
-                    <h1>Internal Staff Portal</h1>
-                    <p class="staff-hero-desc">
-                        Secure access to employee systems, records, and administrative functions. 
-                        Protected by advanced authentication measures.
-                    </p>
-                </div>
-            </header>
+        {% if category %}
+        <p class="gift-filter-info">
+            Showing products in: <strong style="color: #93c5fd;">{{ category }}</strong>
+        </p>
+        {% endif %}
+    </div>
 
-            <div class="container lab5-container-max">
-                <!-- Challenge Description -->
-                <div class="hint-box">
-                    <strong>⚠️ Challenge Objective:</strong> This internal staff portal uses vulnerable SQL authentication. 
-                    Exploit the login mechanism to bypass password verification and gain unauthorized administrative access.
+    <div class="gift-products-grid">
+        {% if products %}
+            {% for product in products %}
+            <div class="gift-product-card" style="border-color: rgba(59, 130, 246, 0.12);">
+                <div class="gift-product-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="{{ product.name }}" class="gift-product-img">
                 </div>
-
-                <!-- Staff Portal Features -->
-                <div class="staff-features">
-                    <div class="staff-feature">
-                        <div class="staff-feature-icon">👤</div>
-                        <div class="staff-feature-title">Employee Portal</div>
-                        <div class="staff-feature-desc">Access employee information, records, and documents</div>
+                <div class="gift-product-body">
+                    <h3 class="gift-product-title">
+                        {{ product.name }}
+                        {% if product.released == 0 %}
+                        <span class="unreleased-badge">UNRELEASED</span>
+                        {% endif %}
+                    </h3>
+                    <p class="gift-product-desc">Category: {{ product.category }}</p>
+                    <div class="gift-product-actions">
+                        <div class="gift-price office-price">${{ '249.00' if product.released == 0 else '89.00' }}</div>
+                        <button class="gift-btn-cart office-cart">Add to Workspace</button>
                     </div>
-                    <div class="staff-feature">
-                        <div class="staff-feature-icon">📊</div>
-                        <div class="staff-feature-title">Administration</div>
-                        <div class="staff-feature-desc">Manage system settings and permissions</div>
-                    </div>
-                    <div class="staff-feature">
-                        <div class="staff-feature-icon">🔑</div>
-                        <div class="staff-feature-title">Secure Access</div>
-                        <div class="staff-feature-desc">Authentication verified through SQL database</div>
-                    </div>
-                </div>
-
-                <!-- Call to Action Section -->
-                <div class="cta-section">
-                    <h2 style="color: #e2e8f0; margin-bottom: 2rem;">Ready to Access the Portal?</h2>
-                    <button class="cta-button" onclick="showLoginPage()">🔐 Login to Portal</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Login Page Section -->
-        <div id="login-page" class="page-section">
-            <div class="container lab5-container-max" style="padding-top: 2rem;">
-                <div class="login-header">
-                    <button class="back-btn" onclick="showLandingPage()">← Back to Portal Info</button>
-                    <h2>Staff Authentication</h2>
-                    <p style="color: #94a3b8; margin-top: 0.5rem;">Enter your credentials to access the system</p>
-                </div>
-
-                <!-- Login Form -->
-                <div class="auth-container">
-                    <h2 class="auth-title">Staff Login</h2>
-                    
-                    {% if error %}
-                    <div class="alert-error">
-                        <strong>Login Failed:</strong><br>
-                        {{ error }}
-                    </div>
-                    {% endif %}
-                    
-                    <form action="{{ url_for('lab7_1_b') }}" method="POST">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" id="username" name="username" class="form-control" placeholder="e.g., admin" autocomplete="off" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
-                        </div>
-                        <button type="submit" class="btn-login">🔓 Login to Portal</button>
-                    </form>
-
-                    <!-- Demo Credentials Hint -->
-                    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #94a3b8;">
-                        <p>💡 Try using SQL injection to bypass the password check!</p>
-                    </div>
-                </div>
-
-                {% if query %}
-                <div class="auth-container" style="color: #cbd5e1; text-align: center;">
-                    <div class="dev-note">
-                        <strong>SQL Query Executed:</strong><br>
-                        <code style="color: #60a5fa;">{{ query }}</code>
-                    </div>
-                </div>
-                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="gift-empty-state">
+                <p>No products found in this category.</p>
             </div>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </main>
 
-<script>
-function showLoginPage() {
-    document.getElementById('landing-page').classList.remove('active');
-    document.getElementById('login-page').classList.add('active');
-    // Focus on username field for better UX
-    setTimeout(() => document.getElementById('username').focus(), 100);
-    // Scroll to top
-    window.scrollTo(0, 0);
-}
-
-function showLandingPage() {
-    document.getElementById('login-page').classList.remove('active');
-    document.getElementById('landing-page').classList.add('active');
-    window.scrollTo(0, 0);
-}
-</script>
+{% if flag %}
+<div style="position: fixed; top: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 400px;">
+    <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem;">Challenge Completed</p>
+    <p style="margin: 0; font-family: monospace; font-size: 1.1rem; color: white; word-break: break-all;">{{ flag }}</p>
+</div>
+{% endif %}
 </div>
 {% endblock %}

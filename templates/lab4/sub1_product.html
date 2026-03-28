@@ -17,6 +17,9 @@
                 <h1>{{ product.name }}</h1>
                 <p class="l4-detail-desc">{{ product.description }}</p>
                 <div class="l4-detail-price">${{ product.price }}</div>
+                <p class="l4-detail-desc" style="margin-top: 1rem; padding: 0.85rem 1rem; border-left: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.08);">
+                    Research note: intercept this request and replace <code>stockApi</code> with <code>http://localhost/admin</code>. The admin HTML reveals the delete URL for <code>carlos</code>.
+                </p>
                 
                 <div class="l4-stock-box">
                     <form action="{{ url_for('lab4_1a_stock') }}" method="POST" id="stockForm">

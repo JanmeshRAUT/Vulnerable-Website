@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} | {{ variant_context.persona }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/sub2_shop.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="theme-a">
+    <div class="shop-v2-container">
+        <a href="{{ url_for('lab4_2a') }}" class="buy-btn" style="display:inline-block;margin-top:2rem;">&larr; Back to Catalog</a>
+        <div class="detail-layout">
+            <div class="detail-gallery">
+                <img src="{{ product.image }}" alt="{{ product.name }}">
+            </div>
+            <div class="detail-info">
+                <div class="hero-badge">{{ variant_context.badge }}</div>
+                <h1>{{ product.name }}</h1>
+                <p class="hero-subtitle" style="margin:1rem 0 1.5rem 0;text-align:left;">{{ product.description }}</p>
+                <div class="detail-price">${{ product.price }}</div>
+
+                <div class="diagnostic-box">
+                    <h3 style="margin-top:0;">Stock Gateway</h3>
+                    <p style="color:#94a3b8;">The client posts a <code>stockApi</code> parameter to the server. Intercept it in Burp and pivot it to the admin subnet.</p>
+                    <form action="{{ url_for('lab4_2a_stock') }}" method="POST" id="stockForm">
+                        <input type="hidden" name="stockApi" value="{{ stock_api }}">
+                        <button type="submit" class="buy-btn" style="border:none;cursor:pointer;">Check Stock</button>
+                    </form>
+                    <div id="stockResult" class="api-result-terminal">Awaiting stock check...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('stockForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const result = document.getElementById('stockResult');
+    result.textContent = 'Dispatching stockApi request...';
+
+    const response = await fetch('{{ url_for("lab4_2a_stock") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(this)).toString()
+    });
+
+    const body = await response.text();
+    result.innerHTML = '[HTTP ' + response.status + ']\\n\\n' + body;
+});
+</script>
+{% endblock %}

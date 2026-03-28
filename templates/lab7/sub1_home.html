@@ -43,6 +43,17 @@
 </header>
 
 <main class="container animate-fade-in lab5-container-max">
+    <div class="glass content-card" style="padding: 1.5rem 1.75rem; margin-bottom: 2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div>
+                <p style="margin:0 0 0.35rem 0;color:#c084fc;font-size:0.8rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Lab 7.1.A</p>
+                <h3 style="margin:0;color:#fff;">Catalog Overview</h3>
+            </div>
+            <span class="status-badge badge-critical">SQL Injection</span>
+        </div>
+        <p style="margin:1rem 0 0 0;color:#94a3b8;line-height:1.7;">Review the category filtering workflow and monitor how product visibility changes when filter values are manipulated during browsing.</p>
+    </div>
+
     <!-- Category Filter -->
     <div class="gift-filter-section">
         <h2 class="gift-filter-title">🏷️ Browse by Category</h2>
@@ -66,18 +77,18 @@
             {% for product in products %}
             <div class="gift-product-card">
                 <div class="gift-product-img-wrapper">
-                    <img src="{{ product[4] }}" alt="{{ product[1] }}" class="gift-product-img">
+                    <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=900&q=80" alt="{{ product.name }}" class="gift-product-img">
                 </div>
                 <div class="gift-product-body">
                     <h3 class="gift-product-title">
-                        {{ product[1] }}
-                        {% if product[5] == 0 %}
+                        {{ product.name }}
+                        {% if product.released == 0 %}
                         <span class="unreleased-badge">UNRELEASED</span>
                         {% endif %}
                     </h3>
-                    <p class="gift-product-desc">{{ product[2] }}</p>
+                    <p class="gift-product-desc">Category: {{ product.category }}</p>
                     <div class="gift-product-actions">
-                        <div class="gift-price">${{ product[3] }}</div>
+                        <div class="gift-price">${{ '199.00' if product.released == 0 else '49.00' }}</div>
                         <button class="gift-btn-cart">Add to Cart</button>
                     </div>
                 </div>
@@ -92,7 +103,7 @@
 </main>
 
 {% if flag %}
-<div style="position: fixed; bottom: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 400px;">
+<div style="position: fixed; top: 2rem; right: 2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 400px;">
     <p style="margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.5rem;">🎉 Challenge Completed!</p>
     <p style="margin: 0; font-family: monospace; font-size: 1.1rem; color: white; word-break: break-all;">{{ flag }}</p>
 </div>

@@ -13,14 +13,14 @@
             <p class="lab-main-title">Lab Variation Selection</p>
             <h1 class="lab-sub-title">Lab 4.1: Internal Loopback Access</h1>
         </div>
-        <p class="lab-header-desc">Exploit the stock checker functionality to access the internal admin panel via SSRF. Same core vulnerability, different industries.</p>
+        <p class="lab-header-desc">Exploit the stock checker to access <code>http://localhost/admin</code> via SSRF, read the admin HTML, and deliver the delete request for <code>carlos</code>.</p>
     </div>
 
     <!-- Alert Banner -->
     <div class="lab-alert-banner">
         <div class="alert-icon">⚠️</div>
         <div class="alert-content">
-            <strong>Objective:</strong> Use Server-Side Request Forgery to access protected internal services through vulnerable stock-checking APIs.
+            <strong>Objective:</strong> Intercept a stock check request, change <code>stockApi</code> to <code>http://localhost/admin</code>, then replay the discovered delete endpoint.
         </div>
     </div>
 
@@ -28,7 +28,7 @@
     <div style="background: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 4px;">
         <h4 style="color: #60a5fa; margin-top: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">📡 Deployment Context Notice</h4>
         <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 0;">
-            This laboratory is engineered for <strong>Environment-Agnostic Research</strong>. Whether running on <strong>Localhost</strong> or <strong>Vercel</strong>, the backend utilizes a virtualized internal network. Use the provided <code>.local</code> mock domains or the lab's <strong>actual root URL</strong> as targets for SSRF. The system will automatically bridge these requests to the internal administration console.
+            You should not be able to browse directly to <code>/admin</code> from the browser. The intended path is to intercept a stock request, change the <code>stockApi</code> parameter to <code>http://localhost/admin</code>, inspect the HTML for <code>/admin/delete?username=carlos</code>, and then submit that full URL through the stock checker.
         </p>
     </div>
 

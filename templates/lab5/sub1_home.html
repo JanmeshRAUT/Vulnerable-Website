@@ -39,6 +39,19 @@
     </div>
 </header>
 
+<section class="container animate-fade-in lab5-container-max" style="margin-top: 2rem;">
+    <div class="lab5-briefing-card theme-a">
+        <div class="lab5-briefing-header">
+            <div>
+                <p class="lab5-briefing-kicker theme-a">Lab 5.1.A</p>
+                <h3 class="lab5-briefing-title">Operation Briefing</h3>
+            </div>
+            <span class="status-badge badge-critical">Avatar Upload RCE</span>
+        </div>
+        <p class="lab5-briefing-copy">Log in, upload a normal avatar first, observe the browser request to <code>/files/avatars/&lt;your-file&gt;</code>, then replace it with <code>exploit.php</code> and request that path directly to execute the payload.</p>
+    </div>
+</section>
+
 <main id="products" class="container animate-fade-in lab5-container-max">
     <div class="tech-grid">
         {% for product in products %}

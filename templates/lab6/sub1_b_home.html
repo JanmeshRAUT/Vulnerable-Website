@@ -42,7 +42,7 @@
             <span style="color: #dc2626;">AutoParts Pro</span>
         </a>
         <div class="nav-actions">
-            <a href="{{ url_for('lab6') }}" class="btn-tech-outline">Exit Lab</a>
+            <a href="{{ url_for('lab6_1_menu') }}" class="btn-tech-outline">Back to Variants</a>
         </div>
     </div>
 </nav>
@@ -54,6 +54,19 @@
         <p>OEM and aftermarket automotive components. Check warehouse inventory in real-time.</p>
     </div>
 </header>
+
+<section class="container animate-fade-in lab5-container-max" style="margin-top: 2rem;">
+    <div class="glass content-card" style="padding: 1.5rem 1.75rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div>
+                <p style="margin:0 0 0.35rem 0;color:#fca5a5;font-size:0.8rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Lab 6.1.B</p>
+                <h3 style="margin:0;color:#fff;">Operation Briefing</h3>
+            </div>
+            <span class="status-badge badge-critical">OS Command Injection</span>
+        </div>
+        <p style="margin:1rem 0 0 0;color:#94a3b8;line-height:1.7;">Use Burp Suite to intercept the warehouse stock request and modify the <code>locationId</code> parameter to <code>1|whoami</code>. The response should reveal the current operating-system user.</p>
+    </div>
+</section>
 
 <main class="container animate-fade-in lab5-container-max">
     <div class="tech-grid">

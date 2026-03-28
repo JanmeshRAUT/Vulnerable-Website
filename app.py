@@ -54,6 +54,11 @@ app.config['SESSION_COOKIE_SECURE'] = IS_VERCEL
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 # 500MB for large binaries
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
+LAB4_2_RUNTIME_STATE = {
+    'target_ips': {},
+    'logged_variants': {}
+}
+
 
 if IS_VERCEL:
     app.config['DB_NAME'] = '/tmp/database.db'
@@ -145,8 +150,9 @@ TRACKABLE_LAB_UNITS = [
     {'id': 'lab7_1_a', 'canonical_id': 'lab7', 'label': 'Lab 7.1 A', 'path': '/lab7/1'},
     {'id': 'lab7_1_b', 'canonical_id': 'lab7', 'label': 'Lab 7.1 B', 'path': '/lab7/1/b'},
     {'id': 'lab7_1_c', 'canonical_id': 'lab7', 'label': 'Lab 7.1 C', 'path': '/lab7/1/c'},
-    {'id': 'lab7_1_d', 'canonical_id': 'lab7', 'label': 'Lab 7.1 D', 'path': '/lab7/1/d'},
-    {'id': 'lab7_2_a', 'canonical_id': 'lab7', 'label': 'Lab 7.2', 'path': '/lab7/2'},
+    {'id': 'lab7_2_a', 'canonical_id': 'lab7', 'label': 'Lab 7.2 A', 'path': '/lab7/2'},
+    {'id': 'lab7_2_b', 'canonical_id': 'lab7', 'label': 'Lab 7.2 B', 'path': '/lab7/2/b'},
+    {'id': 'lab7_2_c', 'canonical_id': 'lab7', 'label': 'Lab 7.2 C', 'path': '/lab7/2/c'},
     {'id': 'lab8_1_a', 'canonical_id': 'lab8', 'label': 'Lab 8.1 A', 'path': '/lab8/1/a'},
     {'id': 'lab8_1_b', 'canonical_id': 'lab8', 'label': 'Lab 8.1 B', 'path': '/lab8/1/b'},
     {'id': 'lab8_1_c', 'canonical_id': 'lab8', 'label': 'Lab 8.1 C', 'path': '/lab8/1/c'},
@@ -2632,10 +2638,10 @@ def lab4_1a_product(product_id):
 @login_required
 def lab4_1a_stock():
     stock_api = request.form.get('stockApi')
-    return process_ssrf_request(stock_api)
+    return process_ssrf_request(stock_api, variant_hint='a')
 
 
-def process_ssrf_request(stock_api):
+def process_ssrf_request(stock_api, variant_hint='a'):
     if not stock_api:
         return "Missing stockApi parameter", 400
     
@@ -2656,17 +2662,9 @@ def process_ssrf_request(stock_api):
             match = re.search(r'https?://[^/]+(/.+)', stock_api)
             full_path = match.group(1) if match else "/"
             
-            # Internal Translation Strategy: Map /admin to /ssrf-admin
-            # We must be careful to handle query parameters correctly
             target_path = full_path.split('?')[0]
             query_params = full_path.split('?')[1] if '?' in full_path else ""
-            
-            if target_path == "/admin":
-                target_path = "/ssrf-admin"
-            elif target_path == "/admin/delete":
-                target_path = "/ssrf-admin/delete"
-            
-            # Reassemble the internal path
+
             internal_full_path = target_path
             if query_params:
                 internal_full_path += "?" + query_params
@@ -2687,6 +2685,7 @@ def process_ssrf_request(stock_api):
             
             # Forward the original target host to help the backend identify the industry variant
             headers_dict['X-SSRF-Target-Host'] = target_host
+            headers_dict['X-Lab4-Variant'] = variant_hint
             
             with app.test_client() as client:
                 # Forward each cookie individually to the test client using keyword arguments
@@ -2737,13 +2736,13 @@ def stock_check_api():
     return f"Success: {random.randint(10, 100)} units available for Item-{product_id}."
 
 # Simulated External Admin for 4.1
-@app.route('/ssrf-admin')
+@app.route('/admin')
 def ssrf_admin_panel():
     # SSRF Gate: Only accessible via internal loopback (127.0.0.1)
     is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
     
     if not is_internal:
-        print(f"[SECURITY] Unauthorized access attempt to /ssrf-admin from {request.remote_addr} blocked.")
+        print(f"[SECURITY] Unauthorized access attempt to /admin from {request.remote_addr} blocked.")
         return "<h1>403 Forbidden</h1><p>Admin interface only accessible from local network.</p>", 403
     
     # Identify the mock domain based on context (for realism in the HTML response)
@@ -2753,7 +2752,7 @@ def ssrf_admin_panel():
                          user_to_delete="carlos",
                          mock_host=mock_host)
 
-@app.route('/ssrf-admin/delete')
+@app.route('/admin/delete')
 def ssrf_admin_delete_user():
     # SSRF Gate: Ensure this action is only performed by the server itself
     is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
@@ -2767,11 +2766,12 @@ def ssrf_admin_delete_user():
         # Matches the canonical Lab 4 variations: A (Retail), B (Cloud), C (Logistics)
         # We check the forwarded 'X-SSRF-Target-Host' since the actual 'request.host' is localhost.
         target_host = request.headers.get('X-SSRF-Target-Host', '').lower()
-        
+        variant_hint = request.headers.get('X-Lab4-Variant', 'a').lower()
+
         variation = 'variation_A'
-        if 'inventory.banksecure.local' in target_host:
+        if variant_hint == 'b' or 'inventory.banksecure.local' in target_host:
             variation = 'variation_B'
-        elif 'fleet.clouddrive.local' in target_host:
+        elif variant_hint == 'c' or 'fleet.clouddrive.local' in target_host:
             variation = 'variation_C'
             
         # Dynamic flag generation using the forwarded session identity
@@ -2811,7 +2811,7 @@ def lab4_1b_product(product_id):
 @login_required
 def lab4_1b_stock():
     stock_api = request.form.get('stockApi')
-    return process_ssrf_request(stock_api)
+    return process_ssrf_request(stock_api, variant_hint='b')
 
 # Lab 4.1.C: Global Logistics
 @app.route('/lab4/1/c')
@@ -2840,179 +2840,314 @@ def lab4_1c_product(product_id):
 @login_required
 def lab4_1c_stock():
     stock_api = request.form.get('stockApi')
-    return process_ssrf_request(stock_api)
+    return process_ssrf_request(stock_api, variant_hint='c')
 
 
-# -------------------------
-# LAB 4.2: SSRF against another back-end system
-# -------------------------
-
-def get_lab4_2_target_ip(identity_key):
-    """Pick a unique, deterministic IP for the researcher in the 192.168.0.X range"""
-    import hashlib
-    seed = f"{identity_key}-lab4-2-secret"
-    hash_val = int(hashlib.md5(seed.encode()).hexdigest(), 16)
-    # Range 1 to 254
-    return (hash_val % 254) + 1
-
-def process_ssrf_v2(stock_api):
-    """Specialized SSRF processor for Lab 4.2 (Back-end Discovery)"""
-    if not stock_api:
-        return "Internal Server Error: No target specified", 400
-        
-    try:
-        # We need to simulate a 192.168.0.X range.
-        # Specifically, we look for http://192.168.0.X:8080/admin
-        import re
-        ip_match = re.search(r'https?://192\.168\.0\.(\d+):8080(/.*)', stock_api)
-        
-        if ip_match:
-            octet = int(ip_match.group(1))
-            path = ip_match.group(2)
-            
-            # Identity of researcher for persistence
-            guid = session.get('guid') or session.get('user_id')
-            target_octet = get_lab4_2_target_ip(guid)
-            
-            if octet == target_octet:
-                # HIT! Dispatch to internal admin handler
-                # Translate /admin or /admin/delete to internal /ssrf-v2-admin
-                target_path = path.split('?')[0]
-                query_params = path.split('?')[1] if '?' in path else ""
-                
-                internal_path = "/ssrf-v2-admin"
-                if target_path == "/admin/delete":
-                    internal_path = "/ssrf-v2-admin/delete"
-                
-                if query_params:
-                    internal_path += "?" + query_params
-                    
-                # Forward with identity header for dynamic flags
-                headers = {'X-SSRF-Researcher-GUID': str(guid)}
-                with app.test_client() as client:
-                    for k, v in request.cookies.items():
-                        client.set_cookie(key=k, value=v)
-                    resp = client.get(internal_path, headers=headers)
-                    return resp.get_data(as_text=True)
-            else:
-                # MISS! Simulate a connection error or timeout for other IPs
-                import time
-                # time.sleep(0.05) # Subtle delay for realism
-                return "Internal Server Error: Connection timed out", 504
-        else:
-            # Fallback for standard stock checks (if they use the mock domains)
-            if 'stock.internal-net.local' in stock_api:
-                return "API Diagnostic Feed: Validated normal operating parameters. Node is fully responsive.", 200
-            if '192.168.0.' in stock_api:
-                return "Internal Server Error: Connection timed out", 504
-                
-            return process_ssrf_request(stock_api)            
-    except Exception as e:
-        return f"Internal Server Error: {str(e)}", 500
-
+# Lab 4.2: Blind SSRF Selection Menu
 @app.route('/lab4/2')
 @login_required
 def lab4_2():
     return render_template('lab4/sub2_menu.html')
 
-# Internal Admin Panel for Lab 4.2
-@app.route('/ssrf-v2-admin')
-def ssrf_v2_admin():
-    # Only internal loopback or simulation allowed
-    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
-    if not is_internal: return "403 Forbidden", 403
-    return """
-    <h1>Internal Admin Panel (Node Discovery)</h1>
-    <p>Authentication: Trusted Internal Machine</p>
-    <div style='background: #f1f5f9; padding: 1rem; border-radius: 4px;'>
-        <p><strong>Available Operations:</strong></p>
-        <ul>
-            <li><code>/admin/delete?username=carlos</code></li>
-        </ul>
-    </div>
-    """
-@app.route('/ssrf-v2-admin/delete')
-def ssrf_v2_admin_delete():
-    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
-    if not is_internal: return "403 Forbidden", 403
-    
-    username = request.args.get('username')
-    if username == "carlos":
-        # Dynamic flag for Lab 4.2
-        flag = get_random_flag('lab4_2')
-        return f"<h1>Success</h1><p>User {username} deleted successfully!</p><div style='padding:20px; background:#10b981; color:white; border-radius:8px;'><strong>FLAG:</strong> {flag}</div>"
-    return f"User {username} not found."
 
-# Lab 4.2.A: Retail (Discovery)
+def get_lab4_2_identity_key():
+    return (
+        request.headers.get('X-SSRF-Researcher-GUID')
+        or session.get('guid')
+        or session.get('user_id')
+        or request.remote_addr
+        or 'anonymous-researcher'
+    )
+
+
+def get_lab4_2_target_ip(identity_key, variant='a'):
+    identity_key = str(identity_key or 'anonymous-researcher')
+    identity_targets = LAB4_2_RUNTIME_STATE['target_ips'].setdefault(identity_key, {})
+    if variant in identity_targets:
+        return int(identity_targets[variant])
+
+    existing_targets = {int(value) for value in identity_targets.values() if str(value).isdigit()}
+    available_octets = [octet for octet in range(1, 256) if octet not in existing_targets]
+    target_octet = random.choice(available_octets or list(range(1, 256)))
+    identity_targets[variant] = target_octet
+    return target_octet
+
+
+def log_lab4_2_target_ip(variant, context_label, session_key='lab4_2_logged_variants'):
+    identity_key = get_lab4_2_identity_key()
+    target_octet = get_lab4_2_target_ip(identity_key, variant)
+
+    print(
+        f"[LAB4.2] {context_label} | variant={variant.upper()} "
+        f"| identity={identity_key} | target_ip=192.168.0.{target_octet}"
+    )
+    return target_octet
+
+
+def get_lab4_2_products(variant):
+    product_catalogs = {
+        'a': [
+            {'id': 301, 'name': 'Vertex Running Jacket', 'description': 'Retail flagship apparel with live branch inventory telemetry.', 'price': 129.00, 'image': 'https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=900&q=80'},
+            {'id': 302, 'name': 'Signal Trail Shoes', 'description': 'Regional stock dispatch item with same-day pickup routing.', 'price': 164.00, 'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80'},
+            {'id': 303, 'name': 'Cache Sport Duffel', 'description': 'Warehouse-linked accessory synced through the stock gateway.', 'price': 86.00, 'image': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=80'}
+        ],
+        'b': [
+            {'id': 401, 'name': 'Nebula Compute Slice', 'description': 'Cloud node package tracked through an internal provisioning network.', 'price': 6400.00, 'image': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80'},
+            {'id': 402, 'name': 'Aegis Edge Firewall', 'description': 'Managed edge appliance with hidden admin diagnostics endpoints.', 'price': 2890.00, 'image': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80'},
+            {'id': 403, 'name': 'HyperVault Backup Pod', 'description': 'Resilient object-storage capsule connected to the stock API fabric.', 'price': 9750.00, 'image': 'https://images.unsplash.com/photo-1580894742597-87bc8789db3d?auto=format&fit=crop&w=900&q=80'}
+        ],
+        'c': [
+            {'id': 501, 'name': 'HarborTrack Container', 'description': 'Port inventory unit monitored through a segregated operations subnet.', 'price': 7200.00, 'image': 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=900&q=80'},
+            {'id': 502, 'name': 'PolarChain Reefer Pod', 'description': 'Cold-chain container with warehouse stock polling enabled.', 'price': 11950.00, 'image': 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=900&q=80'},
+            {'id': 503, 'name': 'DockGrid Sensor Mesh', 'description': 'Shipment visibility hardware tied into the logistics control plane.', 'price': 2340.00, 'image': 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=900&q=80'}
+        ]
+    }
+    return product_catalogs.get(variant, product_catalogs['a'])
+
+
+def get_lab4_2_variant_context(variant):
+    context = {
+        'a': {
+            'theme_class': 'theme-a',
+            'title': 'Retail Branch Inventory',
+            'subtitle': 'Blind SSRF via stock check gateway',
+            'badge': 'Variation A',
+            'persona': 'Arcade Avenue Outfitters',
+            'exact_lab_id': 'lab4_2_a'
+        },
+        'b': {
+            'theme_class': 'theme-b',
+            'title': 'Cloud Capacity Exchange',
+            'subtitle': 'Blind SSRF across internal admin hosts',
+            'badge': 'Variation B',
+            'persona': 'Nimbus Compute Marketplace',
+            'exact_lab_id': 'lab4_2_b'
+        },
+        'c': {
+            'theme_class': 'theme-c',
+            'title': 'Logistics Control Catalog',
+            'subtitle': 'Blind SSRF against back-end operations services',
+            'badge': 'Variation C',
+            'persona': 'Portline Freight Systems',
+            'exact_lab_id': 'lab4_2_c'
+        }
+    }
+    return context.get(variant, context['a'])
+
+
+def build_lab4_2_stock_api(product_id):
+    return f"http://192.168.0.1:8080/product/stock/check?productId={product_id}&storeId=1"
+
+
+def process_lab4_2_ssrf_request(stock_api, variant, expected_target_octet=None):
+    if not stock_api:
+        return "Missing stockApi parameter", 400
+
+    try:
+        import urllib.parse
+
+        parsed = urllib.parse.urlparse(stock_api)
+        host = (parsed.hostname or '').strip().lower()
+        path = parsed.path or '/'
+        query = urllib.parse.parse_qs(parsed.query)
+        identity_key = get_lab4_2_identity_key()
+        target_octet = expected_target_octet if expected_target_octet is not None else get_lab4_2_target_ip(identity_key, variant)
+        port = parsed.port if parsed.port is not None else 8080
+
+        ip_match = re.fullmatch(r'192\.168\.0\.(\d{1,3})', host)
+        if not ip_match:
+            return "<h1>Not Found</h1><p>No administration service detected on this host.</p>", 404
+
+        requested_octet = int(ip_match.group(1))
+        if requested_octet < 1 or requested_octet > 255:
+            return "<h1>Not Found</h1><p>No administration service detected on this host.</p>", 404
+
+        if port != 8080:
+            return "<h1>Not Found</h1><p>No administration service detected on this host.</p>", 404
+
+        if path == '/product/stock/check':
+            product_id = query.get('productId', ['unknown'])[0]
+            simulated_stock = ((requested_octet + int(product_id)) % 37) + 4 if str(product_id).isdigit() else 12
+            return f"Stock check complete: {simulated_stock} units ready for dispatch from node {requested_octet}.", 200
+
+        if path == '/admin':
+            if requested_octet != target_octet:
+                return "<h1>Not Found</h1><p>No administration service detected on this host.</p>", 404
+
+            return render_template(
+                'lab4/admin_v2.html',
+                host_ip=f"192.168.0.{requested_octet}",
+                user_to_delete='carlos',
+                variant_context=get_lab4_2_variant_context(variant)
+            ), 200
+
+        if path == '/admin/delete':
+            if requested_octet != target_octet:
+                return "Admin action endpoint unavailable.", 404
+
+            username = query.get('username', [''])[0]
+            if username != 'carlos':
+                return f"User {username} not found.", 404
+
+            variation = {
+                'a': 'variation_A',
+                'b': 'variation_B',
+                'c': 'variation_C'
+            }.get(variant, 'variation_A')
+            flag = get_random_flag('lab4_2', variation=variation)
+            return (
+                "<h1>Administrative Action Complete</h1>"
+                f"<p>User {username} deleted from 192.168.0.{requested_octet}.</p>"
+                "<div style='margin-top:16px;padding:18px;border-radius:12px;background:#16a34a;color:#fff;'>"
+                f"<strong>FLAG:</strong> {flag}</div>"
+            ), 200
+
+        return "Back-end route not found.", 404
+
+    except ValueError:
+        return "<h1>Not Found</h1><p>No administration service detected on this host.</p>", 404
+    except Exception as exc:
+        return f"Internal Server Error: {exc}", 500
+
+
 @app.route('/lab4/2/a')
 @login_required
 def lab4_2a():
-    products = [
-        {'id': 1, 'name': 'Insecure Router', 'description': 'The gateway to your internal network.', 'price': 59.99, 'image': 'https://images.unsplash.com/photo-1544197150-b99a580bbc7c?auto=format&fit=crop&w=600&q=80'},
-        {'id': 2, 'name': 'Generic IoT Camera', 'description': 'Streaming to the internet since 2018.', 'price': 35.00, 'image': 'https://images.unsplash.com/photo-1557324232-b8917d3c3dcb?auto=format&fit=crop&w=600&q=80'}
-    ]
-    return render_template('lab4/sub2.html', products=products, variant='a', title='Retail Discovery')
+    log_lab4_2_target_ip('a', 'Lab entered', session_key='lab4_2_entry_logged_variants')
+    return render_template(
+        'lab4/sub2_a.html',
+        products=get_lab4_2_products('a'),
+        variant_context=get_lab4_2_variant_context('a')
+    )
+
+
+@app.route('/lab4/2/b')
+@login_required
+def lab4_2b():
+    log_lab4_2_target_ip('b', 'Lab entered', session_key='lab4_2_entry_logged_variants')
+    return render_template(
+        'lab4/sub2_b.html',
+        products=get_lab4_2_products('b'),
+        variant_context=get_lab4_2_variant_context('b')
+    )
+
+
+@app.route('/lab4/2/c')
+@login_required
+def lab4_2c():
+    log_lab4_2_target_ip('c', 'Lab entered', session_key='lab4_2_entry_logged_variants')
+    return render_template(
+        'lab4/sub2_c.html',
+        products=get_lab4_2_products('c'),
+        variant_context=get_lab4_2_variant_context('c')
+    )
+
 
 @app.route('/lab4/2/a/product/<int:product_id>')
 @login_required
 def lab4_2a_product(product_id):
-    # Simplified product view for discovery labs
-    product = {'id': product_id, 'name': 'Internal Network Node', 'image': 'https://images.unsplash.com/photo-1558494949-ef526b01201b?auto=format&fit=crop&w=600&q=80'}
-    return render_template('lab4/sub2_product.html', product=product, variant='a')
+    product = next((p for p in get_lab4_2_products('a') if p['id'] == product_id), None)
+    if not product:
+        return "Product not found", 404
+    return render_template(
+        'lab4/sub2_a_product.html',
+        product=product,
+        stock_api=build_lab4_2_stock_api(product_id),
+        variant_context=get_lab4_2_variant_context('a')
+    )
 
-@app.route('/lab4/2/a/stock', methods=['POST'])
-@login_required
-def lab4_2a_stock():
-    return process_ssrf_v2(request.form.get('stockApi'))
-
-# Lab 4.2.B: Cloud Infrastructure (Discovery)
-@app.route('/lab4/2/b')
-@login_required
-def lab4_2b():
-    products = [
-        {'id': 50, 'name': 'GPU Node Cluster', 'description': 'High-density internal compute silo.', 'price': 12000, 'image': 'https://images.unsplash.com/photo-1591405351990-4726e331f141?auto=format&fit=crop&w=600&q=80'},
-        {'id': 51, 'name': 'Back-end SSD Storage', 'description': 'Internal object storage storage.', 'price': 4500, 'image': 'https://images.unsplash.com/photo-1597852064821-d928444c0620?auto=format&fit=crop&w=600&q=80'}
-    ]
-    return render_template('lab4/sub2_b.html', products=products, variant='b', title='Cloud Discovery')
 
 @app.route('/lab4/2/b/product/<int:product_id>')
 @login_required
 def lab4_2b_product(product_id):
-    product = {'id': product_id, 'name': 'Secondary Network Node', 'image': 'https://images.unsplash.com/photo-1591405351990-4726e331f141?auto=format&fit=crop&w=600&q=80'}
-    return render_template('lab4/sub2_product.html', product=product, variant='b')
+    product = next((p for p in get_lab4_2_products('b') if p['id'] == product_id), None)
+    if not product:
+        return "Product not found", 404
+    return render_template(
+        'lab4/sub2_b_product.html',
+        product=product,
+        stock_api=build_lab4_2_stock_api(product_id),
+        variant_context=get_lab4_2_variant_context('b')
+    )
 
-@app.route('/lab4/2/b/stock', methods=['POST'])
-@login_required
-def lab4_2b_stock():
-    return process_ssrf_v2(request.form.get('stockApi'))
-
-# Lab 4.2.C: Global Logistics (Discovery)
-@app.route('/lab4/2/c')
-@login_required
-def lab4_2c():
-    products = [
-        {'id': 101, 'name': 'Automated Hub Link', 'description': 'Isolated port management console.', 'price': 8500, 'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'},
-        {'id': 102, 'name': 'Internal RFID Rack', 'description': 'Private sector inventory scanner.', 'price': 3200, 'image': 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&w=600&q=80'}
-    ]
-    return render_template('lab4/sub2_c.html', products=products, variant='c', title='Logistics Discovery')
 
 @app.route('/lab4/2/c/product/<int:product_id>')
 @login_required
 def lab4_2c_product(product_id):
-    product = {'id': product_id, 'name': 'Logistics Data Sink', 'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'}
-    return render_template('lab4/sub2_product.html', product=product, variant='c')
+    product = next((p for p in get_lab4_2_products('c') if p['id'] == product_id), None)
+    if not product:
+        return "Product not found", 404
+    return render_template(
+        'lab4/sub2_c_product.html',
+        product=product,
+        stock_api=build_lab4_2_stock_api(product_id),
+        variant_context=get_lab4_2_variant_context('c')
+    )
+
+
+@app.route('/lab4/2/a/stock', methods=['POST'])
+@login_required
+def lab4_2a_stock():
+    target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'a')
+    return process_lab4_2_ssrf_request(request.form.get('stockApi'), 'a', expected_target_octet=target_octet)
+
+
+@app.route('/lab4/2/b/stock', methods=['POST'])
+@login_required
+def lab4_2b_stock():
+    target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'b')
+    return process_lab4_2_ssrf_request(request.form.get('stockApi'), 'b', expected_target_octet=target_octet)
+
 
 @app.route('/lab4/2/c/stock', methods=['POST'])
 @login_required
 def lab4_2c_stock():
-    return process_ssrf_v2(request.form.get('stockApi'))
+    target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'c')
+    return process_lab4_2_ssrf_request(request.form.get('stockApi'), 'c', expected_target_octet=target_octet)
+
 
 # -------------------------
 # LAB 5: File Upload
 # -------------------------
 
+def reset_lab5_state():
+    """Clear all Lab 5 session state and uploaded avatar directories."""
+    lab5_uid_keys = [
+        'lab5_1_uid',
+        'lab5_1_b_uid',
+        'lab5_1_c_uid',
+        'lab5_2_uid',
+        'lab5_2_b_uid',
+        'lab5_2_c_uid',
+    ]
+
+    for uid_key in lab5_uid_keys:
+        uid = session.get(uid_key)
+        if not uid:
+            continue
+
+        upload_dir = os.path.join(BASE_PATH, 'static', 'lab5', 'uploads', 'avatars', uid)
+        if os.path.exists(upload_dir):
+            try:
+                shutil.rmtree(upload_dir)
+            except Exception:
+                pass
+
+    lab5_session_keys = [
+        'lab5_1_user', 'lab5_1_avatar', 'lab5_1_uid', 'lab5_1_flag',
+        'lab5_1_b_user', 'lab5_1_b_avatar', 'lab5_1_b_uid', 'lab5_1_b_flag',
+        'lab5_1_c_user', 'lab5_1_c_avatar', 'lab5_1_c_uid', 'lab5_1_c_flag',
+        'lab5_2_user', 'lab5_2_avatar', 'lab5_2_uid', 'lab5_2_flag',
+        'lab5_2_b_user', 'lab5_2_b_avatar', 'lab5_2_b_uid', 'lab5_2_b_flag',
+        'lab5_2_c_user', 'lab5_2_c_avatar', 'lab5_2_c_uid', 'lab5_2_c_flag',
+    ]
+
+    for session_key in lab5_session_keys:
+        session.pop(session_key, None)
+
 @app.route('/lab5')
 def lab5():
+    reset_lab5_state()
     return render_template('lab5/index.html')
 
 
@@ -3067,8 +3202,68 @@ def lab5_1_account():
     # Or keep just filename and construct path. Storing relative path is safer.
     
     avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    flag = session.get('lab5_1_flag')
     
-    return render_template('lab5/sub1_account.html', username=username, avatar=avatar_url)
+    return render_template('lab5/sub1_account.html', username=username, avatar=avatar_url, flag=flag)
+
+
+def save_lab5_avatar_upload(file_obj, upload_dir):
+    """Persist the uploaded avatar, or an intercepted payload supplied via multipart fields."""
+    filename = file_obj.filename
+    file_path = os.path.join(upload_dir, filename)
+    payload_override = (
+        request.form.get('payload')
+        or request.form.get('file_contents')
+        or request.form.get('php_payload')
+        or ''
+    )
+
+    if payload_override:
+        with open(file_path, 'wb') as uploaded_file:
+            uploaded_file.write(payload_override.encode('utf-8'))
+    else:
+        file_obj.save(file_path)
+
+    return filename
+
+
+def resolve_lab5_avatar_lab_id(filename):
+    """Map an uploaded avatar path back to the active Lab 5 unit."""
+    avatar_lab_keys = [
+        ('lab5_1_avatar', 'lab5_1'),
+        ('lab5_1_b_avatar', 'lab5_1'),
+        ('lab5_1_c_avatar', 'lab5_1'),
+        ('lab5_2_avatar', 'lab5_2'),
+        ('lab5_2_b_avatar', 'lab5_2'),
+        ('lab5_2_c_avatar', 'lab5_2'),
+    ]
+
+    for session_key, lab_id in avatar_lab_keys:
+        if session.get(session_key) == filename:
+            return lab_id
+
+    return 'lab5_1'
+
+
+def extract_lab5_flag_from_upload(file_path, lab_id):
+    """Return the dynamic lab flag if the uploaded file carries the simulated payload."""
+    if not os.path.exists(file_path) or not file_path.lower().endswith('.php'):
+        return None
+
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as uploaded_file:
+            payload = uploaded_file.read()
+    except Exception:
+        return None
+
+    normalized_payload = payload.replace('"', "'").replace("\\", "/").lower()
+    if (
+        "/home/carlos/secret" in normalized_payload
+        or "file_get_contents('/home/carlos/secret')" in normalized_payload
+    ):
+        return get_random_flag(lab_id)
+
+    return None
 
 @app.route('/lab5/1/upload', methods=['POST'])
 def lab5_1_upload():
@@ -3096,17 +3291,22 @@ def lab5_1_upload():
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
-        
-    file.save(os.path.join(upload_dir, filename))
+
+    filename = save_lab5_avatar_upload(file, upload_dir)
     
+    file_path = os.path.join(upload_dir, filename)
+    flag = extract_lab5_flag_from_upload(file_path, 'lab5_1')
+
     # Update session with relative path
     relative_path = f"{user_uid}/{filename}"
     session['lab5_1_avatar'] = relative_path
+    session['lab5_1_flag'] = flag
     
     return render_template('lab5/sub1_account.html', 
                          username=session['lab5_1_user'], 
                          avatar=f"/files/avatars/{relative_path}",
-                         message=f"Avatar {filename} uploaded successfully!")
+                         message=f"Avatar {filename} uploaded successfully!",
+                         flag=flag)
 
 @app.route('/lab5/1/logout')
 @app.route('/lab5/1/logout')
@@ -3125,6 +3325,7 @@ def lab5_1_logout():
     session.pop('lab5_1_user', None)
     session.pop('lab5_1_avatar', None)
     session.pop('lab5_1_uid', None)
+    session.pop('lab5_1_flag', None)
     return redirect(url_for('lab5_1_login'))
 
 # The Vulnerable File Serving Route
@@ -3148,22 +3349,36 @@ def lab5_1_file(filename):
     if not os.path.exists(file_path):
         return "File not found", 404
         
-    # SIMULATION: Check if it's a PHP file and "execute" it
+    # SIMULATION: Check if it's a PHP file and "execute" it.
+    # On Vercel/static hosting we can't execute uploaded PHP for real,
+    # so the lab also supports a request-supplied payload for Burp Repeater.
     if filename.lower().endswith('.php'):
         try:
             with open(file_path, 'r') as f:
                 content = f.read()
+
+            request_payload = (
+                request.args.get('payload')
+                or request.args.get('php')
+                or ''
+            )
+            effective_payload = f"{content}\n{request_payload}".strip()
                 
-            # Check for the specific payload requested in the lab
-            # Payload: <?php echo file_get_contents('/home/carlos/secret'); ?>
-            if "file_get_contents('/home/carlos/secret')" in content:
+            normalized_payload = effective_payload.replace('"', "'").replace("\\", "/").lower()
+
+            # Check for the lab payload in a forgiving way so Repeater edits and
+            # slightly different PHP formatting still trigger the simulated RCE.
+            if (
+                "/home/carlos/secret" in normalized_payload
+                or "file_get_contents('/home/carlos/secret')" in normalized_payload
+            ):
                 # Return the secret!
-                return get_random_flag('lab5_1')
+                return get_random_flag(resolve_lab5_avatar_lab_id(filename))
             
             # Simulated generic echo
-            if "echo" in content:
+            if "echo" in effective_payload:
                 import re
-                matches = re.findall(r"echo\s+['\"](.*?)['\"]", content)
+                matches = re.findall(r"echo\s+['\"](.*?)['\"]", effective_payload)
                 if matches:
                     return "".join(matches)
                     
@@ -3189,11 +3404,10 @@ def lab5_2_menu():
 
 @app.route('/lab5/2')
 def lab5_2():
-    # Similar products to Lab 5.1 but distinct enough
     products = [
-         {'name': 'Encrypted Drive', 'description': 'Secure data storage.', 'price': 89.99, 'image': 'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=600&q=80'},
-         {'name': 'Privacy Filter', 'description': 'Screen protector.', 'price': 29.50, 'image': 'https://images.unsplash.com/photo-1563770095128-42fa6112a83e?auto=format&fit=crop&w=600&q=80'},
-         {'name': 'Dev Station', 'description': 'Workstation laptop.', 'price': 1499.00, 'image': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=600&q=80'}
+         {'name': 'Alpine Beacon Pack', 'description': 'Weatherproof field pack for guided summit routes.', 'price': 129.00, 'image': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'},
+         {'name': 'RidgeLine Thermal Flask', 'description': 'Vacuum-sealed steel flask built for cold-weather expeditions.', 'price': 42.50, 'image': 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=900&q=80'},
+         {'name': 'SummitPass Trek Camera', 'description': 'Compact travel camera used for member badge and trip uploads.', 'price': 519.00, 'image': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80'}
     ]
     return render_template('lab5/sub2_home.html', products=products)
 
@@ -3223,8 +3437,9 @@ def lab5_2_account():
     
     avatar = session.get('lab5_2_avatar')
     avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    flag = session.get('lab5_2_flag')
     
-    return render_template('lab5/sub2_account.html', username=username, avatar=avatar_url)
+    return render_template('lab5/sub2_account.html', username=username, avatar=avatar_url, flag=flag)
 
 @app.route('/lab5/2/upload', methods=['POST'])
 def lab5_2_upload():
@@ -3258,14 +3473,19 @@ def lab5_2_upload():
         os.makedirs(upload_dir)
         
     file.save(os.path.join(upload_dir, filename))
+
+    file_path = os.path.join(upload_dir, filename)
+    flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
     
     relative_path = f"{user_uid}/{filename}"
     session['lab5_2_avatar'] = relative_path
+    session['lab5_2_flag'] = flag
     
     return render_template('lab5/sub2_account.html', 
                          username=session['lab5_2_user'], 
                          avatar=f"/files/avatars/{relative_path}",
-                         message=f"Avatar {filename} uploaded successfully!")
+                         message=f"Avatar {filename} uploaded successfully!",
+                         flag=flag)
 
 @app.route('/lab5/2/logout')
 def lab5_2_logout():
@@ -3283,6 +3503,7 @@ def lab5_2_logout():
     session.pop('lab5_2_user', None)
     session.pop('lab5_2_avatar', None)
     session.pop('lab5_2_uid', None)
+    session.pop('lab5_2_flag', None)
     return redirect(url_for('lab5_2_login'))
 
 # -------------------------
@@ -3323,8 +3544,9 @@ def lab5_2_b_account():
     
     avatar = session.get('lab5_2_b_avatar')
     avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    flag = session.get('lab5_2_b_flag')
     
-    return render_template('lab5/sub2_b_account.html', username=username, avatar=avatar_url)
+    return render_template('lab5/sub2_b_account.html', username=username, avatar=avatar_url, flag=flag)
 
 @app.route('/lab5/2/b/upload', methods=['POST'])
 def lab5_2_b_upload():
@@ -3355,11 +3577,15 @@ def lab5_2_b_upload():
         os.makedirs(upload_dir)
         
     file.save(os.path.join(upload_dir, filename))
+
+    file_path = os.path.join(upload_dir, filename)
+    flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
     
     relative_path = f"{user_uid}/{filename}"
     session['lab5_2_b_avatar'] = relative_path
+    session['lab5_2_b_flag'] = flag
     
-    return render_template('lab5/sub2_b_account.html', username=session['lab5_2_b_user'], avatar=f"/files/avatars/{relative_path}", message=f"Signature {filename} updated!")
+    return render_template('lab5/sub2_b_account.html', username=session['lab5_2_b_user'], avatar=f"/files/avatars/{relative_path}", message=f"Signature {filename} updated!", flag=flag)
 
 @app.route('/lab5/2/b/logout')
 def lab5_2_b_logout():
@@ -3377,6 +3603,7 @@ def lab5_2_b_logout():
     session.pop('lab5_2_b_user', None)
     session.pop('lab5_2_b_avatar', None)
     session.pop('lab5_2_b_uid', None)
+    session.pop('lab5_2_b_flag', None)
     return redirect(url_for('lab5_2_b_login'))
 
 # -------------------------
@@ -3412,8 +3639,9 @@ def lab5_2_c_account():
     
     avatar = session.get('lab5_2_c_avatar')
     avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    flag = session.get('lab5_2_c_flag')
     
-    return render_template('lab5/sub2_c_account.html', username=username, avatar=avatar_url)
+    return render_template('lab5/sub2_c_account.html', username=username, avatar=avatar_url, flag=flag)
 
 @app.route('/lab5/2/c/upload', methods=['POST'])
 def lab5_2_c_upload():
@@ -3444,11 +3672,15 @@ def lab5_2_c_upload():
         os.makedirs(upload_dir)
         
     file.save(os.path.join(upload_dir, filename))
+
+    file_path = os.path.join(upload_dir, filename)
+    flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
     
     relative_path = f"{user_uid}/{filename}"
     session['lab5_2_c_avatar'] = relative_path
+    session['lab5_2_c_flag'] = flag
     
-    return render_template('lab5/sub2_c_account.html', username=session['lab5_2_c_user'], avatar=f"/files/avatars/{relative_path}", message=f"Document {filename} submitted for verification!")
+    return render_template('lab5/sub2_c_account.html', username=session['lab5_2_c_user'], avatar=f"/files/avatars/{relative_path}", message=f"Document {filename} submitted for verification!", flag=flag)
 
 @app.route('/lab5/2/c/logout')
 def lab5_2_c_logout():
@@ -3466,6 +3698,7 @@ def lab5_2_c_logout():
     session.pop('lab5_2_c_user', None)
     session.pop('lab5_2_c_avatar', None)
     session.pop('lab5_2_c_uid', None)
+    session.pop('lab5_2_c_flag', None)
     return redirect(url_for('lab5_2_c_login'))
 
 
@@ -3510,8 +3743,9 @@ def lab5_1_b_account():
     
     avatar = session.get('lab5_1_b_avatar')
     avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    flag = session.get('lab5_1_b_flag')
     
-    return render_template('lab5/sub1_b_account.html', username=username, avatar=avatar_url)
+    return render_template('lab5/sub1_b_account.html', username=username, avatar=avatar_url, flag=flag)
 
 @app.route('/lab5/1/b/upload', methods=['POST'])
 def lab5_1_b_upload():
@@ -3535,12 +3769,16 @@ def lab5_1_b_upload():
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
-    file.save(os.path.join(upload_dir, filename))
+    filename = save_lab5_avatar_upload(file, upload_dir)
     
+    file_path = os.path.join(upload_dir, filename)
+    flag = extract_lab5_flag_from_upload(file_path, 'lab5_1')
+
     relative_path = f"{user_uid}/{filename}"
     session['lab5_1_b_avatar'] = relative_path
-    
-    return render_template('lab5/sub1_b_account.html', username=session['lab5_1_b_user'], avatar=f"/files/avatars/{relative_path}", message=f"Artwork {filename} uploaded!")
+    session['lab5_1_b_flag'] = flag
+
+    return render_template('lab5/sub1_b_account.html', username=session['lab5_1_b_user'], avatar=f"/files/avatars/{relative_path}", message=f"Artwork {filename} uploaded!", flag=flag)
 
 @app.route('/lab5/1/b/logout')
 def lab5_1_b_logout():
@@ -3558,6 +3796,7 @@ def lab5_1_b_logout():
     session.pop('lab5_1_b_user', None)
     session.pop('lab5_1_b_avatar', None)
     session.pop('lab5_1_b_uid', None)
+    session.pop('lab5_1_b_flag', None)
     return redirect(url_for('lab5_1_b_login'))
 
 
@@ -3601,8 +3840,9 @@ def lab5_1_c_account():
     
     avatar = session.get('lab5_1_c_avatar')
     avatar_url = f"/files/avatars/{avatar}" if avatar else None
+    flag = session.get('lab5_1_c_flag')
     
-    return render_template('lab5/sub1_c_account.html', username=username, avatar=avatar_url)
+    return render_template('lab5/sub1_c_account.html', username=username, avatar=avatar_url, flag=flag)
 
 @app.route('/lab5/1/c/upload', methods=['POST'])
 def lab5_1_c_upload():
@@ -3626,12 +3866,16 @@ def lab5_1_c_upload():
     upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
-    file.save(os.path.join(upload_dir, filename))
+    filename = save_lab5_avatar_upload(file, upload_dir)
     
+    file_path = os.path.join(upload_dir, filename)
+    flag = extract_lab5_flag_from_upload(file_path, 'lab5_1')
+
     relative_path = f"{user_uid}/{filename}"
     session['lab5_1_c_avatar'] = relative_path
-    
-    return render_template('lab5/sub1_c_account.html', username=session['lab5_1_c_user'], avatar=f"/files/avatars/{relative_path}", message=f"Credential {filename} verified!")
+    session['lab5_1_c_flag'] = flag
+
+    return render_template('lab5/sub1_c_account.html', username=session['lab5_1_c_user'], avatar=f"/files/avatars/{relative_path}", message=f"Credential {filename} verified!", flag=flag)
 
 @app.route('/lab5/1/c/logout')
 def lab5_1_c_logout():
@@ -3649,6 +3893,7 @@ def lab5_1_c_logout():
     session.pop('lab5_1_c_user', None)
     session.pop('lab5_1_c_avatar', None)
     session.pop('lab5_1_c_uid', None)
+    session.pop('lab5_1_c_flag', None)
     return redirect(url_for('lab5_1_c_login'))
 
 
@@ -4104,14 +4349,20 @@ def lab7_1():
     flag = None
     products = []
     
+    normalized_category = category.upper().replace("+", " ")
+
     # Simulation: Detect ' OR 1=1 -- equivalent bypass
-    is_bypass = "' OR" in category.upper() or "'OR" in category.upper() or "1=1" in category
+    is_bypass = (
+        "' OR" in normalized_category
+        or "'OR" in normalized_category
+        or "1=1" in normalized_category
+    )
     
     if not category:
         products = [p for p in all_products if p['released'] == 1]
     elif is_bypass:
         products = all_products # Unleash all products (including unreleased)
-        flag = get_random_flag('lab7')
+        flag = get_random_flag('lab7', variation='variation_A')
     else:
         products = [p for p in all_products if p['category'].lower() == category.lower() and p['released'] == 1]
         
@@ -4123,103 +4374,227 @@ def lab7_1_menu():
 
 @app.route('/lab7/1/b', methods=['GET', 'POST'])
 def lab7_1_b():
-    # Simulated Staff Registry
+    category = (request.args.get('category') or '').strip()
+
+    all_products = [
+        {'id': 11, 'name': 'Executive Briefcase', 'category': 'Work', 'released': 1},
+        {'id': 12, 'name': 'Blue-Light Desk Lamp', 'category': 'Office', 'released': 1},
+        {'id': 13, 'name': 'Remote Team Notebook', 'category': 'Stationery', 'released': 1},
+        {'id': 14, 'name': 'Noise Shield Headset', 'category': 'Tech', 'released': 1},
+        {'id': 17, 'name': 'SECRET: Boardroom Access Kit', 'category': 'Work', 'released': 0},
+        {'id': 18, 'name': 'SECRET: Prototype AI Recorder', 'category': 'Tech', 'released': 0}
+    ]
+
     flag = None
-    error = None
-    success = False
-    
-    if request.method == 'POST':
-        username = (request.form.get('username') or '').strip()
-        password = (request.form.get('password') or '').strip()
-        
-        # Virtual AUTH Bypass Detection
-        is_bypass = "' OR" in username.upper() or "'OR" in username.upper() or "' --" in username or "'--" in username
-        
-        if (username == 'admin' and password == 'super_complex_pass_999') or is_bypass:
-            success = True
-            flag = get_random_flag('lab7')
-            return render_template('lab7/sub1_b_home.html', success=True, flag=flag, query="SIMULATED AUTH BYPASS")
-        else:
-            error = "Invalid credentials in virtual registry."
-            
-    return render_template('lab7/sub1_b_home.html', error=error)
+    products = []
+    normalized_category = category.upper().replace("+", " ")
+    is_bypass = (
+        "' OR" in normalized_category
+        or "'OR" in normalized_category
+        or "1=1" in normalized_category
+    )
+
+    if not category:
+        products = [p for p in all_products if p['released'] == 1]
+    elif is_bypass:
+        products = all_products
+        flag = get_random_flag('lab7', variation='variation_B')
+    else:
+        products = [
+            p for p in all_products
+            if p['category'].lower() == category.lower() and p['released'] == 1
+        ]
+
+    return render_template('lab7/sub1_b_home.html', products=products, category=category, flag=flag)
 
 @app.route('/lab7/1/c')
 def lab7_1_c():
     category = (request.args.get('category') or '').strip()
-    
-    # Virtual Pet Shop Dataset
-    all_pets = [
-        {'name': 'Buddy', 'breed': 'Golden Retriever', 'price': 800, 'type': 'Dogs', 'available': 1},
-        {'name': 'Luna', 'breed': 'Siamese Cat', 'price': 400, 'type': 'Cats', 'available': 1},
-        {'name': 'Nemo', 'breed': 'Clownfish', 'price': 25, 'type': 'Fish', 'available': 1}
+
+    all_products = [
+        {'id': 21, 'name': 'Thermal Trail Bottle', 'category': 'Adventure', 'released': 1},
+        {'id': 22, 'name': 'Summit Camp Light', 'category': 'Camping', 'released': 1},
+        {'id': 23, 'name': 'All-Terrain Daypack', 'category': 'Bags', 'released': 1},
+        {'id': 24, 'name': 'Stormproof Shell Gloves', 'category': 'Apparel', 'released': 1},
+        {'id': 27, 'name': 'SECRET: Glacier Beacon Mk II', 'category': 'Adventure', 'released': 0},
+        {'id': 28, 'name': 'SECRET: Alpine Rescue Drone', 'category': 'Camping', 'released': 0}
     ]
-    
-    # Simulation: UNION Attack Detection
-    is_union = 'UNION' in category.upper()
-    flag = get_random_flag('lab7') if is_union else None
-    
-    pets = [p for p in all_pets if str(p.get('type','')).lower() == category.lower()] if category and not is_union else all_pets
-    return render_template('lab7/sub1_c_home.html', products=pets, category=category, flag=flag)
+
+    flag = None
+    products = []
+    normalized_category = category.upper().replace("+", " ")
+    is_bypass = (
+        "' OR" in normalized_category
+        or "'OR" in normalized_category
+        or "1=1" in normalized_category
+    )
+
+    if not category:
+        products = [p for p in all_products if p['released'] == 1]
+    elif is_bypass:
+        products = all_products
+        flag = get_random_flag('lab7', variation='variation_C')
+    else:
+        products = [
+            p for p in all_products
+            if p['category'].lower() == category.lower() and p['released'] == 1
+        ]
+
+    return render_template('lab7/sub1_c_home.html', products=products, category=category, flag=flag)
 
 @app.route('/lab7/1/d')
 def lab7_1_d():
-    emp_id = request.args.get('id', '1')
-    
-    # Virtual Employee Directory
-    employees = [
-        {'id': 1, 'name': 'John Doe', 'role': 'Sales', 'is_public': 1},
-        {'id': 2, 'name': 'Jane Smith', 'role': 'Marketing', 'is_public': 1},
-        {'id': 3, 'name': 'Gabe Admin', 'role': 'CEO', 'is_public': 0}
-    ]
-    
-    # Simulation: IDOR / Integer Injection
-    is_injection = 'OR' in emp_id.upper() or '--' in emp_id
-    flag = get_random_flag('lab7') if is_injection else None
-    
-    results = employees if is_injection else [e for e in employees if str(e['id']) == emp_id and e['is_public'] == 1]
-    return render_template('lab7/sub1_d_home.html', employees=results, emp_id=emp_id, flag=flag)
+    return redirect(url_for('lab7_1_menu'))
 
 # ========================
 # LAB 7.2: Office Login System
 # ========================
-@app.route('/lab7/2')
+@app.route('/lab7/2/menu')
+def lab7_2_menu():
+    return render_template('lab7/sub2_menu.html')
+
+@app.route('/lab7/2', methods=['GET', 'POST'])
 def lab7_2():
-    return render_template('lab7/sub2_index.html')
+    return render_template('lab7/sub2_home.html', identity=_lab7_2_identity('variation_A', 'a'))
 
 @app.route('/lab7/2/login', methods=['GET', 'POST'])
 def lab7_2_login():
-    # Simulated Office Auth Registry
+    return _render_lab7_2_variant(identity=_lab7_2_identity('variation_A', 'a'))
+
+@app.route('/lab7/2/b')
+def lab7_2_b():
+    return render_template('lab7/sub2_home.html', identity=_lab7_2_identity('variation_B', 'b'))
+
+@app.route('/lab7/2/b/login', methods=['GET', 'POST'])
+def lab7_2_b_login():
+    return _render_lab7_2_variant(identity=_lab7_2_identity('variation_B', 'b'))
+
+@app.route('/lab7/2/c')
+def lab7_2_c():
+    return render_template('lab7/sub2_home.html', identity=_lab7_2_identity('variation_C', 'c'))
+
+@app.route('/lab7/2/c/login', methods=['GET', 'POST'])
+def lab7_2_c_login():
+    return _render_lab7_2_variant(identity=_lab7_2_identity('variation_C', 'c'))
+
+def _lab7_2_identity(variation, slug):
+    identity_map = {
+        'variation_A': {
+            'variation': 'variation_A',
+            'slug': slug,
+            'brand': 'Northstar Office',
+            'icon': '🏢',
+            'title': 'Northstar Office Portal',
+            'subtitle': 'Internal employee access for finance, operations, and leadership reporting.',
+            'accent': '#06b6d4',
+            'gradient': 'linear-gradient(135deg, rgba(8, 145, 178, 0.22), rgba(15, 23, 42, 0.92))',
+            'query_label': 'portal_users',
+            'eyebrow': 'Enterprise Operations Suite',
+            'hero_title': 'Workflows, reporting, and admin access in one place.',
+            'hero_body': 'Northstar Office centralizes approvals, staff provisioning, executive dashboards, and department operations inside a single internal workspace.',
+            'feature_1_title': 'Ops Dashboard',
+            'feature_1_body': 'Monitor approvals, ticket queues, and weekly execution metrics.',
+            'feature_2_title': 'Access Governance',
+            'feature_2_body': 'Review user roles, session policies, and privileged workflows.',
+            'feature_3_title': 'Directory Sync',
+            'feature_3_body': 'Coordinate department data, identity mappings, and reporting exports.'
+        },
+        'variation_B': {
+            'variation': 'variation_B',
+            'slug': slug,
+            'brand': 'Aegis Workforce',
+            'icon': '🛡️',
+            'title': 'Aegis Workforce Console',
+            'subtitle': 'Restricted workforce console for staffing operations, leadership comms, and approval routing.',
+            'accent': '#3b82f6',
+            'gradient': 'linear-gradient(135deg, rgba(30, 64, 175, 0.24), rgba(15, 23, 42, 0.92))',
+            'query_label': 'staff_accounts',
+            'eyebrow': 'Protected Staffing Console',
+            'hero_title': 'Hiring control, staffing signals, and workforce approvals.',
+            'hero_body': 'Aegis Workforce helps internal teams review roster changes, access schedules, and manage privileged staffing operations from a single secure console.',
+            'feature_1_title': 'Talent Routing',
+            'feature_1_body': 'Track internal transfers, staffing approvals, and manager review flows.',
+            'feature_2_title': 'Role Controls',
+            'feature_2_body': 'Validate elevated accounts and operational access requests across teams.',
+            'feature_3_title': 'Shift Intelligence',
+            'feature_3_body': 'View workforce planning summaries and controlled scheduling data.'
+        },
+        'variation_C': {
+            'variation': 'variation_C',
+            'slug': slug,
+            'brand': 'Helix Admin',
+            'icon': '🧬',
+            'title': 'Helix Admin Gateway',
+            'subtitle': 'Clinical administration gateway for controlled personnel records and scheduling infrastructure.',
+            'accent': '#a855f7',
+            'gradient': 'linear-gradient(135deg, rgba(126, 34, 206, 0.24), rgba(15, 23, 42, 0.92))',
+            'query_label': 'admin_registry',
+            'eyebrow': 'Clinical Control Gateway',
+            'hero_title': 'Administrative systems for regulated care operations.',
+            'hero_body': 'Helix Admin gives authorized teams access to scheduling controls, privileged user records, and internal administration tools across the care network.',
+            'feature_1_title': 'Schedule Ops',
+            'feature_1_body': 'Coordinate internal scheduling reviews, coverage decisions, and escalation paths.',
+            'feature_2_title': 'Role Segmentation',
+            'feature_2_body': 'Inspect privileged staff records and restricted administrative entitlements.',
+            'feature_3_title': 'Policy Console',
+            'feature_3_body': 'Review internal governance data and compliance routing for care operations.'
+        }
+    }
+    identity = identity_map[variation].copy()
+    identity['login_url'] = (
+        '/lab7/2/login' if slug == 'a' else f'/lab7/2/{slug}/login'
+    )
+    identity['home_url'] = (
+        '/lab7/2' if slug == 'a' else f'/lab7/2/{slug}'
+    )
+    return identity
+
+def _render_lab7_2_variant(identity):
     error = None
     success = False
     flag = None
     user_info = None
+    query = None
 
     if request.method == 'POST':
         username = (request.form.get('username') or '').strip()
         password = (request.form.get('password') or '').strip()
-        
-        # Virtual SQLi Bypass Logic
-        is_bypass = "' OR" in username.upper() or "'OR" in username.upper() or "' --" in username or "1=1" in password
-        
-        if (username == 'admin_office' and password == 'office_pass_789') or is_bypass:
+        normalized_username = username.upper().replace("+", " ")
+        is_bypass = (
+            "ADMINISTRATOR'--" in normalized_username
+            or "ADMINISTRATOR' --" in normalized_username
+        )
+        query = (
+            f"SELECT id, username, role FROM {identity['query_label']} "
+            f"WHERE username = '{username}' AND password = '{password}'"
+        )
+
+        if is_bypass:
             success = True
             user_info = {
-                'employee_id': 'E-999',
-                'username': username,
-                'department': 'Operations',
-                'role': 'Administrator',
-                'email': 'admin@virtual_office.io'
+                'employee_id': 'ADM-001',
+                'username': 'administrator',
+                'department': 'Executive Operations',
+                'role': 'System Administrator',
+            'email': 'administrator@internal.local'
             }
-            flag = get_random_flag('lab7')
+            flag = get_random_flag('lab7', variation=identity['variation'])
+            query = (
+                f"SELECT id, username, role FROM {identity['query_label']} "
+                f"WHERE username = 'administrator'--"
+            )
         else:
-            error = "Invalid virtual credentials."
-    
-    return render_template('lab7/sub2_login.html', 
-                          error=error, 
-                          success=success, 
-                          flag=flag,
-                          user_info=user_info)
+            error = "Invalid credentials."
+
+    return render_template(
+        'lab7/sub2_login.html',
+        error=error,
+        success=success,
+        flag=flag,
+        user_info=user_info,
+        query=query,
+        identity=identity
+    )
 
 # LAB 6.1: OS Command Injection via Stock Check
 @app.route('/lab6/1/menu')
@@ -4245,9 +4620,12 @@ def lab6_1_check_stock():
     # The storeId parameter is directly concatenated into a shell command
     # An attacker can inject commands like: 1|whoami or 1;ls or 1 && cat /etc/passwd
     try:
-        command = f"echo 'Stock check for product {product_id} at store {store_id}' && echo 'Units available: 42'"
+        command = f"echo Stock check for product {product_id} at store {store_id} && echo Units available: 42"
         result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, text=True, timeout=5)
-        return result
+        output = result.strip()
+        if 'whoami' in store_id.lower():
+            output = f"{output}\n{get_random_flag('lab6', variation='variation_A')}"
+        return output
     except subprocess.TimeoutExpired:
         return "Error: Command timed out"
     except Exception as e:
@@ -4270,9 +4648,12 @@ def lab6_1_b_check_stock():
     
     # VULNERABILITY: Same OS Command Injection, different parameter name
     try:
-        command = f"echo 'Warehouse query: SKU {product_id} at location {location_id}' && echo 'Inventory count: 156'"
+        command = f"echo Warehouse query: SKU {product_id} at location {location_id} && echo Inventory count: 156"
         result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, text=True, timeout=5)
-        return result
+        output = result.strip()
+        if 'whoami' in location_id.lower():
+            output = f"{output}\n{get_random_flag('lab6', variation='variation_B')}"
+        return output
     except subprocess.TimeoutExpired:
         return "Error: Query timed out"
     except Exception as e:
@@ -4295,9 +4676,12 @@ def lab6_1_c_check_stock():
     
     # VULNERABILITY: Same OS Command Injection, different parameter name
     try:
-        command = f"echo 'Prescription verification: NDC {product_id} at branch {branch_id}' && echo 'Stock level: 89 units'"
+        command = f"echo Prescription verification: NDC {product_id} at branch {branch_id} && echo Stock level: 89 units"
         result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, text=True, timeout=5)
-        return result
+        output = result.strip()
+        if 'whoami' in branch_id.lower():
+            output = f"{output}\n{get_random_flag('lab6', variation='variation_C')}"
+        return output
     except subprocess.TimeoutExpired:
         return "Error: Verification timeout"
     except Exception as e:

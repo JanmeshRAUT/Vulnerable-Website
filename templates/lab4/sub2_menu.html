@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Lab 4.2: SSRF Back-end Discovery | Lab Center{% endblock %}
+{% block title %}Lab 4.2: Back-end Discovery{% endblock %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
@@ -11,71 +11,58 @@
         <a href="{{ url_for('lab4') }}" class="back-link-premium">&larr; Back to Module 4</a>
         <div class="lab-title-wrapper">
             <p class="lab-main-title">Lab Variation Selection</p>
-            <h1 class="lab-sub-title">Lab 4.2: SSRF Reconnaissance</h1>
+            <h1 class="lab-sub-title">Lab 4.2: Back-end Discovery</h1>
         </div>
-        <p class="lab-header-desc">Master the art of internal network discovery! Perform a blind scan across the internal 192.168.0.0/24 subnet to find and exploit the hidden administrative interface.</p>
+        <p class="lab-header-desc">Use the stock checker as a blind SSRF primitive, scan the internal <code>192.168.0.0/24</code> range, find the one admin host that returns <code>200</code>, then delete <code>carlos</code>.</p>
     </div>
 
-    <!-- Alert Banner -->
     <div class="lab-alert-banner">
         <div class="alert-icon">⚠️</div>
         <div class="alert-content">
-            <strong>Critical Objective:</strong> Identify the internal IP address hosting the admin panel at port 8080 and delete user 'carlos'.
+            <strong>Workflow:</strong> Intercept the stock check request, replace the <code>stockApi</code> value with <code>http://192.168.0.1:8080/admin</code>, brute-force the last octet with Intruder, then replay the winning host to <code>/admin/delete?username=carlos</code>.
         </div>
     </div>
 
-    <!-- Environmental Research Note -->
-    <div style="background: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 4px;">
-        <h4 style="color: #60a5fa; margin-top: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">📡 Scanning Protocol</h4>
-        <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 0;">
-            Use <strong>Burp Intruder</strong> with a numerical payload (1-255) targeting the last octet of the IP <code>192.168.0.X:8080/admin</code>. In our high-fidelity simulation, the target IP is unique to your researcher identity.
-        </p>
-    </div>
-
-    <!-- Lab Grid -->
     <div class="premium-lab-grid">
-        <!-- Variation A: Retail Store -->
-        <a href="{{ url_for('lab4_2a') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
+        <a href="{{ url_for('lab4_2a') }}" class="premium-lab-card" style="--card-color: #10b981;">
             <div class="premium-card-header">
-                <div class="premium-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">🏬</div>
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">🏬</div>
                 <div class="premium-card-badge">4.2.A</div>
             </div>
             <div class="premium-card-body">
-                <h3>Retail Industry</h3>
-                <p>Standard retail store with legacy internal inventory backends.</p>
+                <h3>Retail Discovery</h3>
+                <p>Consumer storefront with an internal stock microservice exposed through a vulnerable check-stock workflow.</p>
             </div>
             <div class="premium-card-footer">
-                <span class="premium-card-action">Start Discovery &rarr;</span>
+                <span class="premium-card-action">Start Variation A &rarr;</span>
             </div>
         </a>
 
-        <!-- Variation B: Cloud Infra -->
-        <a href="{{ url_for('lab4_2b') }}" class="premium-lab-card" style="--card-color: #38bdf8;">
+        <a href="{{ url_for('lab4_2b') }}" class="premium-lab-card" style="--card-color: #8b5cf6;">
             <div class="premium-card-header">
-                <div class="premium-card-icon" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2);">☁️</div>
+                <div class="premium-card-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.2);">☁️</div>
                 <div class="premium-card-badge">4.2.B</div>
             </div>
             <div class="premium-card-body">
-                <h3>Cloud Engineering</h3>
-                <p>Advanced datacenter with microservices hidden in private subnets.</p>
+                <h3>Cloud Discovery</h3>
+                <p>Infrastructure marketplace where the vulnerable API can be turned into an internal admin host scanner.</p>
             </div>
             <div class="premium-card-footer">
-                <span class="premium-card-action">Start Discovery &rarr;</span>
+                <span class="premium-card-action">Start Variation B &rarr;</span>
             </div>
         </a>
 
-        <!-- Variation C: Global Logistics -->
         <a href="{{ url_for('lab4_2c') }}" class="premium-lab-card" style="--card-color: #f59e0b;">
             <div class="premium-card-header">
-                <div class="premium-card-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2);">📦</div>
+                <div class="premium-card-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2);">🚢</div>
                 <div class="premium-card-badge">4.2.C</div>
             </div>
             <div class="premium-card-body">
-                <h3>Global Fleet</h3>
-                <p>Automated shipping hub where port controllers are segmented by IP.</p>
+                <h3>Logistics Discovery</h3>
+                <p>Operations portal with a stock-check endpoint that can probe a private management subnet.</p>
             </div>
             <div class="premium-card-footer">
-                <span class="premium-card-action">Start Discovery &rarr;</span>
+                <span class="premium-card-action">Start Variation C &rarr;</span>
             </div>
         </a>
     </div>

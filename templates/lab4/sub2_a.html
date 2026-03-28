@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}Lab 4.2B: {{ variant_context.title }}{% endblock %}
+{% block title %}Lab 4.2A: {{ variant_context.title }}{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/sub2_shop.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="theme-b">
+<div class="theme-a">
     <section class="shop-hero">
         <div class="shop-v2-container">
             <a href="{{ url_for('lab4_2') }}" class="buy-btn" style="display:inline-block;margin-bottom:2rem;">&larr; Back to Menu</a>
             <div class="hero-badge">{{ variant_context.badge }}</div>
             <h1 class="hero-title">{{ variant_context.persona }}</h1>
-            <p class="hero-subtitle">{{ variant_context.subtitle }}. The product stock request is your blind scan primitive for the <code>192.168.0.0/24</code> admin range.</p>
+            <p class="hero-subtitle">{{ variant_context.subtitle }}. Visit a product and trigger the stock check request to start your Burp workflow.</p>
         </div>
     </section>
 
@@ -22,13 +22,13 @@
             <article class="product-card">
                 <div class="card-img-wrapper">
                     <img src="{{ product.image }}" alt="{{ product.name }}">
-                    <div class="card-tag">Compute Asset</div>
+                    <div class="card-tag">Discovery Node</div>
                 </div>
                 <h3 class="card-title">{{ product.name }}</h3>
                 <p class="card-desc">{{ product.description }}</p>
                 <div class="card-footer">
                     <span class="card-price">${{ product.price }}</span>
-                    <a href="{{ url_for('lab4_2b_product', product_id=product.id) }}" class="buy-btn">View Product</a>
+                    <a href="{{ url_for('lab4_2a_product', product_id=product.id) }}" class="buy-btn">View Product</a>
                 </div>
             </article>
             {% endfor %}

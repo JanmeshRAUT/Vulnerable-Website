@@ -53,6 +53,19 @@
     </div>
 </header>
 
+<section class="container animate-fade-in lab5-container-max" style="margin-top: 2rem;">
+    <div class="glass content-card" style="padding: 1.5rem 1.75rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div>
+                <p style="margin:0 0 0.35rem 0;color:#fb923c;font-size:0.8rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Lab 5.2.B</p>
+                <h3 style="margin:0;color:#fff;">Operation Briefing</h3>
+            </div>
+            <span class="status-badge">Content-Type Bypass</span>
+        </div>
+        <p style="margin:1rem 0 0 0;color:#94a3b8;line-height:1.7;">Driver uploads here are checked more carefully than Lab 5.1, but the server still trusts the declared content type too much. The task is to make the request look safe while keeping the payload dangerous.</p>
+    </div>
+</section>
+
 <main id="tracking" class="container animate-fade-in lab5-container-max">
     <div class="tech-grid" style="grid-template-columns: 1fr;">
         {% for shipment in shipments %}

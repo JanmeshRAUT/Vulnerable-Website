@@ -1,54 +1,56 @@
 {% extends 'base.html' %}
-{% block title %}Lab 5: File Upload Vulnerabilities{% endblock %}
+{% block title %}Module 5 - File Upload | Lab Center{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="lab5-hero">
-    <h1>File Upload Vulnerabilities</h1>
-    <p class="lab5-hero-desc">
-        Explore how insecure file upload mechanisms can lead to remote code execution and server compromise.
-    </p>
-</div>
-
-<div class="container lab5-grid-container">
-    <div class="grid lab5-grid">
-        
-        <!-- Lab 5.1 -->
-        <div class="lab5-card">
-            <div>
-                <span class="status-badge badge-critical">CRITICAL SEVERITY</span>
-            </div>
-            <div class="lab5-icon-wrapper">
-                <i style="font-style: normal;">🐚</i>
-            </div>
-            <h3 class="lab5-card-title">5.1: Remote Code Execution via Web Shell Upload</h3>
-            <p class="lab5-card-desc">
-                This lab contains a vulnerable image upload function. It doesn't perform any validation on the files users upload before storing them on the server filesystem.
-            </p>
-            <a href="{{ url_for('lab5_1_menu') }}" class="btn-lab5-primary">
-                Select Mission &rarr;
-            </a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('home') }}" class="back-link-premium">&larr; Back to Dashboard</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Module 5</p>
+            <h1 class="lab-sub-title">File Upload Vulnerabilities</h1>
         </div>
+        <p class="lab-header-desc">Practice the same guided exploitation flow used in the earlier modules, now focused on avatar uploads, file execution, and bypassing weak validation controls.</p>
+    </div>
 
-        <!-- Lab 5.2 -->
-        <div class="lab5-card">
-            <div>
-                <span class="status-badge badge-critical">HIGH SEVERITY</span>
-            </div>
-            <div class="lab5-icon-wrapper">
-                <i style="font-style: normal;">🎭</i>
-            </div>
-            <h3 class="lab5-card-title">5.2: Content-Type Restriction Bypass</h3>
-            <p class="lab5-card-desc">
-                This lab implements a defense mechanism that checks the Content-Type header. However, it fails to validate if the file content matches the declared type.
-            </p>
-            <a href="{{ url_for('lab5_2_menu') }}" class="btn-lab5-primary">
-                Select Mission &rarr;
-            </a>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Operator Note:</strong> Upload a normal file first, observe how the application fetches it, then pivot that behavior into code execution or validation bypass depending on the lab.
         </div>
+    </div>
+
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab5_1_menu') }}" class="premium-lab-card" style="--card-color: #10b981;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">🐚</div>
+                <div class="premium-card-badge">Lab 5.1</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Remote Code Execution via Web Shell Upload</h3>
+                <p>Log in, upload an avatar image, identify the resulting <code>/files/avatars/&lt;file&gt;</code> request, then replace it with a malicious PHP payload and execute it directly.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Select Mission &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab5_2_menu') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">🎭</div>
+                <div class="premium-card-badge">Lab 5.2</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Content-Type Restriction Bypass</h3>
+                <p>Abuse a weak upload validation flow that trusts the declared MIME type more than the actual file content and extension.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Select Mission &rarr;</span>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

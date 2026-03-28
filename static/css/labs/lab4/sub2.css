@@ -2,14 +2,20 @@
 
 body.enterprise-dashboard {
     font-family: 'Inter', sans-serif;
-    background-color: #0b0914 !important; /* Extremely dark elegant purple/black */
-    background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 40%),
-                      radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.1), transparent 40%);
+    background-color: #0c0a18 !important; /* Extremely dark elegant purple/black */
+    background-image: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.15), transparent 35%),
+                      radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.12), transparent 35%);
     background-attachment: fixed;
     margin: 0;
     padding: 0;
     color: #e2e8f0;
     min-height: 100vh;
+    animation: backgroundPulse 12s ease-in-out infinite alternate;
+}
+
+@keyframes backgroundPulse {
+    0% { background-position: 0% 0%; opacity: 0.9; }
+    100% { background-position: 100% 100%; opacity: 1; }
 }
 
 /* Base layout across full width */
@@ -17,6 +23,17 @@ body.enterprise-dashboard {
     display: flex;
     min-height: 100vh;
     width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-layout::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+    opacity: 0.05;
+    pointer-events: none;
 }
 
 /* Glassmorphic Sidebar */
@@ -164,12 +181,12 @@ body.enterprise-dashboard {
 
 /* Glassmorphic Cards (Lab 2 Style) */
 .enterprise-card {
-    background: rgba(20, 15, 30, 0.5);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    background: rgba(18, 14, 28, 0.65);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
     overflow: hidden;
     width: 100%;
 }
@@ -180,40 +197,47 @@ body.enterprise-dashboard {
 }
 
 .data-table th, .data-table td {
-    padding: 1.25rem 2rem;
+    padding: 1.5rem 2.5rem;
     text-align: left;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .data-table th {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.3);
     font-weight: 700;
-    color: #cbd5e1;
+    color: #94a3b8;
     font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
 }
 
 .data-table td {
     color: #e2e8f0;
-    font-size: 1rem;
+    font-size: 1.05rem;
     vertical-align: middle;
 }
-.data-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+.data-table tr:hover { background: rgba(255, 255, 255, 0.03); }
 .data-table tr:last-child td { border-bottom: none; }
 
 .sku-cell {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1.5rem;
 }
 .sku-img {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
+    width: 65px;
+    height: 65px;
+    border-radius: 14px;
     object-fit: cover;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
     background: #000;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.sku-cell:hover .sku-img {
+    transform: scale(1.1) rotate(2deg);
+    border-color: var(--theme-color);
+    box-shadow: 0 12px 30px rgba(var(--theme-rgb), 0.4);
 }
 .sku-name { font-weight: 700; color: #fff; font-size: 1.05rem; margin-bottom: 2px;}
 .sku-id { font-size: 0.8rem; color: #64748b; font-family: monospace;}
@@ -222,11 +246,34 @@ body.enterprise-dashboard {
     display: inline-block;
     padding: 0.35rem 1rem;
     border-radius: 99px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     background: rgba(16, 185, 129, 0.1);
     color: #34d399;
     border: 1px solid rgba(16, 185, 129, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.status-badge::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 8px;
+    transform: translateY(-50%);
+    width: 6px; height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: statusPulse 1.5s infinite;
+}
+
+.status-badge { padding-left: 1.5rem; }
+
+@keyframes statusPulse {
+    0% { transform: translateY(-50%) scale(0.8); opacity: 0.5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: translateY(-50%) scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: translateY(-50%) scale(0.8); opacity: 0.5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 /* Detail View Layout (Full Width Grid) */

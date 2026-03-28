@@ -1,52 +1,42 @@
 {% extends 'base.html' %}
-{% block title %}Lab 6: OS Command Injection{% endblock %}
+{% block title %}Module 6 - OS Command Injection | Lab Center{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="lab5-hero">
-    <h1>OS Command Injection</h1>
-    <p class="lab5-hero-desc">
-        Discover how unsanitized user input can lead to arbitrary command execution on the server operating system.
-    </p>
-</div>
-
-<div class="container lab5-grid-container">
-    <div class="grid lab5-grid">
-        
-        <!-- Lab 6.1 -->
-        <div class="lab5-card">
-            <div>
-                <span class="status-badge badge-critical">CRITICAL SEVERITY</span>
-            </div>
-            <div class="lab5-icon-wrapper">
-                <i style="font-style: normal;">💻</i>
-            </div>
-            <h3 class="lab5-card-title">6.1: OS Command Injection via Stock Check</h3>
-            <p class="lab5-card-desc">
-                This lab contains a stock checking feature that executes system commands without proper input sanitization.
-            </p>
-            <a href="{{ url_for('lab6_1_menu') }}" class="btn-lab5-primary">
-                Select Mission &rarr;
-            </a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('home') }}" class="back-link-premium">&larr; Back to Dashboard</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Module 6</p>
+            <h1 class="lab-sub-title">OS Command Injection</h1>
         </div>
+        <p class="lab-header-desc">Exploit stock-check workflows that concatenate user input into operating-system commands. Intercept requests, inject shell operators, and observe raw command output in the response.</p>
+    </div>
 
-        <!-- Lab 6.1.C -->
-        <div class="lab5-card">
-            <div>
-                <span class="status-badge badge-critical">ADVANCED SCENARIO</span>
-            </div>
-            <div class="lab5-icon-wrapper">
-                <i style="font-style: normal;">🏥</i>
-            </div>
-            <h3 class="lab5-card-title">6.1.C: PharmaCare Command Injection</h3>
-            <p class="lab5-card-desc">
-                Healthcare-themed command injection target that uses a branch-based stock verification workflow.
-            </p>
-            <a href="{{ url_for('lab6_1_c') }}" class="btn-lab5-primary">Start Scenario &rarr;</a>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Operator Note:</strong> Intercept stock-check requests in Burp Suite and modify the location parameter with payloads such as <code>1|whoami</code> to disclose the current server user.
         </div>
+    </div>
+
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab6_1_menu') }}" class="premium-lab-card" style="--card-color: #10b981;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">💻</div>
+                <div class="premium-card-badge">Lab 6.1</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Command Injection via Stock Check</h3>
+                <p>Use a vulnerable stock-check feature to inject shell operators into location parameters and return operating-system command output in-band.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Select Mission &rarr;</span>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

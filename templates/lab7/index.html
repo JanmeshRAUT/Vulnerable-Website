@@ -1,52 +1,56 @@
 {% extends 'base.html' %}
-{% block title %}Database Security Module{% endblock %}
+{% block title %}Module 7 - SQL Injection | Lab Center{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="lab5-hero">
-    <h1>Security Assessment Portal</h1>
-    <p class="lab5-hero-desc">
-        Learn how unsanitized user input in SQL queries can expose sensitive data and bypass security controls.
-    </p>
-</div>
-
-<div class="container lab5-grid-container">
-    <div class="grid lab5-grid">
-        
-        <!-- Lab 7.1 -->
-        <div class="lab5-card">
-            <div>
-                <span class="status-badge badge-critical">Database Operations</span>
-            </div>
-            <div class="lab5-icon-wrapper">
-                <i style="font-style: normal;">🗄️</i>
-            </div>
-            <h3 class="lab5-card-title">Module 7.1: Data Query Analysis</h3>
-            <p class="lab5-card-desc">
-                Analyze how the system processes user input in database operations. Test various input patterns.
-            </p>
-            <a href="{{ url_for('lab7_1_menu') }}" class="btn-lab5-primary">
-                Access Module &rarr;
-            </a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('home') }}" class="back-link-premium">&larr; Back to Dashboard</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Module 7</p>
+            <h1 class="lab-sub-title">SQL Injection</h1>
         </div>
+        <p class="lab-header-desc">Investigate vulnerable database queries across product filters, authentication flows, and data lookup systems. Intercept requests, tamper with parameters, and expose data that should never be returned.</p>
+    </div>
 
-        <!-- Lab 7.2 -->
-        <div class="lab5-card">
-            <div>
-                <span class="status-badge badge-critical">AUTHENTICATION FLOW</span>
-            </div>
-            <div class="lab5-icon-wrapper">
-                <i style="font-style: normal;">🏢</i>
-            </div>
-            <h3 class="lab5-card-title">7.2: Office Login SQL Injection</h3>
-            <p class="lab5-card-desc">
-                Exploit vulnerable employee authentication queries in a realistic office management portal.
-            </p>
-            <a href="{{ url_for('lab7_2') }}" class="btn-lab5-primary">Access Module &rarr;</a>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Operator Note:</strong> Focus on request parameters that are reflected in database queries. In Lab 7.1, the category filter is the first attack surface you should test.
         </div>
+    </div>
+
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab7_1_menu') }}" class="premium-lab-card" style="--card-color: #a855f7;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.2);">🗄️</div>
+                <div class="premium-card-badge">Lab 7.1</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>SQL Injection Challenges</h3>
+                <p>Exploit vulnerable SQL queries in catalog filters, login forms, UNION-based extraction, and integer-based lookups across four themed targets.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Select Mission &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab7_2_menu') }}" class="premium-lab-card" style="--card-color: #06b6d4;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.2);">🏢</div>
+                <div class="premium-card-badge">Lab 7.2</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Login Injection Variants</h3>
+                <p>Investigate three vulnerable authentication flows and determine how to bypass access controls through request tampering.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access Module &rarr;</span>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

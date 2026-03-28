@@ -1,242 +1,63 @@
 {% extends 'base.html' %}
-{% block title %}Lab 7.1: Mission Select{% endblock %}
+{% block title %}Lab 7.1: Variation Selection{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
-<style>
-    .mission-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
-    }
-    .mission-card {
-        background: #1e293b;
-        border: 2px solid #334155;
-        border-radius: 1rem;
-        padding: 2rem;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-    .mission-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-    }
-    .mission-card:focus-within {
-        outline: 2px solid #64748b;
-        outline-offset: 2px;
-    }
-    .mission-icon {
-        font-size: 3rem;
-        margin-bottom: 1.5rem;
-        line-height: 1;
-    }
-    .mission-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-    .mission-desc {
-        color: #94a3b8;
-        margin-bottom: 2rem;
-        flex-grow: 1;
-    }
-    .btn-mission {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        display: block;
-        box-sizing: border-box;
-        border: 2px solid transparent;
-        cursor: pointer;
-        font-size: 1rem;
-    }
-    .btn-mission:focus {
-        outline: 2px solid currentColor;
-        outline-offset: 2px;
-    }
-    
-    /* Theme A: GiftShop (Purple) */
-    .theme-a {
-        border-color: #7e22ce;
-    }
-    .theme-a:hover {
-        border-color: #a855f7;
-    }
-    .btn-theme-a {
-        background: #a855f7;
-        color: white;
-        border: 2px solid #a855f7;
-    }
-    .btn-theme-a:hover {
-        background: #9333ea;
-        border-color: #9333ea;
-        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
-    }
-    
-    /* Theme B: Staff Portal (Blue) */
-    .theme-b {
-        border-color: #1e40af;
-    }
-    .theme-b:hover {
-        border-color: #3b82f6;
-    }
-    .btn-theme-b {
-        background: #3b82f6;
-        color: white;
-        border: 2px solid #3b82f6;
-    }
-    .btn-theme-b:hover {
-        background: #2563eb;
-        border-color: #2563eb;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    }
-    
-    /* Theme C: PetShop (Orange) */
-    .theme-c {
-        border-color: #c2410c;
-    }
-    .theme-c:hover {
-        border-color: #f97316;
-    }
-    .btn-theme-c {
-        background: #f97316;
-        color: white;
-        border: 2px solid #f97316;
-    }
-    .btn-theme-c:hover {
-        background: #ea580c;
-        border-color: #ea580c;
-        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
-    }
-
-    /* Theme D: HR Portal (Red) */
-    .theme-d {
-        border-color: #b91c1c;
-    }
-    .theme-d:hover {
-        border-color: #ef4444;
-    }
-    .btn-theme-d {
-        background: #ef4444;
-        color: white;
-        border: 2px solid #ef4444;
-    }
-    .btn-theme-d:hover {
-        background: #dc2626;
-        border-color: #dc2626;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-    }
-    
-    /* Theme E: Office Portal (Cyan) */
-    .theme-e {
-        border-color: #0369a1;
-    }
-    .theme-e:hover {
-        border-color: #06b6d4;
-    }
-    .btn-theme-e {
-        background: #06b6d4;
-        color: white;
-        border: 2px solid #06b6d4;
-    }
-    .btn-theme-e:hover {
-        background: #0891b2;
-        border-color: #0891b2;
-        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
-    }
-    
-    /* Back link styling */
-    .back-link {
-        display: inline-block;
-        color: #64748b;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        padding: 0.5rem 0;
-        border-bottom: 2px solid transparent;
-    }
-    .back-link:hover {
-        color: #94a3b8;
-        border-bottom-color: #64748b;
-    }
-    .back-link:focus {
-        outline: 2px solid #64748b;
-        outline-offset: 2px;
-    }
-</style>
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="lab5-hero">
-    <h1>Select Target System</h1>
-    <p class="lab5-hero-desc">
-        Choose a target system to exploit. Each uses a vulnerable SQL query to fetch or verify data using a different vulnerability pattern.
-    </p>
-</div>
-
-<div class="container animate-fade-in lab5-container-max">
-    <div class="mission-grid">
-        <!-- Variation A -->
-        <div class="mission-card theme-a">
-            <div class="mission-icon">🎁</div>
-            <h3 class="mission-title">GiftShop (WHERE Clause)</h3>
-            <p class="mission-desc">
-                Find the secret luxurious gifts that are supposed to be unreleased. Exploit the 'category' filter via string injection.
-            </p>
-            <a href="{{ url_for('lab7_1') }}" class="btn-mission btn-theme-a">Access System &rarr;</a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab7') }}" class="back-link-premium">&larr; Back to Module 7</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab 7.1</p>
+            <h1 class="lab-sub-title">SQL Injection Challenges</h1>
         </div>
-
-        <!-- Variation B -->
-        <div class="mission-card theme-b">
-            <div class="mission-icon">🔐</div>
-            <h3 class="mission-title">Staff Portal (Login Bypass)</h3>
-            <p class="mission-desc">
-                An internal staff portal. Exploit the authentication query to bypass the login and gain admin access.
-            </p>
-            <a href="{{ url_for('lab7_1_b') }}" class="btn-mission btn-theme-b">Enter Portal &rarr;</a>
-        </div>
-
-        <!-- Variation C -->
-        <div class="mission-card theme-c">
-            <div class="mission-icon">🐾</div>
-            <h3 class="mission-title">PetShop (UNION Attack)</h3>
-            <p class="mission-desc">
-                A pet shop catalog. Exploit the search functionality to perform a UNION attack and retrieve hidden tables.
-            </p>
-            <a href="{{ url_for('lab7_1_c') }}" class="btn-mission btn-theme-c">Access Database &rarr;</a>
-        </div>
-
-        <!-- Variation D -->
-        <div class="mission-card theme-d">
-            <div class="mission-icon">👔</div>
-            <h3 class="mission-title">HR Portal (Integer Based)</h3>
-            <p class="mission-desc">
-                An employee directory displaying users by ID. Exploit the integer-based ID parameter to view the CEO's secret data.
-            </p>
-            <a href="{{ url_for('lab7_1_d') }}" class="btn-mission btn-theme-d">Enter Directory &rarr;</a>
-        </div>
-
-        <!-- Variation E: Office Login -->
-        <div class="mission-card theme-e">
-            <div class="mission-icon">🏢</div>
-            <h3 class="mission-title">Office Login (Auth Bypass)</h3>
-            <p class="mission-desc">
-                An office management system with employee authentication. Exploit the login form to bypass password verification using SQL injection.
-            </p>
-            <a href="{{ url_for('lab7_2') }}" class="btn-mission btn-theme-e">Access Office &rarr;</a>
-        </div>
+        <p class="lab-header-desc">Choose a target system and investigate a vulnerable SQL-backed category filter that exposes products which should remain hidden from normal users.</p>
     </div>
-    
-    <div style="text-align: center; margin-top: 4rem;">
-        <a href="{{ url_for('lab7') }}" class="back-link">&larr; Back to Lab 7 Overview</a>
+
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab7_1') }}" class="premium-lab-card" style="--card-color: #a855f7;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.2);">🎁</div>
+                <div class="premium-card-badge">7.1.A</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>GiftShop</h3>
+                <p>Probe the category filter and determine whether request tampering can make hidden catalog entries appear in the results.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access System &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab7_1_b') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">🔐</div>
+                <div class="premium-card-badge">7.1.B</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>OfficeCore</h3>
+                <p>Investigate whether the catalog filter can be manipulated to expose unreleased workplace inventory.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access System &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab7_1_c') }}" class="premium-lab-card" style="--card-color: #f97316;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2);">🐾</div>
+                <div class="premium-card-badge">7.1.C</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Summit Supply</h3>
+                <p>Test the filtering workflow for weaknesses that may expose hidden expedition releases.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access System &rarr;</span>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

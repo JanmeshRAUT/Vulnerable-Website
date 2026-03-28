@@ -1,117 +1,77 @@
 {% extends 'base.html' %}
-{% block title %}Lab 5.1: Select Operation{% endblock %}
+{% block title %}Lab 5.1: Variation Selection{% endblock %}
 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-index.css') }}">
-<style>
-    .mission-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
-    }
-    .mission-card {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 1rem;
-        padding: 2rem;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-    .mission-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-    }
-    .mission-icon {
-        font-size: 3rem;
-        margin-bottom: 1.5rem;
-    }
-    .mission-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-    .mission-desc {
-        color: #94a3b8;
-        margin-bottom: 2rem;
-        flex-grow: 1;
-    }
-    .btn-mission {
-        width: 100%;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s;
-        display: block; /* Ensure block display */
-        box-sizing: border-box; /* Include padding in width */
-    }
-    
-    /* Theme A: TechZone */
-    .theme-a:hover { border-color: #6366f1; }
-    .btn-theme-a { background: #6366f1; color: white; border: none; }
-    .btn-theme-a:hover { background: #4f46e5; }
-    
-    /* Theme B: PixelArt */
-    .theme-b:hover { border-color: #ec4899; }
-    .btn-theme-b { background: #ec4899; color: white; border: none; }
-    .btn-theme-b:hover { background: #db2777; }
-    
-    /* Theme C: HireMinds */
-    .theme-c:hover { border-color: #10b981; }
-    .btn-theme-c { background: #10b981; color: white; border: none; }
-    .btn-theme-c:hover { background: #059669; }
-</style>
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="lab5-hero">
-    <h1>Select Target Environment</h1>
-    <p class="lab5-hero-desc">
-        Choose a simulation scenario to test the file upload vulnerability. The underlying mechanism is identical, but the context changes to test your adaptability.
-    </p>
-</div>
-
-<div class="container animate-fade-in lab5-container-max">
-    <div class="mission-grid">
-        <!-- Variation A -->
-        <div class="mission-card theme-a">
-            <div class="mission-icon">⚡</div>
-            <h3 class="mission-title">TechZone</h3>
-            <p class="mission-desc">
-                High-end electronics retailer. Vulnerability lies within the customer profile avatar upload system.
-            </p>
-            <a href="{{ url_for('lab5_1') }}" class="btn-mission btn-theme-a">Infiltrate TechZone &rarr;</a>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('lab5') }}" class="back-link-premium">&larr; Back to Module 5</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab Variation Selection</p>
+            <h1 class="lab-sub-title">Lab 5.1: Web Shell Upload</h1>
         </div>
+        <p class="lab-header-desc">Each variation uses the same exploit chain: log in, upload a normal avatar first, locate the <code>/files/avatars/...</code> fetch, then replace it with a PHP payload that reads Carlos&apos;s secret.</p>
+    </div>
 
-        <!-- Variation B -->
-        <div class="mission-card theme-b">
-            <div class="mission-icon">🎨</div>
-            <h3 class="mission-title">PixelArt</h3>
-            <p class="mission-desc">
-                Exclusive NFT marketplace. Artists can upload portfolio pieces. Check the studio management panel.
-            </p>
-            <a href="{{ url_for('lab5_1_b') }}" class="btn-mission btn-theme-b">Access Gallery &rarr;</a>
-        </div>
-
-        <!-- Variation C -->
-        <div class="mission-card theme-c">
-            <div class="mission-icon">💼</div>
-            <h3 class="mission-title">HireMinds</h3>
-            <p class="mission-desc">
-                Professional recruitment network. Recruiters upload ID badges for verification. Target the verification process.
-            </p>
-            <a href="{{ url_for('lab5_1_c') }}" class="btn-mission btn-theme-c">Enter Portal &rarr;</a>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Recommended Flow:</strong> upload an image, capture the avatar GET request in Burp, upload <code>exploit.php</code>, then request that exact path in Repeater to execute the payload.
         </div>
     </div>
-    
-    <div style="text-align: center; margin-top: 4rem;">
-        <a href="{{ url_for('lab5') }}" style="color: #64748b; text-decoration: none;">&larr; Back to Lab 5 Overview</a>
+
+    <div style="background: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0 32px 0; border-radius: 4px;">
+        <h4 style="color: #60a5fa; margin-top: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Execution Payload</h4>
+        <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.7; margin-bottom: 0;">
+            Use a file such as <code>exploit.php</code> containing <code>&lt;?php echo file_get_contents('/home/carlos/secret'); ?&gt;</code>. Once uploaded, request it through <code>/files/avatars/&lt;your-file&gt;</code> to read the secret.
+        </p>
+    </div>
+
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab5_1') }}" class="premium-lab-card" style="--card-color: #6366f1;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.2);">⚡</div>
+                <div class="premium-card-badge">5.1.A</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>TechZone</h3>
+                <p>High-end electronics retailer with a vulnerable profile avatar upload and a directly reachable avatar file path.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Infiltrate TechZone &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab5_1_b') }}" class="premium-lab-card" style="--card-color: #ec4899;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.2);">🎨</div>
+                <div class="premium-card-badge">5.1.B</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>PixelArt</h3>
+                <p>NFT marketplace where uploaded artwork follows the same execution path once it lands in the avatar storage area.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Access Gallery &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab5_1_c') }}" class="premium-lab-card" style="--card-color: #10b981;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">💼</div>
+                <div class="premium-card-badge">5.1.C</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>HireMinds</h3>
+                <p>Recruitment portal where recruiter badge uploads can be swapped for executable PHP payloads.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Enter Portal &rarr;</span>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

@@ -54,6 +54,19 @@
     </div>
 </header>
 
+<section class="container animate-fade-in lab5-container-max" style="margin-top: 2rem;">
+    <div class="lab5-briefing-card theme-c">
+        <div class="lab5-briefing-header">
+            <div>
+                <p class="lab5-briefing-kicker theme-c">Lab 5.1.C</p>
+                <h3 class="lab5-briefing-title">Operation Briefing</h3>
+            </div>
+            <span class="status-badge badge-critical">Avatar Upload RCE</span>
+        </div>
+        <p class="lab5-briefing-copy">Badge uploads land in the same executable avatar path. Upload a safe file first, identify the fetch to <code>/files/avatars/&lt;your-file&gt;</code>, then request your PHP payload directly to read Carlos&apos;s secret.</p>
+    </div>
+</section>
+
 <main id="jobs" class="container animate-fade-in lab5-container-max">
     <div class="tech-grid" style="grid-template-columns: 1fr;">
         {% for job in jobs %}

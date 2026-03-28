@@ -57,6 +57,19 @@
     </div>
 </header>
 
+<section class="container animate-fade-in lab5-container-max" style="margin-top: 2rem;">
+    <div class="lab5-briefing-card theme-b">
+        <div class="lab5-briefing-header">
+            <div>
+                <p class="lab5-briefing-kicker theme-b">Lab 5.1.B</p>
+                <h3 class="lab5-briefing-title">Operation Briefing</h3>
+            </div>
+            <span class="status-badge badge-critical">Avatar Upload RCE</span>
+        </div>
+        <p class="lab5-briefing-copy">Use the same exploit chain here: upload benign artwork first, capture the resulting <code>/files/avatars/...</code> request, then replace the file with a PHP payload and call it directly from Burp Repeater.</p>
+    </div>
+</section>
+
 <main id="gallery" class="container animate-fade-in lab5-container-max">
     <div class="tech-grid">
         {% for item in gallery %}

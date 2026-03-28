@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Lab 5.2 - TechZone{% endblock %}
+{% block title %}Lab 5.2 - SummitTrail Outfitters{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
@@ -11,16 +11,16 @@
     <div class="container animate-fade-in lab5-container-fluid tech-nav-content">
         <a href="{{ url_for('lab5_2') }}" class="tech-brand">
             <span style="font-size: 1.75rem;">🛡️</span>
-            <span>TechZone 5.2</span>
+            <span>SummitTrail Outfitters</span>
         </a>
         <div class="nav-actions">
             {% if session.get('lab5_2_user') %}
                 <a href="{{ url_for('lab5_2_account') }}" class="btn-tech-primary">
-                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">👤</span> My Account
+                    <span style="font-size: 1.1rem; margin-right: 0.5rem;">🧭</span> Member Profile
                 </a>
                 <a href="{{ url_for('lab5') }}" class="btn-tech-outline">Exit Lab</a>
             {% else %}
-                <a href="{{ url_for('lab5_2_login') }}" class="btn-tech-outline">Sign In</a>
+                <a href="{{ url_for('lab5_2_login') }}" class="btn-tech-outline">Member Login</a>
                 <a href="{{ url_for('lab5') }}" class="btn-tech-outline" style="border-color: transparent; color: #94a3b8;">Exit Lab</a>
             {% endif %}
         </div>
@@ -29,14 +29,27 @@
 
 <header class="tech-hero animate-fade-in">
     <div class="hero-content">
-        <span class="hero-subtitle">Lab 5.2 Scenario</span>
-        <h1>Content Check. <br>Bypass Required.</h1>
-        <p>The server now checks Content-Type headers. Can you trick it into accepting your web shell?</p>
+        <span class="hero-subtitle">Guided Adventure Club</span>
+        <h1>Trail Media. <br>Upload Gated.</h1>
+        <p>SummitTrail members upload trip portraits and route snapshots to personalize their expedition profile. The platform checks declared MIME types before accepting media.</p>
         <div class="hero-actions">
-            <a href="#products" class="btn-tech-primary">Browse Shop</a>
+            <a href="#products" class="btn-tech-primary">Explore Field Gear</a>
         </div>
     </div>
 </header>
+
+<section class="container animate-fade-in lab5-container-max" style="margin-top: 2rem;">
+    <div class="lab5-briefing-card theme-a">
+        <div class="lab5-briefing-header">
+            <div>
+                <p class="lab5-briefing-kicker theme-a">Lab 5.2.A</p>
+                <h3 class="lab5-briefing-title">Operation Briefing</h3>
+            </div>
+            <span class="status-badge">Content-Type Bypass</span>
+        </div>
+        <p class="lab5-briefing-copy">This member portal is separate from the unrestricted 5.1 sites. Upload a normal portrait first, capture the resulting <code>GET /files/avatars/&lt;your-file&gt;</code> request in Burp, then replay the blocked PHP upload and change the multipart file part <code>Content-Type</code> to <code>image/jpeg</code> or <code>image/png</code> so the server accepts a dangerous file as if it were trail media.</p>
+    </div>
+</section>
 
 <main id="products" class="container animate-fade-in lab5-container-max">
     <div class="tech-grid">
@@ -59,6 +72,6 @@
 </main>
 
 <footer style="padding: 4rem 0; text-align: center; color: #64748b;">
-    <p>&copy; 2025 TechZone Security Labs.</p>
+    <p>&copy; 2025 SummitTrail Outfitters. Expedition member portal.</p>
 </footer>
 {% endblock %}

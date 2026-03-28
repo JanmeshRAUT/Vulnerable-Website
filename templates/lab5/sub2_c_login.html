@@ -5,57 +5,62 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5-utils.css') }}">
 <style>
-    /* Theme Override: SecureBank (Purple) */
     :root {
         --primary: #7c3aed;
         --primary-hover: #6d28d9;
         --accent: #8b5cf6;
-    }
-    .auth-title {
-        color: #6d28d9; /* Violet 700 */
-    }
-    .btn-tech-primary {
-         background-color: var(--primary) !important;
     }
 </style>
 {% endblock %}
 
 {% block layout_container %}
 <div class="container animate-fade-in lab5-container-center">
-    <div class="nav-back-link">
-        <a href="{{ url_for('lab5_2_c') }}" class="btn-tech-outline" style="border: none; padding: 0.5rem 1rem;">&larr; Back to Banking</a>
-    </div>
-
-    <div class="auth-container glass">
-        <div class="auth-header">
-            <div class="auth-icon">🔒</div>
-            <h2 class="auth-title">Client Access</h2>
-            <p class="auth-subtitle">Two-Factor Authentication Enabled.</p>
-        </div>
-
-        {% if error %}
-        <div class="auth-error">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            {{ error }}
-        </div>
-        {% endif %}
-
-        <form action="{{ url_for('lab5_2_c_login') }}" method="POST">
-            <div class="form-group">
-                <label class="form-label">Client Username</label>
-                <input type="text" name="username" class="form-input" placeholder="client_wiener" required>
+    <div class="lab5-login-shell">
+        <section class="lab5-login-panel">
+            <div>
+                <div class="lab5-login-kicker">Lab 5.2.C</div>
+                <h1 class="lab5-login-headline">Authenticate into the document-verification flow.</h1>
+                <p class="lab5-login-copy">The banking scenario uses the same polished UI pattern, but the challenge is centered on bypassing stricter upload checks by controlling the request’s declared type and presentation.</p>
+                <ul class="lab5-login-points">
+                    <li>Sign in and access the protected KYC upload flow.</li>
+                    <li>Observe how the server evaluates file type metadata.</li>
+                    <li>Craft a request that satisfies the filter while preserving your payload.</li>
+                </ul>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+            <div class="lab5-login-meta">Environment: FinSecure verification portal</div>
+        </section>
+
+        <div class="auth-container glass lab5-login-card">
+            <a href="{{ url_for('lab5_2_c') }}" class="lab5-login-back">&larr; Back to Banking</a>
+
+            <div class="auth-header">
+                <div class="auth-icon">🔒</div>
+                <h2 class="auth-title">Client Access</h2>
+                <p class="auth-subtitle">Two-factor protected access to digital banking services.</p>
             </div>
-            
-            <button type="submit" class="btn-tech-primary auth-submit-btn">Login Securely</button>
-        </form>
-        
-        <div class="auth-footer">
-            <p class="auth-hint">Default: wiener / peter</p>
+
+            {% if error %}
+            <div class="auth-error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('lab5_2_c_login') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Client Username</label>
+                    <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-tech-primary auth-submit-btn">Log In Securely</button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="auth-hint">Default: wiener / peter</p>
+            </div>
         </div>
     </div>
 </div>

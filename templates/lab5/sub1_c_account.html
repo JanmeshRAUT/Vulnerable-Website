@@ -88,7 +88,7 @@
                     <div class="upload-zone" onclick="document.getElementById('avatar-input').click()">
                         <div class="upload-placeholder-icon" style="color:#6ee7b7;">☁️</div>
                         <p class="upload-text-main">Click to upload ID Badge</p>
-                        <p class="upload-text-sub">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                        <p class="upload-text-sub">Upload a normal badge first, then replace it with a PHP payload via the same upload path.</p>
                         <input type="file" name="avatar" id="avatar-input" class="d-none" onchange="this.form.submit()">
                     </div>
                     
@@ -98,7 +98,14 @@
                         </button>
                     </div>
                 </form>
+
             </div>
+
+            {% if flag %}
+            <div class="upload-message-success">
+                Research deliverable captured: <code>{{ flag }}</code>
+            </div>
+            {% endif %}
 
             <!-- Personal Info (Read Only) -->
             <div class="info-grid">

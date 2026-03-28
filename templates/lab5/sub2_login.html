@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Sign In - Lab 5.2{% endblock %}
+{% block title %}Member Login - SummitTrail Outfitters{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lab5.css') }}">
@@ -8,40 +8,53 @@
 
 {% block layout_container %}
 <div class="container animate-fade-in lab5-container-center">
-    <div class="nav-back-link">
-        <a href="{{ url_for('lab5_2') }}" class="btn-tech-outline" style="border: none; padding: 0.5rem 1rem;">&larr; Back to Shop</a>
-    </div>
-
-    <div class="auth-container glass">
-        <div class="auth-header">
-            <div class="auth-icon">🛡️</div>
-            <h2 class="auth-title">Lab 5.2 Login</h2>
-            <p class="auth-subtitle">Content-Type Restricted Zone.</p>
-        </div>
-
-        {% if error %}
-        <div class="auth-error">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            {{ error }}
-        </div>
-        {% endif %}
-
-        <form action="{{ url_for('lab5_2_login') }}" method="POST">
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-input" placeholder="wiener" required>
+    <div class="lab5-login-shell">
+        <section class="lab5-login-panel">
+            <div>
+                <div class="lab5-login-kicker">Lab 5.2.A</div>
+                <h1 class="lab5-login-headline">Enter the expedition media portal.</h1>
+                <p class="lab5-login-copy">SummitTrail uses a member profile upload flow that looks polished and controlled, but the filter only trusts the multipart file part metadata. The solve path still ends with a direct request to your uploaded file, but the bypass starts during upload.</p>
+                <ul class="lab5-login-points">
+                    <li>Upload a benign member portrait first and capture the avatar fetch to <code>/files/avatars/...</code>.</li>
+                    <li>Try uploading <code>exploit.php</code> and observe the MIME-type rejection.</li>
+                    <li>Replay the blocked upload in Burp Repeater and change the multipart file part <code>Content-Type</code> to <code>image/jpeg</code>.</li>
+                </ul>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-input" placeholder="peter" required>
+            <div class="lab5-login-meta">Environment: SummitTrail member expedition portal</div>
+        </section>
+
+        <div class="auth-container glass lab5-login-card">
+            <a href="{{ url_for('lab5_2') }}" class="lab5-login-back">&larr; Back to Outfitters</a>
+
+            <div class="auth-header">
+                <div class="auth-icon">🏔️</div>
+                <h2 class="auth-title">Member Sign In</h2>
+                <p class="auth-subtitle">Access expedition records, trip portraits, and member media uploads.</p>
             </div>
-            
-            <button type="submit" class="btn-tech-primary auth-submit-btn">Login</button>
-        </form>
-        
-        <div class="auth-footer">
-            <p class="auth-hint">Default: wiener / peter</p>
+
+            {% if error %}
+            <div class="auth-error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('lab5_2_login') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-tech-primary auth-submit-btn">Log In</button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="auth-footer-text">Support desk: Trail Concierge media support.</p>
+                <p class="auth-hint">Default: wiener / peter</p>
+            </div>
         </div>
     </div>
 </div>

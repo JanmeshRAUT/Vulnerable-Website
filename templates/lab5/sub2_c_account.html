@@ -89,7 +89,7 @@
                     <div class="upload-zone" onclick="document.getElementById('avatar-input').click()">
                         <div class="upload-placeholder-icon" style="color:#a78bfa;">📂</div>
                         <p class="upload-text-main">Select Document</p>
-                        <p class="upload-text-sub">Please ensure your document is a valid image file.</p>
+                        <p class="upload-text-sub">Only uploads declared as valid image content are accepted by policy.</p>
                         <input type="file" name="avatar" id="avatar-input" class="d-none" onchange="this.form.submit()">
                     </div>
                     
@@ -99,7 +99,14 @@
                         </button>
                     </div>
                 </form>
+
             </div>
+
+            {% if flag %}
+            <div class="upload-message-success">
+                Research deliverable captured: <code>{{ flag }}</code>
+            </div>
+            {% endif %}
 
             <!-- Read Only Info -->
             <div class="info-grid">
