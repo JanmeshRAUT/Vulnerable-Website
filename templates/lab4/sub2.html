@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Lab 4.2 - {{ title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/sub2.css') }}">
+<style>
+    /* Full immersive mode */
+    main.container { display: none; }
+    body { padding: 0 !important; margin: 0 !important; }
+    nav { display: none !important; }
+</style>
+<script>
+    // Remove base elements dynamically to ensure full canvas
+    document.addEventListener("DOMContentLoaded", function() {
+        document.body.classList.add('enterprise-dashboard', 'theme-{{ variant }}');
+        const containers = document.querySelectorAll('main.container, nav');
+        containers.forEach(e => e.style.display = 'none');
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout theme-{{ variant }}">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar">
+        <div class="sidebar-header">
+            {% if variant == 'a' %}🏬 RetailCorp
+            {% elif variant == 'b' %}☁️ CloudScale
+            {% else %}📦 GlobalFleet{% endif %}
+        </div>
+        <div class="sidebar-nav">
+            <a href="#" class="nav-item"><span>📊</span> Overview</a>
+            <a href="#" class="nav-item active"><span>📦</span> Asset Inventory</a>
+            <a href="#" class="nav-item"><span>📡</span> Topology Map</a>
+            <a href="#" class="nav-item"><span>⚙️</span> Diagnostics</a>
+        </div>
+        
+        <div style="margin-top: auto; padding: 2rem;">
+            <a href="{{ url_for('lab4_2') }}" class="btn-secondary" style="border-color: rgba(255,255,255,0.2); background: transparent; color: #cbd5e1;">&larr; Exit Portal</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div class="topbar-search">
+                <input type="text" placeholder="Search infrastructure by IP or hostname...">
+            </div>
+            <div class="topbar-profile">
+                <span style="color: #64748b;">Operator Node</span>
+                <div class="profile-avatar">Op</div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">{{ title }} - Active Hubs</h1>
+                    <p class="page-subtitle">Manage internal infrastructure and view hardware/software allocations.</p>
+                </div>
+            </div>
+
+            <div class="enterprise-card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Asset Profile</th>
+                            <th>Description</th>
+                            <th>Valuation</th>
+                            <th>Network</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>
+                                <div class="sku-cell">
+                                    <img src="{{ product.image }}" class="sku-img" alt="Asset">
+                                    <div>
+                                        <div class="sku-name">{{ product.name }}</div>
+                                        <div class="sku-id">ASSET-{{ product.id * 1052 }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ product.description }}</td>
+                            <td style="font-family: monospace; font-weight: 500;">${{ product.price }}</td>
+                            <td><span class="status-badge">Online</span></td>
+                            <td>
+                                <a href="{% if variant == 'a' %}{{ url_for('lab4_2a_product', product_id=product.id) }}{% elif variant == 'b' %}{{ url_for('lab4_2b_product', product_id=product.id) }}{% else %}{{ url_for('lab4_2c_product', product_id=product.id) }}{% endif %}" class="btn-secondary" style="font-size: 0.8rem;">Examine Node</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

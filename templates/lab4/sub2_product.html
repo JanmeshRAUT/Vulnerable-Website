@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Asset Details - {{ product.name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab4/sub2.css') }}">
+<style>
+    /* Full immersive mode */
+    main.container { display: none; }
+    body { padding: 0 !important; margin: 0 !important; }
+    nav { display: none !important; }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.body.classList.add('enterprise-dashboard', 'theme-{{ variant }}');
+        const containers = document.querySelectorAll('main.container, nav');
+        containers.forEach(e => e.style.display = 'none');
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout theme-{{ variant }}">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar">
+        <div class="sidebar-header">
+            {% if variant == 'a' %}🏬 RetailCorp
+            {% elif variant == 'b' %}☁️ CloudScale
+            {% else %}📦 GlobalFleet{% endif %}
+        </div>
+        <div class="sidebar-nav">
+            <a href="#" class="nav-item active"><span>📦</span> Asset Inventory</a>
+        </div>
+        
+        <div style="margin-top: auto; padding: 2rem;">
+            <a href="{{ url_for('lab4_2') }}" class="btn-secondary" style="border-color: rgba(255,255,255,0.2); background: transparent; color: #cbd5e1;">&larr; Exit Portal</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div class="topbar-search">
+                <input type="text" placeholder="Search infrastructure by IP or hostname..." disabled>
+            </div>
+            <div class="topbar-profile">
+                <span style="color: #64748b;">Operator Node</span>
+                <div class="profile-avatar">Op</div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Node Specification: {{ product.name }}</h1>
+                    <p class="page-subtitle">ID: ASSET-{{ product.id * 1052 }} | Classification: Restricted</p>
+                </div>
+                <a href="javascript:history.back()" class="btn-secondary">&larr; Back to Catalog</a>
+            </div>
+
+            <div class="detail-grid">
+                <!-- Asset Info Card -->
+                <div class="detail-card" style="box-shadow: none;">
+                    <div class="detail-header">
+                        <img src="{{ product.image }}" class="detail-img" alt="Node" style="filter: grayscale(40%);">
+                        <div class="detail-info">
+                            <h1 style="color: #0f172a; margin: 0 0 1rem 0;">{{ product.name }}</h1>
+                            <p style="color: #64748b; font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">{{ product.description }}</p>
+                            
+                            <div style="display: flex; gap: 2rem;">
+                                <div>
+                                    <span style="display: block; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Procurement Cost</span>
+                                    <span style="font-size: 1.5rem; font-weight: bold; color: #334155; font-family: monospace;">${{ product.price }}</span>
+                                </div>
+                                <div>
+                                    <span style="display: block; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase;">Network Status</span>
+                                    <span class="status-badge" style="margin-top: 0.5rem; display: inline-block;">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.3); padding: 1.25rem; border-radius: 6px; margin-top: 1rem; display: flex; gap: 1rem; color: #34d399;">
+                        <span style="font-size: 1.5rem;">🔍</span>
+                        <div style="font-size: 0.95rem; line-height: 1.5;">
+                            <strong>Diagnostic Access Granted</strong><br>
+                            Authorization verified. Internal systems on the <strong>192.168.0.0/24</strong> subnet are now reachable via diagnostic ping for verified operators.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Ping Action Card -->
+                <div class="detail-card" style="background: #f8fafc; border: 1px solid #cbd5e1; box-shadow: none;">
+                    <h3 style="margin-top: 0; display: flex; align-items: center; gap: 0.5rem; color: #0f172a;"><span>⚡</span> API Health Diagnostics</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1.5rem;">Execute internal diagnostic HTTP pings to core infrastructure modules to verify latency and resource readiness.</p>
+                    
+                    <form action="/lab4/2/{{ variant }}/stock" method="POST" id="apiForm">
+                        <div class="api-form">
+                            <input type="hidden" name="stockApi" value="http://192.168.0.1:8080/admin?id={{ product.id }}">
+                            <button type="submit" class="btn-primary">Execute Request Ping &rarr;</button>
+                        </div>
+                    </form>
+                    
+                    <div style="margin-top: 2rem;">
+                        <label style="font-size: 0.85rem; font-weight: 600; color: #475569;">Diagnostic Response Feed:</label>
+                        <div id="apiResult" class="api-result">... waiting for execution request ...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('apiForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const resultDiv = document.getElementById('apiResult');
+        resultDiv.innerText = "Executing HTTP connection... [INITIATING TCP SYN]";
+        resultDiv.className = "api-result";
+        
+        const formData = new FormData(this);
+        const urlEncodedData = new URLSearchParams(formData).toString();
+
+        const variant = "{{ variant }}";
+        fetch('/lab4/2/' + variant + '/stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: urlEncodedData
+        })
+        .then(res => res.text())
+        .then(data => {
+            if (data.includes('Success') || data.includes('FLAG{')) {
+                 resultDiv.innerHTML = data;
+                 resultDiv.classList.add('success');
+            } else if (data.includes('403') || data.includes('Admin') || data.includes('Internal Server Error')) {
+                 resultDiv.innerHTML = data;
+                 resultDiv.classList.add('error');
+            } else {
+                 resultDiv.innerText = data;
+                 resultDiv.classList.add('success');
+            }
+        })
+        .catch(err => {
+            resultDiv.innerText = "Network Exception: " + err;
+            resultDiv.classList.add('error');
+        });
+    });
+</script>
+{% endblock %}

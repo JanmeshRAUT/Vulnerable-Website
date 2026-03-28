@@ -19,8 +19,8 @@
                 <div class="l4-detail-price">${{ product.price }}</div>
                 
                 <div class="l4-stock-box">
-                    <form action="{{ url_for('lab4_1_stock') }}" method="POST" id="stockForm">
-                        <input type="hidden" name="stockApi" value="http://localhost:5000/stock/check?id={{ product.id }}">
+                    <form action="{{ url_for('lab4_1c_stock') }}" method="POST" id="stockForm">
+                        <input type="hidden" name="stockApi" value="http://fleet.clouddrive.local/stock/check?id={{ product.id }}">
                         <button type="submit" class="l4-btn" class="l4-btn-block">Check Stock Status</button>
                     </form>
                     <div id="stockResult" class="l4-stock-result"></div>
@@ -39,7 +39,7 @@
             const formData = new FormData(this);
             const urlEncodedData = new URLSearchParams(formData).toString();
 
-            fetch('/lab4/1/stock', {
+            fetch('{{ url_for("lab4_1c_stock") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'

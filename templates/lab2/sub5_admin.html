@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}System Console - ShopHub{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5.css') }}">
+    <header class="shophub-header">
+        <div class="header-container">
+            <div class="brand-logo">ShopHub Admin <span style="font-size: 0.8rem; background: var(--shophub-primary); color: white; padding: 2px 10px; border-radius: 4px; margin-left: 10px;">ROOT</span></div>
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <a href="{{ url_for('lab2_5_account', id='administrator') }}" style="color: white; text-decoration: none;">Account</a>
+                <a href="{{ url_for('lab2_5_logout') }}" style="color: #f87171; text-decoration: none; font-weight: 700;">EXIT ROOT</a>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+<div style="background: var(--shophub-bg-deep); min-height: 100vh; padding: 60px 20px;">
+    <div style="max-width: 1000px; margin: 0 auto;">
+        
+        {% if success %}
+        <!-- Challenge Mastery Notification -->
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 40px; box-shadow: 0 0 30px rgba(16, 185, 129, 0.1);">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🏁</div>
+            <h2 style="color: #10b981; margin-bottom: 15px;">{{ msg }}</h2>
+            <p style="color: var(--shophub-text-dim); margin-bottom: 25px;">Administrative override successful. Deletion verified across sub-systems.</p>
+            <div style="background: rgba(0,0,0,0.3); border: 1px dashed #10b981; color: #4ade80; padding: 20px; border-radius: 12px; font-family: monospace; font-size: 2rem; font-weight: 900;">
+                {{ flag }}
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 40px; border-bottom: 1px solid var(--shophub-glass-border); padding-bottom: 30px;">
+            <h1 style="color: white; font-size: 2.2rem; font-weight: 900; margin: 0;">Identity Management</h1>
+            <p style="color: var(--shophub-text-dim);">Centralized control for all system subjects.</p>
+        </div>
+
+        <div class="account-card" style="padding: 0; overflow: hidden;">
+            <table class="admin-table" style="width: 100%;">
+                <thead style="background: rgba(255,255,255,0.02);">
+                    <tr>
+                        <th style="padding: 20px; text-align: left; color: white;">Identity</th>
+                        <th style="padding: 20px; text-align: left; color: white;">Clearance</th>
+                        <th style="padding: 20px; text-align: right; color: white;">Directives</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr style="border-top: 1px solid var(--shophub-glass-border);">
+                        <td style="padding: 20px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 35px; height: 35px; background: var(--shophub-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white;">
+                                    {{ user.id[0]|upper }}
+                                </div>
+                                <span style="color: white; font-weight: 600;">{{ user.id }}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 20px;">
+                            <span style="background: rgba(96, 165, 250, 0.1); color: #60a5fa; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700;">{{ user.role|upper }}</span>
+                        </td>
+                        <td style="padding: 20px; text-align: right;">
+                            <a href="{{ url_for('lab2_5_delete', username=user.id) }}" style="color: #f87171; text-decoration: none; font-weight: 700; font-size: 0.9rem;">PURGE USER</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Admin Placeholder -->
+                     <tr style="border-top: 1px solid var(--shophub-glass-border); background: rgba(0, 102, 204, 0.05);">
+                        <td style="padding: 20px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 35px; height: 35px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--shophub-primary);">
+                                    A
+                                </div>
+                                <span style="color: white; font-weight: 600;">administrator</span>
+                            </div>
+                        </td>
+                        <td style="padding: 20px;">
+                            <span style="background: var(--shophub-primary); color: white; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700;">SYSTEM ROOT</span>
+                        </td>
+                        <td style="padding: 20px; text-align: right;">
+                            <span style="color: var(--shophub-text-dim); font-size: 0.9rem;">Protected</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

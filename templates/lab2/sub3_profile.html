@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Mock Identity Dossier | Lab 2.3{% endblock %}
+
+{% block extra_head %}
+<style>
+    .mock-profile-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        color: #e2e8f0;
+    }
+
+    .mock-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mock-identity-badge {
+        background: #1e293b;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 1px solid var(--primary-color);
+        display: inline-block;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .info-item label {
+        display: block;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .info-item div {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    /* ADMIN PANEL SECTION */
+    .admin-console-locked {
+        margin-top: 40px;
+        padding: 40px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.2);
+        border: 2px dashed rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        color: #64748b;
+    }
+
+    .admin-console-active {
+        margin-top: 40px;
+        padding: 30px;
+        background: rgba(220, 38, 38, 0.05);
+        border: 2px solid #ef4444;
+        border-radius: 12px;
+        animation: pulse shadow 2s infinite;
+    }
+
+    @keyframes shadow {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
+        70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .btn-delete {
+        background: #ef4444;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .btn-delete:hover { transform: scale(1.05); }
+
+    .flag-banner {
+        background: #059669;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        font-family: monospace;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mock-profile-container animate-fade-in">
+        <div class="mock-header">
+            <div>
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0;">Identity Dossier</h1>
+                <p style="color: #94a3b8; margin: 5px 0 0;">Authenticated Mock Session: <span style="color: var(--primary-color);">{{ username }}</span></p>
+            </div>
+            <a href="{{ url_for('lab2_3_logout') }}" class="btn btn-outline-danger">Secure Logout</a>
+        </div>
+
+        {% if flag %}
+        <div class="flag-banner">
+            🚩 ACCESS_GRANTED: {{ flag }}
+        </div>
+        {% endif %}
+
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Subject ID</label>
+                <div>MOCK_{{ username|upper }}_449</div>
+            </div>
+            <div class="info-item">
+                <label>Clearance Level</label>
+                <div>{% if is_admin %}LEVEL_4 (Super-Admin){% else %}LEVEL_1 (Guest){% endif %}</div>
+            </div>
+            <div class="info-item">
+                <label>Registry Status</label>
+                <div style="color: #4ade80;">Active Session</div>
+            </div>
+            <div class="info-item">
+                <label>Encryption Key</label>
+                <div style="font-family: monospace; font-size: 0.8rem;">PBKDF2-HMAC-SHA256:260000:...</div>
+            </div>
+        </div>
+
+        {% if is_admin %}
+            <div class="admin-console-active">
+                <h3 style="color: #f87171; margin-top: 0; display: flex; align-items: center; gap: 10px;">
+                    🛡️ Restricted Administrative Console
+                </h3>
+                <p style="color: #fca5a5; font-size: 0.9rem;">Privileged operations detected via session cookies. You have the authority to purge subject records.</p>
+                
+                <div style="margin-top: 25px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                    <div>
+                        <div style="font-weight: 700;">Subject Alpha</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">ID: 7b2-x99</div>
+                    </div>
+                    <form method="POST">
+                        <button type="submit" class="btn-delete">Purge Subject</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="admin-console-locked">
+                <div style="font-size: 2rem; margin-bottom: 10px;">🔒</div>
+                <h4 style="margin: 0;">Administrative Console Hidden</h4>
+                <p style="font-size: 0.8rem; margin-top: 5px;">Insufficient privileges. Admin session cookie not detected or set to false.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

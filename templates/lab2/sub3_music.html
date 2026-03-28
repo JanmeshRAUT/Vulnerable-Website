@@ -13,7 +13,7 @@
 
     <div class="music-user-controls">
         {% if username %}
-        <div class="music-logged-in-text">Logged in as: <span class="music-username-highlight">{{ username }}</span></div>
+        <div class="music-logged-in-text">Logged in as: <a href="{{ url_for('lab2_3_profile') }}" class="music-username-highlight">{{ username }}</a></div>
         <a href="{{ url_for('lab2_3_logout') }}" class="music-logout-btn">Logout</a>
         {% else %}
         <button onclick="document.getElementById('loginModal').style.display='flex'" class="music-login-btn">
@@ -26,7 +26,13 @@
 
 {% block content %}
 <!-- Lab Context -->
-<a href="{{ url_for('lab2_3_menu') }}" class="music-back-link">&larr; LAB MENU</a>
+<div class="music-back-link-container">
+    <a href="{{ url_for('lab2_3_menu') }}" class="music-back-link">&larr; LAB MENU</a>
+</div>
+
+<div style="background: rgba(var(--primary-rgb), 0.1); border-left: 4px solid var(--primary-color); padding: 15px; margin: 20px 0; border-radius: 4px; font-size: 0.85rem; line-height: 1.6;">
+    <strong style="color: var(--primary-color);">RESEARCHER PROTOCOL:</strong> Use credentials <code>researcher</code> / <code>researcher</code> to establish an initial session. Once logged in, analyze the <strong>Identity Dossier</strong> for cookie-based privilege escalation.
+</div>
 
 <div class="hero-music">
     <h1 class="music-hero-title">SOUND OF FULLY FUTURE</h1>
@@ -53,6 +59,7 @@
     <div class="modal-content-music">
         <span class="close-btn-music" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
         <h2 class="music-modal-title">MEMBER ACCESS</h2>
+        <p style="color: #94a3b8; font-size: 0.75rem; text-align: center; margin-bottom: 20px;">CREDENTIALS: researcher / researcher</p>
         <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
             <input type="hidden" name="theme" value="music">
             <input type="text" name="username" placeholder="USERNAME" required class="login-input-music">

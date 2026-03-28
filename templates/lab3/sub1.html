@@ -1,234 +1,113 @@
 {% extends 'base.html' %}
-{% block title %}SecureVault - Enterprise Digital Asset Management{% endblock %}
+{% block title %}SecureVault - Enterprise Asset Management{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub1.css') }}">
-<!-- Professional Header Navigation -->
-<header class="sv-header">
-    <div class="sv-header-container">
-        <!-- Left Section: Back Btn + Logo -->
-        <div class="sv-header-left">
-            <a href="{{ url_for('lab3') }}" class="sv-back-link" title="Back to Lab 3">
-                ←
-            </a>
-            <div class="sv-logo-group">
-                <span class="sv-logo-icon">🔐</span>
-                <div class="sv-logo-text">
-                    <h1 class="sv-logo-title">SecureVault</h1>
-                    <p class="sv-logo-subtitle">Enterprise Asset Management</p>
-                </div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub1.css') }}">
+    <header class="sv-header">
+        <div class="sv-header-container">
+            <div class="sv-header-left">
+                <a href="/" class="sv-back-link">←</a>
+                <a href="{{ url_for('lab3_1') }}" class="sv-logo-group">
+                    <span class="sv-logo-icon">🛡️</span>
+                    <div class="sv-logo-text">
+                        <span class="sv-logo-title">SECUREVAULT</span>
+                        <span class="sv-logo-subtitle">ENTERPRISE SYSTEM</span>
+                    </div>
+                </a>
+            </div>
+            <div class="sv-header-right">
+                <button onclick="openLogin()" class="sv-btn-login">GATEWAY AUTH</button>
             </div>
         </div>
-
-        <!-- Right Section: Login -->
-        <div class="sv-header-right">
-            <button
-                onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)"
-                class="sv-btn-login">Sign In</button>
-        </div>
-    </div>
-</header>
+    </header>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="hero-content">
-        <h2 class="hero-title">Secure Your Digital Assets</h2>
-        <p class="hero-subtitle">Enterprise-grade encryption and management for your most sensitive files</p>
-        <button
-            onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)"
-            class="btn-hero">Get Started</button>
-    </div>
-    <div class="hero-image">
-            <img src="https://images.unsplash.com/photo-1563986768609-322da13e56e1?w=400&q=80" alt="Hero" class="hero-img">
+    <div style="background: var(--sv-bg-dark); min-height: 100vh;">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Fortify Your Digital Assets</h1>
+                <p class="hero-subtitle">Military-grade protection for your most sensitive data nodes. SecureVault provides an immutable barrier against unauthorized exfiltration attempts.</p>
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn-hero">PROVISION NODE</button>
+                    <button class="btn-hero" style="background: transparent; border: 1px solid var(--sv-border); color: white;">DOCUMENTATION</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                 <div class="hero-image-placeholder">🔐</div>
+            </div>
         </div>
-</section>
 
-<!-- Features Section -->
-<section class="features-section" id="features">
-    <h2 class="section-title">Why Choose SecureVault?</h2>
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">🔒</div>
-            <h3>Bank-Level Encryption</h3>
-            <p>256-bit AES encryption for all stored files and data</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3>Lightning Fast</h3>
-            <p>Access your files instantly with our optimized infrastructure</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🌍</div>
-            <h3>Global Availability</h3>
-            <p>Redundant servers across 15+ data centers worldwide</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">📱</div>
-            <h3>Multi-Platform</h3>
-            <p>Seamless access from web, mobile, and desktop applications</p>
-        </div>
-    </div>
-</section>
-
-<!-- Premium Assets Section -->
-<section class="products-section">
-    <h2 class="section-title">Premium Digital Assets</h2>
-    <p class="section-subtitle">Curated collection of enterprise resources</p>
-
-    <div class="products-grid">
-        {% for product in products %}
-        <div class="product-card">
-            <div class="product-image-wrapper" style="background: rgba(15,23,42,0.5); display: flex; align-items: center; justify-content: center; font-size: 4rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--sv-primary);">
-                    {% if loop.index0 % 6 == 0 %}
-                    {% elif loop.index0 % 6 == 1 %}
-                    {% elif loop.index0 % 6 == 2 %}
-                    {% elif loop.index0 % 6 == 3 %}
-                    {% elif loop.index0 % 6 == 4 %}
-                    {% else %}{% endif %}
-                    <div class="product-overlay">
-                        <button class="btn-secondary">Preview</button>
+        <!-- Products Grid -->
+        <div class="products-section">
+            <h2 class="section-title">Security Infrastructure</h2>
+            <p class="section-subtitle">Provision dedicated hardware nodes for your security architecture.</p>
+            <div class="products-grid">
+                {% for p in products %}
+                <div class="product-card">
+                    <div class="product-image-placeholder">
+                        {% if p.id == 1 %}📡{% elif p.id == 2 %}💾{% else %}📦{% endif %}
+                        <div class="product-overlay">
+                            <button class="btn-secondary">Provisioning Portal</button>
+                        </div>
                     </div>
-                </div> 
-            <div class="product-content">
-                <h3 class="product-title">{{ product.name }}</h3>
-                <p class="product-desc">{{ product.description }}</p>
-                <div class="product-meta">
-                    <span class="product-category">{{ ['Enterprise', 'Security', 'Analytics', 'Cloud', 'Tools',
-                        'Services'][loop.index0 % 6] }}</span>
+                    <div class="product-content">
+                        <h3 class="product-title">{{ p.name }}</h3>
+                        <p class="product-desc">{{ p.desc or 'High-fidelity security component for enterprise deployments.' }}</p>
+                        <div class="product-footer">
+                            <span class="product-price">${{ p.price }}</span>
+                            <button class="sv-btn-login btn-compact" onclick="openLogin()">PURCHASE</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="product-footer">
-                    <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
-                    <button class="btn-primary btn-compact">View</button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal (The Brute Force Target) -->
+    <div id="loginModal" class="modal-overlay {% if error or login_open %}active{% endif %}" style="display: {% if error or login_open %}flex{% else %}none{% endif %};">
+        <div class="modal-card">
+            <button onclick="closeLogin()" class="modal-close">&times;</button>
+            <h2 class="modal-title">ACCESS PORTAL</h2>
+            <p class="modal-subtitle">Identity verification required for terminal access.</p>
+
+            {% if error %}
+                <div class="alert-error show-error">
+                    <span class="error-icon">⚠️</span>
+                    <span id="errorMsg">{{ error }}</span>
                 </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
+            {% endif %}
 
-<!-- Security Commitment Section -->
-<section class="security-section" id="security">
-    <h2 class="section-title">Security Commitment</h2>
-    <div class="security-grid">
-        <div class="security-card">
-            <h3>✓ ISO 27001 Certified</h3>
-            <p>Meets international information security standards</p>
-        </div>
-        <div class="security-card">
-            <h3>✓ GDPR Compliant</h3>
-            <p>Full compliance with European data protection regulations</p>
-        </div>
-        <div class="security-card">
-            <h3>✓ 24/7 Monitoring</h3>
-            <p>Continuous security monitoring and threat detection</p>
-        </div>
-        <div class="security-card">
-            <h3>✓ Zero-Knowledge Architecture</h3>
-            <p>Only you hold the encryption keys to your data</p>
+            <form action="{{ url_for('lab3_1_login') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Subject Identity</label>
+                    <input type="text" name="username" class="form-input" placeholder="id_user" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Security Key</label>
+                    <input type="password" name="password" class="form-input" placeholder="********" required>
+                </div>
+                <button type="submit" class="btn-primary">INITIALIZE GATEWAY</button>
+                
+                <div class="modal-test-accounts">
+                    <p style="margin: 0; opacity: 0.6;">Unauthorized access is strictly monitored by Central Intelligence.</p>
+                </div>
+            </form>
         </div>
     </div>
-</section>
 
-<!-- CTA Section -->
-<section class="cta-section">
-    <h2>Ready to Secure Your Data?</h2>
-    <p>Join thousands of enterprises trusting SecureVault with their sensitive assets</p>
-    <button
-        onclick="document.getElementById('loginModal').style.display='flex'; setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10)"
-        class="btn-hero">Sign In Now</button>
-</section>
-
-<!-- LOGIN MODAL -->
-<div id="loginModal" class="modal-overlay">
-    <div class="modal-card">
-        <button onclick="closeModal()" class="modal-close">&times;</button>
-
-        <div class="modal-header">
-            <h2 class="modal-title">Member Portal</h2>
-            <p class="modal-subtitle">Access your secure vault</p>
-        </div>
-
-        {% if error %}
-        <div id="errorMsg" class="error-message alert-error show-error">
-            <span class="error-icon">⚠️</span>
-            <span>{{ error }}</span>
-        </div>
-        {% else %}
-        <div id="errorMsg" class="error-message alert-error"></div>
-        {% endif %}
-
-        <form id="loginForm" action="{{ url_for('lab3_1_login') }}" method="POST" class="login-form">
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" id="username" required class="form-input"
-                    placeholder="Enter your username" autofocus>
-                <small class="form-hint">Forgot your username? <a href="#">Recover it here</a></small>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" id="password" required class="form-input"
-                    placeholder="Enter your password">
-                <small class="form-hint"><a href="#">Forgot your password?</a></small>
-            </div>
-
-            <div class="form-group checkbox-group">
-                <input type="checkbox" id="remember" name="remember">
-                <label for="remember" class="checkbox-label">Remember me on this device</label>
-            </div>
-
-            <button type="submit" class="btn-primary btn-block btn-large">Sign In</button>
-        </form>
-
-        <div class="modal-footer">
-            <p>Don't have an account? <a href="#" class="link-primary">Request access</a></p>
-            <p class="modal-test-accounts">
-                Sandbox access:
-                <br><code class="test-user">wiener</code> / <code class="test-pass">peter</code>
-                <br>or <code class="test-user">carlos</code> / <code class="test-pass">montoya</code>
-            </p>
-        </div>
-    </div>
-</div>
-
-<input type="hidden" id="loginErrorFlag" value="{{ 'true' if error else 'false' }}">
-<script>
-    function closeModal() {
-        const modal = document.getElementById('loginModal');
-        modal.classList.remove('active');
-        setTimeout(() => modal.style.display = 'none', 300);
-    }
-
-    // Auto-open modal if error exists
-    const hasError = document.getElementById('loginErrorFlag').value === 'true';
-    if (hasError) {
-        document.getElementById('loginModal').style.display = 'flex';
-        setTimeout(() => document.getElementById('loginModal').classList.add('active'), 10);
-    }
-
-    // Close on outside click
-    document.getElementById('loginModal').addEventListener('click', function (e) {
-        if (e.target === this) {
-            closeModal();
+    <script>
+        function openLogin() {
+            const modal = document.getElementById('loginModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
         }
-    });
-
-    // Keyboard shortcut to close
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeModal();
-    });
-
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-</script>
+        function closeLogin() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+    </script>
 {% endblock %}

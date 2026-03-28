@@ -10,9 +10,6 @@
     <!-- Component Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/orders.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/help.css') }}">
@@ -49,7 +46,7 @@
                         {% if session.get('role') == 'admin' %}
                             <a href="{{ url_for('admin_students') }}" class="nav-link-custom">Admin Console</a>
                         {% endif %}
-                        <a href="{{ url_for('orders') }}" class="nav-link-custom">Orders</a>
+                        <a href="{{ url_for('profile') }}" class="nav-link-custom">Profile</a>
                         <span class="user-badge">
                             ID: <strong>{{ session.get('username') }}</strong>
                         </span>
@@ -224,9 +221,11 @@
                 '/lab2/2': { exactLabId: 'lab2_2_a', canonicalLabId: 'lab2_2' },
                 '/lab2/2/bookstore': { exactLabId: 'lab2_2_b', canonicalLabId: 'lab2_2' },
                 '/lab2/2/gamezone': { exactLabId: 'lab2_2_c', canonicalLabId: 'lab2_2' },
-                '/lab2/3/music': { exactLabId: 'lab2_3_a', canonicalLabId: 'lab2_3' },
-                '/lab2/3/sports': { exactLabId: 'lab2_3_b', canonicalLabId: 'lab2_3' },
                 '/lab2/3/pets': { exactLabId: 'lab2_3_c', canonicalLabId: 'lab2_3' },
+                '/lab2/3/profile': (function() {
+                    const v = new URLSearchParams(window.location.search).get('v') || 'a';
+                    return { exactLabId: 'lab2_3_' + v, canonicalLabId: 'lab2_3' };
+                })(),
                 '/lab2/4': { exactLabId: 'lab2_4_a', canonicalLabId: 'lab2_4' },
                 '/lab2/4b': { exactLabId: 'lab2_4_b', canonicalLabId: 'lab2_4' },
                 '/lab2/4c': { exactLabId: 'lab2_4_c', canonicalLabId: 'lab2_4' },

@@ -25,7 +25,6 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Promotional Banner -->
     <div class="lab2-4-hero">
         <h1>Tech Deals 2026</h1>
         <p class="techmart-hero-subtitle">Premium gadgets at unbeatable prices!</p>
@@ -37,19 +36,17 @@
     
     <div class="card-grid">
         {% for product in products %}
-        <div class="card product-card-custom" onclick="window.location='{{ url_for('lab2_4_product', product_id=product.id) }}'">
+        <div class="card product-card-custom" onclick="window.location.href = '{{ url_for('lab2_4_product', product_id=product.id) }}';">
             <div class="product-image-placeholder">
-                <span>[Product Image]</span>
+                <span>📦</span>
             </div>
             <div class="techmart-product-content">
-                <h3 class="techmart-product-name">
-                    <a href="{{ url_for('lab2_4_product', product_id=product.id) }}" class="techmart-product-link">{{ product.name }}</a>
-                </h3>
-                <p class="techmart-product-desc">{{ product.description }}</p>
+                <h3 class="techmart-product-name">{{ product.name }}</h3>
+                <p class="techmart-product-desc">Authentic refurbished equipment. Verified source.</p>
             </div>
             <div class="techmart-product-footer">
                 <span class="techmart-product-price">${{ product.price }}</span>
-                <button class="techmart-add-cart-btn">Add to Cart</button>
+                <button class="techmart-add-cart-btn">View Details</button>
             </div>
         </div>
         {% endfor %}
@@ -71,7 +68,7 @@
                 </div>
                 <button type="submit" class="techmart-submit-btn">Login</button>
                 <div class="techmart-modal-hint-box">
-                    Try: <code class="techmart-modal-hint-code">user</code> / <code class="techmart-modal-hint-code">password</code>
+                    Try: <code class="techmart-modal-hint-code">wiener</code> / <code class="techmart-modal-hint-code">peter</code>
                 </div>
             </form>
         </div>

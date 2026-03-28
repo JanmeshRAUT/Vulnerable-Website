@@ -1,49 +1,71 @@
 {% extends 'base.html' %}
-{% block title %}DataVault - Secure Storage{% endblock %}
+{% block title %}DataVault - Secure Evidence Archival{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_c.css') }}">
-<header class="dv-header">
-    <div class="dv-brand-container">
-        <a href="{{ url_for('lab2_5_menu') }}" class="dv-back-link">&lt; BACK</a>
-        [DATA_VAULT]
-    </div>
-    <button onclick="document.getElementById('dvModal').style.display='flex'" class="dv-terminal-btn">ACCESS_TERMINAL</button>
-</header>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_c.css') }}">
+    <header class="vault-header">
+        <div class="vault-container">
+            <div class="vault-logo">DATAVAULT</div>
+            <div style="display:flex; gap: 20px;">
+                <button onclick="openVaultLogin()" class="vault-btn">AUTHENTICATE</button>
+            </div>
+        </div>
+    </header>
 {% endblock %}
 
 {% block content %}
-<div class="dv-hero">
-    <h1 class="dv-hero-title">SECURE_ARCHIVE_SYSTEM_V.9</h1>
-    <p class="dv-hero-sub">ENCRYPTED STORAGE FOR SENSITIVE ASSETS.</p>
-    <div class="dv-block-grid">
-        <div class="dv-block">BLOCK_01</div>
-        <div class="dv-block">BLOCK_02</div>
-        <div class="dv-block">BLOCK_03</div>
-        <div class="dv-block">BLOCK_04</div>
-    </div>
-</div>
-
-<div id="dvModal" class="dv-modal-overlay {% if error %}active{% endif %}">
-    <div class="dv-modal-card">
-        <button onclick="document.getElementById('dvModal').style.display='none'" class="dv-modal-close">&times;</button>
-        <h2 class="dv-modal-title">/AUTHENTICATE</h2>
-        
-        {% if error %}
-        <div class="dv-error">
-            [ERROR]: {{ error }}
+    <div style="background: var(--vault-bg); min-height: 100vh; padding: 20px; font-family: 'Courier New', Courier, monospace;">
+        <!-- Secure Banner -->
+        <div style="background: rgba(16, 185, 129, 0.02); border: 1px dashed var(--vault-border); border-radius: 4px; padding: 80px 40px; text-align: center; margin: 40px auto; max-width: 1200px;">
+            <div style="font-size: 5rem; margin-bottom: 30px;">🔐</div>
+            <h1 style="font-size: 3rem; font-weight: 800; color: var(--vault-primary); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 5px;">Secure Archival</h1>
+            <p style="color: var(--vault-text); font-size: 1.15rem; max-width: 700px; margin: 0 auto 40px auto; line-height: 1.8;">Unauthorized access to DataVault archives is strictly prohibited under Protocol 22. All authentication attempts are logged and monitored by central security nodes.</p>
+            
+            <div style="display: flex; justify-content: center; gap: 30px; border-top: 1px solid var(--vault-border); padding-top: 40px;">
+                <div style="text-align: left; padding: 20px; width: 300px;">
+                    <h3 style="color: var(--vault-primary); font-size: 0.9rem; margin-bottom: 15px;">System Integrity</h3>
+                    <div style="font-size: 0.8rem; color: #4ade80;">[ ONLINE ] 12.0.4.1</div>
+                </div>
+                <div style="text-align: left; padding: 20px; width: 300px;">
+                    <h3 style="color: var(--vault-primary); font-size: 0.9rem; margin-bottom: 15px;">Encryption Flow</h3>
+                    <div style="font-size: 0.8rem; color: #4ade80;">[ ACTIVE ] AES-4096</div>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        
-        <form action="{{ url_for('lab2_5c_login') }}" method="POST">
-             <label class="dv-label">USER_ID</label>
-             <input type="text" name="username" class="dv-input" placeholder="viewer">
-             
-             <label class="dv-label">ACCESS_CODE</label>
-             <input type="password" name="password" class="dv-input" placeholder="view123">
-             
-             <button type="submit" class="dv-btn dv-btn-full">INITIATE_SESSION</button>
-        </form>
     </div>
-</div>
+
+    <!-- Auth Console (Login) -->
+    <div id="vaultModal" style="display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index:1000; align-items:center; justify-content:center;">
+        <div class="vault-card" style="width: 100%; max-width: 450px; border: 2px solid var(--vault-primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                <h2 style="color: var(--vault-primary); font-size: 1.5rem; margin: 0; letter-spacing: 3px;">SYSTEM LOGIN</h2>
+                <button onclick="closeVaultLogin()" style="background: none; border: none; color: var(--vault-primary); font-size: 2rem; cursor: pointer;">&times;</button>
+            </div>
+
+            {% if error %}
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 15px; border-radius: 4px; margin-bottom: 25px; font-family: 'Courier New', monospace;">[ ERROR ] {{ error }}</div>
+            {% endif %}
+
+            <form action="{{ url_for('lab2_5c_login') }}" method="POST">
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; color: var(--vault-text); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">Analyst Identity</label>
+                    <input type="text" name="username" class="vault-input" placeholder="id_subject" required>
+                </div>
+                <div style="margin-bottom: 35px;">
+                    <label style="display: block; color: var(--vault-text); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">Security Passkey</label>
+                    <input type="password" name="password" class="vault-input" placeholder="********" required>
+                </div>
+                <button type="submit" class="vault-btn" style="width: 100%; padding: 15px; font-size: 1rem; border-radius: 4px;">INITIALIZE AUTH</button>
+                <div style="text-align: center; margin-top: 30px; font-size: 0.8rem; color: #64748b; background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid var(--vault-border);">
+                    [ RE-AUTHENTICATION ] <code style="color: var(--vault-primary);">analyst</code> / <code style="color: var(--vault-primary);">analyst123</code>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openVaultLogin() { document.getElementById('vaultModal').style.display='flex'; }
+        function closeVaultLogin() { document.getElementById('vaultModal').style.display='none'; }
+        {% if error %}openVaultLogin();{% endif %}
+    </script>
 {% endblock %}

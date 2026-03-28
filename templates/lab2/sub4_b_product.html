@@ -12,40 +12,44 @@
 {% endblock %}
 
 {% block content %}
-    <div class="luxe-product-detail-container">
-        <div class="luxe-product-detail-flex">
-            <div class="luxe-product-image-box">
+    <div class="luxe-product-detail-container" style="max-width: 1000px; margin: 100px auto; padding: 20px;">
+        <div class="luxe-product-detail-flex" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: rgba(0,0,0,0.4); padding: 40px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2);">
+            <div class="luxe-product-image-box" style="background: rgba(0,0,0,0.6); border-radius: 12px; height: 400px; display: flex; align-items: center; justify-content: center; font-size: 5rem; border: 1px solid rgba(212, 175, 55, 0.1); color: #d4af37;">
                 💎
             </div>
             <div class="luxe-product-info-box">
-                <h1 class="luxe-product-detail-name">{{ product.name }}</h1>
-                <p class="luxe-product-detail-desc">{{ product.description }}</p>
-                <div class="luxe-product-detail-price">
+                <span style="color: #d4af37; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px;">Ethical Artifact</span>
+                <h1 class="luxe-product-detail-name" style="font-size: 2.5rem; margin: 10px 0; font-family: 'Playfair Display', serif; color: #fff;">{{ product.name }}</h1>
+                <p class="luxe-product-detail-desc" style="color: #94a3b8; line-height: 1.6; margin-bottom: 25px;">{{ product.description }}</p>
+                
+                <div class="luxe-product-detail-price" style="font-size: 2rem; font-weight: 800; color: #d4af37; margin-bottom: 30px;">
                     ${{ product.price }}
                 </div>
                 
-                <div class="luxe-uploader-box">
-                    <p class="luxe-uploader-text">
-                        CURATED BY: <strong class="luxe-uploader-strong">
-                            {% if product.username == 'admin' %}
-                                <a href="{{ url_for('lab2_4_admin_collection', user=product.uploader_guid) }}" class="luxe-uploader-link">{{ product.username }}</a>
-                            {% else %}
-                                <a href="{{ url_for('lab2_4b_account', user=product.uploader_guid) }}" class="luxe-uploader-link">{{ product.username }}</a>
-                            {% endif %}
-                        </strong>
-                    </p>
-                    <p class="luxe-uploader-ref">
-                        STORE REFERENCE ID: {{ product.uploader_guid }}
-                    </p>
-                    {% if request.args.get('user') == product.username or session.get('username') == product.username %}
-                    <p class="luxe-uploader-owner">
-                        ✦ You Uploaded this Product ✦
-                    </p>
-                    {% endif %}
+                <div class="luxe-uploader-box" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                    <h3 class="tm-uploader-title" style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">Curator Reputation</h3>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 40px; height: 40px; background: #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: black; font-family: serif;">
+                            {{ product.username[0].upper() }}
+                        </div>
+                        <div>
+                            <a href="{{ url_for('lab2_4b_user_public', id=product.guid) }}" style="margin: 0; font-weight: 700; color: white; text-decoration: none; border-bottom: 1px dashed #d4af37;">{{ product.username }}</a>
+                            <p style="margin: 0; font-size: 0.75rem; color: #4ade80;">✦ Master Curator</p>
+                        </div>
+                    </div>
                 </div>
                 
-                <button class="luxe-add-collection-btn">ADD TO COLLECTION</button>
+                <button class="btn" style="width: 100%; padding: 15px; border-radius: 10px; font-weight: 700; background: #d4af37; color: black; margin-bottom: 15px; border: none;">ACQUIRE NOW</button>
+                <button class="btn" style="width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #d4af37; color: #d4af37; background: transparent;">RESERVE ARTIFACT</button>
             </div>
+        </div>
+
+        <!-- NEW: Collector Spotlight (Carlos Discovery) -->
+        <div style="margin-top: 40px; text-align: center; background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent); padding: 30px; border-radius: 12px;">
+            <p style="color: #94a3b8; font-size: 0.9rem;">Intrigued by this curator's private cache?</p>
+            <a href="{{ url_for('lab2_4b_user_public', id=product.guid) }}" style="color: white; font-weight: 700; text-decoration: none; border-bottom: 2px solid #d4af37; padding-bottom: 5px; font-size: 1.1rem; font-family: serif;">
+                Explore {{ product.username }}'s Member Vault &rarr;
+            </a>
         </div>
     </div>
 {% endblock %}

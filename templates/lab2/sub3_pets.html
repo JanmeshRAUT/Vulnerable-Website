@@ -13,7 +13,7 @@
 
     <div class="pet-user-controls">
         {% if username %}
-        <div class="pet-logged-in-text">Hello, <span class="pet-username-highlight">{{ username }}</span>! 😺</div>
+        <div class="pet-logged-in-text">Hello, <a href="{{ url_for('lab2_3_profile') }}" class="pet-username-highlight">{{ username }}</a>! 😺</div>
         <a href="{{ url_for('lab2_3_logout') }}" class="pet-logout-btn">Logout</a>
         {% else %}
         <button onclick="document.getElementById('loginModal').style.display='flex'" class="pet-login-btn">
@@ -26,7 +26,13 @@
 
 {% block content %}
 <!-- Lab Context -->
-<a href="{{ url_for('lab2_3_menu') }}" class="pet-back-link">&larr; Back to Menu</a>
+<div class="pet-back-link-container">
+    <a href="{{ url_for('lab2_3_menu') }}" class="pet-back-link">&larr; Back to Menu</a>
+</div>
+
+<div style="background: rgba(var(--primary-rgb), 0.1); border-left: 4px solid var(--primary-color); padding: 15px; margin: 20px 0; border-radius: 4px; font-size: 0.85rem; line-height: 1.6;">
+    <strong style="color: var(--primary-color);">FIELD NOTE:</strong> Established session via <code>researcher</code> / <code>researcher</code> is required. Identify the <strong>Identity Dossier</strong> link to begin privilege escalation via cookie tampering.
+</div>
 
 <div class="hero-pet">
     <h1 class="pet-hero-title">Everything for your best friend! 🐶</h1>
@@ -52,6 +58,7 @@
     <div class="modal-content-pet">
         <span class="close-btn-pet" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
         <h2 class="pet-modal-title">Welcome Back! 🐱</h2>
+        <p style="color: #6b7280; font-size: 0.8rem; text-align: center; margin-bottom: 15px;">Try: researcher / researcher</p>
         <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
             <input type="hidden" name="theme" value="pets">
             <input type="text" name="username" placeholder="Username" required class="login-input-pet">

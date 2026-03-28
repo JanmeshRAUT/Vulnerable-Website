@@ -31,18 +31,16 @@
     
     <div class="card-grid">
         {% for product in products %}
-        <div class="card product-card-luxe luxe-product-card-interactive" onclick="window.location='{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}';">
+        <div class="card product-card-luxe luxe-product-card-interactive" onclick="window.location.href = '{{ url_for('lab2_4b_product', product_id=product.id) }}';">
             <div class="product-image-luxe">
                 💎
             </div>
             <div class="luxe-product-info">
-                <h3 class="luxe-title">
-                    <a href="{{ url_for('lab2_4b_product', product_id=product.id, user=request.args.get('user')) }}" class="luxe-product-link">{{ product.name }}</a>
-                </h3>
-                <p class="luxe-product-desc">{{ product.description }}</p>
+                <h3 class="luxe-title">{{ product.name }}</h3>
+                <p class="luxe-product-desc">Exquisite hand-crafted luxury artifact. Certified authentic.</p>
                 <div class="luxe-product-action-row">
                     <span class="luxe-product-price">${{ product.price }}</span>
-                    <button class="luxe-shop-btn">SHOP</button>
+                    <button class="luxe-shop-btn">VIEW DETAILS</button>
                 </div>
             </div>
         </div>
@@ -52,6 +50,7 @@
     <!-- Login Modal -->
     <div id="loginModal" class="modal-luxe">
         <div class="card modal-content-luxe">
+            <button onclick="document.getElementById('loginModal').style.display='none'" style="position: absolute; right: 20px; top: 20px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
             <h2 class="luxe-modal-title">MEMBER ACCESS</h2>
             <form action="{{ url_for('lab2_4b_login') }}" method="POST">
                 <div class="luxe-form-group">
@@ -64,7 +63,7 @@
                 </div>
                 <button type="submit" class="btn-enter-vault">ENTER VAULT</button>
             </form>
-            <p class="luxe-modal-hint">GUEST: user / password</p>
+            <p class="luxe-modal-hint">Try: <code>wiener</code> / <code>peter</code></p>
         </div>
     </div>
 {% endblock %}

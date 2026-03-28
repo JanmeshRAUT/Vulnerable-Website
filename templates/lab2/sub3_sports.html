@@ -13,7 +13,7 @@
 
     <div class="sports-user-controls">
         {% if username %}
-        <div class="sports-logged-in-text">User: <span class="sports-username-highlight">{{ username }}</span></div>
+        <div class="sports-logged-in-text">User: <a href="{{ url_for('lab2_3_profile') }}" class="sports-username-highlight">{{ username }}</a></div>
         <a href="{{ url_for('lab2_3_logout') }}" class="sports-logout-btn">Logout</a>
         {% else %}
         <button onclick="document.getElementById('loginModal').style.display='flex'" class="sports-login-btn">
@@ -26,7 +26,13 @@
 
 {% block content %}
 <!-- Lab Context -->
-<a href="{{ url_for('lab2_3_menu') }}" class="sports-back-link">&larr; Lab Menu</a>
+<div class="sports-back-link-container">
+    <a href="{{ url_for('lab2_3_menu') }}" class="sports-back-link">&larr; Lab Menu</a>
+</div>
+
+<div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 4px; font-size: 0.85rem; line-height: 1.6; color: #fca5a5;">
+    <strong style="color: #ef4444;">FIELD BRIEFING:</strong> Authorized session required via <code>researcher</code> / <code>researcher</code>. High-privilege access must be achieved via browser-side cookie manipulation within the <strong>Subject Dossier</strong>.
+</div>
 
 <div class="hero-sports">
     <h1 class="sports-hero-title">UNLEASH YOUR POTENTIAL</h1>
@@ -55,6 +61,7 @@
     <div class="modal-content-sports">
         <span class="close-btn-sports" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
         <h2 class="sports-modal-title">MEMBER LOGIN</h2>
+        <p style="color: #64748b; font-size: 0.8rem; text-align: center; margin-bottom: 15px;">Credentials: researcher / researcher</p>
         <form action="{{ url_for('lab2_3_login_page') }}" method="POST">
             <input type="hidden" name="theme" value="sports">
             <input type="text" name="username" placeholder="Username" required class="login-input-sports">

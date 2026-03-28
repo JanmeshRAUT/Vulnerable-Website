@@ -1,86 +1,104 @@
 {% extends 'base.html' %}
-{% block title %}Administrator Portal - SecureVault{% endblock %}
+{% block title %}Terminal Console - SecureVault Admin{% endblock %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub2.css') }}">
-    {% set theme = 'theme-shop' if variant == '1' else 'theme-bank' if variant == '2' else 'theme-cloud' %}
-    <header class="l3-header {{ theme }}">
-        <div class="l3-header-left">
-            <a href="{{ url_for('lab3') }}" class="l3-nav-back">&larr; Lab Menu</a>
-            <div class="l3-brand">🔒 SecureVault Admin</div>
-        </div>
-        <div class="l3-header-right">
-            <span class="l3-text-muted">👤 {{ admin_username }}</span>
-            <a href="{% if variant == '2' %}{{ url_for('lab3_1_2_logout') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_logout') }}{% else %}{{ url_for('lab3_1_logout') }}{% endif %}" class="l3-btn l3-btn-danger-outline">Logout</a>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub1.css') }}">
+    <header class="sv-header" style="border-bottom: 2px solid #dc2626;">
+        <div class="sv-header-container">
+            <div class="sv-header-left">
+                <a href="{{ url_for('lab3_1' if variant == '1' else 'lab3_1_2' if variant == '2' else 'lab3_1_3') }}" class="sv-logo-group">
+                    <span class="sv-logo-icon">🛡️</span>
+                    <div class="sv-logo-text">
+                        <span class="sv-logo-title">SECUREVAULT</span>
+                        <span class="sv-logo-subtitle" style="color: #ef4444;">ELEVATED CLEARANCE</span>
+                    </div>
+                </a>
+            </div>
+            <div class="sv-header-right">
+                <span style="color: grey; margin-right: 20px;">Identity: <strong style="color: white; font-family: monospace;">{{ admin_username }}</strong></span>
+                <a href="{{ url_for('lab3_1' if variant == '1' else 'lab3_1_2' if variant == '2' else 'lab3_1_3') }}" class="sv-btn-login" style="background: #ef4444;">TERMINATE SESSION</a>
+            </div>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    {% set theme = 'theme-shop' if variant == '1' else 'theme-bank' if variant == '2' else 'theme-cloud' %}
-    <div class="{{ theme }} l3-admin-container">
-        
-        {% if flag %}
-            <div class="alert alert-success l3-mb-2">
-                <strong>🎉 Challenge Complete!</strong> {{ flag }}
-                <br>
-                <small>You successfully brute forced the admin credentials.</small>
-            </div>
-            <div class="l3-admin-title-box">
-                <a href="{{ url_for('lab3_1') }}" class="l3-btn l3-btn-primary">Return to Store</a>
-            </div>
-        {% else %}
+    <div style="background: var(--sv-bg-dark); min-height: 100vh; padding: 60px 20px;">
+        <div style="max-width: 1000px; margin: 0 auto;">
             
-            <div class="l3-admin-title-box">
-                <h2 class="l3-admin-title">User Management System</h2>
-                <p class="l3-admin-subtitle">Manage registered users and system accounts</p>
+            {% if flag %}
+            <!-- Mission Flag Retrieval -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; padding: 40px; border-radius: 20px; text-align: center; margin-bottom: 40px; box-shadow: 0 0 40px rgba(16, 185, 129, 0.15);">
+                <div style="font-size: 3.5rem; margin-bottom: 20px;">🚩</div>
+                <h2 style="color: #10b981; margin-bottom: 20px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">MISSION ACCOMPLISHED</h2>
+                <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 30px;">Security node de-provisioned successfully. Forensic deliverable extracted from the root session.</p>
+                <div style="background: rgba(0,0,0,0.4); border: 1px dashed #10b981; color: #4ade80; padding: 30px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 2.2rem; font-weight: 900; letter-spacing: 3px; word-break: break-all;">
+                    {{ flag }}
+                </div>
+                <p style="margin-top: 40px;"><a href="{{ url_for('lab3_1') }}" style="color: white; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 2px; font-weight: 800; border: 1px solid white; padding: 12px 35px; border-radius: 8px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='white'; this.style.color='black'" onmouseout="this.style.background='transparent'; this.style.color='white'">End Mission</a></p>
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 50px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 30px;">
+                <h1 style="color: white; font-size: 2.8rem; font-weight: 900; margin: 0; letter-spacing: -1px;">Terminal Console</h1>
+                <p style="color: #94a3b8; margin-top: 10px; font-size: 1.1rem;">Extreme Caution: Resource deletion is immutable across the enterprise grid.</p>
             </div>
 
-            <div class="l3-card l3-mb-2">
-                <div class="l3-card-content">
-                    {% if users %}
-                        <div class="l3-admin-grid-header">
-                            <div>Username</div>
-                            <div>Email Address</div>
-                            <div>User ID</div>
-                            <div>Action</div>
-                        </div>
-                        
-                        {% for user in users %}
-                        <div class="l3-admin-grid-row">
-                            <div class="l3-user-name">{{ user.username }}</div>
-                            <div class="l3-text-muted">{{ user.email or 'No email' }}</div>
-                            <div><code class="l3-user-id">{{ user.id }}</code></div>
-                            <div>
-                                <form method="POST" action="{% if variant == '2' %}{{ url_for('lab3_1_2_delete_user') }}{% elif variant == '3' %}{{ url_for('lab3_1_3_delete_user') }}{% else %}{{ url_for('lab3_1_delete_user') }}{% endif %}">
-                                    <button type="submit" class="l3-btn l3-btn-danger-outline" onclick="return confirm('Delete this user?');">
-                                        ⛔ Delete
-                                    </button>
+            <!-- Subject Discovery Grid -->
+            <div class="product-card" style="padding: 0; overflow: hidden; border-color: rgba(220, 38, 38, 0.2);">
+                <div style="background: rgba(220, 38, 38, 0.05); padding: 20px; border-bottom: 1px solid rgba(220, 38, 38, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="color: white; font-size: 1.1rem; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Subject Purge Protocol</h2>
+                    <span style="background: #ef4444; color: white; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 900;">ACTIVE PURGE</span>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        {% for u in users %}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 25px;">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div style="width: 45px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #94a3b8; border: 1px solid rgba(255,255,255,0.1);">{{ u.username[0]|upper }}</div>
+                                    <div>
+                                        <div style="color: white; font-weight: 800; font-family: monospace;">{{ u.username }}</div>
+                                        <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Role: {{ u.role|upper }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 25px; text-align: right;">
+                                <form action="{{ url_for('lab3_1_delete_user' if variant == '1' else 'lab3_1_2_delete_user' if variant == '2' else 'lab3_1_3_delete_user') }}" method="POST">
+                                    <input type="hidden" name="username" value="{{ u.username }}">
+                                    <button type="submit" style="background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='white'" onmouseout="this.style.background='transparent'; this.style.color='#ef4444'">TERMINATE SUBJECT</button>
                                 </form>
-                            </div>
-                        </div>
+                            </td>
+                        </tr>
                         {% endfor %}
-                    {% else %}
-                        <div class="l3-empty-users">
-                            <div class="l3-empty-icon">👥</div>
-                            <p class="l3-text-muted">No users to display</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="l3-card">
-                <div class="l3-card-content l3-admin-notes">
-                    <h3 class="l3-notes-title">ℹ️ Administration Notes</h3>
-                    <ul class="l3-notes-list">
-                        <li>You have full access to user management functions</li>
-                        <li>All deletions are permanent and cannot be undone</li>
-                        <li>Changes are logged in the system audit trail</li>
-                        <li>This interface demonstrates the risks of weak authentication</li>
-                    </ul>
-                </div>
+                        
+                        <!-- Secondary Subjects -->
+                        <tr>
+                            <td style="padding: 25px; opacity: 0.4;">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div style="width: 45px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #94a3b8; border: 1px solid rgba(255,255,255,0.1);">V</div>
+                                    <div>
+                                        <div style="color: white; font-weight: 800; font-family: monospace;">vault_relay</div>
+                                        <div style="color: #64748b; font-size: 0.75rem;">System Relay Service</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 25px; text-align: right; opacity: 0.4;">
+                                <span style="color: #64748b; font-size: 0.8rem; font-weight: 600;">Subject Protected</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             
-        {% endif %}
+            <div style="margin-top: 30px; border: 1px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 25px; border-radius: 12px; display: flex; align-items: center; gap: 20px;">
+                <div style="font-size: 2rem;">🛡️</div>
+                <div style="flex: 1;">
+                    <div style="color: #10b981; font-weight: 800; font-size: 0.95rem; text-transform: uppercase;">Infrastructure Integrity Online</div>
+                    <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 3px;">Subject de-provisioning will trigger terminal audits. Ensure protocols are finalized before session termination.</div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

@@ -10,48 +10,38 @@
 {% endblock %}
 
 {% block content %}
-    <div class="luxe-acct-container">
-        <div class="card product-card-luxe luxe-acct-card">
-            <div class="luxe-acct-flex">
-                <div class="luxe-account-avatar">
+    <div class="luxe-acct-container" style="max-width: 800px; margin: 80px auto; padding: 20px;">
+        <div class="card" style="background: rgba(0,0,0,0.6); padding: 40px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2);">
+            <div style="display: flex; gap: 30px; align-items: center; margin-bottom: 40px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: black; font-weight: bold; font-family: serif;">
                     {{ account.username[0].upper() }}
                 </div>
-                <div class="luxe-acct-info-grow">
-                    <div class="luxe-acct-header-row">
-                        <h2 class="luxe-acct-fullname">{{ account.full_name }}</h2>
-                        <span class="luxe-shop-btn luxe-acct-role-badge">{{ account.role.upper() }} STATUS</span>
-                    </div>
-                    
-                    <div class="luxe-acct-info-grid">
-                        <div>
-                            <label class="luxe-info-label">Username</label>
-                            <p class="luxe-info-value">{{ account.username }}</p>
-                        </div>
-                        <div>
-                            <label class="luxe-info-label">Email Address</label>
-                            <p class="luxe-info-value">{{ account.email }}</p>
-                        </div>
-                    </div>
-
-                    <div class="luxe-stats-container">
-                        <h4 class="luxe-stats-title">ACCOUNT STATS</h4>
-                        <div class="luxe-stats-row">
-                            <div>
-                                <span class="luxe-stat-value">4</span>
-                                <span class="luxe-stat-label">ORDERS</span>
-                            </div>
-                            <div>
-                                <span class="luxe-stat-value">$14,200</span>
-                                <span class="luxe-stat-label">TOTAL SPENT</span>
-                            </div>
-                            <div>
-                                <span class="luxe-stat-value">12</span>
-                                <span class="luxe-stat-label">SAVED ITEMS</span>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <h1 style="color: white; margin: 0; font-family: 'Playfair Display', serif;">{{ account.username }}</h1>
+                    <p style="color: #d4af37; margin: 0; font-size: 0.8rem; letter-spacing: 1px;">PREMIUM MEMBER ACCOUNT</p>
                 </div>
             </div>
+
+            <div style="margin-bottom: 40px;">
+                <h3 style="color: #d4af37; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">Vault Integration Key</h3>
+                <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 15px;">Your private key for accessing the global luxury inventory API.</p>
+                <div style="background: rgba(0,0,0,1); padding: 20px; border-radius: 8px; border: 1px solid #d4af37; color: #4ade80; font-family: monospace; font-size: 1.1rem; letter-spacing: 1px; text-align: center;">
+                    {{ account.api_key }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                    <label style="color: #64748b; font-size: 0.75rem; text-transform: uppercase;">Primary Email</label>
+                    <p style="color: white; margin: 5px 0 0 0;">{{ account.email }}</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                    <label style="color: #64748b; font-size: 0.75rem; text-transform: uppercase;">Curator Status</label>
+                    <p style="color: #4ade80; margin: 5px 0 0 0;">● ACTIVE</p>
+                </div>
+            </div>
+            
+            <button class="btn" style="width: 100%; margin-top: 40px; border: 1px dashed #d4af37; color: #d4af37; background: transparent; padding: 15px; border-radius: 10px;">ROTATE SECURITY CREDENTIALS</button>
         </div>
     </div>
 {% endblock %}

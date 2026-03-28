@@ -1,182 +1,117 @@
 {% extends 'base.html' %}
-{% block title %}ShopHub - Your Online Marketplace{% endblock %}
+{% block title %}ShopHub - Premium Online Marketplace{% endblock %}
 
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5.css') }}">
     <header class="shophub-header">
         <div class="header-container">
-            <div class="brand-section">
-                <a href="{{ url_for('lab2_5_menu') }}" class="back-link">&larr;</a>
-                <div class="brand-logo">🛍️ ShopHub</div>
-                <nav class="nav-links">
-                    <a href="#" class="nav-item">Home</a>
-                    <a href="#" class="nav-item">Categories</a>
-                    <a href="#" class="nav-item">Deals</a>
-                    <a href="#" class="nav-item">About</a>
+            <div class="brand-section" style="display: flex; align-items: center; gap: 2rem;">
+                <div class="brand-logo">ShopHub</div>
+                <nav class="nav-links" style="display: flex; gap: 1.5rem;">
+                    <a href="#" style="color: white; text-decoration: none; opacity: 0.8;">Flash Sale</a>
+                    <a href="#" style="color: white; text-decoration: none; opacity: 0.8;">Categories</a>
                 </nav>
             </div>
-            <div class="header-actions">
-                <input type="search" placeholder="Search products..." class="search-input">
-                <button onclick="openLoginModal()" class="btn-login">Sign In</button>
+            <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+                <button onclick="openLoginModal()" style="background: var(--shophub-primary); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 99px; font-weight: 700; cursor: pointer;">Sign In</button>
             </div>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <!-- Hero Banner -->
-    <div class="store-hero">
-        <h1 class="hero-title">Flash Sale - 70% Off!</h1>
-        <p class="hero-subtitle">Limited time offer on selected items. Don't miss out on the biggest sale of the season.</p>
-        <button class="btn-hero">Shop Deals</button>
-    </div>
+    <div style="background: var(--shophub-bg-deep); min-height: 100vh; padding: 0 20px;">
+        <!-- Hero Banner -->
+        <div class="store-hero">
+            <h1 class="hero-title">Secure & Fast Shopping</h1>
+            <p class="hero-subtitle">Experience the next generation of e-commerce with ShopHub. Professional tools, premium support, and localized delivery.</p>
+            <button style="background: white; color: var(--shophub-primary); border: none; border-radius: 99px; padding: 1rem 3rem; font-weight: 800; cursor: pointer;">Shop Now</button>
+        </div>
 
-    <!-- Categories -->
-    <h2 class="section-title shophub-section-title-center">Shop by Category</h2>
-    <div class="category-grid">
-        <div class="category-card">
-            <div class="category-icon">👕</div>
-            <p class="category-name">Fashion</p>
-        </div>
-        <div class="category-card">
-            <div class="category-icon">📱</div>
-            <p class="category-name">Electronics</p>
-        </div>
-        <div class="category-card">
-            <div class="category-icon">🏠</div>
-            <p class="category-name">Home</p>
-        </div>
-        <div class="category-card">
-            <div class="category-icon">⚽</div>
-            <p class="category-name">Sports</p>
-        </div>
-        <div class="category-card">
-            <div class="category-icon">📚</div>
-            <p class="category-name">Books</p>
-        </div>
-        <div class="category-card">
-            <div class="category-icon">🎮</div>
-            <p class="category-name">Gaming</p>
-        </div>
-    </div>
-
-    <!-- Featured Products -->
-    <div class="shophub-featured-header">
-        <h2 class="section-title shophub-featured-title">Featured Products</h2>
-        <div class="shophub-filter-btn-group">
-            <button class="shophub-filter-btn shophub-filter-btn-default">All</button>
-            <button class="shophub-filter-btn shophub-filter-btn-active">Best Sellers</button>
-            <button class="shophub-filter-btn shophub-filter-btn-default">New</button>
-        </div>
-    </div>
-    
-    <div class="products-grid">
-        {% for product in products %}
-        <div class="product-card">
-            <div class="badge-sale">SALE</div>
-            <div class="product-image">
-                🛍️
-            </div>
-            <div class="product-content">
-                <h3 class="product-title">{{ product.name }}</h3>
-                <p class="shophub-product-desc">{{ product.description }}</p>
-                <div class="product-rating">
-                    <span class="shophub-rating-stars">⭐⭐⭐⭐⭐</span>
-                    <span class="shophub-rating-count">(245)</span>
-                </div>
-                <div class="product-footer">
-                    <div class="price-box">
-                        <span class="price-current">${{ product.price }}</span>
-                        <span class="price-original">${{ product.price * 2 }}</span>
-                    </div>
-                    <button class="btn-add-cart">Add to Cart</button>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Benefits Section -->
-    <div class="shophub-benefits-section">
-        <div class="shophub-benefits-grid">
-            <div class="shophub-benefit-card">
-                <div class="shophub-benefit-icon">🚚</div>
-                <h3 class="shophub-benefit-title">Free Shipping</h3>
-                <p class="shophub-benefit-desc">On orders over $50</p>
-            </div>
-            <div class="shophub-benefit-card">
-                <div class="shophub-benefit-icon">🔒</div>
-                <h3 class="shophub-benefit-title">Secure Payment</h3>
-                <p class="shophub-benefit-desc">100% protected transactions</p>
-            </div>
-            <div class="shophub-benefit-card">
-                <div class="shophub-benefit-icon">↩️</div>
-                <h3 class="shophub-benefit-title">Easy Returns</h3>
-                <p class="shophub-benefit-desc">30-day money back guarantee</p>
-            </div>
-            <div class="shophub-benefit-card">
-                <div class="shophub-benefit-icon">💬</div>
-                <h3 class="shophub-benefit-title">24/7 Support</h3>
-                <p class="shophub-benefit-desc">We are always here to help</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" class="modal-overlay">
-        <div class="modal-card">
-            <button onclick="closeLoginModal()" class="modal-close">&times;</button>
-            <h2 class="modal-title">Member Login</h2>
+        <!-- Featured Products -->
+        <div style="max-width: 1300px; margin: 0 auto;">
+            <h2 style="color: white; font-size: 2rem; font-weight: 800; margin-bottom: 2rem;">Trending Artifacts</h2>
             
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">🛰️</div>
+                    <div style="padding: 1.5rem;">
+                        <h3 class="product-title">Comms Link v2</h3>
+                        <p style="color: var(--shophub-text-dim); font-size: 0.9rem; margin-bottom: 1rem;">Military-grade satellite communication module for isolated researchers.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="price-current">$1,500</span>
+                            <button style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px;">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">🧬</div>
+                    <div style="padding: 1.5rem;">
+                        <h3 class="product-title">Bio-Scanner Pro</h3>
+                        <p style="color: var(--shophub-text-dim); font-size: 0.9rem; margin-bottom: 1rem;">Handheld chemical and biological trace analyzer with 128-bit encryption.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="price-current">$4,800</span>
+                            <button style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px;">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">🕵️</div>
+                    <div style="padding: 1.5rem;">
+                        <h3 class="product-title">Identity Shield</h3>
+                        <p style="color: var(--shophub-text-dim); font-size: 0.9rem; margin-bottom: 1rem;">Privacy shield with signal jamming and metadata sanitization.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="price-current">$990</span>
+                            <button style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px;">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-card" style="width: 100%; max-width: 400px; padding: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="color: white; margin: 0;">Member Login</h2>
+                <button onclick="closeLoginModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
             {% if error %}
-            <div id="errorMsg" class="error-message" style="display: block;">{{ error }}</div>
-            {% else %}
-            <div id="errorMsg" class="error-message"></div>
+            <div class="error-message" style="display: block; margin-bottom: 20px;">{{ error }}</div>
             {% endif %}
 
             <form action="{{ url_for('lab2_5_login') }}" method="POST">
                 <div class="form-group">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-input" required placeholder="Enter your username">
+                    <label class="form-label">Identifier</label>
+                    <input type="text" name="username" class="form-input" required placeholder="User ID">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-input" required placeholder="Enter your password">
+                    <label class="form-label">Passphrase</label>
+                    <input type="password" name="password" class="form-input" required placeholder="Enter password">
                 </div>
                 <button type="submit" class="btn-block">Sign In</button>
-                <div class="shophub-modal-hint-box">
-                    Test account: <code class="shophub-modal-hint-code">user</code> / <code class="shophub-modal-hint-code">password</code>
+                <div class="shophub-modal-hint-box" style="margin-top: 20px;">
+                    Research context: <code class="shophub-modal-hint-code">wiener</code> / <code class="shophub-modal-hint-code">peter</code>
                 </div>
             </form>
         </div>
     </div>
 
-
-
     <script>
-        function openLoginModal() {
+        function openLoginModal() { 
             const modal = document.getElementById('loginModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
+            if (modal) modal.style.display = 'flex'; 
         }
-
-        function closeLoginModal() {
+        function closeLoginModal() { 
             const modal = document.getElementById('loginModal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
+            if (modal) modal.style.display = 'none'; 
         }
-
-        // Auto-open modal if error exists
-        const errorMsg = document.getElementById('errorMsg');
-        if (errorMsg && errorMsg.textContent.trim()) {
-            openLoginModal();
-        }
-
-        // Close on outside click
-        document.getElementById('loginModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeLoginModal();
-            }
-        });
+        {% if error %}
+        window.onload = function() { openLoginModal(); };
+        {% endif %}
     </script>
 {% endblock %}

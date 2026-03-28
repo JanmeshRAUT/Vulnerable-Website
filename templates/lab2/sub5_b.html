@@ -1,59 +1,76 @@
 {% extends 'base.html' %}
-{% block title %}CloudMart - Secure Cloud Store{% endblock %}
+{% block title %}CloudMart - Next Generation Infrastructure{% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_b.css') }}">
-<header class="cm-header">
-    <div class="cm-brand">
-        <a href="{{ url_for('lab2_5_menu') }}" class="cm-back-link">&larr; Back</a>
-        ☁️ CloudMart
-    </div>
-    <button onclick="document.getElementById('loginModal').style.display='flex'" class="cm-btn">Login</button>
-</header>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_b.css') }}">
+    <header class="cloud-header">
+        <div class="cloud-container">
+            <div class="cloud-logo">CloudMart</div>
+            <div style="display:flex; gap: 20px;">
+                <button onclick="openCloudLogin()" class="cloud-btn-primary">Provision Node</button>
+            </div>
+        </div>
+    </header>
 {% endblock %}
 
 {% block content %}
-<div class="cm-hero">
-    <h1 class="cm-hero-title">Enterprise Cloud Solutions</h1>
-    <p class="cm-hero-subtitle">Manage your resources with our next-gen platform.</p>
-    <button class="cm-btn cm-hero-btn">Get Started</button>
-</div>
-
-<div class="feature-grid-cm">
-    <div class="feature-card-cm">
-        <div class="feature-icon-cm">🚀</div>
-        <h3>Scalable</h3>
-    </div>
-    <div class="feature-card-cm">
-        <div class="feature-icon-cm">🛡️</div>
-        <h3>Secure</h3>
-    </div>
-    <div class="feature-card-cm">
-        <div class="feature-icon-cm">⚡</div>
-        <h3>Fast</h3>
-    </div>
-</div>
-
-<div id="loginModal" class="cm-modal {% if error %}active-modal{% endif %}">
-    <div class="cm-card cm-modal-card">
-        <button onclick="document.getElementById('loginModal').style.display='none'" class="modal-close-cm">&times;</button>
-        <h2 class="cm-modal-title">Client Portal</h2>
-        
-        {% if error %}
-        <div class="error-msg-cm">
-            {{ error }}
+    <div style="background: var(--cloud-bg); min-height: 100vh; padding: 20px;">
+        <!-- Infrastructure Banner -->
+        <div class="cloud-hero">
+            <h1 style="font-size: 4rem; font-weight: 900; color: white; margin-bottom: 20px;">Provision Your Future</h1>
+            <p style="color: var(--cloud-text); font-size: 1.25rem; max-width: 800px; margin: 0 auto 40px auto;">High-performance, low-latency, 99.9% uptime. Managed cloud infrastructure for enterprise-grade applications and massive-scale data networks.</p>
+            <div style="display: flex; justify-content: center; gap: 20px;">
+                <div style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 24px; border: 1px solid var(--cloud-border); width: 250px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">⚡</div>
+                    <h3 style="color: white; margin-bottom: 10px;">Compute</h3>
+                    <p style="color: var(--cloud-text); font-size: 0.9rem;">vCPUs & GPUs for massive parallel processing tasks.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 24px; border: 1px solid var(--cloud-border); width: 250px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">💾</div>
+                    <h3 style="color: white; margin-bottom: 10px;">Storage</h3>
+                    <p style="color: var(--cloud-text); font-size: 0.9rem;">SSD persistent volumes with 1.2TB/s read performance.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 24px; border: 1px solid var(--cloud-border); width: 250px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">🛰️</div>
+                    <h3 style="color: white; margin-bottom: 10px;">Network</h3>
+                    <p style="color: var(--cloud-text); font-size: 0.9rem;">Private global transit and software-defined WAN.</p>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        
-        <form action="{{ url_for('lab2_5b_login') }}" method="POST">
-            <label class="form-label-cm">Client ID</label>
-            <input type="text" name="username" class="cm-input" placeholder="guest">
-            
-            <label class="form-label-cm">Access Key</label>
-            <input type="password" name="password" class="cm-input" placeholder="guest123">
-            
-            <button type="submit" class="cm-btn cm-submit-btn">Authenticate</button>
-        </form>
     </div>
-</div>
+
+    <!-- Provisioning Modal (Login) -->
+    <div id="cloudModal" style="display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index:1000; align-items:center; justify-content:center;">
+        <div class="cloud-card" style="width: 100%; max-width: 420px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                <h2 style="color: white; font-size: 2rem; margin: 0;">Access Portal</h2>
+                <button onclick="closeCloudLogin()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            {% if error %}
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 15px; border-radius: 12px; margin-bottom: 25px;">{{ error }}</div>
+            {% endif %}
+
+            <form action="{{ url_for('lab2_5b_login') }}" method="POST">
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; color: var(--cloud-text); font-size: 0.9rem; font-weight: 500; margin-bottom: 10px;">Gateway Username</label>
+                    <input type="text" name="username" class="cloud-input" placeholder="Enter node ID" required>
+                </div>
+                <div style="margin-bottom: 35px;">
+                    <label style="display: block; color: var(--cloud-text); font-size: 0.9rem; font-weight: 500; margin-bottom: 10px;">Security Key</label>
+                    <input type="password" name="password" class="cloud-input" placeholder="System passphrase" required>
+                </div>
+                <button type="submit" class="cloud-btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 14px;">Authorize Provisioning</button>
+                <div style="text-align: center; margin-top: 25px; font-size: 0.85rem; color: #64748b; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    Public Node Access: <code style="color: var(--cloud-primary); background: rgba(139, 92, 246, 0.1); padding: 2px 6px; border-radius: 4px;">guest</code> / <code style="color: var(--cloud-primary); background: rgba(139, 92, 246, 0.1); padding: 2px 6px; border-radius: 4px;">guest123</code>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openCloudLogin() { document.getElementById('cloudModal').style.display='flex'; }
+        function closeCloudLogin() { document.getElementById('cloudModal').style.display='none'; }
+        {% if error %}openCloudLogin();{% endif %}
+    </script>
 {% endblock %}

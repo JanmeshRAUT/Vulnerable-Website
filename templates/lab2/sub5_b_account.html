@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Cloud Dashboard - CloudMart{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_b.css') }}">
+    <header class="cloud-header">
+        <div class="cloud-container">
+            <div class="cloud-logo">Cloud Control Panel</div>
+            <div style="display:flex; align-items:center; gap: 20px;">
+                {% if user.role == 'admin' %}
+                    <a href="{{ url_for('lab2_5b_admin') }}" style="background: var(--cloud-primary); color: white; padding: 6px 15px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.85rem;">INFRASTRUCTURE ROOT</a>
+                {% endif %}
+                <span style="color: var(--cloud-text); font-size: 0.9rem;">Authenticated: <strong style="color: white; font-family: monospace;">{{ logged_in_user }}</strong></span>
+                <a href="{{ url_for('lab2_5b_logout') }}" style="color: white; opacity: 0.6; text-decoration: none; font-size: 0.9rem;">Disconnect Session</a>
+            </div>
+        </div>
+    </header>
+    <style>
+        .role-badge {
+            padding: 13px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .role-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: {% if user.role == 'admin' %}#f87171{% else %}#10b981{% endif %};
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div style="background: var(--cloud-bg); min-height: 100vh; padding: 60px 20px;">
+        <div style="max-width: 900px; margin: 0 auto;">
+            
+            <div style="margin-bottom: 40px;">
+                <h1 style="color: white; font-size: 2.5rem; font-weight: 900; margin-bottom: 5px;">Node Configuration</h1>
+                <p style="color: var(--cloud-text);">Cloud Identity: <span style="color: #60a5fa; font-family: monospace; font-weight: 700;">{{ user.id }}</span></p>
+            </div>
+
+            <div class="cloud-card" style="padding: 40px;">
+                <!-- Identity Details Group -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+                    <div>
+                        <label style="display: block; color: var(--cloud-text); font-size: 0.9rem; margin-bottom: 10px; font-weight: 500;">Administrative Email</label>
+                        <input type="text" value="{{ user.email }}" class="cloud-input" readonly>
+                    </div>
+                    <div>
+                        <label style="display: block; color: var(--cloud-text); font-size: 0.9rem; margin-bottom: 10px; font-weight: 500;">Provisioning Role</label>
+                        <div class="role-badge">
+                            <span class="role-indicator"></span>
+                            {{ user.role|upper }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credential Isolation (The Target) -->
+                <div>
+                    <label style="display: block; color: var(--cloud-text); font-size: 0.9rem; margin-bottom: 10px; font-weight: 500;">Root Passkey (Encrypted State)</label>
+                    <div style="display: flex; gap: 15px;">
+                        <input type="password" value="{{ user.password }}" class="cloud-input" style="letter-spacing: 5px; font-size: 1.2rem; flex-grow: 1; font-family: monospace;" readonly>
+                        <button class="cloud-btn-primary" style="white-space: nowrap;">Reset Key</button>
+                    </div>
+                    <!-- Technical Note: Observe the response body for key disclosure via IDOR disclosure -->
+                    <div style="display: none;">
+                        <span id="cloud_secret_leak">{{ user.password }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if user.role == 'admin' %}
+            <div style="margin-top: 30px; background: rgba(139, 92, 246, 0.1); border: 1px dashed rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 20px; text-align: center;">
+                <p style="color: white; margin-bottom: 15px;">Root-level privileges detected. Critical infrastructure management is available.</p>
+                <a href="{{ url_for('lab2_5b_admin') }}" style="display: inline-block; background: var(--cloud-primary); color: white; text-decoration: none; padding: 12px 35px; border-radius: 99px; font-weight: 800; font-size: 0.9rem;">PURGE INFRASTRUCTURE CONSOLE</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

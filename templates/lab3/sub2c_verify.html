@@ -1,95 +1,59 @@
 {% extends 'base.html' %}
-{% block title %}2FA Verification - CloudDrive{% endblock %}
+{% block title %}2FA Verification - SecureShop{% endblock %}
 
 {% block header %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab3/sub2_verify.css') }}">
-    <header class="l3-header theme-cloud">
+    <header class="l3-header theme-shop">
         <div class="l3-header-left">
-            <a href="{{ url_for('lab3_2c_login') }}" class="l3-nav-back">&larr; Back to Login</a>
+            <a href="{{ url_for('lab3_2c') }}" class="l3-nav-back">&larr; Back to Login</a>
             <div class="l3-brand"> CloudDrive</div>
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div class="theme-cloud l3-split-layout">
-        <!-- SIMULATED EMAIL CLIENT -->
-        <div class="l3-email-client">
-            <div class="l3-email-header">
-                <h3> Email Client</h3>
-                <span class="l3-badge">1 New Message</span>
-            </div>
-            
-            <div class="l3-email-list">
-                <div class="l3-email-list-item active">
-                    <div class="l3-flex-start">
-                        <span class="l3-text-bold l3-text-white">CloudDrive Security</span>
-                        <span class="l3-text-small l3-text-muted">Just now</span>
-                    </div>
-                    <div class="l3-text-bold l3-text-primary-lighter l3-mb-0-25">Your Verification Code</div>
-                    <div class="l3-text-small l3-text-muted">Your two-factor authentication code...</div>
-                </div>
-            </div>
-            
-            <div class="l3-email-view">
-                <div class="l3-email-meta">
-                    <strong>From:</strong> security@clouddrive.com<br>
-                    <strong>To:</strong> {{ username }}<br>
-                    <strong>Subject:</strong> Your Verification Code
-                </div>
+    <div class="theme-shop" style="max-width: 500px; margin: 60px auto; padding: 0 20px;">
+        <div class="l3-card l3-text-center">
+            <div class="l3-card-content" style="padding: 40px;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">🔐</div>
+                <h3 class="l3-text-primary l3-text-large l3-mb-1">Two-Factor Authentication</h3>
+                <p class="l3-text-muted l3-mb-2">A 4-digit verification code has been dispatched to your registered email address.</p>
                 
-                <div class="l3-text-white l3-line-height-1-6">
-                    <p class="l3-mb-1">Hello <strong>{{ username }}</strong>,</p>
-                    <p class="l3-mb-1">You recently attempted to log in to your CloudDrive account. For your security, please use the verification code below to complete your login:</p>
-                    
-                    <div class="l3-code-display">
-                        <div class="l3-text-small l3-opacity-0-9">Your Verification Code</div>
-                        <div class="l3-code-large">
-                            {{ code }}
-                        </div>
+                <div style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                    <p style="font-size: 0.85rem; color: #a78bfa; margin-bottom: 12px;">Need to access your inbox?</p>
+                    <a href="{{ url_for('lab3_2c_email') }}" target="_blank" class="l3-btn l3-btn-white" style="display: inline-block; text-decoration: none; font-weight: 700;">📂 Open Email Client</a>
+                </div>
+
+                {% if error %}
+                <div class="l3-error-msg l3-mb-2" style="display: block; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #fca5a5; padding: 12px; border-radius: 8px;">
+                     {{ error }}
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('lab3_2c_verify_post') }}" method="POST">
+                    <div class="l3-form-group l3-mb-2">
+                        <label class="l3-label l3-text-left" style="display: block; margin-bottom: 8px; color: #94a3b8;">Verification Code</label>
+                        <input type="text" name="code" class="l3-input-code" placeholder="0000" maxlength="4" autocomplete="off" autofocus required 
+                               style="width: 100%; padding: 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 1.5rem; text-align: center; letter-spacing: 0.5em; font-family: 'Courier New', monospace;">
                     </div>
-                    
-                    <p class="l3-text-small l3-text-muted">This code will expire in 10 minutes.</p>
-                    <p class="l3-text-small l3-text-muted">If you didn't request this code, please ignore this email.</p>
-                    <p class="l3-text-small l3-text-muted l3-mt-1">Best regards,<br>The CloudDrive Team</p>
+                    <input type="hidden" name="username" value="{{ username }}">
+                    <button type="submit" class="l3-btn-primary l3-btn l3-btn-block" style="width: 100%; padding: 15px; margin-top: 20px;">Verify Security Code &rarr;</button>
+                </form>
+
+                <div class="l3-mt-2 l3-pt-1-5 l3-border-top" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <p class="l3-text-small l3-text-muted">Problem with the code? <a href="#" style="color: #8b5cf6;">Resend Dispatch</a></p>
                 </div>
             </div>
         </div>
 
-        <!-- 2FA VERIFICATION FORM -->
-        <div>
-            <div class="l3-card l3-text-center">
-                <div class="l3-card-content">
-                    <div class="l3-text-xlarge"></div>
-                    <h3 class="l3-text-primary l3-text-large l3-mb-1">Enter Verification Code</h3>
-                    <p class="l3-text-muted l3-mb-2">A 4-digit code has been sent to your email address.</p>
-                    
-                    {% if error %}
-                    <div class="l3-error-msg l3-mb-2" style="display: block;">
-                         {{ error }}
-                    </div>
-                    {% endif %}
-
-                    <form action="{{ url_for('lab3_2c_verify_post') }}" method="POST">
-                        <div class="l3-form-group l3-mb-2">
-                            <label class="l3-label l3-text-left">Verification Code</label>
-                            <input type="text" name="code" class="l3-input-code" placeholder="0000" maxlength="4" autocomplete="off" autofocus required>
-                        </div>
-                        <input type="hidden" name="username" value="{{ username }}">
-                        <button type="submit" class="l3-btn-primary l3-btn l3-btn-block">Verify Code &rarr;</button>
-                    </form>
-
-                    <div class="l3-mt-2 l3-pt-1-5 l3-border-top">
-                        <p class="l3-text-small l3-text-muted">Didn't receive the code?</p>
-                        <button class="l3-btn-white l3-btn l3-mt-0-5">Resend Code</button>
-                    </div>
+        <div class="l3-hint-box" style="margin-top: 30px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.1); padding: 25px; border-radius: 12px;">
+            <div style="display: flex; gap: 15px; align-items: flex-start;">
+                <div style="font-size: 1.5rem;">🕵️</div>
+                <div>
+                    <strong style="color: white; display: block; margin-bottom: 5px;">Security Auditor's Note:</strong>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 10px;">The application creates a session cookie as soon as valid primary credentials are provided, even before 2FA is completed.</p>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">What happens if you ignore this form and navigate directly to <code style="color: #c4b5fd;">/lab3/2c/dashboard</code>?</p>
                 </div>
-            </div>
-
-            <div class="l3-hint-box">
-                <strong> Penetration Testing Hint:</strong>
-                <p class="l3-mt-0-5">You are logged in as <code>carlos:montoya</code>. The application is expecting a 2FA code.</p>
-                <p>What happens if you don't enter the code and simply navigate to <code>/lab3/2/my-account</code>?</p>
             </div>
         </div>
     </div>

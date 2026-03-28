@@ -48,17 +48,17 @@
 
             <div class="card-grid">
                 {% for product in products %}
-                <div class="card product-card-electro electro-product-card-interactive" onclick="window.location='{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}';">
+                <div class="card product-card-electro electro-product-card-interactive" onclick="window.location.href = '{{ url_for('lab2_4c_product', product_id=product.id) }}';">
                     <div class="product-image-electro">
                         ⚡
                     </div>
-                    <h4 class="electro-product-title">
-                        <a href="{{ url_for('lab2_4c_product', product_id=product.id, username=request.args.get('username')) }}" class="electro-product-link">{{ product.name }}</a>
-                    </h4>
-                    <p class="electro-product-desc">{{ product.description }}</p>
-                    <div class="electro-product-action-row">
-                        <span class="electro-price">${{ product.price }}</span>
-                        <button class="electro-add-btn">+</button>
+                    <div class="electro-product-content">
+                        <h4 class="electro-product-title">{{ product.name }}</h4>
+                        <p class="electro-product-desc">Advanced electronic component. Certified telemetry.</p>
+                        <div class="electro-product-action-row">
+                            <span class="electro-price">${{ product.price }}</span>
+                            <button class="electro-add-btn">VIEW</button>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -69,6 +69,7 @@
     <!-- Login Modal -->
     <div id="loginModal" class="modal-electro">
         <div class="card modal-content-electro">
+            <button onclick="document.getElementById('loginModal').style.display='none'" style="position: absolute; right: 20px; top: 20px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
             <h2 class="electro-modal-title">ElectroMart Auth</h2>
             <form action="{{ url_for('lab2_4c_login') }}" method="POST">
                 <div class="electro-form-group">
@@ -81,7 +82,7 @@
                 </div>
                 <button type="submit" class="btn-signin-electro">Sign In</button>
             </form>
-            <p class="electro-modal-hint">Default: user / password</p>
+            <p class="electro-modal-hint">Try: <code>wiener</code> / <code>peter</code></p>
         </div>
     </div>
 {% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Dossier - DataVault{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab2/sub5_c.css') }}">
+    <header class="vault-header">
+        <div class="vault-container">
+            <div class="vault-logo">DATAVAULT SECURITY</div>
+            <div style="display:flex; align-items:center; gap: 20px;">
+                {% if user.role == 'root' %}
+                    <a href="{{ url_for('lab2_5c_admin') }}" style="background: var(--vault-primary); color: black; padding: 6px 15px; border-radius: 4px; font-weight: 900; text-decoration: none; font-size: 0.8rem; letter-spacing: 1px;">SYSTEM ROOT</a>
+                {% endif %}
+                <span style="color: var(--vault-text); font-size: 0.9rem;">Identity: <strong style="color: var(--vault-primary); font-family: monospace;">{{ logged_in_user }}</strong></span>
+                <a href="{{ url_for('lab2_5c_logout') }}" style="color: var(--vault-primary); opacity: 0.8; text-decoration: none; font-size: 0.8rem; font-weight: 800;">[ LOGOUT ]</a>
+            </div>
+        </div>
+    </header>
+    <style>
+        .clearance-badge {
+            padding: 13px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--vault-border);
+            border-radius: 4px;
+            color: var(--vault-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+        }
+        .clearance-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: {% if user.role == 'root' %}#f87171{% else %}#10b981{% endif %};
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div style="background: var(--vault-bg); min-height: 100vh; padding: 60px 20px; font-family: 'Courier New', Courier, monospace;">
+        <div style="max-width: 900px; margin: 0 auto;">
+            
+            <div style="margin-bottom: 40px; border-left: 5px solid var(--vault-primary); padding-left: 20px;">
+                <h1 style="color: var(--vault-primary); font-size: 2rem; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 4px;">Subject Dossier</h1>
+                <p style="color: var(--vault-text);">Subject GUID: <span style="color: #60a5fa; font-family: monospace; font-weight: 700;">{{ user.id }}</span></p>
+            </div>
+
+            <div class="vault-card" style="padding: 40px;">
+                <!-- Identity Details Group -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+                    <div>
+                        <label style="display: block; color: var(--vault-text); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">Registry Endpoint</label>
+                        <input type="text" value="{{ user.email }}" class="vault-input" readonly>
+                    </div>
+                    <div>
+                        <label style="display: block; color: var(--vault-text); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">Assigned Clearance</label>
+                        <div class="clearance-badge">
+                            <span class="clearance-indicator"></span>
+                            {{ user.role|upper }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credential Isolation (The Target) -->
+                <div>
+                    <label style="display: block; color: var(--vault-text); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">Primary Security Key</label>
+                    <div style="display: flex; gap: 15px;">
+                        <input type="password" value="{{ user.password }}" class="vault-input" style="letter-spacing: 5px; font-size: 1.2rem; flex-grow: 1;" readonly>
+                        <button class="vault-btn" style="white-space: nowrap; height: 50px;">ROTATE</button>
+                    </div>
+                    <!-- Educational Note: Inspect the response payload to find disclosed password value via identity substitution -->
+                    <div style="display: none;">
+                        <span id="vault_secret_leak">{{ user.password }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if user.role == 'root' %}
+            <div style="margin-top: 30px; background: rgba(16, 185, 129, 0.05); border: 1px solid var(--vault-border); padding: 30px; border-radius: 4px; text-align: center;">
+                <p style="color: var(--vault-primary); margin-bottom: 20px; font-weight: 800; letter-spacing: 1px;">ROOT ACCESS DETECTED: ACCESSING SECURITY ARCHIVES NOW AVAILABLE</p>
+                <a href="{{ url_for('lab2_5c_admin') }}" style="display: inline-block; background: var(--vault-primary); color: black; text-decoration: none; padding: 12px 35px; border-radius: 4px; font-weight: 900; text-transform: uppercase;">ACCESS SYSTEM ROOT</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

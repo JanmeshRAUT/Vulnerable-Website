@@ -49,6 +49,8 @@ app = Flask(__name__)
 # USE ENVIRONMENT VARIABLES FOR PRODUCTION SECRETS
 app.secret_key = os.environ.get('SECRET_KEY', 'default_vulnerable_key_replace_in_prod')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=14)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = IS_VERCEL
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 # 500MB for large binaries
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
@@ -88,7 +90,7 @@ google = oauth.register(
 def get_google_redirect_uri():
     """Build the OAuth redirect URI, forcing https on Vercel/production."""
     configured = (os.environ.get('GOOGLE_REDIRECT_URI') or '').strip()
-    if configured:
+    if configured and '127.0.0.1' not in configured and 'localhost' not in configured:
         return configured
     # Auto-build from request context
     uri = url_for('google_callback', _external=True)
@@ -125,9 +127,12 @@ TRACKABLE_LAB_UNITS = [
     {'id': 'lab3_2_a', 'canonical_id': 'lab3_2', 'label': 'Lab 3.2 A', 'path': '/lab3/2'},
     {'id': 'lab3_2_b', 'canonical_id': 'lab3_2', 'label': 'Lab 3.2 B', 'path': '/lab3/2b'},
     {'id': 'lab3_2_c', 'canonical_id': 'lab3_2', 'label': 'Lab 3.2 C', 'path': '/lab3/2c'},
-    {'id': 'lab4_1_a', 'canonical_id': 'lab4', 'label': 'Lab 4.1 A', 'path': '/lab4/1'},
+    {'id': 'lab4_1_a', 'canonical_id': 'lab4', 'label': 'Lab 4.1 A', 'path': '/lab4/1/a'},
     {'id': 'lab4_1_b', 'canonical_id': 'lab4', 'label': 'Lab 4.1 B', 'path': '/lab4/1/b'},
     {'id': 'lab4_1_c', 'canonical_id': 'lab4', 'label': 'Lab 4.1 C', 'path': '/lab4/1/c'},
+    {'id': 'lab4_2_a', 'canonical_id': 'lab4_2', 'label': 'Lab 4.2 A', 'path': '/lab4/2/a'},
+    {'id': 'lab4_2_b', 'canonical_id': 'lab4_2', 'label': 'Lab 4.2 B', 'path': '/lab4/2/b'},
+    {'id': 'lab4_2_c', 'canonical_id': 'lab4_2', 'label': 'Lab 4.2 C', 'path': '/lab4/2/c'},
     {'id': 'lab5_1_a', 'canonical_id': 'lab5_1', 'label': 'Lab 5.1 A', 'path': '/lab5/1'},
     {'id': 'lab5_1_b', 'canonical_id': 'lab5_1', 'label': 'Lab 5.1 B', 'path': '/lab5/1/b'},
     {'id': 'lab5_1_c', 'canonical_id': 'lab5_1', 'label': 'Lab 5.1 C', 'path': '/lab5/1/c'},
@@ -250,8 +255,9 @@ def enforce_lab_locks():
     """Global access controller for the laboratory environment"""
     path = request.path.lower()
     
-    # Bypass protection for system, authentication, and admin assets
-    if not path.startswith('/lab'):
+    # Bypass protection for system, authentication, and internal SSRF simulation
+    # If the request comes from 127.0.0.1 (server itself), we allow it for research
+    if not path.startswith('/lab') or request.remote_addr == '127.0.0.1':
         return
         
     print(f"[SECURITY] Access attempt to {path} from {request.remote_addr}")
@@ -298,7 +304,16 @@ def generate_lab_flags(lab_id, identity_key):
 
 def get_random_flag(lab_id, variation='default'):
     """Compatibility wrapper for legacy lab routes to use dynamic flags"""
+    # Check session first (standard)
     identity_key = session.get('guid') or session.get('user_id')
+    
+    # SSRF Fallback: Check for identity forwarded via internal simulation header
+    if not identity_key:
+        try:
+            identity_key = request.headers.get('X-SSRF-Researcher-GUID')
+        except:
+            identity_key = None
+            
     if not identity_key:
         return "FLAG{unauthenticated_research_lock}"
     return get_or_generate_flag(identity_key, lab_id, variation)
@@ -530,7 +545,7 @@ def google_callback():
         print(f"[OAUTH] Token exchange failed: {e}")
         import traceback
         traceback.print_exc()
-        return redirect(url_for('login', error=f"OAuth token error: {str(e)}. Tip: Access via 127.0.0.1 instead of localhost."))
+        return redirect(url_for('login', error=f"OAuth state mismatch: {str(e)}. Ensure you use the same address (localhost or 127.0.0.1) consistently."))
     
     try:
         userinfo = token.get('userinfo')
@@ -673,6 +688,37 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+@app.route('/profile')
+@login_required
+def profile():
+    """User profile page showing identity details and lab progress"""
+    email = session.get('email')
+    user = firebase_store.get_user_by_email(email)
+    
+    if not user:
+        return redirect(url_for('login'))
+        
+    # Get solved labs for the profile
+    progress = firebase_store.get_user_progress(email)
+    solved_labs = build_solved_lab_records(progress)
+    
+    # Calculate real-time stats from registry
+    total_labs = get_total_trackable_lab_units()
+    solved_count = len(solved_labs)
+    mastery = round((solved_count / total_labs * 100)) if total_labs > 0 else 0
+    xp = solved_count * 250
+    level = (solved_count // 3) + 1
+    
+    stats = {
+        'total_labs': total_labs,
+        'solved_count': solved_count,
+        'mastery': mastery,
+        'xp': xp,
+        'level': level
+    }
+    
+    return render_template('profile.html', user=user, solved_labs=solved_labs, stats=stats)
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if session.get('user_id'):
@@ -716,19 +762,6 @@ def register():
 
     return render_template('register.html', error=error, next_url=next_url)
 
-@app.route('/orders')
-def orders():
-    if 'user_id' not in session:
-        return redirect(url_for('login', next=request.path))
-    
-    # Mock orders for demonstration
-    # In a real app this would query the DB for the user's orders
-    orders = [
-        {'id': 101, 'date': '2024-01-15', 'total': 29.99, 'status': 'Delivered'},
-        {'id': 102, 'date': '2024-02-10', 'total': 49.99, 'status': 'Processing'},
-        {'id': 103, 'date': '2024-03-05', 'total': 15.00, 'status': 'Shipped'}
-    ]
-    return render_template('orders.html', orders=orders)
 
 @app.route('/products')
 def product_list():
@@ -754,17 +787,8 @@ def product_detail(product_id):
     else:
         return "Equipment not found in registry", 404
 
-@app.route('/cart')
-def cart():
-    # Shopping cart page
-    return render_template('cart.html')
 
-@app.route('/checkout')
-def checkout():
-    # Checkout page
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('checkout.html')
+@app.route('/help')
 
 @app.route('/help')
 def help():
@@ -1367,27 +1391,9 @@ def lab2_2c_admin():
 
 # Shared Helper for Lab 2.3 Cookie Logic
 def handle_lab2_3_request(template_name, products):
-    # CHECK ADMIN COOKIE - If true, show admin page
-    is_admin_cookie = request.cookies.get('Admin')
-    
-    if is_admin_cookie == 'true':
-        # Show admin page directly via Firebase telemetry
-        all_subjects = firebase_store.get_all_users()
-        # Filter for non-admin subjects for the display
-        users = [u for u in all_subjects if u.get('role') != 'admin']
-        
-        # Handle user deletion (POST request simulation)
-        flag = None
-        if request.method == 'POST':
-            flag = get_random_flag('lab2_3')
-
-            users = [] # Clear users to simulate deletion
-            
-        return render_template('lab2/sub3_admin.html', users=users, flag=flag)
-    
-    # Otherwise, show regular store page
-    current_user = request.cookies.get('session') or 'Guest Researcher'
-    return render_template(template_name, products=products, username=current_user)
+    """Refined: Keep storefront as store; privilege escalation happens in Profile."""
+    username = request.cookies.get('Lab_Session')
+    return render_template(template_name, products=products, username=username)
 
 # Variation A: MusicStore
 @app.route('/lab2/3/music', methods=['GET', 'POST'])
@@ -1439,11 +1445,6 @@ def lab2_3_login_page():
         return redirect(url_for(target_route))
 
     if request.method == 'POST':
-        # VULNERABILITY RESTRUCTURE: Check if attacker injected Cookie directly into the POST request!
-        if request.cookies.get('Admin') == 'true':
-            users = [{'username': 'staff_alpha', 'role': 'user'}, {'username': 'staff_beta', 'role': 'user'}]
-            return render_template('lab2/sub3_admin.html', users=users, flag=get_random_flag('lab2_3'))
-
         username = request.form.get('username')
         password = request.form.get('password')
         target_theme = request.form.get('theme', 'music')
@@ -1453,15 +1454,20 @@ def lab2_3_login_page():
         else: target_route = 'lab2_3_music'
 
         # Vulnerable Mock Registry
+        # Track which variation they came from (a=music, b=sports, c=pets)
+        v_param = 'a'
+        if target_theme == 'sports': v_param = 'b'
+        elif target_theme == 'pets': v_param = 'c'
+
         if username == 'admin' and password == 'admin123':
-            resp = redirect(url_for(target_route))
-            resp.set_cookie('Admin', 'true')
-            resp.set_cookie('session', 'admin')
+            resp = redirect(url_for('lab2_3_profile', v=v_param))
+            resp.set_cookie('Admin', 'false', path='/') # FORCE MANUAL PRIVILEGE ESCALATION
+            resp.set_cookie('Lab_Session', 'admin', path='/')
             return resp
         elif username == 'researcher' and password == 'researcher':
-            resp = redirect(url_for(target_route))
-            resp.set_cookie('Admin', 'false')
-            resp.set_cookie('session', 'researcher')
+            resp = redirect(url_for('lab2_3_profile', v=v_param))
+            resp.set_cookie('Admin', 'false', path='/') # DEFAULT USER PRIVILEGE
+            resp.set_cookie('Lab_Session', 'researcher', path='/')
             return resp
         else:
              return redirect(url_for(target_route, login_error="Invalid Credentials"))
@@ -1478,10 +1484,30 @@ def lab2_3_logout():
     else:
         target_route = 'lab2_3_music'
 
-    resp = redirect(url_for(target_route))
-    resp.set_cookie('Admin', '', expires=0)
-    resp.set_cookie('session', '', expires=0)
+    resp = redirect(url_for('lab2_3_menu'))
+    resp.set_cookie('Admin', '', expires=0, path='/')
+    resp.set_cookie('Lab_Session', '', expires=0, path='/')
     return resp
+
+@app.route('/lab2/3/profile', methods=['GET', 'POST'])
+def lab2_3_profile():
+    """VULNERABLE: Mock profile page that checks 'Admin' cookie to show panel"""
+    # Verify they have a session cookie at least
+    username = request.cookies.get('Lab_Session')
+    if not username:
+        return redirect(url_for('lab2_3_music', login_error="Session expired or invalid."))
+
+    is_admin = request.cookies.get('Admin') == 'true'
+    
+    # Handle flag awarding on POST (Delete Subject)
+    flag = None
+    if is_admin and request.method == 'POST':
+        flag = get_random_flag('lab2_3')
+        
+    return render_template('lab2/sub3_profile.html', 
+                          username=username, 
+                          is_admin=is_admin, 
+                          flag=flag)
 
 @app.route('/lab2/3/admin', methods=['GET', 'POST'])
 def lab2_3_admin():
@@ -1504,17 +1530,38 @@ def lab2_3_admin():
 # LAB 2.4: Parameter Tampering (IDOR)
 @app.route('/lab2/4')
 def lab2_4():
-    # Simulated Inventory Registry
+    # Simulated Product Registry (Expanded for difficulty)
     products = [
-        {'id': 1, 'name': 'Signal Interceptor', 'username': 'alpha_researcher', 'guid': 'user_guid_101'},
-        {'id': 3, 'name': 'Admin Access Key', 'username': 'root', 'guid': 'admin_guid_999'}
+        {'id': 1, 'name': 'Signal Interceptor', 'username': 'alpha_researcher', 'guid': 'user_guid_101', 'price': 299},
+        {'id': 2, 'name': 'Mechanic Toolset', 'username': 'wiener', 'guid': 'wiener_33cc_11', 'price': 150},
+        {'id': 3, 'name': 'Vintage Camera', 'username': 'carlos', 'guid': 'carlos_77fb_22', 'price': 89},
+        {'id': 4, 'name': 'Packet Sniffer', 'username': 'beta_res', 'guid': 'user_guid_102', 'price': 199},
+        {'id': 5, 'name': 'High-Power Laser', 'username': 'gamma_x', 'guid': 'user_guid_103', 'price': 500},
+        {'id': 6, 'name': 'Logic Analyzer', 'username': 'delta_null', 'guid': 'user_guid_104', 'price': 350},
+        {'id': 7, 'name': 'Spectrum Analyzer', 'username': 'epsilon_wave', 'guid': 'user_guid_105', 'price': 420},
+        {'id': 8, 'name': 'Oscilloscope Pro', 'username': 'zeta_point', 'guid': 'user_guid_106', 'price': 600},
+        {'id': 9, 'name': 'Thermal Imager', 'username': 'theta_heat', 'guid': 'user_guid_107', 'price': 1200},
+        {'id': 10, 'name': 'SDR Gold Edition', 'username': 'kappa_rf', 'guid': 'user_guid_108', 'price': 75},
+        {'id': 11, 'name': 'Fiber Optic Tester', 'username': 'lambda_light', 'guid': 'user_guid_109', 'price': 225},
+        {'id': 12, 'name': 'Ancient Scroll', 'username': 'carlos', 'guid': 'carlos_77fb_22', 'price': 999}
     ]
-    return render_template('lab2/sub4.html', products=products, admin_guid='admin_guid_999')
+    # Shuffle for added difficulty
+    import random
+    random.shuffle(products)
+    return render_template('lab2/sub4.html', products=products)
 
-@app.route('/lab2/4/admin-collection')
-def lab2_4_admin_collection():
-    products = [{'id': 3, 'name': 'Admin Access Key', 'username': 'root', 'guid': 'admin_guid_999'}]
-    return render_template('lab2/sub4_admin_collection.html', products=products)
+@app.route('/lab2/4/user')
+def lab2_4_user_public():
+    """Public user profile showing no sensitive info"""
+    user_guid = request.args.get('id')
+    # Public Mock Registry
+    users = {
+        'carlos_77fb_22': {'username': 'carlos', 'role': 'Subject', 'joined': '2023-01-15'},
+        'wiener_33cc_11': {'username': 'wiener', 'role': 'Subject', 'joined': '2023-05-20'}
+    }
+    user = users.get(user_guid)
+    if not user: return "User dossier not found", 404
+    return render_template('lab2/sub4_user_public.html', user=user)
 
 @app.route('/lab2/4/login', methods=['GET', 'POST'])
 def lab2_4_login():
@@ -1522,48 +1569,53 @@ def lab2_4_login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        if username == 'test' and password == 'test':
-            return redirect(url_for('lab2_4_myaccount', id='user_guid_101'))
-        elif username == 'admin' and password == 'admin123':
-            return redirect(url_for('lab2_4_myaccount', id='admin_guid_999'))
+        if username == 'wiener' and password == 'peter':
+            return redirect(url_for('lab2_4_myaccount', id='wiener_33cc_11'))
+        elif username == 'carlos' and password == 'carlos123':
+            return redirect(url_for('lab2_4_myaccount', id='carlos_77fb_22'))
         return redirect(url_for('lab2_4', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4/my-account')
 def lab2_4_myaccount():
     account_guid = request.args.get('id')
     if not account_guid: return redirect(url_for('lab2_4'))
-    
-    # Virtual Registry
     users = {
-        'admin_guid_999': {'username': 'admin', 'role': 'admin', 'id': 99},
-        'user_guid_101': {'username': 'alpha_researcher', 'role': 'user', 'id': 101}
+        'carlos_77fb_22': {
+            'username': 'carlos', 'full_name': 'Carlos Rivera', 'email': 'carlos@not-real.com', 'role': 'Subject',
+            'api_key': get_random_flag('lab2_4', variation='variation_A')
+        },
+        'wiener_33cc_11': {
+            'username': 'wiener', 'full_name': 'Dr. Wiener', 'email': 'wiener@not-real.com', 'role': 'Subject',
+            'api_key': '000-YOUR-OWN-API-KEY-HIDDEN'
+        }
     }
     account_user = users.get(account_guid)
-    if not account_user: return "Identity not found", 404
-    
-    if account_user['role'] == 'admin':
-        return render_template('lab2/sub4_admin.html', account=account_user, flag=get_random_flag('lab2_4'))
-    
+    if not account_user: return "Account dossier not found", 404
     return render_template('lab2/sub4_account.html', account=account_user)
 
 @app.route('/lab2/4/logout')
 def lab2_4_logout():
-    # No session to clear - just redirect
     return redirect(url_for('lab2_4'))
 
 @app.route('/lab2/4/product/<int:product_id>')
 def lab2_4_product(product_id):
-    # Simulated Inventory Registry
-    products = [
-        {'id': 1, 'name': 'Signal Interceptor', 'price': 299, 'username': 'alpha_researcher', 'guid': 'user_guid_101'},
-        {'id': 2, 'name': 'Packet Sniffer', 'price': 150, 'username': 'beta_researcher', 'guid': 'user_guid_102'},
-        {'id': 3, 'name': 'Admin Access Key', 'price': 9999, 'username': 'root', 'guid': 'admin_guid_999'}
+    # Registry for detail view
+    item_catalog = [
+        {'id': 1, 'name': 'Signal Interceptor', 'username': 'alpha_researcher', 'guid': 'user_guid_101', 'price': 299, 'description': 'Industrial-grade high-gain signal interceptor for spectrum analysis.'},
+        {'id': 2, 'name': 'Mechanic Toolset', 'username': 'wiener', 'guid': 'wiener_33cc_11', 'price': 150, 'description': 'Complete precision toolset for hardware forensics and modification.'},
+        {'id': 3, 'name': 'Vintage Camera', 'username': 'carlos', 'guid': 'carlos_77fb_22', 'price': 89, 'description': 'Refurbished SLR camera with manual focus and retro optics.'},
+        {'id': 4, 'name': 'Packet Sniffer', 'username': 'beta_res', 'guid': 'user_guid_102', 'price': 199, 'description': 'Deep packet inspection tool for protocol analysis.'},
+        {'id': 5, 'name': 'High-Power Laser', 'username': 'gamma_x', 'guid': 'user_guid_103', 'price': 500, 'description': 'Industrial laser for material breaching and signaling.'},
+        {'id': 6, 'name': 'Logic Analyzer', 'username': 'delta_null', 'guid': 'user_guid_104', 'price': 350, 'description': 'Multi-channel logic analyzer for circuit debugging.'},
+        {'id': 7, 'name': 'Spectrum Analyzer', 'username': 'epsilon_wave', 'guid': 'user_guid_105', 'price': 420, 'description': 'Portable spectrum analyzer for RF interference hunting.'},
+        {'id': 8, 'name': 'Oscilloscope Pro', 'username': 'zeta_point', 'guid': 'user_guid_106', 'price': 600, 'description': 'High-bandwidth digital oscilloscope for signal visualization.'},
+        {'id': 9, 'name': 'Thermal Imager', 'username': 'theta_heat', 'guid': 'user_guid_107', 'price': 1200, 'description': 'Uncooled microbolometer sensor for thermal mapping.'},
+        {'id': 10, 'name': 'SDR Gold Edition', 'username': 'kappa_rf', 'guid': 'user_guid_108', 'price': 75, 'description': 'Wide-band software defined radio receiver.'},
+        {'id': 11, 'name': 'Fiber Optic Tester', 'username': 'lambda_light', 'guid': 'user_guid_109', 'price': 225, 'description': 'Handheld laser source for link testing.'},
+        {'id': 12, 'name': 'Ancient Scroll', 'username': 'carlos', 'guid': 'carlos_77fb_22', 'price': 999, 'description': 'Hand-written manuscript containing decrypted experimental data.'}
     ]
-    product = next((p for p in products if p['id'] == product_id), None)
-    
-    if not product:
-        return "Object not found in telemetry registry", 404
-        
+    product = next((p for p in item_catalog if p['id'] == product_id), None)
+    if not product: return "Item telemetry not found", 404
     return render_template('lab2/sub4_product.html', product=product)
 
 # LAB 2.4 Variation B: JewelryStore (Parameter Tampering)
@@ -1571,278 +1623,366 @@ def lab2_4_product(product_id):
 def lab2_4b():
     # Simulated Luxury Inventory
     products = [
-        {'id': 11, 'name': 'Obsidian Watch', 'price': 1200, 'username': 'curator', 'guid': 'curator_guid'},
-        {'id': 12, 'name': 'Diamond Necklace', 'price': 5000, 'username': 'admin', 'guid': 'admin_guid_123'}
+        {'id': 11, 'name': 'Obsidian Watch', 'price': 1200, 'username': 'alpha_curator', 'guid': 'curator_guid_777'},
+        {'id': 12, 'name': 'Diamond Necklace', 'price': 5000, 'username': 'carlos', 'guid': 'carlos_77fb_22'},
+        {'id': 13, 'name': 'Ruby Ring', 'price': 3500, 'username': 'beta_res', 'guid': 'res_guid_888'},
+        {'id': 14, 'name': 'Emerald Tiara', 'price': 8000, 'username': 'wiener', 'guid': 'wiener_33cc_11'},
+        {'id': 15, 'name': 'Golden Amulet', 'price': 4500, 'username': 'delta_null', 'guid': 'null_guid_999'}
     ]
+    import random
+    random.shuffle(products)
     return render_template('lab2/sub4_b.html', products=products)
 
-@app.route('/lab2/4b/login', methods=['POST'])
+@app.route('/lab2/4b/user')
+def lab2_4b_user_public():
+    user_guid = request.args.get('id')
+    users = {
+        'carlos_77fb_22': {'username': 'carlos', 'role': 'Collector', 'joined': '2022-11-10'},
+        'wiener_33cc_11': {'username': 'wiener', 'role': 'Researcher', 'joined': '2023-08-05'}
+    }
+    user = users.get(user_guid)
+    if not user: return "Inventory curator not found", 404
+    return render_template('lab2/sub4_user_public.html', user=user, back_url='lab2_4b')
+
+@app.route('/lab2/4b/login', methods=['GET', 'POST'])
 def lab2_4b_login():
+    if request.method == 'GET': return redirect(url_for('lab2_4b'))
     username = request.form.get('username')
     password = request.form.get('password')
-    
-    # Vulnerable Mock Authentication
-    if username == 'test' and password == 'test':
-        return redirect(url_for('lab2_4b_account', user='test_guid_456'))
-    elif username == 'admin' and password == 'admin123':
-        return redirect(url_for('lab2_4b_account', user='admin_guid_123'))
+    if username == 'wiener' and password == 'peter':
+        return redirect(url_for('lab2_4b_account', id='wiener_33cc_11'))
     return redirect(url_for('lab2_4b', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4b/account')
 def lab2_4b_account():
-    username_param = request.args.get('user')
-    if not username_param: return redirect(url_for('lab2_4b'))
-    
-    # Virtual Registry
+    account_guid = request.args.get('id')
+    if not account_guid: return redirect(url_for('lab2_4b'))
     users = {
-        'admin_guid_123': {'username': 'admin', 'role': 'admin'},
-        'test_guid_456': {'username': 'test', 'role': 'user'}
+        'carlos_77fb_22': {
+            'username': 'carlos', 'email': 'carlos@not-real.com', 
+            'api_key': get_random_flag('lab2_4', variation='variation_B')
+        },
+        'wiener_33cc_11': {
+            'username': 'wiener', 'email': 'wiener@not-real.com', 
+            'api_key': '000-YOUR-OWN-API-KEY-HIDDEN'
+        }
     }
-    user = users.get(username_param)
-    if not user: return "User not found", 404
-    
-    if user['role'] == 'admin':
-        return render_template('lab2/sub4_b_admin.html', account=user, flag=get_random_flag('lab2_4'))
-    return render_template('lab2/sub4_b_account.html', account=user)
+    account_user = users.get(account_guid)
+    if not account_user: return "Account dossier not found", 404
+    return render_template('lab2/sub4_b_account.html', account=account_user)
 
-# LAB 2.4 Variation C: ElectroMart (Parameter Tampering)
+@app.route('/lab2/4b/product/<int:product_id>')
+def lab2_4b_product(product_id):
+    # Registry for detail view
+    item_catalog = [
+        {'id': 11, 'name': 'Obsidian Watch', 'username': 'alpha_curator', 'guid': 'curator_guid_777', 'price': 1200, 'description': 'Deep obsidian timepiece.'},
+        {'id': 12, 'name': 'Diamond Necklace', 'username': 'carlos', 'guid': 'carlos_77fb_22', 'price': 5000, 'description': 'Ethical brilliant-cut diamonds.'},
+        {'id': 14, 'name': 'Emerald Tiara', 'username': 'wiener', 'guid': 'wiener_33cc_11', 'price': 8000, 'description': 'Royal emerald headpiece.'}
+    ]
+    product = next((p for p in item_catalog if p['id'] == product_id), None)
+    if not product: return "Luxury artifact not found", 404
+    return render_template('lab2/sub4_b_product.html', product=product)
+
 @app.route('/lab2/4c')
 def lab2_4c():
     # Simulated Electronic Inventory
     products = [
-        {'id': 21, 'name': 'Neural Interface', 'price': 1500, 'username': 'tech_lead', 'guid': 'tech_lead_guid'},
-        {'id': 22, 'name': 'Encryption Key', 'price': 9999, 'username': 'admin', 'guid': 'admin_guid_456'}
+        {'id': 21, 'name': 'Neural Interface', 'price': 1500, 'username': 'alpha_eng', 'guid': 'eng_guid_111'},
+        {'id': 22, 'name': 'Encryption Key', 'price': 9999, 'username': 'carlos', 'guid': 'carlos_77fb_22'},
+        {'id': 23, 'name': 'Signal Jammer', 'price': 450, 'username': 'beta_res', 'guid': 'res_guid_222'},
+        {'id': 24, 'name': 'Logic Probe', 'price': 120, 'username': 'wiener', 'guid': 'wiener_33cc_11'},
+        {'id': 25, 'name': 'Quantum Chip', 'price': 12000, 'username': 'gamma_x', 'guid': 'gamma_guid_333'}
     ]
+    import random
+    random.shuffle(products)
     return render_template('lab2/sub4_c.html', products=products)
 
-@app.route('/lab2/4c/login', methods=['POST'])
+@app.route('/lab2/4c/user')
+def lab2_4c_user_public():
+    user_guid = request.args.get('id')
+    users = {
+        'carlos_77fb_22': {'username': 'carlos', 'role': 'Lead Dev', 'joined': '2021-06-12'},
+        'wiener_33cc_11': {'username': 'wiener', 'role': 'Beta Tester', 'joined': '2023-01-20'}
+    }
+    user = users.get(user_guid)
+    if not user: return "Technical analyst not found", 404
+    return render_template('lab2/sub4_user_public.html', user=user, back_url='lab2_4c')
+
+@app.route('/lab2/4c/login', methods=['GET', 'POST'])
 def lab2_4c_login():
+    if request.method == 'GET': return redirect(url_for('lab2_4c'))
     username = request.form.get('username')
     password = request.form.get('password')
-    # Vulnerable Mock Authentication
-    if username == 'dev' and password == 'dev123':
-        return redirect(url_for('lab2_4c_account', username='dev_guid_789'))
-    elif username == 'admin' and password == 'admin456':
-        return redirect(url_for('lab2_4c_account', username='admin_guid_456'))
+    if username == 'wiener' and password == 'peter':
+        return redirect(url_for('lab2_4c_account', id='wiener_33cc_11'))
     return redirect(url_for('lab2_4c', login_error="Invalid Credentials"))
 
 @app.route('/lab2/4c/account')
 def lab2_4c_account():
-    username_param = request.args.get('username')
-    if not username_param: return redirect(url_for('lab2_4c'))
-    
-    # Virtual Registry
+    account_guid = request.args.get('id')
+    if not account_guid: return redirect(url_for('lab2_4c'))
     users = {
-        'admin_guid_456': {'username': 'admin', 'role': 'admin'},
-        'dev_guid_789': {'username': 'dev', 'role': 'user'}
+        'carlos_77fb_22': {
+            'username': 'carlos', 'email': 'carlos@not-real.com', 
+            'api_key': get_random_flag('lab2_4', variation='variation_C')
+        },
+        'wiener_33cc_11': {
+            'username': 'wiener', 'email': 'wiener@not-real.com', 
+            'api_key': '000-YOUR-OWN-API-KEY-HIDDEN'
+        }
     }
-    user = users.get(username_param)
-    if not user: return "User not found", 404
-    
-    if user['role'] == 'admin':
-        return render_template('lab2/sub4_c_admin.html', account=user, flag=get_random_flag('lab2_4'))
-    return render_template('lab2/sub4_c_account.html', account=user)
+    account_user = users.get(account_guid)
+    if not account_user: return "Account dossier not found", 404
+    return render_template('lab2/sub4_c_account.html', account=account_user)
 
 @app.route('/lab2/4c/product/<int:product_id>')
 def lab2_4c_product(product_id):
-    # Simulated Electronic Inventory
-    products = [
-        {'id': 21, 'name': 'Neural Interface', 'price': 1500, 'username': 'tech_lead', 'guid': 'tech_lead_guid'},
-        {'id': 22, 'name': 'Encryption Key', 'price': 9999, 'username': 'admin', 'guid': 'admin_guid_456'}
+    # Registry for detail view
+    item_catalog = [
+        {'id': 21, 'name': 'Neural Interface', 'username': 'alpha_eng', 'guid': 'eng_guid_111', 'price': 1500, 'description': 'Direct neural link for high-speed computation.'},
+        {'id': 22, 'name': 'Encryption Key', 'username': 'carlos', 'guid': 'carlos_77fb_22', 'price': 9999, 'description': 'Physical hardware key for enterprise decryption.'},
+        {'id': 24, 'name': 'Logic Probe', 'username': 'wiener', 'guid': 'wiener_33cc_11', 'price': 120, 'description': 'Handheld diagnostic tool for low-level signal tracing.'}
     ]
-    product = next((p for p in products if p['id'] == product_id), None)
-    if not product: return "Product not found", 404
+    product = next((p for p in item_catalog if p['id'] == product_id), None)
+    if not product: return "Component telemetry not found", 404
     return render_template('lab2/sub4_c_product.html', product=product)
 
 
 # LAB 2.5: Password Disclosure via IDOR
 @app.route('/lab2/5')
 def lab2_5():
-    # Main store page for Lab 2.5 (Simulated Environment)
+    # Generate session-stable admin password if not exists
+    if 'lab2_5_admin_password' not in session:
+        session['lab2_5_admin_password'] = ''.join(random.choices(string.ascii_lowercase + string.digits, k=12))
+    
     error = request.args.get('login_error')
-    products = [
-        {'id': 1, 'name': 'Secure Comms Link', 'price': 50},
-        {'id': 2, 'name': 'Identity Scrubber', 'price': 120}
-    ]
-    return render_template('lab2/sub5.html', products=products, error=error)
+    return render_template('lab2/sub5.html', error=error)
 
 @app.route('/lab2/5/login', methods=['GET', 'POST'])
 def lab2_5_login():
-    if request.method == 'GET':
-        return redirect(url_for('lab2_5'))
+    if request.method == 'GET': return redirect(url_for('lab2_5'))
     
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        # Vulnerable Mock Registry
-        users = {
-            'guest': {'username': 'guest', 'password': 'guestpassword', 'role': 'user', 'full_name': 'Guest Researcher'},
-            'admin': {'username': 'admin', 'password': 'admin_secret_999', 'role': 'admin', 'full_name': 'System Administrator'}
-        }
-        
-        user = users.get(username)
-        if user and user['password'] == password:
-            if user['role'] == 'admin':
-                return render_template('lab2/sub5_profile.html', user=user, flag=get_random_flag('lab2_5'))
-            return redirect(url_for('lab2_5_profile', username=user['username']))
-        else:
-            return redirect(url_for('lab2_5', login_error="Invalid Credentials"))
-
-@app.route('/lab2/5/profile')
-def lab2_5_profile():
-    # VULNERABILITY: IDOR Exposing Credentials
-    username_param = request.args.get('username')
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    # Session-stable random password
+    admin_pass = session.get('lab2_5_admin_password', 'admin_pass_7721')
+    
+    # Mock Registry for Lab 2.5
     users = {
-        'guest': {'username': 'guest', 'password': 'guestpassword', 'role': 'user', 'full_name': 'Guest Researcher'},
-        'admin': {'username': 'admin', 'password': 'admin_secret_999', 'role': 'admin', 'full_name': 'System Administrator'}
+        'wiener': {'id': 'wiener', 'password': 'peter', 'role': 'user', 'email': 'wiener@not-real.com'},
+        'administrator': {'id': 'administrator', 'password': admin_pass, 'role': 'admin', 'email': 'admin@not-real.com'},
+        'carlos': {'id': 'carlos', 'password': 'carlos_pass_111', 'role': 'user', 'email': 'carlos@not-real.com'}
     }
-    user = users.get(username_param)
-    if not user: return "Identity not found in registry", 404
+    
+    user = users.get(username)
+    if user and user['password'] == password:
+        session['lab2_5_user'] = user['id']
+        return redirect(url_for('lab2_5_account', id=user['id']))
+    return redirect(url_for('lab2_5', login_error="Invalid Credentials"))
 
-    return render_template('lab2/sub5_profile.html', user=user, flag=None)
+@app.route('/lab2/5/my-account')
+def lab2_5_account():
+    # VULNERABILITY: IDOR Exposing Credentials in HTML
+    user_id = request.args.get('id')
+    if not user_id: return redirect(url_for('lab2_5'))
+    
+    # Session-stable random password
+    admin_pass = session.get('lab2_5_admin_password', 'admin_pass_7721')
+    
+    users = {
+        'wiener': {'id': 'wiener', 'password': 'peter', 'role': 'user', 'email': 'wiener@not-real.com'},
+        'administrator': {'id': 'administrator', 'password': admin_pass, 'role': 'admin', 'email': 'admin@not-real.com'},
+        'carlos': {'id': 'carlos', 'password': 'carlos_pass_111', 'role': 'user', 'email': 'carlos@not-real.com'}
+    }
+    
+    user = users.get(user_id)
+    if not user: return "Identity not found", 404
+    
+    logged_in_user = session.get('lab2_5_user')
+    return render_template('lab2/sub5_account.html', user=user, logged_in_user=logged_in_user)
+
+@app.route('/lab2/5/admin')
+def lab2_5_admin():
+    logged_in_user = session.get('lab2_5_user')
+    if logged_in_user != 'administrator':
+        return "Unauthorized: Admin access required", 401
+    
+    users = [
+        {'id': 'wiener', 'role': 'User'},
+        {'id': 'carlos', 'role': 'User'}
+    ]
+    return render_template('lab2/sub5_admin.html', users=users)
+
+@app.route('/lab2/5/admin/delete/<username>')
+def lab2_5_delete(username):
+    logged_in_user = session.get('lab2_5_user')
+    if logged_in_user != 'administrator':
+        return "Unauthorized", 401
+    
+    # Challenge Success Condition
+    if username == 'carlos':
+        return render_template('lab2/sub5_admin.html', 
+                               success=True, 
+                               msg="User 'carlos' deleted successfully.",
+                               flag=get_random_flag('lab2_5'),
+                               users=[{'id': 'wiener', 'role': 'User'}])
+    return redirect(url_for('lab2_5_admin'))
 
 @app.route('/lab2/5/logout')
 def lab2_5_logout():
+    session.pop('lab2_5_user', None)
     return redirect(url_for('lab2_5'))
 
 # Variation B: CloudMart (Same vuln, different theme)
 @app.route('/lab2/5b')
 def lab2_5b():
+    # Generate session-stable admin password if not exists
+    if 'lab2_5b_admin_password' not in session:
+        session['lab2_5b_admin_password'] = ''.join(random.choices(string.ascii_lowercase + string.digits, k=12))
+    
     error = request.args.get('login_error')
     return render_template('lab2/sub5_b.html', error=error)
 
-@app.route('/lab2/5b/login', methods=['POST'])
+@app.route('/lab2/5b/login', methods=['GET', 'POST'])
 def lab2_5b_login():
+    if request.method == 'GET': return redirect(url_for('lab2_5b'))
     username = request.form.get('username')
     password = request.form.get('password')
-    # Use mock check for variation
-    if username == "guest" and password == "guest123":
-        return redirect(url_for('lab2_5b_profile', username=username))
-    elif username == "root":
-        # Simulate successful root login dynamically returning the flag
-        return render_template('lab2/sub5_b_profile.html', 
-                               user={
-                                   'username': 'root',
-                                   'full_name': 'Cloud Infrastructure Root',
-                                   'email': 'infrastructure@cloudmart.io',
-                                   'role': 'super_admin'
-                               }, 
-                               flag=get_random_flag('lab2_5'))
+    
+    admin_pass = session.get('lab2_5b_admin_password', 'cloud_admin_9921')
+    
+    users = {
+        'guest': {'id': 'guest', 'password': 'guest123', 'role': 'user', 'email': 'guest@cloudmart.io'},
+        'admin': {'id': 'admin', 'password': admin_pass, 'role': 'admin', 'email': 'admin@cloudmart.io'},
+        'temp_user': {'id': 'temp_user', 'password': 'temp_pass_444', 'role': 'user', 'email': 'temp@cloudmart.io'}
+    }
+    
+    user = users.get(username)
+    if user and user['password'] == password:
+        session['lab2_5b_user'] = user['id']
+        return redirect(url_for('lab2_5b_account', id=user['id']))
     return redirect(url_for('lab2_5b', login_error="Invalid Credentials"))
 
-@app.route('/lab2/5b/profile')
-def lab2_5b_profile():
-    import random
-    import string
+@app.route('/lab2/5b/my-account')
+def lab2_5b_account():
+    user_id = request.args.get('id')
+    if not user_id: return redirect(url_for('lab2_5b'))
     
-    # VULNERABILITY: IDOR via 'username' parameter
-    username_param = request.args.get('username')
+    admin_pass = session.get('lab2_5b_admin_password', 'cloud_admin_9921')
     
-    if not username_param:
-        return redirect(url_for('lab2_5b'))
+    users = {
+        'guest': {'id': 'guest', 'password': 'guest123', 'role': 'user', 'email': 'guest@cloudmart.io', 'full_name': 'Cloud Guest'},
+        'admin': {'id': 'admin', 'password': admin_pass, 'role': 'admin', 'email': 'admin@cloudmart.io', 'full_name': 'Cloud Controller'},
+        'temp_user': {'id': 'temp_user', 'password': 'temp_pass_444', 'role': 'user', 'email': 'temp@cloudmart.io', 'full_name': 'Transient Alpha'}
+    }
+    
+    user = users.get(user_id)
+    if not user: return "Identity not found in Cloud registry", 404
+    
+    logged_in_user = session.get('lab2_5b_user')
+    return render_template('lab2/sub5_b_account.html', user=user, logged_in_user=logged_in_user)
 
-    if username_param == 'root':
-        # Generate random password for the challenge
-        chars = string.ascii_letters + string.digits
-        random_password = ''.join(random.choice(chars) for _ in range(12))
-        
-        user = {
-            'username': 'root',
-            'password': random_password,
-            'email': 'infrastructure@cloudmart.io',
-            'role': 'super_admin',
-            'full_name': 'Cloud Infrastructure Root'
-        }
-        flag = None
-    elif username_param == 'guest':
-        user = {
-            'username': 'guest',
-            'password': 'guest123',
-            'email': 'guest@cloudmart.io',
-            'role': 'user',
-            'full_name': 'Guest User'
-        }
-        flag = None
-    else:
-        if username_param == 'root':
-            user = {'username': 'root', 'password': 'cloud_secret_password_777', 'role': 'super_admin'}
-            flag = None
-        elif username_param == 'guest':
-            user = {'username': 'guest', 'password': 'guest123', 'role': 'user'}
-            flag = None
-        else:
-            return "Identity not found in Cloud registry", 404
+@app.route('/lab2/5b/admin')
+def lab2_5b_admin():
+    logged_in_user = session.get('lab2_5b_user')
+    if logged_in_user != 'admin':
+        return "Unauthorized: Cloud Admin access required", 401
+    
+    users = [{'id': 'guest', 'role': 'User'}, {'id': 'temp_user', 'role': 'User'}]
+    return render_template('lab2/sub5_b_admin.html', users=users)
 
-    return render_template('lab2/sub5_b_profile.html', user=user, flag=flag)
+@app.route('/lab2/5b/admin/delete/<username>')
+def lab2_5b_delete(username):
+    logged_in_user = session.get('lab2_5b_user')
+    if logged_in_user != 'admin': return "Unauthorized", 401
+    
+    if username == 'temp_user':
+        return render_template('lab2/sub5_b_admin.html', 
+                               success=True, msg="Cloud entity 'temp_user' purged successfully.",
+                               flag=get_random_flag('lab2_5', variation='variation_B'),
+                               users=[{'id': 'guest', 'role': 'User'}])
+    return redirect(url_for('lab2_5b_admin'))
+
+@app.route('/lab2/5b/logout')
+def lab2_5b_logout():
+    session.pop('lab2_5b_user', None)
+    return redirect(url_for('lab2_5b'))
 
 # Variation C: DataVault
 @app.route('/lab2/5c')
 def lab2_5c():
+    # Generate session-stable admin password if not exists
+    if 'lab2_5c_admin_password' not in session:
+        session['lab2_5c_admin_password'] = ''.join(random.choices(string.ascii_lowercase + string.digits, k=12))
+        
     error = request.args.get('login_error')
     return render_template('lab2/sub5_c.html', error=error)
 
-@app.route('/lab2/5c/login', methods=['POST'])
+@app.route('/lab2/5c/login', methods=['GET', 'POST'])
 def lab2_5c_login():
+    if request.method == 'GET': return redirect(url_for('lab2_5c'))
     username = request.form.get('username')
     password = request.form.get('password')
-    # Use mock check for variation
-    if username == "viewer" and password == "view123":
-        return redirect(url_for('lab2_5c_profile', username=username))
-    elif username == "owner":
-        # Simulate successful root login dynamically returning the flag
-        return render_template('lab2/sub5_c_profile.html', 
-                               user={
-                                   'username': 'owner',
-                                   'full_name': 'DataVault System Owner',
-                                   'email': 'security@datavault_internal.net',
-                                   'role': 'system_owner'
-                               }, 
-                               flag=get_random_flag('lab2_5'))
+    
+    admin_pass = session.get('lab2_5c_admin_password', 'vault_root_8831')
+    
+    users = {
+        'analyst': {'id': 'analyst', 'password': 'analyst123', 'role': 'analyst', 'email': 'analyst@datavault.lab'},
+        'system_root': {'id': 'system_root', 'password': admin_pass, 'role': 'root', 'email': 'root@datavault.lab'},
+        'researcher': {'id': 'researcher', 'password': 'research_pass_00', 'role': 'analyst', 'email': 'researcher@datavault.lab'}
+    }
+    
+    user = users.get(username)
+    if user and user['password'] == password:
+        session['lab2_5c_user'] = user['id']
+        return redirect(url_for('lab2_5c_account', id=user['id']))
     return redirect(url_for('lab2_5c', login_error="Invalid Credentials"))
 
-@app.route('/lab2/5c/profile')
-def lab2_5c_profile():
-    # VULNERABILITY: IDOR via 'username' parameter
-    username_param = request.args.get('username')
+@app.route('/lab2/5c/my-account')
+def lab2_5c_account():
+    user_id = request.args.get('id')
+    if not user_id: return redirect(url_for('lab2_5c'))
     
-    if not username_param:
-        return redirect(url_for('lab2_5c'))
+    admin_pass = session.get('lab2_5c_admin_password', 'vault_root_8831')
+    
+    users = {
+        'analyst': {'id': 'analyst', 'password': 'analyst123', 'role': 'analyst', 'email': 'analyst@datavault.lab', 'full_name': 'Data Analyst L1'},
+        'system_root': {'id': 'system_root', 'password': admin_pass, 'role': 'root', 'email': 'root@datavault.lab', 'full_name': 'System Root Archive'},
+        'researcher': {'id': 'researcher', 'password': 'research_pass_00', 'role': 'analyst', 'email': 'researcher@datavault.lab', 'full_name': 'Field Researcher'}
+    }
+    
+    user = users.get(user_id)
+    if not user: return "Identity not found in Vault registry", 404
+    
+    logged_in_user = session.get('lab2_5c_user')
+    return render_template('lab2/sub5_c_account.html', user=user, logged_in_user=logged_in_user)
 
-    if username_param == 'owner':
-        # Generate random password for the challenge
-        chars = string.ascii_letters + string.digits + "_-*"
-        random_password = ''.join(random.choice(chars) for _ in range(12))
-        
-        user = {
-            'username': 'owner',
-            'password': random_password,
-            'email': 'security@datavault_internal.net',
-            'role': 'system_owner',
-            'full_name': 'DataVault System Owner'
-        }
-        flag = None
-    elif username_param == 'viewer':
-        user = {
-            'username': 'viewer',
-            'password': 'view123',
-            'email': 'viewer@datavault.net',
-            'role': 'viewer',
-            'full_name': 'Read-Only Viewer'
-        }
-        flag = None
-    else:
-        # Mock Lookup
-        if username_param == 'owner':
-            user = {'username': 'owner', 'email': 'security@datavault_internal.net', 'role': 'system_owner'}
-        elif username_param == 'viewer':
-            user = {'username': 'viewer', 'email': 'viewer@datavault.net', 'role': 'viewer'}
-        else:
-            return "User not found", 404
-        flag = None
+@app.route('/lab2/5c/admin')
+def lab2_5c_admin():
+    logged_in_user = session.get('lab2_5c_user')
+    if logged_in_user != 'system_root':
+        return "Unauthorized: Root access required", 401
+    
+    users = [{'id': 'analyst', 'role': 'Analyst'}, {'id': 'researcher', 'role': 'Analyst'}]
+    return render_template('lab2/sub5_c_admin.html', users=users)
 
-    # VULNERABILITY: Password exposed in template comment
-    return render_template('lab2/sub5_c_profile.html', user=user, flag=flag)
+@app.route('/lab2/5c/admin/delete/<username>')
+def lab2_5c_delete(username):
+    logged_in_user = session.get('lab2_5c_user')
+    if logged_in_user != 'system_root': return "Unauthorized", 401
+    
+    if username == 'researcher':
+        return render_template('lab2/sub5_c_admin.html', 
+                               success=True, msg="Subject 'researcher' de-provisioned successfully.",
+                               flag=get_random_flag('lab2_5', variation='variation_C'),
+                               users=[{'id': 'analyst', 'role': 'Analyst'}])
+    return redirect(url_for('lab2_5c_admin'))
+
+@app.route('/lab2/5c/logout')
+def lab2_5c_logout():
+    session.pop('lab2_5c_user', None)
+    return redirect(url_for('lab2_5c'))
 
 # End Lab 2
 
@@ -1859,54 +1999,70 @@ def lab3():
 def lab3_1_menu():
     return render_template('lab3/menu.html')
 
-# LAB 3.1.1: Brute Force Attack - SecureVault
+# LAB 3.1.1: Username Enumeration via Different Responses
 @app.route('/lab3/1')
 def lab3_1():
     import random
-    
-    # Brute Force Configuration (Simulated Data)
-    usernames = ['admin', 'researcher', 'guest', 'staff']
-    passwords = ['123456', 'password', 'welcome', 'admin123']
+    # Always randomize targets on index load for dynamic missions
+    try:
+        import os
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        user_path = os.path.join(base_dir, 'data', 'wordlists', 'usernames.txt')
+        pass_path = os.path.join(base_dir, 'data', 'wordlists', 'passwords.txt')
+        with open(user_path, 'r') as f:
+            usernames = [line.strip() for line in f if line.strip()]
+        with open(pass_path, 'r') as f:
+            passwords = [line.strip() for line in f if line.strip()]
+    except Exception as e:
+        print(f"[ERROR] Failed to load wordlists: {e}")
+        usernames = ['vault_admin', 'res_admin', 'security']
+        passwords = ['security2025', 'access_granted', 'admin123']
 
-    target_user = random.choice(usernames)
-    target_password = random.choice(passwords)
+    session['lab3_1_target_user'] = random.choice(usernames)
+    session['lab3_1_target_pass'] = random.choice(passwords)
     
-    session['lab3_1_target_user'] = target_user
-    session['lab3_1_target_pass'] = target_password
+    print(f"\n[SECURITY] Lab 3.1 Active Targets -> User: {session.get('lab3_1_target_user')} | Pass: {session.get('lab3_1_target_pass')}")
+    
+    error = request.args.get('error')
     
     # Products for the template
     products = [
-        {'id': 1, 'name': 'Digital Shield', 'price': 99, 'image': 'prod_1.png'},
-        {'id': 2, 'name': 'Encrypted Storage', 'price': 150, 'image': 'prod_2.png'}
+        {'id': 1, 'name': 'Sentinel Firewall Pro', 'price': 899, 'image': 'firewall.png', 'desc': 'Enterprise-grade packet filtering and deep inspection.'},
+        {'id': 2, 'name': 'Vault Crypt-Node', 'price': 1200, 'image': 'vault.png', 'desc': 'Quantum-safe cryptographic storage for sensitive assets.'}
     ]
-    return render_template('lab3/sub1.html', products=products)
+    return render_template('lab3/sub1.html', products=products, error=error)
 
 
-@app.route('/lab3/1/login', methods=['POST'])
+@app.route('/lab3/1/login', methods=['GET', 'POST'])
 def lab3_1_login():
+    if request.method == 'GET': return redirect(url_for('lab3_1'))
+    
     username = request.form.get('username')
     password = request.form.get('password')
     
-    target_user = session.get('lab3_1_target_user')
-    target_pass = session.get('lab3_1_target_pass')
+    target_user = session.get('lab3_1_target_user', 'admin')
+    target_pass = session.get('lab3_1_target_pass', 'password123')
+    print(f"[SECURITY] Lab 3.1 Login Attempt -> {username}:{password}")
     
-    # Scenario 1: Correct Credentials
+    # SUCCESS: Correct Credentials (302 Redirect)
     if username == target_user and password == target_pass:
         session['lab3_1_logged_in'] = True
         session['lab3_1_username'] = username
-        # SUCCESS: Redirect (Status 302) - Easy to spot in Burp
         return redirect(url_for('lab3_1_admin'))
 
-    # Scenario 2: Correct Username, Wrong Password
+    # VULNERABILITY: Username Enumeration via Different Responses
     if username == target_user:
-        error_msg = "Incorrect password."
-        products = [{'id': 1, 'name': 'Digital Shield', 'price': 99}]
-        return render_template('lab3/sub1.html', products=products, error=error_msg), 200
+        # User exists, but password was wrong
+        return render_template('lab3/sub1.html', 
+                             products=[{'id': 1, 'name': 'Sentinel Firewall Pro', 'price': 899}], 
+                             error="Incorrect password.",
+                             login_open=True), 200
 
-    # Scenario 3: Invalid Username
-    # Default generic error message
-    products = [{'id': 1, 'name': 'Digital Shield', 'price': 99}]
-    return render_template('lab3/sub1.html', products=products, error="Invalid username or password"), 200
+    # User does NOT exist
+    return render_template('lab3/sub1.html', 
+                         products=[{'id': 1, 'name': 'Sentinel Firewall Pro', 'price': 899}], 
+                         error="Invalid username",
+                         login_open=True), 200
 
 @app.route('/lab3/1/admin')
 def lab3_1_admin():
@@ -1939,16 +2095,25 @@ def lab3_1_delete_user():
 @app.route('/lab3/1/2')
 def lab3_1_2():
     import random
-    
-    # Brute Force Configuration (Luxury Variant)
-    usernames = ['executive', 'manager', 'admin', 'vip']
-    passwords = ['luxury123', 'diamond', 'platinum', 'gold']
+    # Always randomize targets on index load for dynamic missions
+    try:
+        import os
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        user_path = os.path.join(base_dir, 'data', 'wordlists', 'usernames.txt')
+        pass_path = os.path.join(base_dir, 'data', 'wordlists', 'passwords.txt')
+        with open(user_path, 'r') as f:
+            usernames = [line.strip() for line in f if line.strip()]
+        with open(pass_path, 'r') as f:
+            passwords = [line.strip() for line in f if line.strip()]
+    except Exception as e:
+        print(f"[ERROR] Failed to load wordlists: {e}")
+        usernames = ['prestige_vip', 'elite_user', 'chairman']
+        passwords = ['luxury_safe', 'diamond_pass', 'fishing']
 
-    target_user = random.choice(usernames)
-    target_password = random.choice(passwords)
+    session['lab3_1_2_target_user'] = random.choice(usernames)
+    session['lab3_1_2_target_pass'] = random.choice(passwords)
     
-    session['lab3_1_2_target_user'] = target_user
-    session['lab3_1_2_target_pass'] = target_password
+    print(f"\n[SECURITY] Lab 3.1.2 Active Targets -> User: {session.get('lab3_1_2_target_user')} | Pass: {session.get('lab3_1_2_target_pass')}")
     
     # Products for the template
     products = [
@@ -1964,6 +2129,7 @@ def lab3_1_2_login():
     
     target_user = session.get('lab3_1_2_target_user')
     target_pass = session.get('lab3_1_2_target_pass')
+    print(f"[SECURITY] Lab 3.1.2 Login Attempt -> {username}:{password}")
     
     if username == target_user and password == target_pass:
         session['lab3_1_2_logged_in'] = True
@@ -1971,18 +2137,17 @@ def lab3_1_2_login():
         return redirect(url_for('lab3_1_2_admin'))
 
     if username == target_user:
-        error_msg = "Incorrect password."
-        products = [
-            {'id': 11, 'name': 'Gold Plated Server', 'price': 5000, 'image': 'prod_3.png'},
-            {'id': 12, 'name': 'Diamond Encrypted Hub', 'price': 8000, 'image': 'prod_4.png'}
-        ]
-        return render_template('lab3/sub1_b.html', products=products, error=error_msg), 200
+        # User exists, but password was wrong
+        return render_template('lab3/sub1_b.html', 
+                             products=[{'id': 11, 'name': 'Gold Plated Server', 'price': 5000}], 
+                             error="Incorrect password.",
+                             login_open=True), 200
 
-    products = [
-        {'id': 11, 'name': 'Gold Plated Server', 'price': 5000, 'image': 'prod_3.png'},
-        {'id': 12, 'name': 'Diamond Encrypted Hub', 'price': 8000, 'image': 'prod_4.png'}
-    ]
-    return render_template('lab3/sub1_b.html', products=products, error="Invalid username or password"), 200
+    # User does NOT exist
+    return render_template('lab3/sub1_b.html', 
+                         products=[{'id': 11, 'name': 'Gold Plated Server', 'price': 5000}], 
+                         error="Invalid username",
+                         login_open=True), 200
 
 @app.route('/lab3/1/2/admin')
 def lab3_1_2_admin():
@@ -2020,16 +2185,25 @@ def lab3_1_2_logout():
 @app.route('/lab3/1/3')
 def lab3_1_3():
     import random
-    
-    # Brute Force Configuration (Corporate Variant)
-    usernames = ['ceo', 'cfo', 'admin', 'it_support']
-    passwords = ['corporate2024', 'enterprise', 'security', 'password123']
+    # Always randomize targets on index load for dynamic missions
+    try:
+        import os
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        user_path = os.path.join(base_dir, 'data', 'wordlists', 'usernames.txt')
+        pass_path = os.path.join(base_dir, 'data', 'wordlists', 'passwords.txt')
+        with open(user_path, 'r') as f:
+            usernames = [line.strip() for line in f if line.strip()]
+        with open(pass_path, 'r') as f:
+            passwords = [line.strip() for line in f if line.strip()]
+    except Exception as e:
+        print(f"[ERROR] Failed to load wordlists: {e}")
+        usernames = ['corp_root', 'system_cfo', 'ceo']
+        passwords = ['enterprise_access', 'vault_secure', 'corporate2024']
 
-    target_user = random.choice(usernames)
-    target_password = random.choice(passwords)
-    
-    session['lab3_1_3_target_user'] = target_user
-    session['lab3_1_3_target_pass'] = target_password
+    session['lab3_1_3_target_user'] = random.choice(usernames)
+    session['lab3_1_3_target_pass'] = random.choice(passwords)
+
+    print(f"\n[SECURITY] Lab 3.1.3 Active Targets -> User: {session.get('lab3_1_3_target_user')} | Pass: {session.get('lab3_1_3_target_pass')}")
     
     # Products for the template
     products = [
@@ -2045,6 +2219,7 @@ def lab3_1_3_login():
     
     target_user = session.get('lab3_1_3_target_user')
     target_pass = session.get('lab3_1_3_target_pass')
+    print(f"[SECURITY] Lab 3.1.3 Login Attempt -> {username}:{password}")
     
     if username == target_user and password == target_pass:
         session['lab3_1_3_logged_in'] = True
@@ -2052,12 +2227,17 @@ def lab3_1_3_login():
         return redirect(url_for('lab3_1_3_admin'))
 
     if username == target_user:
-        error_msg = "Incorrect password."
-        products = [{'id': 21, 'name': 'Enterprise Firewall', 'price': 12000}]
-        return render_template('lab3/sub1_c.html', products=products, error=error_msg), 200
+        # User exists, but password was wrong
+        return render_template('lab3/sub1_c.html', 
+                             products=[{'id': 21, 'name': 'Enterprise Firewall', 'price': 12000}], 
+                             error="Incorrect password.",
+                             login_open=True), 200
 
-    products = [{'id': 21, 'name': 'Enterprise Firewall', 'price': 12000}]
-    return render_template('lab3/sub1_c.html', products=products, error="Invalid username or password"), 200
+    # User does NOT exist
+    return render_template('lab3/sub1_c.html', 
+                         products=[{'id': 21, 'name': 'Enterprise Firewall', 'price': 12000}], 
+                         error="Invalid username",
+                         login_open=True), 200
 
 @app.route('/lab3/1/3/admin')
 def lab3_1_3_admin():
@@ -2083,7 +2263,7 @@ def lab3_1_3_delete_user():
                          users=[], 
                          admin_username=admin_user,
                          variant='3',
-                         flag=get_random_flag('lab3_1'))
+                         flag=get_random_flag('lab3_1', variation='variation_C'))
 
 @app.route('/lab3/1/3/logout')
 def lab3_1_3_logout():
@@ -2136,14 +2316,26 @@ def lab3_2_login():
         import random
         code = str(random.randint(1000, 9999))
         session['lab3_2_code'] = code
-        
-        # Log code to console (simulating email)
-        print(f"[LAB 3.2A] 2FA code for {username}: {code}")
+        print(f"[SECURITY] Lab 3.2A 2FA generated for {username}: {code}")
         
         # Redirect to 2FA verification page
         return redirect(url_for('lab3_2_verify'))
     else:
         return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+
+@app.route('/lab3/2/email')
+def lab3_2_email():
+    username = session.get('lab3_2_username', 'anonymous')
+    code = session.get('lab3_2_code', '0000')
+    
+    # LOCK: If user is carlos (the victim), we don't have access to their email!
+    locked = True if username == 'carlos' else False
+    
+    return render_template('lab3/email_client.html', 
+                         username=username, 
+                         code=code, 
+                         lab_title="SecureShop",
+                         locked=locked)
 
 @app.route('/lab3/2/verify')
 def lab3_2_verify():
@@ -2186,14 +2378,17 @@ def lab3_2_account():
     verified = session.get('lab3_2_verified', False)
     flag = None
     
+    # Lab is solved if we successfully access carlos's account without 2FA verification
     if username == 'carlos' and not verified:
-        # 2FA was bypassed!
         flag = get_random_flag('lab3_2')
+        print(f"[SECURITY] Lab 3.2A Bypass Detected -> User: {username} | Flag: {flag}")
     
     return render_template('lab3/sub2_account.html', 
                          username=username,
                          verified=verified,
-                         flag=flag)
+                         flag=flag,
+                         lab_id='3.2.A',
+                         lab_title="SecureShop")
 
 @app.route('/lab3/2/logout')
 def lab3_2_logout():
@@ -2221,10 +2416,24 @@ def lab3_2b_login():
         session['lab3_2b_username'] = username
         code = str(random.randint(1000, 9999))
         session['lab3_2b_code'] = code
-        print(f"[LAB 3.2B] 2FA code for {username}: {code}")
+        print(f"[SECURITY] Lab 3.2B 2FA generated for {username}: {code}")
         return redirect(url_for('lab3_2b_verify'))
     else:
         return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+
+@app.route('/lab3/2b/email')
+def lab3_2b_email():
+    username = session.get('lab3_2b_username', 'anonymous')
+    code = session.get('lab3_2b_code', '0000')
+    
+    # LOCK: If user is bob (the victim), we don't have access to their email!
+    locked = True if username == 'bob' else False
+    
+    return render_template('lab3/email_client.html', 
+                         username=username, 
+                         code=code, 
+                         lab_title="BankSecure",
+                         locked=locked)
 
 @app.route('/lab3/2b/verify')
 def lab3_2b_verify():
@@ -2262,13 +2471,17 @@ def lab3_2b_account():
     verified = session.get('lab3_2b_verified', False)
     flag = None
     
+    # Lab is solved if we successfully access bob's account without 2FA
     if username == 'bob' and not verified:
         flag = get_random_flag('lab3_2')
+        print(f"[SECURITY] Lab 3.2B Bypass Detected -> User: {username} | Flag: {flag}")
     
     return render_template('lab3/sub2b_account.html', 
                          username=username,
                          verified=verified,
-                         flag=flag)
+                         flag=flag,
+                         lab_id='3.2.B',
+                         lab_title="BankSecure")
 
 @app.route('/lab3/2b/logout')
 def lab3_2b_logout():
@@ -2296,10 +2509,24 @@ def lab3_2c_login():
         session['lab3_2c_username'] = username
         code = str(random.randint(1000, 9999))
         session['lab3_2c_code'] = code
-        print(f"[LAB 3.2C] 2FA code for {username}: {code}")
+        print(f"[SECURITY] Lab 3.2C 2FA generated for {username}: {code}")
         return redirect(url_for('lab3_2c_verify'))
     else:
         return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+
+@app.route('/lab3/2c/email')
+def lab3_2c_email():
+    username = session.get('lab3_2c_username', 'anonymous')
+    code = session.get('lab3_2c_code', '0000')
+    
+    # LOCK: If user is admin (the victim), we don't have access to their email!
+    locked = True if username == 'admin' else False
+    
+    return render_template('lab3/email_client.html', 
+                         username=username, 
+                         code=code, 
+                         lab_title="CloudDrive",
+                         locked=locked)
 
 @app.route('/lab3/2c/verify')
 def lab3_2c_verify():
@@ -2337,13 +2564,17 @@ def lab3_2c_account():
     verified = session.get('lab3_2c_verified', False)
     flag = None
     
+    # Lab is solved if we successfully access admin's account without 2FA
     if username == 'admin' and not verified:
         flag = get_random_flag('lab3_2')
+        print(f"[SECURITY] Lab 3.2C Bypass Detected -> User: {username} | Flag: {flag}")
     
     return render_template('lab3/sub2c_account.html', 
                          username=username,
                          verified=verified,
-                         flag=flag)
+                         flag=flag,
+                         lab_id='3.2.C',
+                         lab_title="CloudDrive")
 
 @app.route('/lab3/2c/logout')
 def lab3_2c_logout():
@@ -2362,63 +2593,117 @@ def lab3_2c_logout():
 def lab4():
     return render_template('lab4/index.html')
 
-# Lab 4.1: Basic SSRF against the local server (Variation A: Retail)
+# Lab 4.1: Basic SSRF Selection Menu
 @app.route('/lab4/1')
+@login_required
 def lab4_1():
-    # Mock data with images instead of DB
+    return render_template('lab4/sub1_menu.html')
+
+# Lab 4.1.A: Retail Store
+@app.route('/lab4/1/a')
+@login_required
+def lab4_1a():
     products = [
         {'id': 1, 'name': 'Vulnerable T-Shirt', 'description': 'Limited edition vulnerable item.', 'price': 29.99, 'image': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80'},
         {'id': 2, 'name': 'Insecure Hoodie', 'description': 'Keeps you warm, keeps your data exposed.', 'price': 49.99, 'image': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=600&q=80'},
         {'id': 3, 'name': 'SQLi Mug', 'description': 'Select * from drinks.', 'price': 15.00, 'image': 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80'},
         {'id': 4, 'name': 'Smart Watch X', 'description': 'Tracks your location... everywhere.', 'price': 199.99, 'image': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'},
         {'id': 5, 'name': 'Urban Backpack', 'description': 'Fits all your stolen secrets.', 'price': 89.50, 'image': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80'},
-        {'id': 6, 'name': 'Running Sneakers', 'description': 'Run away from security audits.', 'price': 120.00, 'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80'},
-        {'id': 7, 'name': 'Aviator Sunglasses', 'description': 'Shade your eyes from the glare of pwned servers.', 'price': 145.00, 'image': 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80'},
-        {'id': 8, 'name': 'Designer Cap', 'description': 'Hat tip to the white hats.', 'price': 35.00, 'image': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=600&q=80'}
+        {'id': 6, 'name': 'Running Sneakers', 'description': 'Run away from security audits.', 'price': 120.00, 'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80'}
     ]
     return render_template('lab4/sub1.html', products=products)
 
-@app.route('/lab4/1/product/<int:product_id>')
-def lab4_1_product(product_id):
-    # Re-define products here for the detail view since we removed DB
+@app.route('/lab4/1/a/product/<int:product_id>')
+@login_required
+def lab4_1a_product(product_id):
     products = [
         {'id': 1, 'name': 'Vulnerable T-Shirt', 'description': 'Limited edition vulnerable item.', 'price': 29.99, 'image': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80'},
         {'id': 2, 'name': 'Insecure Hoodie', 'description': 'Keeps you warm, keeps your data exposed.', 'price': 49.99, 'image': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=600&q=80'},
         {'id': 3, 'name': 'SQLi Mug', 'description': 'Select * from drinks.', 'price': 15.00, 'image': 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80'},
         {'id': 4, 'name': 'Smart Watch X', 'description': 'Tracks your location... everywhere.', 'price': 199.99, 'image': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'},
         {'id': 5, 'name': 'Urban Backpack', 'description': 'Fits all your stolen secrets.', 'price': 89.50, 'image': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80'},
-        {'id': 6, 'name': 'Running Sneakers', 'description': 'Run away from security audits.', 'price': 120.00, 'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80'},
-        {'id': 7, 'name': 'Aviator Sunglasses', 'description': 'Shade your eyes from the glare of pwned servers.', 'price': 145.00, 'image': 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80'},
-        {'id': 8, 'name': 'Designer Cap', 'description': 'Hat tip to the white hats.', 'price': 35.00, 'image': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=600&q=80'}
+        {'id': 6, 'name': 'Running Sneakers', 'description': 'Run away from security audits.', 'price': 120.00, 'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80'}
     ]
     product = next((p for p in products if p['id'] == product_id), None)
     if not product: return "Product not found", 404
     return render_template('lab4/sub1_product.html', product=product)
 
-@app.route('/lab4/1/stock', methods=['POST'])
-def lab4_1_stock():
+@app.route('/lab4/1/a/stock', methods=['POST'])
+@login_required
+def lab4_1a_stock():
     stock_api = request.form.get('stockApi')
+    return process_ssrf_request(stock_api)
+
+
+def process_ssrf_request(stock_api):
     if not stock_api:
         return "Missing stockApi parameter", 400
     
     # VULNERABILITY: SSRF
     try:
-        # We use a trick to allow requests to localhost/127.0.0.1 if it's targeted
-        # In a real scenario, this would just be requests.get(stock_api)
-        # But we need to make sure 'localhost' refers to THIS app instance.
-        # If the URL is http://localhost/admin, we internally redirect or 
-        # just use requests if the app is actually running on 80.
-        # Since we are on port 5000, we should expect http://localhost:5000/admin 
-        # or simulate it.
+        # Simulation: Allow the researcher to use the actual URL or mock internal domains.
+        # We handle internal routing via the Flask Test Client to ensure Vercel/stateless compatibility.
+        current_host = request.host
+        mock_domains = ["stock.secureshop.local", "inventory.banksecure.local", "fleet.clouddrive.local"]
         
-        # Helper to handle internal routing for simulation
-        if "localhost" in stock_api or "127.0.0.1" in stock_api:
-            # Re-route to our own server if port is missing or 80
-            if ":5000" not in stock_api:
-                stock_api = stock_api.replace("localhost", "localhost:5000").replace("127.0.0.1", "127.0.0.1:5000")
+        is_target_internal = any(domain in stock_api for domain in mock_domains) or \
+                            current_host in stock_api or "localhost" in stock_api or "127.0.0.1" in stock_api
+                            
+        if is_target_internal:
+            # Reconstruct the path for internal dispatch
+            import re
+            # Extract the path and query string from the stock_api
+            match = re.search(r'https?://[^/]+(/.+)', stock_api)
+            full_path = match.group(1) if match else "/"
+            
+            # Internal Translation Strategy: Map /admin to /ssrf-admin
+            # We must be careful to handle query parameters correctly
+            target_path = full_path.split('?')[0]
+            query_params = full_path.split('?')[1] if '?' in full_path else ""
+            
+            if target_path == "/admin":
+                target_path = "/ssrf-admin"
+            elif target_path == "/admin/delete":
+                target_path = "/ssrf-admin/delete"
+            
+            # Reassemble the internal path
+            internal_full_path = target_path
+            if query_params:
+                internal_full_path += "?" + query_params
+            
+            # DISPATCH: Use Flask test client to fetch internal routes (Vercel-Friendly)
+            # We forward cookies and a specialized ID header for dynamic flag generation
+            print(f"[SECURITY] SSRF Internal Dispatch -> Path: {internal_full_path}")
+            headers_dict = {key: value for key, value in request.headers.items() if key.lower() != 'cookie'}
+            
+            # Extract current researcher identity and TARGET HOST to pass through the internal bridge
+            import urllib.parse
+            parsed_url = urllib.parse.urlparse(stock_api)
+            target_host = parsed_url.netloc
+            
+            guid = session.get('guid') or session.get('user_id')
+            if guid:
+                headers_dict['X-SSRF-Researcher-GUID'] = str(guid)
+            
+            # Forward the original target host to help the backend identify the industry variant
+            headers_dict['X-SSRF-Target-Host'] = target_host
+            
+            with app.test_client() as client:
+                # Forward each cookie individually to the test client using keyword arguments
+                for cookie_key, cookie_value in request.cookies.items():
+                    client.set_cookie(key=cookie_key, value=cookie_value)
+                
+                resp = client.get(internal_full_path, headers=headers_dict)
+                return resp.get_data(as_text=True)
         
-        resp = requests.get(stock_api, timeout=5)
-        return resp.text
+        else:
+            # External Request (Simulation)
+            # In a real environment, this makes the server a proxy.
+            # Using requests here is fine for external targets (if allowed)
+            resp = requests.get(stock_api, timeout=5)
+            print(f"[SECURITY] External SSRF Request -> URL: {stock_api}")
+            return resp.text
+            
     except Exception as e:
         return f"Internal Server Error: {str(e)}", 500
 
@@ -2444,44 +2729,6 @@ def get_lab4_1c_products():
         {'id': 208, 'name': 'Industrial Control Panel', 'description': 'SCADA interface for facility management.', 'price': 2500, 'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80'}
     ]
 
-# Lab 4.1 Variation C: Logistics
-@app.route('/lab4/1/c')
-def lab4_1c():
-    products = get_lab4_1c_products()
-    return render_template('lab4/sub1_c.html', products=products)
-
-@app.route('/lab4/1/c/product/<int:product_id>')
-def lab4_1c_product(product_id):
-    products = get_lab4_1c_products()
-    product = next((p for p in products if p['id'] == product_id), None)
-    if not product: return "Product not found", 404
-    return render_template('lab4/sub1_c_product.html', product=product)
-
-# Helper for Lab 4.1b products
-def get_lab4_1b_products():
-    return [
-        {'id': 101, 'name': 'Quantum Blade Server X1', 'description': 'High-density compute node with 128 cores.', 'price': 15000, 'image': 'https://images.unsplash.com/photo-1558494949-ef526b01201b?auto=format&fit=crop&w=600&q=80'},
-        {'id': 102, 'name': 'Nebula Storage Array', 'description': 'Petabyte-scale solid state storage.', 'price': 45000, 'image': 'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=600&q=80'},
-        {'id': 103, 'name': 'Vortex Network Switch', 'description': '400Gbps ultra-low latency fabric.', 'price': 8500, 'badge': 'High Perf', 'image': 'https://images.unsplash.com/photo-1544197150-b99a580bbc7c?auto=format&fit=crop&w=600&q=80'},
-        {'id': 104, 'name': 'AI Training Cluster', 'description': 'Dedicated GPU rack for ML workloads.', 'price': 120000, 'image': 'https://images.unsplash.com/photo-1551703652-8564730a845b?auto=format&fit=crop&w=600&q=80'},
-        {'id': 105, 'name': 'Secure Gateway Appliance', 'description': 'Military-grade firewall and VPN concentrator.', 'price': 12000, 'badge': 'Critical', 'image': 'https://images.unsplash.com/photo-1563770095128-42fa6112a83e?auto=format&fit=crop&w=600&q=80'},
-        {'id': 106, 'name': 'CoolCore Liquid Loop', 'description': 'Active cooling system for high-TDP racks.', 'price': 5500, 'image': 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?auto=format&fit=crop&w=600&q=80'},
-        {'id': 107, 'name': 'Biometric Access Panel', 'description': 'Retina scan entry system.', 'price': 2500, 'image': 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=600&q=80'},
-        {'id': 108, 'name': 'Encrypted Data Tape', 'description': 'Cold storage for long-term retention.', 'price': 150, 'image': 'https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?auto=format&fit=crop&w=600&q=80'}
-    ]
-
-# Lab 4.1 Variant B: Cloud Infrastructure Marketplace
-@app.route('/lab4/1/b')
-def lab4_1b():
-    products = get_lab4_1b_products()
-    return render_template('lab4/sub1_b.html', products=products)
-
-@app.route('/lab4/1/b/product/<int:product_id>')
-def lab4_1b_product(product_id):
-    products = get_lab4_1b_products()
-    product = next((p for p in products if p['id'] == product_id), None)
-    if not product: return "Product not found", 404
-    return render_template('lab4/sub1_b_product.html', product=product)
 
 # Dummy Stock Check API for realism
 @app.route('/stock/check')
@@ -2490,29 +2737,275 @@ def stock_check_api():
     return f"Success: {random.randint(10, 100)} units available for Item-{product_id}."
 
 # Simulated External Admin for 4.1
-@app.route('/admin')
-def admin_panel():
-    # Simulate restriction: Only accessible from loopback
-    # In a real SSRF lab, the admin panel is blocked by a WAF/Firewall 
-    # for external IPs but allowed for internal ones.
-    if request.remote_addr != '127.0.0.1' and '127.0.0.1' not in request.host:
+@app.route('/ssrf-admin')
+def ssrf_admin_panel():
+    # SSRF Gate: Only accessible via internal loopback (127.0.0.1)
+    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
+    
+    if not is_internal:
+        print(f"[SECURITY] Unauthorized access attempt to /ssrf-admin from {request.remote_addr} blocked.")
         return "<h1>403 Forbidden</h1><p>Admin interface only accessible from local network.</p>", 403
     
-    return render_template('lab4/admin_panel.html', user_to_delete="carlos")
+    # Identify the mock domain based on context (for realism in the HTML response)
+    mock_host = request.host if "local" in request.host else "stock.secureshop.local"
+    
+    return render_template('lab4/admin_panel.html', 
+                         user_to_delete="carlos",
+                         mock_host=mock_host)
 
-@app.route('/admin/delete')
-def admin_delete_user():
-    if request.remote_addr != '127.0.0.1' and '127.0.0.1' not in request.host:
+@app.route('/ssrf-admin/delete')
+def ssrf_admin_delete_user():
+    # SSRF Gate: Ensure this action is only performed by the server itself
+    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
+    
+    if not is_internal:
         return "403 Forbidden", 403
         
     username = request.args.get('username')
     if username == "carlos":
-        flag = get_random_flag('lab4')
-        return f"<h1>Success</h1><p>User {username} deleted successfully!</p><p>{flag}</p>"
+        # Context-aware variation detection for dynamic flag synchronization
+        # Matches the canonical Lab 4 variations: A (Retail), B (Cloud), C (Logistics)
+        # We check the forwarded 'X-SSRF-Target-Host' since the actual 'request.host' is localhost.
+        target_host = request.headers.get('X-SSRF-Target-Host', '').lower()
+        
+        variation = 'variation_A'
+        if 'inventory.banksecure.local' in target_host:
+            variation = 'variation_B'
+        elif 'fleet.clouddrive.local' in target_host:
+            variation = 'variation_C'
+            
+        # Dynamic flag generation using the forwarded session identity
+        # Use canonical 'lab4' ID to match the Submission Center registry
+        flag = get_random_flag('lab4', variation=variation)
+        print(f"[SECURITY] SSRF Exploited! Admin deleted user: {username} | Flag: {flag}")
+        return f"<h1>Success</h1><p>User {username} deleted successfully!</p><div style='padding:20px; background:#10b981; color:white; border-radius:8px; margin-top:20px;'><strong>FLAG:</strong> {flag}</div>"
+    
     return f"User {username} not found."
 
 
 
+# Lab 4.1.B: Cloud Infrastructure
+@app.route('/lab4/1/b')
+@login_required
+def lab4_1b():
+    products = [
+        {'id': 50, 'name': 'GPU Cluster Node', 'description': 'High-performance compute node for AI.', 'price': 12000.00, 'image': 'https://images.unsplash.com/photo-1591405351990-4726e331f141?auto=format&fit=crop&w=600&q=80'},
+        {'id': 51, 'name': 'Nitro SSD Array', 'description': 'Ultra-low latency storage.', 'price': 3500.00, 'image': 'https://images.unsplash.com/photo-1597852064821-d928444c0620?auto=format&fit=crop&w=600&q=80'},
+        {'id': 52, 'name': 'Quantum Link', 'description': 'Entangled communication gateway.', 'price': 50000.00, 'image': 'https://images.unsplash.com/photo-1509023467864-1ecbb3f6342e?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab4/sub1_b.html', products=products)
+
+@app.route('/lab4/1/b/product/<int:product_id>')
+@login_required
+def lab4_1b_product(product_id):
+    products = [
+        {'id': 50, 'name': 'GPU Cluster Node', 'description': 'High-performance compute node for AI.', 'price': 12000.00, 'image': 'https://images.unsplash.com/photo-1591405351990-4726e331f141?auto=format&fit=crop&w=600&q=80'},
+        {'id': 51, 'name': 'Nitro SSD Array', 'description': 'Ultra-low latency storage.', 'price': 3500.00, 'image': 'https://images.unsplash.com/photo-1597852064821-d928444c0620?auto=format&fit=crop&w=600&q=80'},
+        {'id': 52, 'name': 'Quantum Link', 'description': 'Entangled communication gateway.', 'price': 50000.00, 'image': 'https://images.unsplash.com/photo-1509023467864-1ecbb3f6342e?auto=format&fit=crop&w=600&q=80'}
+    ]
+    product = next((p for p in products if p['id'] == product_id), None)
+    if not product: return "Node not found", 404
+    return render_template('lab4/sub1_b_product.html', product=product)
+
+@app.route('/lab4/1/b/stock', methods=['POST'])
+@login_required
+def lab4_1b_stock():
+    stock_api = request.form.get('stockApi')
+    return process_ssrf_request(stock_api)
+
+# Lab 4.1.C: Global Logistics
+@app.route('/lab4/1/c')
+@login_required
+def lab4_1c():
+    products = [
+        {'id': 101, 'name': 'Container A-99', 'description': 'Standard 20ft Cargo Container.', 'price': 2500.00, 'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 102, 'name': 'Refrigerated Unit', 'description': 'Sub-zero logistics module.', 'price': 4500.00, 'image': 'https://images.unsplash.com/photo-1494412574743-01927c44267e?auto=format&fit=crop&w=600&q=80'},
+        {'id': 103, 'name': 'Hazardous Mat-Cell', 'description': 'Shielded transport for dangerous goods.', 'price': 8000.00, 'image': 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab4/sub1_c.html', products=products)
+
+@app.route('/lab4/1/c/product/<int:product_id>')
+@login_required
+def lab4_1c_product(product_id):
+    products = [
+        {'id': 101, 'name': 'Container A-99', 'description': 'Standard 20ft Cargo Container.', 'price': 2500.00, 'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 102, 'name': 'Refrigerated Unit', 'description': 'Sub-zero logistics module.', 'price': 4500.00, 'image': 'https://images.unsplash.com/photo-1494412574743-01927c44267e?auto=format&fit=crop&w=600&q=80'},
+        {'id': 103, 'name': 'Hazardous Mat-Cell', 'description': 'Shielded transport for dangerous goods.', 'price': 8000.00, 'image': 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&w=600&q=80'}
+    ]
+    product = next((p for p in products if p['id'] == product_id), None)
+    if not product: return "Unit not found", 404
+    return render_template('lab4/sub1_c_product.html', product=product)
+
+@app.route('/lab4/1/c/stock', methods=['POST'])
+@login_required
+def lab4_1c_stock():
+    stock_api = request.form.get('stockApi')
+    return process_ssrf_request(stock_api)
+
+
+# -------------------------
+# LAB 4.2: SSRF against another back-end system
+# -------------------------
+
+def get_lab4_2_target_ip(identity_key):
+    """Pick a unique, deterministic IP for the researcher in the 192.168.0.X range"""
+    import hashlib
+    seed = f"{identity_key}-lab4-2-secret"
+    hash_val = int(hashlib.md5(seed.encode()).hexdigest(), 16)
+    # Range 1 to 254
+    return (hash_val % 254) + 1
+
+def process_ssrf_v2(stock_api):
+    """Specialized SSRF processor for Lab 4.2 (Back-end Discovery)"""
+    if not stock_api:
+        return "Internal Server Error: No target specified", 400
+        
+    try:
+        # We need to simulate a 192.168.0.X range.
+        # Specifically, we look for http://192.168.0.X:8080/admin
+        import re
+        ip_match = re.search(r'https?://192\.168\.0\.(\d+):8080(/.*)', stock_api)
+        
+        if ip_match:
+            octet = int(ip_match.group(1))
+            path = ip_match.group(2)
+            
+            # Identity of researcher for persistence
+            guid = session.get('guid') or session.get('user_id')
+            target_octet = get_lab4_2_target_ip(guid)
+            
+            if octet == target_octet:
+                # HIT! Dispatch to internal admin handler
+                # Translate /admin or /admin/delete to internal /ssrf-v2-admin
+                target_path = path.split('?')[0]
+                query_params = path.split('?')[1] if '?' in path else ""
+                
+                internal_path = "/ssrf-v2-admin"
+                if target_path == "/admin/delete":
+                    internal_path = "/ssrf-v2-admin/delete"
+                
+                if query_params:
+                    internal_path += "?" + query_params
+                    
+                # Forward with identity header for dynamic flags
+                headers = {'X-SSRF-Researcher-GUID': str(guid)}
+                with app.test_client() as client:
+                    for k, v in request.cookies.items():
+                        client.set_cookie(key=k, value=v)
+                    resp = client.get(internal_path, headers=headers)
+                    return resp.get_data(as_text=True)
+            else:
+                # MISS! Simulate a connection error or timeout for other IPs
+                import time
+                # time.sleep(0.05) # Subtle delay for realism
+                return "Internal Server Error: Connection timed out", 504
+        else:
+            # Fallback for standard stock checks (if they use the mock domains)
+            if 'stock.internal-net.local' in stock_api:
+                return "API Diagnostic Feed: Validated normal operating parameters. Node is fully responsive.", 200
+            if '192.168.0.' in stock_api:
+                return "Internal Server Error: Connection timed out", 504
+                
+            return process_ssrf_request(stock_api)            
+    except Exception as e:
+        return f"Internal Server Error: {str(e)}", 500
+
+@app.route('/lab4/2')
+@login_required
+def lab4_2():
+    return render_template('lab4/sub2_menu.html')
+
+# Internal Admin Panel for Lab 4.2
+@app.route('/ssrf-v2-admin')
+def ssrf_v2_admin():
+    # Only internal loopback or simulation allowed
+    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
+    if not is_internal: return "403 Forbidden", 403
+    return """
+    <h1>Internal Admin Panel (Node Discovery)</h1>
+    <p>Authentication: Trusted Internal Machine</p>
+    <div style='background: #f1f5f9; padding: 1rem; border-radius: 4px;'>
+        <p><strong>Available Operations:</strong></p>
+        <ul>
+            <li><code>/admin/delete?username=carlos</code></li>
+        </ul>
+    </div>
+    """
+@app.route('/ssrf-v2-admin/delete')
+def ssrf_v2_admin_delete():
+    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
+    if not is_internal: return "403 Forbidden", 403
+    
+    username = request.args.get('username')
+    if username == "carlos":
+        # Dynamic flag for Lab 4.2
+        flag = get_random_flag('lab4_2')
+        return f"<h1>Success</h1><p>User {username} deleted successfully!</p><div style='padding:20px; background:#10b981; color:white; border-radius:8px;'><strong>FLAG:</strong> {flag}</div>"
+    return f"User {username} not found."
+
+# Lab 4.2.A: Retail (Discovery)
+@app.route('/lab4/2/a')
+@login_required
+def lab4_2a():
+    products = [
+        {'id': 1, 'name': 'Insecure Router', 'description': 'The gateway to your internal network.', 'price': 59.99, 'image': 'https://images.unsplash.com/photo-1544197150-b99a580bbc7c?auto=format&fit=crop&w=600&q=80'},
+        {'id': 2, 'name': 'Generic IoT Camera', 'description': 'Streaming to the internet since 2018.', 'price': 35.00, 'image': 'https://images.unsplash.com/photo-1557324232-b8917d3c3dcb?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab4/sub2.html', products=products, variant='a', title='Retail Discovery')
+
+@app.route('/lab4/2/a/product/<int:product_id>')
+@login_required
+def lab4_2a_product(product_id):
+    # Simplified product view for discovery labs
+    product = {'id': product_id, 'name': 'Internal Network Node', 'image': 'https://images.unsplash.com/photo-1558494949-ef526b01201b?auto=format&fit=crop&w=600&q=80'}
+    return render_template('lab4/sub2_product.html', product=product, variant='a')
+
+@app.route('/lab4/2/a/stock', methods=['POST'])
+@login_required
+def lab4_2a_stock():
+    return process_ssrf_v2(request.form.get('stockApi'))
+
+# Lab 4.2.B: Cloud Infrastructure (Discovery)
+@app.route('/lab4/2/b')
+@login_required
+def lab4_2b():
+    products = [
+        {'id': 50, 'name': 'GPU Node Cluster', 'description': 'High-density internal compute silo.', 'price': 12000, 'image': 'https://images.unsplash.com/photo-1591405351990-4726e331f141?auto=format&fit=crop&w=600&q=80'},
+        {'id': 51, 'name': 'Back-end SSD Storage', 'description': 'Internal object storage storage.', 'price': 4500, 'image': 'https://images.unsplash.com/photo-1597852064821-d928444c0620?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab4/sub2_b.html', products=products, variant='b', title='Cloud Discovery')
+
+@app.route('/lab4/2/b/product/<int:product_id>')
+@login_required
+def lab4_2b_product(product_id):
+    product = {'id': product_id, 'name': 'Secondary Network Node', 'image': 'https://images.unsplash.com/photo-1591405351990-4726e331f141?auto=format&fit=crop&w=600&q=80'}
+    return render_template('lab4/sub2_product.html', product=product, variant='b')
+
+@app.route('/lab4/2/b/stock', methods=['POST'])
+@login_required
+def lab4_2b_stock():
+    return process_ssrf_v2(request.form.get('stockApi'))
+
+# Lab 4.2.C: Global Logistics (Discovery)
+@app.route('/lab4/2/c')
+@login_required
+def lab4_2c():
+    products = [
+        {'id': 101, 'name': 'Automated Hub Link', 'description': 'Isolated port management console.', 'price': 8500, 'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'},
+        {'id': 102, 'name': 'Internal RFID Rack', 'description': 'Private sector inventory scanner.', 'price': 3200, 'image': 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&w=600&q=80'}
+    ]
+    return render_template('lab4/sub2_c.html', products=products, variant='c', title='Logistics Discovery')
+
+@app.route('/lab4/2/c/product/<int:product_id>')
+@login_required
+def lab4_2c_product(product_id):
+    product = {'id': product_id, 'name': 'Logistics Data Sink', 'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80'}
+    return render_template('lab4/sub2_product.html', product=product, variant='c')
+
+@app.route('/lab4/2/c/stock', methods=['POST'])
+@login_required
+def lab4_2c_stock():
+    return process_ssrf_v2(request.form.get('stockApi'))
 
 # -------------------------
 # LAB 5: File Upload
@@ -4008,4 +4501,4 @@ def lab9_sample():
 if __name__ == '__main__':
 
     # Cloud-Native Initialization: Local DB sequence decommissioned
-    app.run(debug=not IS_VERCEL, use_reloader=False, host='0.0.0.0', port=5000)
+    app.run(debug=not IS_VERCEL, use_reloader=not IS_VERCEL, host='0.0.0.0', port=5000)

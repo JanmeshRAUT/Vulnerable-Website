@@ -31,6 +31,19 @@
     </div>
 
     <div class="card">
+        <h3 class="tm-acct-card-title">Security Credentials</h3>
+        <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 20px;">Use your private API key to integrate with our developer portal.</p>
+        
+        <div class="info-row">
+            <span class="label">Developer API Key</span>
+            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-family: monospace; color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); margin-top: 5px;">
+                {{ account.api_key }}
+            </div>
+        </div>
+        <button class="btn btn-outline-warning" style="margin-top: 15px; font-size: 0.8rem;">Rotate Key</button>
+    </div>
+
+    <div class="card">
         <h3 class="tm-acct-card-title">Personal Information</h3>
         
         <div class="info-row">
@@ -41,13 +54,9 @@
             <span class="label">Email Address</span>
             <span>{{ account.email }}</span>
         </div>
-        <div class="info-row">
-            <span class="label">Member ID</span>
-            <span class="tm-acct-member-id">TM-{{ account.id }}</span>
-        </div>
-        <div class="info-row tm-acct-info-row-last">
+        <div class="info-row status-row">
             <span class="label">Account Status</span>
-            <span class="tm-acct-status-active">● Active</span>
+            <span style="color: #4ade80;">● Fully Verified</span>
         </div>
     </div>
 
