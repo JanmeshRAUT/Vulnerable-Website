@@ -17,32 +17,27 @@
 
     <!-- Categories -->
     <div class="faq-categories">
-        <button class="category-btn active">📦 All Topics</button>
-        <button class="category-btn">🚚 Shipping & Delivery</button>
-        <button class="category-btn">↩️ Returns & Refunds</button>
-        <button class="category-btn">👤 Account & Profile</button>
-        <button class="category-btn">💳 Payment</button>
+        <button class="category-btn active">📊 All Topics</button>
+        <button class="category-btn">🔬 Lab Protocols</button>
+        <button class="category-btn">🚩 Deliverables</button>
+        <button class="category-btn">👤 Identity</button>
+        <button class="category-btn">🛰️ Connectivity</button>
     </div>
 
     <!-- FAQ Items -->
     <div class="faq-section">
-        <h2 class="help-section-title">Frequently Asked Questions</h2>
+        <h2 class="help-section-title">Field Research FAQ</h2>
 
         <!-- FAQ Item 1 -->
         <div class="faq-item open">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>How long does shipping take?</span>
+                <span>What is the Research Operations Platform?</span>
                 <span class="faq-toggle">▼</span>
             </div>
             <div class="faq-answer">
                 <div class="faq-answer-content">
-                    <p>We offer three shipping options:</p>
-                    <ul>
-                        <li><strong>Standard Shipping:</strong> 5-7 business days (FREE)</li>
-                        <li><strong>Express Shipping:</strong> 2-3 business days ($14.99)</li>
-                        <li><strong>Overnight Shipping:</strong> Next business day ($34.99)</li>
-                    </ul>
-                    <p>Orders are processed within 1 business day and then handed off to our shipping partner. You'll receive a tracking number via email once your order ships.</p>
+                    <p>RESEARCH_OPS is a high-fidelity simulation environment designed for advanced web security exploitation. Each module represents a real-world vulnerability scenario where subjects must use clinical tools and methodology to extract research deliverables (flags).</p>
+                    <p>The environment is designed to be "black-box"—meaning no hints or guidance are provided within the modules themselves. You must rely on your understanding of web protocols and security principles.</p>
                 </div>
             </div>
         </div>
@@ -50,18 +45,19 @@
         <!-- FAQ Item 2 -->
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>What is your return policy?</span>
+                <span>How do I submit a Research Deliverable (Flag)?</span>
                 <span class="faq-toggle">▼</span>
             </div>
             <div class="faq-answer">
                 <div class="faq-answer-content">
-                    <p>We offer a hassle-free 30-day money-back guarantee on all purchases. If you're not satisfied with your order for any reason, simply:</p>
+                    <p>Once you encounter a signal string (formatted as <code>FLAG{...}</code>), follow these steps:</p>
                     <ol>
-                        <li>Contact our support team within 30 days of purchase</li>
-                        <li>Return the item in its original condition</li>
-                        <li>We'll issue a full refund once we receive and inspect the item</li>
+                        <li>Locate the red flag icon 🚩 at the bottom right of any lab page.</li>
+                        <li>Click it to open the **Research Deliverable Intake** widget.</li>
+                        <li>Select the correct variation (if applicable) and paste your flag.</li>
+                        <li>Click "Submit Research Deliverable" to synchronize with the Command Center.</li>
                     </ol>
-                    <p>Return shipping is free for items that are defective or damaged. For other returns, the shipping cost is the customer's responsibility.</p>
+                    <p>Successful submissions are recorded in your subject profile and verified by the Command Center sensor array.</p>
                 </div>
             </div>
         </div>
@@ -69,18 +65,12 @@
         <!-- FAQ Item 3 -->
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>How do I track my order?</span>
+                <span>Are the flags unique to my identity?</span>
                 <span class="faq-toggle">▼</span>
             </div>
             <div class="faq-answer">
                 <div class="faq-answer-content">
-                    <p>Once your order has shipped, you'll receive an automated email with a tracking number. You can use this number to:</p>
-                    <ul>
-                        <li>Track your package in real-time</li>
-                        <li>Receive delivery notifications</li>
-                        <li>See estimated delivery dates</li>
-                    </ul>
-                    <p>You can also track your order from your account dashboard under "Order History" → "Track Shipment".</p>
+                    <p>Yes. Every research deliverable is cryptographically derived from your unique Subject Identity (GUID) and the specific laboratory module. Sharing flags with other subjects will result in a synchronization failure and potential session termination.</p>
                 </div>
             </div>
         </div>
@@ -88,19 +78,18 @@
         <!-- FAQ Item 4 -->
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>Is my payment information secure?</span>
+                <span>What tools should I use for research?</span>
                 <span class="faq-toggle">▼</span>
             </div>
             <div class="faq-answer">
                 <div class="faq-answer-content">
-                    <p>Yes! Your payment information is completely secure. We use:</p>
+                    <p>Subjects are encouraged to use industry-standard clinical equipment, including:</p>
                     <ul>
-                        <li>256-bit SSL encryption for all transactions</li>
-                        <li>PCI DSS Level 1 compliance (the highest standard)</li>
-                        <li>Tokenization to protect card data</li>
-                        <li>Fraud detection and prevention systems</li>
+                        <li><strong>Intercepting Proxies:</strong> Burp Suite, OWASP ZAP, or Caido.</li>
+                        <li><strong>Protocol Analyzers:</strong> Wireshark or browser developer tools.</li>
+                        <li><strong>Automated Tooling:</strong> Custom scripts (Python/Go) or specialized scanners (ffuf, sqlmap) where permitted.</li>
                     </ul>
-                    <p>We never store full credit card numbers on our servers. All payment processing is handled by trusted third-party providers.</p>
+                    <p>Remember: The platform simulates a hardened environment. Some payloads may require advanced encoding or bypass techniques.</p>
                 </div>
             </div>
         </div>
@@ -108,19 +97,13 @@
         <!-- FAQ Item 5 -->
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>How do I reset my password?</span>
+                <span>Why is my account "Pending Authorization"?</span>
                 <span class="faq-toggle">▼</span>
             </div>
             <div class="faq-answer">
                 <div class="faq-answer-content">
-                    <p>To reset your password:</p>
-                    <ol>
-                        <li>Go to the login page and click "Forgot Password"</li>
-                        <li>Enter the email address associated with your account</li>
-                        <li>Check your email for a password reset link (check spam folder if not found)</li>
-                        <li>Click the link and follow the instructions to set a new password</li>
-                    </ol>
-                    <p>For security reasons, password reset links expire after 24 hours. If yours has expired, you'll need to request a new one.</p>
+                    <p>To maintain environment integrity, all new subject enrollments require manual vetting by the Operational Command Center. This process typically completes within 24 hours.</p>
+                    <p>If your status remains <code>PENDING</code> after this window, contact your research lead or system administrator.</p>
                 </div>
             </div>
         </div>
@@ -128,38 +111,12 @@
         <!-- FAQ Item 6 -->
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>What payment methods do you accept?</span>
+                <span>Can I reset a laboratory environment?</span>
                 <span class="faq-toggle">▼</span>
             </div>
             <div class="faq-answer">
                 <div class="faq-answer-content">
-                    <p>We accept the following payment methods:</p>
-                    <ul>
-                        <li>Credit Cards: Visa, Mastercard, American Express, Discover</li>
-                        <li>PayPal</li>
-                        <li>Apple Pay</li>
-                        <li>Google Pay</li>
-                    </ul>
-                    <p>All payments are encrypted and processed securely. You don't need to create an account to make a purchase, though creating one helps you track orders and save your preferences.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- FAQ Item 7 -->
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>Do you offer international shipping?</span>
-                <span class="faq-toggle">▼</span>
-            </div>
-            <div class="faq-answer">
-                <div class="faq-answer-content">
-                    <p>Yes! We ship to most countries worldwide. Shipping costs and delivery times vary by location. To check if we ship to your country:</p>
-                    <ol>
-                        <li>Add items to your cart</li>
-                        <li>Enter your shipping address at checkout</li>
-                        <li>Available shipping options and costs will be displayed</li>
-                    </ol>
-                    <p>International orders may be subject to customs duties or import taxes (not included in our shipping costs). The customer is responsible for any applicable taxes.</p>
+                    <p>Laboratory modules are stateless and self-contained. If you lose access or the environment becomes unstable, simply refresh the module URL or navigate back to the main registry to re-initialize your session.</p>
                 </div>
             </div>
         </div>

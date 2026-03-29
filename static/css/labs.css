@@ -1,472 +1,309 @@
-/* ================================
-   LAB PAGES STYLING
-   ================================ */
+/* ==========================================================================
+   Labs Catalogue
+   Styled to match premium variant selection cards
+   ========================================================================== */
 
-/* Lab Header Styling */
-.lab-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
+.labs-page {
+    --labs-surface: rgba(15, 23, 42, 0.68);
+    --labs-surface-hover: rgba(30, 41, 59, 0.92);
+    --labs-border: rgba(255, 255, 255, 0.07);
+    --labs-border-strong: rgba(255, 255, 255, 0.14);
+    --labs-text: #ffffff;
+    --labs-text-soft: #cbd5e1;
+    --labs-text-muted: #94a3b8;
+    --labs-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
 }
 
-.lab-title {
-    font-size: 2rem;
+.labs-page,
+.labs-page * {
+    box-sizing: border-box;
+}
+
+.labs-page .labs-shell {
+    max-width: 1800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.labs-page .labs-header {
+    margin-bottom: 2.75rem;
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: radial-gradient(circle at top, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.55) 100%);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.labs-page .labs-header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.07) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+.labs-page .labs-header::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.35), transparent);
+}
+
+.labs-page .labs-header-copy,
+.labs-page .labs-status {
+    position: relative;
+    z-index: 1;
+}
+
+.labs-page .labs-kicker {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    color: #a78bfa;
+    font-size: 1rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.labs-page .labs-header h1 {
     margin: 0;
-    background: linear-gradient(135deg, var(--accent), #f472b6);
+    font-size: 3.2rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-/* Lab Module Header */
-.lab-module-header {
-    display: flex;
+.labs-page .labs-header p {
+    margin: 0.9rem 0 0;
+    max-width: 58ch;
+    color: var(--labs-text-muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.labs-page .labs-status {
+    display: inline-flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--labs-text-soft);
+    font-size: 0.9rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
 }
 
-.lab-module-icon {
-    font-size: 2rem;
+.labs-page .meta-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+    animation: labs-live-pulse 2s infinite;
 }
 
-.lab-module-header h2 {
-    margin: 0;
-}
-
-/* Lab Content Container */
-.lab-max-width {
-    max-width: 700px;
-    margin: 4rem auto;
-}
-
-/* Lab Form Help Text */
-.lab-form-hint {
-    color: var(--text-secondary);
-    display: block;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-    font-size: 0.85rem;
-}
-
-/* Lab Submit Button */
-.lab-submit-btn {
-    width: 100%;
-}
-
-/* Lab Alert/Error Box */
-.lab-alert-box {
-    margin-top: 2rem;
-}
-
-/* Lab Card Grid */
-.lab-card-grid {
+.labs-page .labs-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 2rem;
+    padding-bottom: 2rem;
 }
 
-/* Enhanced Lab Card */
-.lab-card {
+.labs-page .lab-tile {
+    --card-color: #7c93b8;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 300px;
+    padding: 2rem;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, var(--card-bg), rgba(22, 27, 44, 0.8));
+    border-radius: 20px;
+    border: 1px solid var(--labs-border);
+    background: var(--labs-surface);
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--labs-shadow);
+    text-decoration: none;
+    color: inherit;
 }
 
-.lab-card::before {
-    content: '';
+.labs-page .lab-tile::before {
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--accent), #f472b6, var(--accent));
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    background: var(--card-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
 }
 
-.lab-card:hover::before {
-    opacity: 1;
-}
-
-.lab-card .card-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.lab-card h3 {
-    font-size: 1.35rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-.card-subtitle {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 1rem 0;
-    padding: 0.5rem 0.75rem;
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: 0.375rem;
-    display: inline-block;
-}
-
-.lab-card p {
-    flex-grow: 1;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-}
-
-.lab-card .btn {
-    width: 100%;
-    margin-top: auto;
-}
-
-.btn-primary {
-    background-color: var(--accent);
-    color: white !important;
-    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-}
-
-.btn-primary:hover {
-    background-color: #4f46e5;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-}
-
-/* Disabled/Locked Lab Card */
-.lab-card-disabled {
-    opacity: 0.6;
-    border-style: dashed;
+.labs-page .lab-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 60%);
     pointer-events: none;
 }
 
-/* Lab variation badge */
-.lab-variation-badge {
-    display: inline-block;
-    background: rgba(244, 63, 94, 0.15);
-    color: #fda4af;
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid rgba(244, 63, 94, 0.3);
-    margin-bottom: 0.5rem;
-}
-
-/* ============================================
-   LAB 3.1 VARIANT SELECTION MENU
-   ============================================ */
-
-.lab3-menu-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.menu-header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.menu-header h3 {
-    font-size: 2rem;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
-    color: var(--text-primary);
-}
-
-.menu-header p {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-}
-
-.variants-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2.5rem;
-    margin-bottom: 3rem;
-}
-
-.variant-card {
-    background: linear-gradient(135deg, var(--card-bg), rgba(22, 27, 44, 0.8));
-    border: 1px solid var(--border);
-    border-radius: 1.25rem;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-
-.variant-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent), #f472b6);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.variant-card:hover {
+.labs-page .lab-tile:hover {
     transform: translateY(-10px);
-    border-color: var(--accent);
-    box-shadow: 0 20px 50px -10px rgba(99, 102, 241, 0.3);
+    background: var(--labs-surface-hover);
+    border-color: var(--labs-border-strong);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.variant-card:hover::before {
-    opacity: 1;
+.labs-page .lab-tile:hover::before {
+    transform: scaleX(1);
 }
 
-/* Variant-specific colors */
-.modern-variant {
-    border-top-color: #10b981;
-}
-
-.modern-variant .variant-header {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
-}
-
-.luxury-variant {
-    border-top-color: #a78bfa;
-}
-
-.luxury-variant .variant-header {
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(14, 165, 233, 0.15));
-}
-
-.corporate-variant {
-    border-top-color: #3b82f6;
-}
-
-.corporate-variant .variant-header {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
-}
-
-.variant-header {
-    padding: 1.5rem 1.75rem;
+.labs-page .premium-card-header {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.labs-page .premium-card-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    display: flex;
     align-items: center;
-    border-bottom: 1px solid var(--border);
+    justify-content: center;
+    font-size: 1.7rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--card-color);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+    transition: transform 0.35s ease;
 }
 
-.variant-number {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--accent);
+.labs-page .lab-tile:hover .premium-card-icon {
+    transform: scale(1.08) rotate(-4deg);
 }
 
-.variant-badge {
-    display: inline-block;
-    background: var(--accent-glow);
-    color: var(--accent);
-    padding: 0.35rem 0.85rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
+.labs-page .premium-card-badge {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--labs-text-muted);
+    padding: 0.35rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.76rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    letter-spacing: 0.06em;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.variant-content {
-    padding: 1.75rem;
-    flex: 1;
+.labs-page .premium-card-body {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
 }
 
-.variant-title {
-    font-size: 1.5rem;
+.labs-page .premium-card-body h2 {
+    margin: 0 0 0.7rem 0;
+    font-size: 1.32rem;
     font-weight: 800;
-    margin: 0 0 0.5rem 0;
-    color: var(--text-primary);
+    color: var(--labs-text);
+    line-height: 1.3;
     letter-spacing: -0.01em;
 }
 
-.variant-tagline {
-    font-size: 0.95rem;
-    color: var(--accent);
-    font-weight: 600;
-    margin: 0 0 1.5rem 0;
-}
-
-.variant-details {
-    display: grid;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: rgba(99, 102, 241, 0.05);
-    border-radius: 0.75rem;
-    border: 1px solid rgba(99, 102, 241, 0.1);
-}
-
-.detail-item {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.detail-item strong {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.variant-description {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-    flex-grow: 1;
-}
-
-.variant-vulnerabilities {
-    background: rgba(244, 63, 94, 0.1);
-    border: 1px solid rgba(244, 63, 94, 0.2);
-    padding: 1rem;
-    border-radius: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.variant-vulnerabilities strong {
-    color: #fda4af;
-    font-weight: 700;
-    display: block;
-    margin-bottom: 0.75rem;
-}
-
-.variant-vulnerabilities ul {
-    list-style: none;
-    padding: 0;
+.labs-page .premium-card-body p {
     margin: 0;
+    color: var(--labs-text-muted);
+    font-size: 0.92rem;
+    line-height: 1.68;
 }
 
-.variant-vulnerabilities li {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    padding: 0.35rem 0;
-    padding-left: 1.25rem;
-    position: relative;
-}
-
-.variant-vulnerabilities li::before {
-    content: '⚠️';
-    position: absolute;
-    left: 0;
-}
-
-.variant-card .btn-block {
-    width: 100%;
+.labs-page .premium-card-footer {
     margin-top: auto;
-    padding: 0.875rem 1rem;
+    display: flex;
+    align-items: center;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.menu-footer {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(244, 63, 94, 0.05));
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    padding: 2rem;
+.labs-page .lab-action {
+    text-decoration: none;
 }
 
-.learning-objectives {
-    margin: 0;
-}
-
-.learning-objectives h4 {
-    font-size: 1.2rem;
+.labs-page .premium-card-action {
+    color: var(--card-color);
     font-weight: 700;
-    margin: 0 0 1rem 0;
-    color: var(--text-primary);
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.3s ease;
 }
 
-.learning-objectives ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+.labs-page .lab-tile:hover .premium-card-action {
     gap: 1rem;
 }
 
-.learning-objectives li {
-    padding-left: 1.5rem;
-    position: relative;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.5;
+.labs-page .locked .premium-card-action,
+.labs-page .action-disabled {
+    color: #94a3b8;
 }
 
-.learning-objectives li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--success);
-    font-weight: 800;
+.labs-page .locked {
+    opacity: 0.9;
 }
 
-/* Responsive */
+.labs-page .lab-tile-placeholder {
+    border-style: dashed;
+}
+
+.labs-page .theme-path { --card-color: #10b981; }
+.labs-page .theme-access { --card-color: #f59e0b; }
+.labs-page .theme-auth { --card-color: #8b5cf6; }
+.labs-page .theme-ssrf { --card-color: #3b82f6; }
+.labs-page .theme-upload { --card-color: #22c55e; }
+.labs-page .theme-command { --card-color: #ef4444; }
+.labs-page .theme-sql { --card-color: #8b5cf6; }
+.labs-page .theme-xss { --card-color: #fb7185; }
+.labs-page .theme-mobile { --card-color: #14b8a6; }
+
+@keyframes labs-live-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45); }
+    70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
 @media (max-width: 768px) {
-    .variants-grid {
-        grid-template-columns: 1fr;
-        gap: 1.75rem;
+    .labs-page .labs-header {
+        padding: 2.25rem 1.5rem;
     }
 
-    .menu-header h3 {
-        font-size: 1.5rem;
+    .labs-page .labs-header h1 {
+        font-size: 2.35rem;
     }
 
-    .variant-title {
-        font-size: 1.25rem;
-    }
-
-    .variant-details {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .lab3-menu-container {
-        padding: 1rem;
-    }
-
-    .variants-grid {
+    .labs-page .labs-grid {
         grid-template-columns: 1fr;
         gap: 1.25rem;
     }
-
-    .variant-header {
-        flex-direction: column;
-        gap: 0.75rem;
-        align-items: flex-start;
-    }
-
-    .menu-footer {
-        padding: 1.5rem 1rem;
-    }
-
-    .learning-objectives ul {
-        grid-template-columns: 1fr;
-    }
 }
-
-

@@ -1,173 +1,102 @@
-{% extends 'base.html' %} {% block title %}Vulnerable Labs - Professional
-Training Ground{% endblock %} {# Removed header block override to preserve
-navigation #} {% block content %}
+{% extends 'base.html' %} 
+
+{% block title %}Vulnerable Labs - Professional Training Ground{% endblock %}
+
+{% block content %}
 <!-- Hero Section -->
 <div class="hero-section">
-  <h1 class="hero-title">Vulnerability Research Labs</h1>
-  <p class="hero-subtitle">
-    A high-fidelity simulation environment for practicing advanced web security
-    exploitation. No hints. No guidance. Just you and the code.
-  </p>
-  <div class="hero-actions">
-    <a href="#labs" class="btn">Explore Labs</a>
-    <a
-      href="https://portswigger.net/web-security"
-      target="_blank"
-      class="btn btn-secondary"
-      >External Docs</a
-    >
+  <div class="hero-grid">
+    <div class="hero-content">
+      <div class="hero-label">RESEARCH_OPS v4.2.0</div>
+      <h1 class="hero-title">The Standard in Vulnerability Research</h1>
+      <p class="hero-subtitle">
+        High-fidelity, state-of-the-art simulation environments designed to 
+        challenge the world's most capable security researchers. 
+        Pure code. No hand-holding.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('labs') }}" class="btn">Explore Labs</a>
+        <a href="{{ url_for('help') }}" class="btn btn-secondary">Platform Guide</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+       <div class="terminal-mock">
+          <div class="terminal-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="title">researcher@ops: ~</span>
+          </div>
+          <div class="terminal-body mono">
+            <div class="line"><span class="prompt">$</span> ./initialize_lab.sh --module SSRF</div>
+            <div class="line"><span class="info">[!]</span> Initializing internal network sensors...</div>
+            <div class="line"><span class="info">[!]</span> Target identified: 192.168.0.10</div>
+            <div class="line"><span class="success">[+]</span> Access acquired via metadata injection.</div>
+            <div class="line"><span class="prompt">$</span> get_flag --location /admin/secrets.txt</div>
+            <div class="line"><span class="warning">FLAG{internal_network_recon_success}</span></div>
+            <div class="line blink">_</div>
+          </div>
+       </div>
+    </div>
   </div>
 </div>
 
-<div id="labs">
-  <div class="curriculum-header">
-    <div>
-      <h2>Current Curriculum</h2>
-      <p>Select a module to begin your research.</p>
-    </div>
-    <div class="curriculum-info">
-      <span class="environment-status">●</span> Environment:
-      <strong>Live</strong>
-    </div>
+<!-- Features Section -->
+<div class="features-section">
+  <div class="section-header">
+    <h2>Why RESEARCH_OPS?</h2>
+    <p>Our labs are built for those who find standard CTFs too predictable.</p>
   </div>
-
-  <div class="card-grid">
-    <!-- Lab 1: Path Traversal -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">📂</span>
-        <span class="badge-variation">3 Variations</span>
-      </div>
-      <h3>1. Path Traversal</h3>
-      <p>
-        Access unauthorized files by manipulating file paths. Tested across
-        different backend themes.
-      </p>
-      <a href="{{ url_for('lab1') }}" class="btn">View Module</a>
+  
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔬</div>
+      <h3>High Fidelity</h3>
+      <p>Simulations mirror real-world enterprise environments, including complex network topologies and security layers.</p>
     </div>
-
-    <!-- Lab 2: Access Control -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">🔑</span>
-        <span class="badge-variation">5 Modules</span>
-      </div>
-      <h3>2. Broken Access Control</h3>
-      <p>
-        Exploit IDOR, parameter tampering, and unprotected admin interfaces in
-        realistic scenarios.
-      </p>
-      <a href="{{ url_for('lab2') }}" class="btn">View Module</a>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>No Guidance</h3>
+      <p>Zero hints. Zero tutorials. We provide the target; you provide the methodology, just like a real engagement.</p>
     </div>
-
-    <!-- Lab 3: Authentication -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">🛡️</span>
-        <span class="badge-variation">2 Types</span>
-      </div>
-      <h3>3. Authentication</h3>
-      <p>
-        Identify weak credential validation and multi-factor authentication
-        bypasses.
-      </p>
-      <a href="{{ url_for('lab3') }}" class="btn">View Module</a>
+    <div class="feature-card">
+      <div class="feature-icon">🔑</div>
+      <h3>Unique Deliverables</h3>
+      <p>Every flag is cryptographically derived from your subject identity, ensuring a personalized solve path.</p>
     </div>
-
-    <!-- Lab 4: SSRF -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">📡</span>
-        <span class="badge-variation">Local & Network</span>
-      </div>
-      <h3>4. SSRF</h3>
-      <p>
-        Utilize the server's identity to probe internal networks and access
-        loopback services.
-      </p>
-      <a href="{{ url_for('lab4') }}" class="btn">View Module</a>
+    <div class="feature-card">
+      <div class="feature-icon">📡</div>
+      <h3>Live Telemetry</h3>
+      <p>Your research is monitored by the Command Center sensor array, tracking successful exploits in real-time.</p>
     </div>
-
-    <!-- Lab 5: File Upload -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">☁️</span>
-        <span class="badge-variation">RCE Path</span>
-      </div>
-      <h3>5. File Upload</h3>
-      <p>
-        Achieve remote code execution by exploiting unrestricted file upload
-        functionality.
-      </p>
-      <a href="{{ url_for('lab5') }}" class="btn">View Module</a>
-    </div>
-
-    <!-- Lab 6: OS Command Injection -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">💻</span>
-        <span class="badge-variation">OS Level</span>
-      </div>
-      <h3>6. Command Injection</h3>
-      <p>
-        Inject system commands through application inputs to compromise the
-        underlying host.
-      </p>
-      <a href="{{ url_for('lab6') }}" class="btn">View Module</a>
-    </div>
-
-    <!-- Lab 7: SQL Injection -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">🗄️</span>
-        <span class="badge-variation">Database</span>
-      </div>
-      <h3>7. SQL Injection</h3>
-      <p>
-        Exfiltrate database content or bypass authentication through poorly
-        sanitized queries.
-      </p>
-      <a href="{{ url_for('lab7') }}" class="btn">Initialize Lab</a>
-    </div>
-
-    <!-- Lab 8: XSS -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">⚡</span>
-        <span class="badge-variation">Client-Side</span>
-      </div>
-      <h3>8. Cross-Site Scripting</h3>
-      <p>
-        Execute malicious JavaScript in other users' browsers via Reflected and
-        Stored XSS attacks.
-      </p>
-      <a href="{{ url_for('lab8') }}" class="btn">Initialize Lab</a>
-    </div>
-
-    <!-- Lab 9: Mobile Binary Analysis -->
-    <div class="card">
-      <div class="lab-card-header">
-        <span class="card-icon">📱</span>
-        <span class="badge-variation">New Lab</span>
-      </div>
-      <h3>9. Mobile Binary Analysis</h3>
-      <p>
-        Analyze compiled Android binaries (APK) to reveal hardcoded secrets and 
-        misconfigurations using simulated static analysis.
-      </p>
-      <a href="{{ url_for('lab9') }}" class="btn">Initialize Lab</a>
-    </div>
-  </div>
-
-
-  <!-- Final CTA/Footer -->
-  <div class="cta-section">
-    <h3>Practice Makes Permanent</h3>
-    <p>
-      Our labs are designed to be challenging. If you get stuck, remember to
-      check the source code and use professional security tools.
-    </p>
-    <div class="highlight">Environment v2.5.0 • © 2026 RESEARCH OPS</div>
   </div>
 </div>
+
+<!-- Stats Counter -->
+<div class="stats-counter-section">
+  <div class="stat-item">
+    <div class="stat-number">20+</div>
+    <div class="stat-desc">Vulnerability Variants</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">100%</div>
+    <div class="stat-desc">Hands-on Experience</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">9</div>
+    <div class="stat-desc">Core Research Tracks</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">&infin;</div>
+    <div class="stat-desc">Learning Potential</div>
+  </div>
+</div>
+
+<!-- Final CTA -->
+<div class="cta-banner">
+  <h2>Ready to start your research?</h2>
+  <p>Join hundreds of researchers currently refining their clinical methodology.</p>
+  <a href="{{ url_for('register') }}" class="btn">Join the Platform</a>
+</div>
+
 {% endblock %}

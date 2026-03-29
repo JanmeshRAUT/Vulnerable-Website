@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Vulnerable Labs - Curriculum{% endblock %}
+
+{% block content %}
+<section class="labs-page">
+  <div class="labs-shell">
+    <header class="labs-header">
+      <div class="labs-header-copy">
+        <span class="labs-kicker">RESEARCH_OPS v4.2.0</span>
+        <h1>Operational Curriculum</h1>
+        <p>Browse the full lab catalogue and launch a module from the grid below.</p>
+      </div>
+
+      <div class="labs-status">
+        <span class="meta-dot"></span>
+        <span>Environment Online</span>
+      </div>
+    </header>
+
+    <section class="labs-grid" aria-label="Lab catalogue">
+      <a href="{{ url_for('lab1') }}" class="lab-tile theme-path">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-path">📂</span>
+          <span class="badge-variation premium-card-badge">3 Variations</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>1. Path Traversal</h2>
+          <p>Access unauthorized files by manipulating file paths.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab2') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-access {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-access">🔑</span>
+          <span class="badge-variation premium-card-badge">5 Modules</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>2. Broken Access Control</h2>
+          <p>Exploit IDOR, parameter tampering, and admin interface exposure.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab3') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-auth {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-auth">🛡️</span>
+          <span class="badge-variation premium-card-badge">2 Types</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>3. Authentication</h2>
+          <p>Identify weak credential checks and MFA bypasses.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab4') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-ssrf {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-ssrf">📡</span>
+          <span class="badge-variation premium-card-badge">Local &amp; Network</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>4. SSRF</h2>
+          <p>Probe internal services and trust boundaries from the server side.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab5') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-upload {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-upload">☁️</span>
+          <span class="badge-variation premium-card-badge">RCE Path</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>5. File Upload</h2>
+          <p>Abuse unrestricted upload flows to reach code execution.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab6') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-command {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-command">💻</span>
+          <span class="badge-variation premium-card-badge">OS Level</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>6. Command Injection</h2>
+          <p>Inject system commands through application-controlled input.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab7') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-sql {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-sql">🗄️</span>
+          <span class="badge-variation premium-card-badge">Database</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>7. SQL Injection</h2>
+          <p>Exfiltrate data and bypass application logic with crafted queries.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab8') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-xss {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-xss">⚡</span>
+          <span class="badge-variation premium-card-badge">Client-Side</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>8. Cross-Site Scripting</h2>
+          <p>Execute malicious JavaScript in other users’ browsers.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+      <a href="{% if session.user_id %}{{ url_for('lab9') }}{% else %}{{ url_for('login', next=url_for('labs')) }}{% endif %}" class="lab-tile theme-mobile {% if not session.user_id %}locked{% endif %}">
+        <div class="lab-tile-head premium-card-header">
+          <span class="card-icon premium-card-icon icon-mobile">📱</span>
+          <span class="badge-variation premium-card-badge">New Lab</span>
+        </div>
+        <div class="lab-tile-body premium-card-body">
+          <h2>9. Mobile Binary Analysis</h2>
+          <p>Inspect Android binaries for hardcoded secrets and weaknesses.</p>
+        </div>
+        <div class="lab-tile-footer premium-card-footer">
+          {% if session.user_id %}
+            <span class="lab-action premium-card-action">Open Lab &rarr;</span>
+          {% else %}
+            <span class="lab-action premium-card-action">Sign-in Required &rarr;</span>
+          {% endif %}
+        </div>
+      </a>
+
+    </section>
+  </div>
+</section>
+{% endblock %}

@@ -70,6 +70,15 @@
         <main>
             {% block layout_container %}
             <div class="container container-padding-top">
+                {% block back_nav %}
+                    {% if request.endpoint and request.endpoint != 'home' %}
+                        <div class="back-navigation">
+                            <a href="javascript:history.back()" class="btn-back-global">
+                                <span class="arrow">&larr;</span> Back
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endblock %}
                 {% block content %}{% endblock %}
             </div>
             {% endblock %}

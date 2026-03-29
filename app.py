@@ -261,9 +261,8 @@ def enforce_lab_locks():
     """Global access controller for the laboratory environment"""
     path = request.path.lower()
     
-    # Bypass protection for system, authentication, and internal SSRF simulation
-    # If the request comes from 127.0.0.1 (server itself), we allow it for research
-    if not path.startswith('/lab') or request.remote_addr == '127.0.0.1':
+    # Bypass protection for system, authentication, and Level Zero Research (Lab 1)
+    if not path.startswith('/lab') or request.remote_addr == '127.0.0.1' or path.startswith('/lab1'):
         return
         
     print(f"[SECURITY] Access attempt to {path} from {request.remote_addr}")
@@ -521,6 +520,10 @@ def approve_user():
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/labs')
+def labs():
+    return render_template('labs.html')
 
 @app.route('/favicon.ico')
 def favicon():
@@ -956,7 +959,6 @@ def grades_page():
 # LAB 1: Path Traversal (Multiple Variations)
 # -------------------------
 @app.route('/lab1')
-@login_required
 def lab1():
     return render_template('lab1/index.html')
 
@@ -974,7 +976,6 @@ def create_lab1_files(subdir, files):
 
 # LAB 1.1: DocuVault (Document Management)
 @app.route('/lab1/1')
-@login_required
 def lab1_1():
     files = [
         'Invoice_2024_001.pdf', 
