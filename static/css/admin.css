@@ -251,6 +251,31 @@ body {
   background: rgba(239, 68, 68, 0.05);
 }
 
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  box-shadow: var(--accent-glow);
+}
+
+.btn-back:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
 /* ─── MAIN CONTENT ─── */
 .admin-main {
   flex: 1;

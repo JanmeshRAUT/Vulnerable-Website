@@ -522,6 +522,11 @@ def approve_user():
 def home():
     return render_template('index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static', 'favicon'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 # -------------------------
 # REAL GOOGLE OAUTH ROUTES
 # -------------------------
