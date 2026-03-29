@@ -2,170 +2,187 @@
 {% block title %}Help & FAQ - RESEARCH_OPS{% endblock %}
 
 {% block content %}
-
-<div class="faq-container">
-    <!-- Header -->
-    <div class="faq-header help-header">
-        <h1 class="help-page-heading">Help Center</h1>
-        <p class="help-subtitle">Find answers to common questions about your account and orders</p>
-    </div>
-
-    <!-- Search -->
-    <div class="faq-search">
-        <input type="text" class="search-box" placeholder="Search help topics... (e.g., 'shipping', 'returns', 'account')">
-    </div>
-
-    <!-- Categories -->
-    <div class="faq-categories">
-        <button class="category-btn active">📊 All Topics</button>
-        <button class="category-btn">🔬 Lab Protocols</button>
-        <button class="category-btn">🚩 Deliverables</button>
-        <button class="category-btn">👤 Identity</button>
-        <button class="category-btn">🛰️ Connectivity</button>
-    </div>
-
-    <!-- FAQ Items -->
-    <div class="faq-section">
-        <h2 class="help-section-title">Field Research FAQ</h2>
-
-        <!-- FAQ Item 1 -->
-        <div class="faq-item open">
-            <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>What is the Research Operations Platform?</span>
-                <span class="faq-toggle">▼</span>
+<section class="help-page">
+    <div class="help-shell">
+        <header class="help-hero">
+            <div class="help-hero-copy">
+                <span class="help-kicker">Support Desk</span>
+                <h1 class="help-page-heading">Help Center</h1>
+                <p class="help-subtitle">Operational guidance, account support, and field FAQ for RESEARCH_OPS subjects.</p>
             </div>
-            <div class="faq-answer">
-                <div class="faq-answer-content">
-                    <p>RESEARCH_OPS is a high-fidelity simulation environment designed for advanced web security exploitation. Each module represents a real-world vulnerability scenario where subjects must use clinical tools and methodology to extract research deliverables (flags).</p>
-                    <p>The environment is designed to be "black-box"—meaning no hints or guidance are provided within the modules themselves. You must rely on your understanding of web protocols and security principles.</p>
+
+            <div class="help-hero-status">
+                <div class="status-chip">
+                    <span class="status-dot"></span>
+                    <span>Support Systems Online</span>
+                </div>
+                <div class="help-stat-grid">
+                    <div class="help-stat-card">
+                        <span class="help-stat-label">Topics</span>
+                        <strong>6 Core Answers</strong>
+                    </div>
+                    <div class="help-stat-card">
+                        <span class="help-stat-label">Response Path</span>
+                        <strong>Chat, Email, Phone</strong>
+                    </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- FAQ Item 2 -->
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>How do I submit a Research Deliverable (Flag)?</span>
-                <span class="faq-toggle">▼</span>
+        <section class="help-toolbar">
+            <div class="faq-search">
+                <input type="text" class="search-box" placeholder="Search help topics... (e.g. flags, authorization, tools)">
             </div>
-            <div class="faq-answer">
-                <div class="faq-answer-content">
-                    <p>Once you encounter a signal string (formatted as <code>FLAG{...}</code>), follow these steps:</p>
-                    <ol>
-                        <li>Locate the red flag icon 🚩 at the bottom right of any lab page.</li>
-                        <li>Click it to open the **Research Deliverable Intake** widget.</li>
-                        <li>Select the correct variation (if applicable) and paste your flag.</li>
-                        <li>Click "Submit Research Deliverable" to synchronize with the Command Center.</li>
+
+            <div class="faq-categories">
+                <button class="category-btn active">All Topics</button>
+                <button class="category-btn">Lab Protocols</button>
+                <button class="category-btn">Deliverables</button>
+                <button class="category-btn">Identity</button>
+                <button class="category-btn">Connectivity</button>
+            </div>
+        </section>
+
+        <section class="help-content-grid">
+            <div class="faq-section">
+                <div class="section-heading">
+                    <span class="section-kicker">Knowledge Base</span>
+                    <h2 class="help-section-title">Field Research FAQ</h2>
+                </div>
+
+                <div class="faq-item open">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What is the Research Operations Platform?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>RESEARCH_OPS is a high-fidelity simulation environment designed for advanced web security exploitation. Each module represents a real-world vulnerability scenario where subjects must use clinical tools and methodology to extract research deliverables (flags).</p>
+                            <p>The environment is designed to be black-box, meaning no hints or guidance are provided within the modules themselves. You must rely on your understanding of web protocols and security principles.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I submit a Research Deliverable (Flag)?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Once you encounter a signal string formatted as <code>FLAG{...}</code>, follow these steps:</p>
+                            <ol>
+                                <li>Locate the flag icon at the bottom right of any lab page.</li>
+                                <li>Open the Research Deliverable Intake widget.</li>
+                                <li>Select the correct variation if applicable and paste your flag.</li>
+                                <li>Submit the deliverable to synchronize with the Command Center.</li>
+                            </ol>
+                            <p>Successful submissions are recorded in your subject profile and verified by the command sensor array.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Are the flags unique to my identity?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Yes. Every research deliverable is derived from your unique Subject Identity and the specific module. Sharing flags across users will fail verification.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What tools should I use for research?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Recommended tooling includes intercepting proxies, browser developer tools, protocol analyzers, and carefully scoped automation.</p>
+                            <ul>
+                                <li><strong>Intercepting Proxies:</strong> Burp Suite, OWASP ZAP, or Caido</li>
+                                <li><strong>Analysis:</strong> Developer tools or Wireshark</li>
+                                <li><strong>Automation:</strong> Python, Go, ffuf, sqlmap where appropriate</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Why is my account pending authorization?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>New subject enrollments require manual review to protect environment integrity. If the pending state persists beyond the normal review window, contact your research lead or administrator.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can I reset a laboratory environment?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Most modules are stateless and self-contained. If access is lost or a session becomes unstable, refresh the route or re-open the module from the curriculum index.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="help-side-panel">
+                <div class="help-panel-card">
+                    <span class="panel-kicker">Quick Guidance</span>
+                    <h2>Recommended Workflow</h2>
+                    <ol class="help-checklist">
+                        <li>Inspect the request and response flow first.</li>
+                        <li>Capture meaningful evidence while testing.</li>
+                        <li>Validate the final flag before submission.</li>
+                        <li>Record the correct module variation.</li>
                     </ol>
-                    <p>Successful submissions are recorded in your subject profile and verified by the Command Center sensor array.</p>
                 </div>
-            </div>
-        </div>
 
-        <!-- FAQ Item 3 -->
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>Are the flags unique to my identity?</span>
-                <span class="faq-toggle">▼</span>
-            </div>
-            <div class="faq-answer">
-                <div class="faq-answer-content">
-                    <p>Yes. Every research deliverable is cryptographically derived from your unique Subject Identity (GUID) and the specific laboratory module. Sharing flags with other subjects will result in a synchronization failure and potential session termination.</p>
-                </div>
-            </div>
-        </div>
+                <div class="help-panel-card contact-support">
+                    <span class="panel-kicker">Support Channels</span>
+                    <h2>Need direct assistance?</h2>
+                    <p>Choose the channel that best fits the urgency of your issue.</p>
 
-        <!-- FAQ Item 4 -->
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>What tools should I use for research?</span>
-                <span class="faq-toggle">▼</span>
-            </div>
-            <div class="faq-answer">
-                <div class="faq-answer-content">
-                    <p>Subjects are encouraged to use industry-standard clinical equipment, including:</p>
-                    <ul>
-                        <li><strong>Intercepting Proxies:</strong> Burp Suite, OWASP ZAP, or Caido.</li>
-                        <li><strong>Protocol Analyzers:</strong> Wireshark or browser developer tools.</li>
-                        <li><strong>Automated Tooling:</strong> Custom scripts (Python/Go) or specialized scanners (ffuf, sqlmap) where permitted.</li>
-                    </ul>
-                    <p>Remember: The platform simulates a hardened environment. Some payloads may require advanced encoding or bypass techniques.</p>
+                    <div class="contact-options">
+                        <div class="contact-option">
+                            <div class="contact-icon">💬</div>
+                            <div class="contact-title">Live Chat</div>
+                            <div class="contact-desc">Real-time support for active sessions</div>
+                            <a href="#" class="contact-link">Start Chat →</a>
+                        </div>
+                        <div class="contact-option">
+                            <div class="contact-icon">✉️</div>
+                            <div class="contact-title">Email Us</div>
+                            <div class="contact-desc">Response target within 24 hours</div>
+                            <a href="mailto:support@researchops.com" class="contact-link">Contact Email →</a>
+                        </div>
+                        <div class="contact-option">
+                            <div class="contact-icon">📞</div>
+                            <div class="contact-title">Phone Support</div>
+                            <div class="contact-desc">Mon-Fri 9am-6pm EST</div>
+                            <a href="tel:+18005551234" class="contact-link">1-800-555-1234 →</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- FAQ Item 5 -->
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>Why is my account "Pending Authorization"?</span>
-                <span class="faq-toggle">▼</span>
-            </div>
-            <div class="faq-answer">
-                <div class="faq-answer-content">
-                    <p>To maintain environment integrity, all new subject enrollments require manual vetting by the Operational Command Center. This process typically completes within 24 hours.</p>
-                    <p>If your status remains <code>PENDING</code> after this window, contact your research lead or system administrator.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- FAQ Item 6 -->
-        <div class="faq-item">
-            <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>Can I reset a laboratory environment?</span>
-                <span class="faq-toggle">▼</span>
-            </div>
-            <div class="faq-answer">
-                <div class="faq-answer-content">
-                    <p>Laboratory modules are stateless and self-contained. If you lose access or the environment becomes unstable, simply refresh the module URL or navigate back to the main registry to re-initialize your session.</p>
-                </div>
-            </div>
-        </div>
+            </aside>
+        </section>
     </div>
-
-    <!-- Contact Section -->
-    <div class="contact-section contact-support">
-        <h2>Couldn't find what you're looking for?</h2>
-        <p>Our support team is ready to help!</p>
-
-        <div class="contact-options">
-            <div class="contact-option">
-                <div class="contact-icon">💬</div>
-                <div class="contact-title">Live Chat</div>
-                <div class="contact-desc">Chat with our team in real-time</div>
-                <a href="#" class="contact-link">Start Chat →</a>
-            </div>
-            <div class="contact-option">
-                <div class="contact-icon">✉️</div>
-                <div class="contact-title">Email Us</div>
-                <div class="contact-desc">Response within 24 hours</div>
-                <a href="mailto:support@researchops.com" class="contact-link">Contact Email →</a>
-            </div>
-            <div class="contact-option">
-                <div class="contact-icon">📞</div>
-                <div class="contact-title">Phone Support</div>
-                <div class="contact-desc">Mon-Fri 9am-6pm EST</div>
-                <a href="tel:+18005551234" class="contact-link">1-800-555-1234 →</a>
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 
 <script>
 function toggleFAQ(element) {
     const faqItem = element.parentElement;
     faqItem.classList.toggle('open');
 }
-
-// Close other items when opening a new one (optional)
-document.querySelectorAll('.faq-question').forEach(question => {
-    question.addEventListener('click', function() {
-        // Uncomment below to make only one FAQ item open at a time
-        // document.querySelectorAll('.faq-item').forEach(item => {
-        //     if (item !== this.parentElement) {
-        //         item.classList.remove('open');
-        //     }
-        // });
-    });
-});
 </script>
 {% endblock %}
