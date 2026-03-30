@@ -1733,10 +1733,11 @@ def lab2_2c_admin():
 
 
 # Shared Helper for Lab 2.3 Cookie Logic
-def handle_lab2_3_request(template_name, products):
-    """Refined: Keep storefront as store; privilege escalation happens in Profile."""
-    username = request.cookies.get('Lab_Session')
-    return render_template(template_name, products=products, username=username)
+def handle_lab2_3_request(template_name, products, variation='a'):
+    """Isolated: Storefront checks variant-specific session cookie."""
+    cookie_name = f'Lab2_3_{variation.upper()}_Session'
+    username = request.cookies.get(cookie_name)
+    return render_template(template_name, products=products, username=username, variation=variation)
 
 # Variation A: MusicStore
 @app.route('/lab2/3/music', methods=['GET', 'POST'])
@@ -1747,7 +1748,7 @@ def lab2_3_music():
         {'id': 3, 'name': 'Fender Stratocaster', 'price': 899, 'description': 'Electric guitar in sunburst.'},
         {'id': 4, 'name': 'Marshall Stanmore III', 'price': 379, 'description': 'Legendary sound at home.'},
     ]
-    return handle_lab2_3_request('lab2/sub3_music.html', products)
+    return handle_lab2_3_request('lab2/sub3_music.html', products, 'a')
 
 # Variation B: SportsGear
 @app.route('/lab2/3/sports', methods=['GET', 'POST'])
@@ -1758,7 +1759,7 @@ def lab2_3_sports():
         {'id': 3, 'name': 'NBA Jersey - Lakers', 'price': 110, 'description': 'Authentic player edition.'},
         {'id': 4, 'name': 'Running Shoes zoom', 'price': 130, 'description': 'Marathon ready cushioning.'},
     ]
-    return handle_lab2_3_request('lab2/sub3_sports.html', products)
+    return handle_lab2_3_request('lab2/sub3_sports.html', products, 'b')
 
 # Variation C: PetShop
 @app.route('/lab2/3/pets', methods=['GET', 'POST'])
@@ -1769,7 +1770,7 @@ def lab2_3_pets():
         {'id': 3, 'name': 'Aquarium Kit 20G', 'price': 120, 'description': 'Complete starter set with filter.'},
         {'id': 4, 'name': 'Hamster Wheel Silent', 'price': 25, 'description': 'No squeak running wheel.'},
     ]
-    return handle_lab2_3_request('lab2/sub3_pets.html', products)
+    return handle_lab2_3_request('lab2/sub3_pets.html', products, 'c')
 
 # Generic Lab 2.3 Login (Redirects based on referrer or param)
 @app.route('/lab2/3/login', methods=['GET', 'POST'])
@@ -1796,21 +1797,20 @@ def lab2_3_login_page():
         elif target_theme == 'pets': target_route = 'lab2_3_pets'
         else: target_route = 'lab2_3_music'
 
-        # Vulnerable Mock Registry
-        # Track which variation they came from (a=music, b=sports, c=pets)
-        v_param = 'a'
-        if target_theme == 'sports': v_param = 'b'
-        elif target_theme == 'pets': v_param = 'c'
+        # Multi-Variant Isolation: Scope cookies to current variation only
+        v_upper = v_param.upper()
+        session_cookie = f'Lab2_3_{v_upper}_Session'
+        admin_cookie = f'Lab2_3_{v_upper}_Admin'
 
         if username == 'admin' and password == 'admin123':
             resp = redirect(url_for('lab2_3_profile', v=v_param))
-            resp.set_cookie('Admin', 'false', path='/') # FORCE MANUAL PRIVILEGE ESCALATION
-            resp.set_cookie('Lab_Session', 'admin', path='/')
+            resp.set_cookie(admin_cookie, 'false', path='/lab2/3/') # FORCE MANUAL PRIVILEGE ESCALATION
+            resp.set_cookie(session_cookie, 'admin', path='/lab2/3/')
             return resp
         elif username == 'researcher' and password == 'researcher':
             resp = redirect(url_for('lab2_3_profile', v=v_param))
-            resp.set_cookie('Admin', 'false', path='/') # DEFAULT USER PRIVILEGE
-            resp.set_cookie('Lab_Session', 'researcher', path='/')
+            resp.set_cookie(admin_cookie, 'false', path='/lab2/3/') # DEFAULT USER PRIVILEGE
+            resp.set_cookie(session_cookie, 'researcher', path='/lab2/3/')
             return resp
         else:
              return redirect(url_for(target_route, login_error="Invalid Credentials"))
@@ -1828,19 +1828,27 @@ def lab2_3_logout():
         target_route = 'lab2_3_music'
 
     resp = redirect(url_for('lab2_3_menu'))
-    resp.set_cookie('Admin', '', expires=0, path='/')
-    resp.set_cookie('Lab_Session', '', expires=0, path='/')
+    # Clean up all possible variation cookies
+    for v in ['A', 'B', 'C']:
+        resp.set_cookie(f'Lab2_3_{v}_Admin', '', expires=0, path='/lab2/3/')
+        resp.set_cookie(f'Lab2_3_{v}_Session', '', expires=0, path='/lab2/3/')
     return resp
 
 @app.route('/lab2/3/profile', methods=['GET', 'POST'])
 def lab2_3_profile():
     """VULNERABLE: Mock profile page that checks 'Admin' cookie to show panel"""
-    # Verify they have a session cookie at least
-    username = request.cookies.get('Lab_Session')
+    # Isolated Credential Check
+    cookie_prefix = f'Lab2_3_{v.upper()}'
+    username = request.cookies.get(f'{cookie_prefix}_Session')
+    
     if not username:
-        return redirect(url_for('lab2_3_music', login_error="Session expired or invalid."))
+        # Determine fallback route based on variation
+        target_route = 'lab2_3_music'
+        if v == 'b': target_route = 'lab2_3_sports'
+        elif v == 'c': target_route = 'lab2_3_pets'
+        return redirect(url_for(target_route, login_error="Session orientation lost. Please re-authenticate."))
 
-    is_admin = request.cookies.get('Admin') == 'true'
+    is_admin = request.cookies.get(f'{cookie_prefix}_Admin') == 'true'
     
     # Handle flag awarding on POST (Delete Subject)
     flag = None

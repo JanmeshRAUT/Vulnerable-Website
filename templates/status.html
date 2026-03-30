@@ -37,11 +37,28 @@
       </div>
 
       <div class="status-row">
-        <span class="status-name">Submission Pipeline</span>
+        <span class="status-name">Submission Intake Pipeline</span>
+        <span class="status-badge operational">Operational</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-name">Dynamic Flag Generation Service</span>
+        <span class="status-badge operational">Operational</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-name">Firestore Identity Synchronization</span>
+        <span class="status-badge operational">Operational</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-name">Vercel Deployment Edge</span>
         <span class="status-badge monitoring">Monitoring</span>
       </div>
 
-      <p>If all services are healthy and issues persist, report the affected route and timestamp through Help Center support.</p>
+      <div class="status-footer-note">
+        <p style="margin-top: 1.5rem; color: var(--policy-muted); font-size: 0.85rem; padding-top: 1.5rem; border-top: 1px solid var(--policy-border);"><strong>Incident Reports:</strong> No active disruptions detected in the last 24 hours. If services appear healthy but labs fail to load, please check your local intercepting proxy settings (Burp Suite/ZAP).</p>
+      </div>
     </article>
 
     <aside class="policy-side">

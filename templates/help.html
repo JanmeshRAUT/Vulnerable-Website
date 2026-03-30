@@ -125,12 +125,29 @@
 
                 <div class="faq-item" data-category="connectivity lab-protocols">
                     <div class="faq-question" onclick="toggleFAQ(this)">
-                        <span>Can I reset a laboratory environment?</span>
+                        <span>How do I check system health before troubleshooting?</span>
                         <span class="faq-toggle">▼</span>
                     </div>
                     <div class="faq-answer">
                         <div class="faq-answer-content">
-                            <p>Most modules are stateless and self-contained. If access is lost or a session becomes unstable, refresh the route or re-open the module from the curriculum index.</p>
+                            <p>Before modifying local proxy settings or browser configurations, always verify the <strong><a href="{{ url_for('system_status') }}">System Status</a></strong>. This page provides real-time telemetry on core lab services, authentication layers, and the deliverable intake pipeline.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="deliverables">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>My deliverable signal is being rejected. What now?</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Submission failures often occur for the following reasons:</p>
+                            <ul>
+                                <li><strong>Identity Mismatch:</strong> Flags are unique to your research session. If you found a flag while unauthenticated (as a guest) and then logged in, the flag may no longer be valid for your profile.</li>
+                                <li><strong>Incorrect Variation:</strong> Ensure the variation selected in the Flag Widget (A, B, or C) matches the variation of the module you solved.</li>
+                                <li><strong>Cache Latency:</strong> If you recently solved a lab, ensure your session is synchronized. Try refreshing the module before copying the signal.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
