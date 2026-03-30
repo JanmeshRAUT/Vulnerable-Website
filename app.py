@@ -435,27 +435,18 @@ def get_random_flag(lab_id, variation='default'):
             identity_key = None
             
     if not identity_key:
+        # High-Fidelity: Standardize on static fallbacks for guest researchers
+        # This ensures path traversal findings are universally verifiable.
         if lab_id == 'lab1':
-            # Provide high-fidelity static fallbacks for guest researchers
             if variation == 'variation_A': return "FLAG{file_system_traversal_alpha}"
             if variation == 'variation_B': return "FLAG{directory_enumeration_beta}"
             if variation == 'variation_C': return "FLAG{path_manipulation_gamma}"
         return "FLAG{unauthenticated_research_lock}"
 
-    # Rotate nonce per lab access so repeated visits yield fresh flags.
-    lab_access_nonces = session.get('lab_access_nonces', {})
-    current_nonce = int(lab_access_nonces.get(lab_id, 0)) + 1
-    lab_access_nonces[lab_id] = current_nonce
-    session['lab_access_nonces'] = lab_access_nonces
+    # Generate stable, reproducible research deliverables for this subject.
+    issued_flag = get_or_generate_flag(identity_key, lab_id, variation)
 
-    issued_flag = get_or_generate_flag(
-        identity_key,
-        lab_id,
-        variation,
-        seed_extra=f"access_nonce:{current_nonce}"
-    )
-
-    # Track recently issued flags per canonical lab so submit validation accepts them.
+    # Cache in session to ensure the submit validator recognizes it.
     lab_flags = session.get('lab_flags', {})
     lab_issued_flags = list(lab_flags.get(lab_id, []))
     if issued_flag not in lab_issued_flags:
