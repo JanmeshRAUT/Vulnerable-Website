@@ -23,7 +23,7 @@
 
         <div style="display: flex; gap: 1rem; justify-content: center;">
             <a href="{{ url_for('logout') }}" class="btn btn-secondary">Disconnect Session</a>
-            <button onclick="location.reload()" class="btn btn-primary">Refresh Signal</button>
+            <button onclick="window.location.href='{{ url_for('auth_pending') }}'" class="btn btn-primary">Refresh Signal</button>
         </div>
         
         <p style="margin-top: 3rem; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Signal Acquisition: v4.2.0-STABLE</p>

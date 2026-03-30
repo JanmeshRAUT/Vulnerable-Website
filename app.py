@@ -256,6 +256,19 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+def sync_session_from_firebase_user(firebase_user, email=None):
+    """Keep session identity aligned with the latest Firebase profile."""
+    if not firebase_user:
+        return
+
+    session['user_id'] = firebase_user.get('user_id')
+    session['username'] = firebase_user.get('username')
+    session['role'] = firebase_user.get('role', 'user')
+    session['email'] = email or firebase_user.get('email')
+    session['guid'] = firebase_user.get('guid')
+    session.permanent = True
+
 @app.before_request
 def enforce_lab_locks():
     """Global access controller for the laboratory environment"""
@@ -281,7 +294,7 @@ def enforce_lab_locks():
     
     if not user or not user.get('is_approved'):
         print(f"[SECURITY] Blocked unvetted subject {email} from entering {path}")
-        return render_template('auth_pending.html', user=user or {'email': email})
+        return redirect(url_for('auth_pending'))
 
 # -------------------------
 # DYNAMIC RESEARCH DELIVERABLES (FLAGS)
@@ -682,17 +695,12 @@ def google_callback():
 
     # 5. Session Finalization
     if firebase_user:
+        sync_session_from_firebase_user(firebase_user, email)
+
         # Check if user is authorized by Command Center
         print(f"[AUTH] User profile retrieved. Approval status: {firebase_user.get('is_approved')}")
         if not firebase_user.get('is_approved') and firebase_user.get('role') != 'admin':
-            return render_template('auth_pending.html', user=firebase_user)
-
-        session['user_id'] = firebase_user.get('user_id')
-        session['username'] = firebase_user.get('username')
-        session['role'] = firebase_user.get('role', 'user')
-        session['email'] = email
-        session['guid'] = firebase_user.get('guid')
-        session.permanent = True
+            return redirect(url_for('auth_pending'))
         
         # Redirection Logic
         next_url = session.pop('oauth_next', '')
@@ -721,6 +729,34 @@ def login():
         next_url = ''
 
     return render_template('login.html', error=error, next_url=next_url)
+
+
+@app.route('/auth/pending')
+@login_required
+def auth_pending():
+    """Waiting screen that re-checks account approval on each refresh."""
+    email = session.get('email')
+    if not email:
+        session.clear()
+        return redirect(url_for('login', error='Session expired. Please sign in again.'))
+
+    firebase_user = firebase_store.get_user_by_email(email)
+    if not firebase_user:
+        session.clear()
+        return redirect(url_for('login', error='Identity not found. Please sign in again.'))
+
+    sync_session_from_firebase_user(firebase_user, email)
+
+    if firebase_user.get('is_approved') or firebase_user.get('role') == 'admin':
+        next_url = session.pop('oauth_next', '')
+        if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+            return redirect(next_url)
+
+        if firebase_user.get('role') == 'admin':
+            return redirect(url_for('admin_students'))
+        return redirect(url_for('home'))
+
+    return render_template('auth_pending.html', user=firebase_user)
 
 @app.route('/logout')
 def logout():
