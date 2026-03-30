@@ -1332,11 +1332,12 @@ def lab1_1_download():
             with open(passwd_path, 'r') as f:
                 lines = f.readlines()
             
-            # Inject 3 unique flags for this subject into the template (Lines 2, 3, 4)
-            if len(lines) >= 4:
+            # Inject only the RELEVANT flag for this sub-lab into the template (Variation A)
+            if len(lines) >= 2:
                 lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
-                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
-                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
+            if len(lines) >= 4:
+                lines[2] = "# [ACCESS RESTRICTED]: Proceed to Lab 1.2 for current deliverable.\n"
+                lines[3] = "# [ACCESS RESTRICTED]: Proceed to Lab 1.3 for current deliverable.\n"
 
                 
             return Response("".join(lines), mimetype='text/plain')
@@ -1417,9 +1418,9 @@ def lab1_2_image():
             with open(passwd_path, 'r') as f:
                 lines = f.readlines()
             if len(lines) >= 4:
-                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
+                lines[1] = "# [ACCESS RESTRICTED]: Retrieve from Lab 1.1 deliverables.\n"
                 lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
-                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
+                lines[3] = "# [ACCESS RESTRICTED]: Proceed to Lab 1.3 for current deliverable.\n"
             return Response("".join(lines), mimetype='text/plain')
         except Exception as e:
             return f"Error: {e}", 500
@@ -1475,8 +1476,8 @@ def lab1_3_image():
             with open(passwd_path, 'r') as f:
                 lines = f.readlines()
             if len(lines) >= 4:
-                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
-                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
+                lines[1] = "# [ACCESS RESTRICTED]: Retrieve from Lab 1.1 deliverables.\n"
+                lines[2] = "# [ACCESS RESTRICTED]: Retrieve from Lab 1.2 deliverables.\n"
                 lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
 
             return Response("".join(lines), mimetype='text/plain')
