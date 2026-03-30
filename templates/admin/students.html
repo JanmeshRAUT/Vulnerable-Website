@@ -126,26 +126,26 @@
         <!-- Stat cards -->
         <div class="stats-grid">
           <div class="stat-card blue">
-            <div class="stat-label">🔵 Active Subjects</div>
-            <div class="stat-value">{{ total_subjects }}</div>
-            <div class="stat-trend up">↑ Registered users</div>
+            <div class="stat-label">🔵 Student Accounts</div>
+            <div class="stat-value">{{ dashboard.total_participants }}</div>
+            <div class="stat-trend up">{{ dashboard.active_solvers }} with solved labs</div>
           </div>
           <div class="stat-card amber">
             <div class="stat-label">🟡 Pending Authorization</div>
-            <div class="stat-value">{{ pending_count }}</div>
+            <div class="stat-value">{{ dashboard.pending_participants }}</div>
             <div class="stat-trend {% if pending_count > 0 %}warn{% endif %}">
               {% if pending_count > 0 %}⚠ Requires action{% else %}All clear{% endif %}
             </div>
           </div>
           <div class="stat-card green">
-            <div class="stat-label">🟢 Successful Exploits</div>
-            <div class="stat-value">{{ solved_data | length }}</div>
-            <div class="stat-trend up">↑ Labs compromised</div>
+            <div class="stat-label">🟢 Distinct Solves</div>
+            <div class="stat-value">{{ dashboard.dedup_events }}</div>
+            <div class="stat-trend up">De-duplicated from {{ dashboard.raw_events }} events</div>
           </div>
           <div class="stat-card purple">
-            <div class="stat-label">🟣 Platform Uptime</div>
-            <div class="stat-value">99.8<small style="font-size:1rem;opacity:0.6">%</small></div>
-            <div class="stat-trend up">Stable — 0 incidents</div>
+            <div class="stat-label">🟣 Lab Family Coverage</div>
+            <div class="stat-value">{{ dashboard.family_coverage_pct }}<small style="font-size:1rem;opacity:0.6">%</small></div>
+            <div class="stat-trend up">{{ dashboard.unique_solved_families }} families solved</div>
           </div>
         </div>
 
@@ -185,30 +185,50 @@
           <!-- Subject Breakdown -->
           <div class="panel">
             <div class="panel-header">
-              <div class="panel-title">👥 Subject Engagement</div>
+              <div class="panel-title">📈 Cohort Analytics</div>
             </div>
             <div class="panel-body">
-              <!-- Mini activity visualization -->
-              <div class="text-muted text-sm mb-1">Weekly solve activity (mock)</div>
-              <div class="mini-chart mb-sm">
-                {% set heights = [20, 35, 15, 55, 40, 70, 30, 60, 45, 80, 50, 65] %}
-                {% for h in heights %}
-                <div class="chart-bar" style="height: {{ h }}%;"></div>
+              <div class="text-muted text-sm mb-1">Top Lab Families (distinct students)</div>
+              <div class="hbar-list mb-sm">
+                {% if dashboard.family_rows %}
+                  {% for row in dashboard.family_rows %}
+                  <div class="hbar-row">
+                    <span class="hbar-label">{{ row.label }}</span>
+                    <progress class="hbar-progress" max="100" value="{{ row.pct }}"></progress>
+                    <span class="hbar-value">{{ row.count }}</span>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="text-muted text-sm">No solved families yet.</div>
+                {% endif %}
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="text-muted text-sm mb-1">Progress Distribution</div>
+              <div class="hbar-list mb-sm">
+                {% for row in dashboard.progress_rows %}
+                <div class="hbar-row">
+                  <span class="hbar-label">{{ row.label }}</span>
+                  <progress class="hbar-progress alt" max="100" value="{{ row.pct }}"></progress>
+                  <span class="hbar-value">{{ row.count }}</span>
+                </div>
                 {% endfor %}
               </div>
+
               <div class="divider"></div>
               <div style="display:flex;flex-direction:column;gap:0.75rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span class="text-muted text-sm">Total subjects enrolled</span>
-                  <span class="mono" style="color:var(--text-primary);">{{ total_subjects }}</span>
+                  <span class="text-muted text-sm">Student accounts</span>
+                  <span class="mono" style="color:var(--text-primary);">{{ dashboard.total_participants }}</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span class="text-muted text-sm">Awaiting authorization</span>
-                  <span class="mono" style="color:var(--status-warning);">{{ pending_count }}</span>
+                  <span class="text-muted text-sm">Approved students</span>
+                  <span class="mono" style="color:var(--status-success);">{{ dashboard.approved_participants }}</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span class="text-muted text-sm">Total labs solved (all)</span>
-                  <span class="mono" style="color:var(--status-success);">{{ solved_data | length }}</span>
+                  <span class="text-muted text-sm">Average completion</span>
+                  <span class="mono" style="color:var(--status-info);">{{ dashboard.avg_completion }}%</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span class="text-muted text-sm">Platform status</span>

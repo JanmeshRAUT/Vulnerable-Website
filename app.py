@@ -233,6 +233,94 @@ def build_solved_lab_records(progress):
     return solved_labs
 
 
+def build_dashboard_metrics(user_rows, solved_feed):
+    """Build deduplicated dashboard intelligence for executive views."""
+    participant_rows = [u for u in user_rows if u.get('role') not in ['admin', 'analyzer']]
+    total_participants = len(participant_rows)
+    approved_participants = sum(1 for u in participant_rows if u.get('is_approved'))
+    pending_participants = total_participants - approved_participants
+    active_solvers = sum(1 for u in participant_rows if (u.get('total_solved') or 0) > 0)
+
+    avg_completion = 0.0
+    if total_participants:
+        avg_completion = round(
+            sum((u.get('avg_progress') or 0) for u in participant_rows) / float(total_participants),
+            1
+        )
+
+    unique_available_families = len({unit['canonical_id'] for unit in TRACKABLE_LAB_UNITS})
+    pair_set = set()
+    family_counter = Counter()
+
+    for student in participant_rows:
+        email = student.get('email') or ''
+        canonical_seen = set()
+
+        for solved in student.get('solved_labs') or []:
+            canonical = solved.get('canonical_lab_id') or solved.get('lab_id')
+            if not canonical:
+                continue
+            pair_set.add((email, canonical))
+            canonical_seen.add(canonical)
+
+        for canonical in canonical_seen:
+            family_counter[canonical] += 1
+
+    unique_solved_families = len(family_counter)
+    family_coverage_pct = round((unique_solved_families / float(unique_available_families)) * 100) if unique_available_families else 0
+
+    family_rows = []
+    family_peak = max(family_counter.values()) if family_counter else 1
+    for family, count in family_counter.most_common(8):
+        family_rows.append({
+            'label': str(family).replace('_', ' ').upper(),
+            'count': count,
+            'pct': round((count / float(family_peak)) * 100) if family_peak else 0
+        })
+
+    progress_bands = {
+        'Not Started (0%)': 0,
+        'Starter (1-29%)': 0,
+        'Intermediate (30-69%)': 0,
+        'Advanced (70-100%)': 0,
+    }
+    for student in participant_rows:
+        progress = float(student.get('avg_progress') or 0)
+        if progress <= 0:
+            progress_bands['Not Started (0%)'] += 1
+        elif progress < 30:
+            progress_bands['Starter (1-29%)'] += 1
+        elif progress < 70:
+            progress_bands['Intermediate (30-69%)'] += 1
+        else:
+            progress_bands['Advanced (70-100%)'] += 1
+
+    progress_peak = max(progress_bands.values()) if progress_bands else 1
+    progress_rows = [
+        {
+            'label': label,
+            'count': count,
+            'pct': round((count / float(progress_peak)) * 100) if progress_peak else 0
+        }
+        for label, count in progress_bands.items()
+    ]
+
+    return {
+        'total_accounts': len(user_rows),
+        'total_participants': total_participants,
+        'approved_participants': approved_participants,
+        'pending_participants': pending_participants,
+        'active_solvers': active_solvers,
+        'avg_completion': avg_completion,
+        'raw_events': len(solved_feed or []),
+        'dedup_events': len(pair_set),
+        'unique_solved_families': unique_solved_families,
+        'family_coverage_pct': family_coverage_pct,
+        'family_rows': family_rows,
+        'progress_rows': progress_rows,
+    }
+
+
 # -------------------------
 # AUTHENTICATION HELPERS
 # -------------------------
@@ -483,11 +571,13 @@ def admin_students():
     
     # Fetch solved labs feed from Firebase
     solved_data = firebase_store.get_solved_labs_feed()
+    dashboard = build_dashboard_metrics(students, solved_data)
 
     return render_template('admin/students.html', 
                           students=students, 
                           solved_data=solved_data,
-                          pending_users=pending_users)
+                          pending_users=pending_users,
+                          dashboard=dashboard)
 
 
 @app.route('/analyzer/students')
@@ -511,7 +601,8 @@ def analyzer_students():
         )
 
     solved_data = firebase_store.get_solved_labs_feed()
-    return render_template('analyzer/students.html', students=students, solved_data=solved_data)
+    dashboard = build_dashboard_metrics(students, solved_data)
+    return render_template('analyzer/students.html', students=students, solved_data=solved_data, dashboard=dashboard)
 
 
 @app.route('/analyzer/student/<path:email>')

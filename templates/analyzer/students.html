@@ -80,18 +80,63 @@
         <div class="stats-grid">
           <div class="stat-card blue">
             <div class="stat-label">Students Tracked</div>
-            <div class="stat-value">{{ total_students }}</div>
-            <div class="stat-trend up">Active student records</div>
+            <div class="stat-value">{{ dashboard.total_participants }}</div>
+            <div class="stat-trend up">{{ dashboard.active_solvers }} active solvers</div>
           </div>
           <div class="stat-card green">
-            <div class="stat-label">Total Solved Labs</div>
-            <div class="stat-value">{{ total_solved }}</div>
-            <div class="stat-trend up">Cross-student solve count</div>
+            <div class="stat-label">Distinct Solves</div>
+            <div class="stat-value">{{ dashboard.dedup_events }}</div>
+            <div class="stat-trend up">De-duplicated from {{ dashboard.raw_events }} events</div>
           </div>
           <div class="stat-card amber">
             <div class="stat-label">Average Progress</div>
-            <div class="stat-value">{{ avg_progress | round | int }}%</div>
+            <div class="stat-value">{{ dashboard.avg_completion | round | int }}%</div>
             <div class="stat-trend">Overall cohort progress</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-label">Lab Family Coverage</div>
+            <div class="stat-value">{{ dashboard.family_coverage_pct }}%</div>
+            <div class="stat-trend up">{{ dashboard.unique_solved_families }} families solved</div>
+          </div>
+        </div>
+
+        <div class="two-col mb-sm">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Top Lab Families</div>
+            </div>
+            <div class="panel-body">
+              <div class="hbar-list">
+                {% if dashboard.family_rows %}
+                  {% for row in dashboard.family_rows %}
+                  <div class="hbar-row">
+                    <span class="hbar-label">{{ row.label }}</span>
+                    <progress class="hbar-progress" max="100" value="{{ row.pct }}"></progress>
+                    <span class="hbar-value">{{ row.count }}</span>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="text-muted text-sm">No family data available yet.</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Progress Distribution</div>
+            </div>
+            <div class="panel-body">
+              <div class="hbar-list">
+                {% for row in dashboard.progress_rows %}
+                <div class="hbar-row">
+                  <span class="hbar-label">{{ row.label }}</span>
+                  <progress class="hbar-progress alt" max="100" value="{{ row.pct }}"></progress>
+                  <span class="hbar-value">{{ row.count }}</span>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
           </div>
         </div>
       </div>
