@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}System Status - RESEARCH_OPS{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/policy-pages.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="policy-page">
+  <header class="policy-hero">
+    <span class="policy-kicker">Operational Visibility</span>
+    <h1 class="policy-title">System Status</h1>
+    <p class="policy-subtitle">Use this page as the primary service-health checkpoint before troubleshooting account-level or local browser issues.</p>
+    <div class="policy-meta">
+      <span class="policy-chip">Last refreshed: 30 Mar 2026</span>
+      <span class="policy-chip">Update mode: Manual baseline</span>
+    </div>
+  </header>
+
+  <div class="policy-grid">
+    <article class="policy-panel">
+      <h2>Core Services</h2>
+
+      <div class="status-row">
+        <span class="status-name">Web Interface</span>
+        <span class="status-badge operational">Operational</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-name">Authentication Layer</span>
+        <span class="status-badge operational">Operational</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-name">Lab Routing and Static Assets</span>
+        <span class="status-badge operational">Operational</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-name">Submission Pipeline</span>
+        <span class="status-badge monitoring">Monitoring</span>
+      </div>
+
+      <p>If all services are healthy and issues persist, report the affected route and timestamp through Help Center support.</p>
+    </article>
+
+    <aside class="policy-side">
+      <h3>Status and Policy Navigation</h3>
+      <div class="policy-nav">
+        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+        <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
+        <a href="{{ url_for('cookie_policy') }}">Cookie Policy</a>
+        <a href="{{ url_for('system_status') }}" class="active">System Status</a>
+      </div>
+      <p>Need assistance after checking status? Use Contact Support from the Help Center.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

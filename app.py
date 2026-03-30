@@ -807,6 +807,22 @@ def approve_user():
 def home():
     return render_template('index.html')
 
+@app.route('/privacy')
+def privacy_policy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms_of_service():
+    return render_template('terms.html')
+
+@app.route('/cookies')
+def cookie_policy():
+    return render_template('cookies.html')
+
+@app.route('/status')
+def system_status():
+    return render_template('status.html')
+
 @app.route('/labs')
 def labs():
     return render_template('labs.html')
