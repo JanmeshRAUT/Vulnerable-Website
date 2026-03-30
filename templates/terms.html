@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Terms of Service - RESEARCH_OPS{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/policy-pages.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="policy-page">
+  <header class="policy-hero">
+    <span class="policy-kicker">Usage Governance</span>
+    <h1 class="policy-title">Terms of Service</h1>
+    <p class="policy-subtitle">These terms define acceptable use of RESEARCH_OPS and establish the boundaries for ethical training activity.</p>
+    <div class="policy-meta">
+      <span class="policy-chip">Last updated: 30 Mar 2026</span>
+      <span class="policy-chip">Scope: Authorized users</span>
+    </div>
+  </header>
+
+  <div class="policy-grid">
+    <article class="policy-panel">
+      <h2>Authorized Usage</h2>
+      <ul class="policy-list">
+        <li>Test only the modules, routes, and assets provided by this platform.</li>
+        <li>Use the environment for training, research, and supervised coursework.</li>
+        <li>Preserve other users' access and learning continuity.</li>
+      </ul>
+
+      <h2>Prohibited Actions</h2>
+      <ul class="policy-list">
+        <li>Targeting external systems or third-party infrastructure.</li>
+        <li>Credential sharing, account takeover, or identity impersonation.</li>
+        <li>Attempting service disruption, abuse automation, or data destruction.</li>
+      </ul>
+
+      <h2>Enforcement</h2>
+      <p>Violations may result in account restrictions, removal of access, and escalation to program administrators when required.</p>
+    </article>
+
+    <aside class="policy-side">
+      <h3>Policy Navigation</h3>
+      <div class="policy-nav">
+        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+        <a href="{{ url_for('terms_of_service') }}" class="active">Terms of Service</a>
+        <a href="{{ url_for('cookie_policy') }}">Cookie Policy</a>
+        <a href="{{ url_for('system_status') }}">System Status</a>
+      </div>
+      <p>By continuing to use the platform, you acknowledge and accept these terms.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

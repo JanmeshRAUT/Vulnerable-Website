@@ -498,7 +498,8 @@ def submit_flag():
         'FLAG{directory_enumeration_beta}',
         'FLAG{path_manipulation_gamma}',
         'FLAG{you_found_the_hidden_root_flag}',
-        'FLAG{you_found_the_secret}'
+        'FLAG{you_found_the_secret}',
+        'FLAG{unauthenticated_research_lock}'
     }
     expected_flags.update(static_fallbacks)
     
@@ -802,6 +803,22 @@ def approve_user():
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/privacy')
+def privacy_policy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms_of_service():
+    return render_template('terms.html')
+
+@app.route('/cookies')
+def cookie_policy():
+    return render_template('cookies.html')
+
+@app.route('/status')
+def system_status():
+    return render_template('status.html')
 
 @app.route('/labs')
 def labs():

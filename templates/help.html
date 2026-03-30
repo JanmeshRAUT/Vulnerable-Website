@@ -31,15 +31,15 @@
 
         <section class="help-toolbar">
             <div class="faq-search">
-                <input type="text" class="search-box" placeholder="Search help topics... (e.g. flags, authorization, tools)">
+                <input id="faq-search-input" type="text" class="search-box" placeholder="Search help topics... (e.g. flags, authorization, tools)">
             </div>
 
             <div class="faq-categories">
-                <button class="category-btn active">All Topics</button>
-                <button class="category-btn">Lab Protocols</button>
-                <button class="category-btn">Deliverables</button>
-                <button class="category-btn">Identity</button>
-                <button class="category-btn">Connectivity</button>
+                <button class="category-btn active" type="button" data-category="all">All Topics</button>
+                <button class="category-btn" type="button" data-category="lab-protocols">Lab Protocols</button>
+                <button class="category-btn" type="button" data-category="deliverables">Deliverables</button>
+                <button class="category-btn" type="button" data-category="identity">Identity</button>
+                <button class="category-btn" type="button" data-category="connectivity">Connectivity</button>
             </div>
         </section>
 
@@ -50,7 +50,7 @@
                     <h2 class="help-section-title">Field Research FAQ</h2>
                 </div>
 
-                <div class="faq-item open">
+                <div class="faq-item open" data-category="lab-protocols">
                     <div class="faq-question" onclick="toggleFAQ(this)">
                         <span>What is the Research Operations Platform?</span>
                         <span class="faq-toggle">▼</span>
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" data-category="deliverables">
                     <div class="faq-question" onclick="toggleFAQ(this)">
                         <span>How do I submit a Research Deliverable (Flag)?</span>
                         <span class="faq-toggle">▼</span>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" data-category="identity deliverables">
                     <div class="faq-question" onclick="toggleFAQ(this)">
                         <span>Are the flags unique to my identity?</span>
                         <span class="faq-toggle">▼</span>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" data-category="lab-protocols connectivity">
                     <div class="faq-question" onclick="toggleFAQ(this)">
                         <span>What tools should I use for research?</span>
                         <span class="faq-toggle">▼</span>
@@ -111,7 +111,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" data-category="identity">
                     <div class="faq-question" onclick="toggleFAQ(this)">
                         <span>Why is my account pending authorization?</span>
                         <span class="faq-toggle">▼</span>
@@ -123,7 +123,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" data-category="connectivity lab-protocols">
                     <div class="faq-question" onclick="toggleFAQ(this)">
                         <span>Can I reset a laboratory environment?</span>
                         <span class="faq-toggle">▼</span>
@@ -148,29 +148,23 @@
                     </ol>
                 </div>
 
-                <div class="help-panel-card contact-support">
+                <div id="contact-support" class="help-panel-card contact-support">
                     <span class="panel-kicker">Support Channels</span>
                     <h2>Need direct assistance?</h2>
                     <p>Choose the channel that best fits the urgency of your issue.</p>
 
                     <div class="contact-options">
                         <div class="contact-option">
-                            <div class="contact-icon">💬</div>
-                            <div class="contact-title">Live Chat</div>
-                            <div class="contact-desc">Real-time support for active sessions</div>
-                            <a href="#" class="contact-link">Start Chat →</a>
-                        </div>
-                        <div class="contact-option">
                             <div class="contact-icon">✉️</div>
                             <div class="contact-title">Email Us</div>
                             <div class="contact-desc">Response target within 24 hours</div>
-                            <a href="mailto:support@researchops.com" class="contact-link">Contact Email →</a>
+                            <a href="mailto:kaustubhvanshiv@gmail.com,janmeshraut11@gmail.com" class="contact-link">Email Us →</a>
                         </div>
                         <div class="contact-option">
                             <div class="contact-icon">📞</div>
                             <div class="contact-title">Phone Support</div>
                             <div class="contact-desc">Mon-Fri 9am-6pm EST</div>
-                            <a href="tel:+18005551234" class="contact-link">1-800-555-1234 →</a>
+                            <a href="tel:+917498622026" class="contact-link">+91 7498622026 →</a>
                         </div>
                     </div>
                 </div>
@@ -184,5 +178,57 @@ function toggleFAQ(element) {
     const faqItem = element.parentElement;
     faqItem.classList.toggle('open');
 }
+
+(function initializeFAQFiltering() {
+    const faqItems = Array.from(document.querySelectorAll('.faq-item'));
+    const categoryButtons = Array.from(document.querySelectorAll('.category-btn'));
+    const searchInput = document.getElementById('faq-search-input');
+
+    if (!faqItems.length || !categoryButtons.length || !searchInput) {
+        return;
+    }
+
+    let activeCategory = 'all';
+    const noResults = document.createElement('div');
+    noResults.className = 'faq-no-results';
+    noResults.textContent = 'No help topics match your search yet. Try a broader keyword.';
+
+    const faqSection = document.querySelector('.faq-section');
+    if (faqSection) {
+        faqSection.appendChild(noResults);
+    }
+
+    function applyFilters() {
+        const searchValue = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        faqItems.forEach((item) => {
+            const itemCategories = (item.dataset.category || '').split(/\s+/).filter(Boolean);
+            const categoryMatch = activeCategory === 'all' || itemCategories.includes(activeCategory);
+            const content = item.textContent.toLowerCase();
+            const searchMatch = !searchValue || content.includes(searchValue);
+            const shouldShow = categoryMatch && searchMatch;
+
+            item.classList.toggle('is-hidden', !shouldShow);
+            if (shouldShow) {
+                visibleCount += 1;
+            }
+        });
+
+        noResults.classList.toggle('visible', visibleCount === 0);
+    }
+
+    categoryButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            categoryButtons.forEach((btn) => btn.classList.remove('active'));
+            button.classList.add('active');
+            activeCategory = button.dataset.category || 'all';
+            applyFilters();
+        });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+    applyFilters();
+})();
 </script>
 {% endblock %}

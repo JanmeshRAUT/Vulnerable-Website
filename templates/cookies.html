@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Cookie Policy - RESEARCH_OPS{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/policy-pages.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="policy-page">
+  <header class="policy-hero">
+    <span class="policy-kicker">Browser and Session Controls</span>
+    <h1 class="policy-title">Cookie Policy</h1>
+    <p class="policy-subtitle">This policy outlines how cookies are used to keep sessions secure, preserve continuity, and support reliable platform behavior.</p>
+    <div class="policy-meta">
+      <span class="policy-chip">Last updated: 30 Mar 2026</span>
+      <span class="policy-chip">Scope: Session integrity</span>
+    </div>
+  </header>
+
+  <div class="policy-grid">
+    <article class="policy-panel">
+      <h2>Cookie Categories</h2>
+      <ul class="policy-list">
+        <li>Session cookies to maintain authenticated navigation state.</li>
+        <li>Security cookies for request validation and session protection controls.</li>
+        <li>Preference cookies for non-sensitive interface continuity where supported.</li>
+      </ul>
+
+      <h2>What Is Not Used</h2>
+      <p>RESEARCH_OPS does not use advertising cookies or third-party behavior targeting for commercial purposes.</p>
+
+      <h2>Browser Impact</h2>
+      <p>Disabling cookies may interrupt login flows and protected actions that rely on trusted session state.</p>
+    </article>
+
+    <aside class="policy-side">
+      <h3>Policy Navigation</h3>
+      <div class="policy-nav">
+        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+        <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
+        <a href="{{ url_for('cookie_policy') }}" class="active">Cookie Policy</a>
+        <a href="{{ url_for('system_status') }}">System Status</a>
+      </div>
+      <p>If you adjust browser cookie settings, verify access by signing in again and reloading a lab route.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

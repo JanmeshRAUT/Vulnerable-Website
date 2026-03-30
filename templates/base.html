@@ -94,8 +94,8 @@
                         <h4>Support</h4>
                         <div class="footer-links">
                             <a href="{{ url_for('help') }}" class="footer-link">Help Center</a>
-                            <a href="#contact" class="footer-link">Contact Support</a>
-                            <a href="#status" class="footer-link">System Status</a>
+                            <a href="{{ url_for('help') }}#contact-support" class="footer-link">Contact Support</a>
+                            <a href="{{ url_for('system_status') }}" class="footer-link">System Status</a>
                         </div>
                     </div>
                     <div class="footer-section">
@@ -112,9 +112,9 @@
                     <div class="footer-section">
                         <h4>Legal</h4>
                         <div class="footer-links">
-                            <a href="#privacy" class="footer-link">Privacy Policy</a>
-                            <a href="#terms" class="footer-link">Terms of Service</a>
-                            <a href="#cookies" class="footer-link">Cookie Policy</a>
+                            <a href="{{ url_for('privacy_policy') }}" class="footer-link">Privacy Policy</a>
+                            <a href="{{ url_for('terms_of_service') }}" class="footer-link">Terms of Service</a>
+                            <a href="{{ url_for('cookie_policy') }}" class="footer-link">Cookie Policy</a>
                         </div>
                     </div>
                 </div>
@@ -126,7 +126,6 @@
                     <div class="footer-social">
                         <a href="#twitter">𝕏</a>
                         <a href="#linkedin">in</a>
-                        <a href="#github">⚙</a>
                     </div>
                 </div>
             </div>

@@ -250,6 +250,10 @@
     transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
+.help-page .faq-item.is-hidden {
+    display: none;
+}
+
 .help-page .faq-item:hover {
     border-color: rgba(139, 92, 246, 0.25);
     transform: translateY(-1px);
@@ -312,6 +316,20 @@
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.06);
     color: #e9d5ff;
+}
+
+.help-page .faq-no-results {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    border: 1px dashed rgba(139, 92, 246, 0.35);
+    color: var(--help-text-muted);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.help-page .faq-no-results.visible {
+    display: block;
 }
 
 .help-page .help-side-panel {

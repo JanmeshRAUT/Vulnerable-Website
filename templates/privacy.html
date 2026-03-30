@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Policy - RESEARCH_OPS{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/policy-pages.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="policy-page">
+  <header class="policy-hero">
+    <span class="policy-kicker">Legal and Compliance</span>
+    <h1 class="policy-title">Privacy Policy</h1>
+    <p class="policy-subtitle">This policy explains what information RESEARCH_OPS processes and why it is required to run secure, high-fidelity training workflows.</p>
+    <div class="policy-meta">
+      <span class="policy-chip">Last updated: 30 Mar 2026</span>
+      <span class="policy-chip">Scope: Platform operations</span>
+    </div>
+  </header>
+
+  <div class="policy-grid">
+    <article class="policy-panel">
+      <h2>Information We Process</h2>
+      <ul class="policy-list">
+        <li>Identity data such as username, role, and email address.</li>
+        <li>Session and authentication metadata needed to secure accounts.</li>
+        <li>Lab progress, solved units, timestamps, and flag submission records.</li>
+        <li>Request telemetry used for abuse detection and operational defense.</li>
+      </ul>
+
+      <h2>Why It Is Processed</h2>
+      <p>Data is processed only to provide account access, validate training deliverables, maintain service integrity, and support educational reporting.</p>
+
+      <h2>Use Limitations</h2>
+      <p>RESEARCH_OPS does not use this data for ad targeting. Access is limited to platform administration, security operations, and approved academic workflows.</p>
+    </article>
+
+    <aside class="policy-side">
+      <h3>Policy Navigation</h3>
+      <div class="policy-nav">
+        <a href="{{ url_for('privacy_policy') }}" class="active">Privacy Policy</a>
+        <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
+        <a href="{{ url_for('cookie_policy') }}">Cookie Policy</a>
+        <a href="{{ url_for('system_status') }}">System Status</a>
+      </div>
+      <p>Need clarification? Use the Help Center contact options for policy-related questions.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}
