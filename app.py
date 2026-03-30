@@ -502,7 +502,8 @@ def submit_flag():
         'FLAG{directory_enumeration_beta}',
         'FLAG{path_manipulation_gamma}',
         'FLAG{you_found_the_hidden_root_flag}',
-        'FLAG{you_found_the_secret}'
+        'FLAG{you_found_the_secret}',
+        'FLAG{unauthenticated_research_lock}'
     }
     expected_flags.update(static_fallbacks)
     
