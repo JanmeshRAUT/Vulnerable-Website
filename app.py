@@ -286,12 +286,12 @@ def enforce_lab_locks():
 # -------------------------
 # DYNAMIC RESEARCH DELIVERABLES (FLAGS)
 # -------------------------
-def get_or_generate_flag(user_id, lab_id, variation='default'):
+def get_or_generate_flag(user_id, lab_id, variation='default', seed_extra=''):
     """Generate a reproducible, unique research deliverable for a subject"""
     # Use user_id and lab_id as a seed for consistent flag generation across sessions
     # without requiring persistent database storage.
     import hashlib
-    seed_string = f"{user_id}-{lab_id}-{variation}-{app.secret_key}"
+    seed_string = f"{user_id}-{lab_id}-{variation}-{seed_extra}-{app.secret_key}"
     hash_obj = hashlib.sha256(seed_string.encode())
     short_hash = hash_obj.hexdigest()[:12]
     
@@ -321,7 +321,32 @@ def get_random_flag(lab_id, variation='default'):
             
     if not identity_key:
         return "FLAG{unauthenticated_research_lock}"
-    return get_or_generate_flag(identity_key, lab_id, variation)
+
+    # Rotate nonce per lab access so repeated visits yield fresh flags.
+    lab_access_nonces = session.get('lab_access_nonces', {})
+    current_nonce = int(lab_access_nonces.get(lab_id, 0)) + 1
+    lab_access_nonces[lab_id] = current_nonce
+    session['lab_access_nonces'] = lab_access_nonces
+
+    issued_flag = get_or_generate_flag(
+        identity_key,
+        lab_id,
+        variation,
+        seed_extra=f"access_nonce:{current_nonce}"
+    )
+
+    # Track recently issued flags per canonical lab so submit validation accepts them.
+    lab_flags = session.get('lab_flags', {})
+    lab_issued_flags = list(lab_flags.get(lab_id, []))
+    if issued_flag not in lab_issued_flags:
+        lab_issued_flags.append(issued_flag)
+    if len(lab_issued_flags) > 25:
+        lab_issued_flags = lab_issued_flags[-25:]
+    lab_flags[lab_id] = lab_issued_flags
+    session['lab_flags'] = lab_flags
+    session.modified = True
+
+    return issued_flag
 
 @app.route('/submit_flag', methods=['POST'])
 @login_required
