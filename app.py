@@ -435,12 +435,11 @@ def get_random_flag(lab_id, variation='default'):
             identity_key = None
             
     if not identity_key:
-        if lab_id == 'lab1':
-            # Provide high-fidelity static fallbacks for guest researchers
-            if variation == 'variation_A': return "FLAG{file_system_traversal_alpha}"
-            if variation == 'variation_B': return "FLAG{directory_enumeration_beta}"
-            if variation == 'variation_C': return "FLAG{path_manipulation_gamma}"
-        return "FLAG{unauthenticated_research_lock}"
+        # High-Fidelity Design: Even anonymous researchers get a unique lifecycle identity
+        # This makes the environment feel "alive" and personalized even before authentication.
+        if 'anonymous_guid' not in session:
+            session['anonymous_guid'] = str(uuid.uuid4())
+        identity_key = session['anonymous_guid']
 
     # Rotate nonce per lab access so repeated visits yield fresh flags.
     lab_access_nonces = session.get('lab_access_nonces', {})
@@ -1334,9 +1333,9 @@ def lab1_1_download():
             
             # Inject 3 unique flags for this subject into the template (Lines 2, 3, 4)
             if len(lines) >= 4:
-                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
-                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
-                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
+                lines[1] = get_random_flag('lab1_1', 'variation_A') + "\n"
+                lines[2] = get_random_flag('lab1_1', 'variation_B') + "\n"
+                lines[3] = get_random_flag('lab1_1', 'variation_C') + "\n"
 
                 
             return Response("".join(lines), mimetype='text/plain')
@@ -1417,9 +1416,9 @@ def lab1_2_image():
             with open(passwd_path, 'r') as f:
                 lines = f.readlines()
             if len(lines) >= 4:
-                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
-                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
-                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
+                lines[1] = get_random_flag('lab1_2', 'variation_A') + "\n"
+                lines[2] = get_random_flag('lab1_2', 'variation_B') + "\n"
+                lines[3] = get_random_flag('lab1_2', 'variation_C') + "\n"
             return Response("".join(lines), mimetype='text/plain')
         except Exception as e:
             return f"Error: {e}", 500
@@ -1475,9 +1474,9 @@ def lab1_3_image():
             with open(passwd_path, 'r') as f:
                 lines = f.readlines()
             if len(lines) >= 4:
-                lines[1] = get_random_flag('lab1', 'variation_A') + "\n"
-                lines[2] = get_random_flag('lab1', 'variation_B') + "\n"
-                lines[3] = get_random_flag('lab1', 'variation_C') + "\n"
+                lines[1] = get_random_flag('lab1_3', 'variation_A') + "\n"
+                lines[2] = get_random_flag('lab1_3', 'variation_B') + "\n"
+                lines[3] = get_random_flag('lab1_3', 'variation_C') + "\n"
 
             return Response("".join(lines), mimetype='text/plain')
         except Exception as e:
