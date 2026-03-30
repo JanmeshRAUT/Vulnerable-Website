@@ -215,6 +215,27 @@ class FirebaseDataStore:
             print(f"[Firebase] Approval update failed for {email}: {e}")
             return False
 
+    def update_user_access(self, email, is_approved, role=None):
+        """Update account approval and optionally role in one write."""
+        db = self.db
+        fs = self.firestore
+        if db is None or fs is None or not self.is_ready:
+            return False
+
+        try:
+            payload = {
+                "is_approved": bool(is_approved),
+                "updated_at": fs.SERVER_TIMESTAMP
+            }
+            if role:
+                payload["role"] = role
+
+            db.collection("users").document(email).update(payload)
+            return True
+        except Exception as e:
+            print(f"[Firebase] Access update failed for {email}: {e}")
+            return False
+
     def submit_lab_progress(self, email, lab_id, variation, flag, is_correct, message="", canonical_lab_id=None, exact_lab_id=None, lab_path=None):
         """Record a research deliverable submission"""
         db = self.db

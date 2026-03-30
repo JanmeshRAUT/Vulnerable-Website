@@ -52,6 +52,8 @@
                     {% if session.get('user_id') %}
                         {% if session.get('role') == 'admin' %}
                             <a href="{{ url_for('admin_students') }}" class="nav-link-custom">Admin Console</a>
+                        {% elif session.get('role') == 'analyzer' %}
+                            <a href="{{ url_for('analyzer_students') }}" class="nav-link-custom">Analyzer Console</a>
                         {% endif %}
                         <a href="{{ url_for('profile') }}" class="nav-link-custom">Profile</a>
                         <span class="user-badge">

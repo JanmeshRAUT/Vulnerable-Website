@@ -49,6 +49,7 @@ body {
   color: var(--text-primary);
   height: 100vh;
   overflow: hidden;
+  overflow-x: hidden;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -58,6 +59,25 @@ body {
   display: flex;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid var(--border-muted);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.sidebar-overlay {
+  display: none;
 }
 
 /* ─── SIDEBAR ─── */
@@ -463,6 +483,18 @@ body {
   overflow: hidden;
 }
 
+.panel-body,
+.panel-header,
+.page-header,
+.subject-detail-card,
+.detail-section,
+.detail-stat-card,
+.pending-card,
+.empty-state,
+.feed-entry {
+  min-width: 0;
+}
+
 .panel-header {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-subtle);
@@ -495,6 +527,14 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
+}
+
+.panel-body.no-pad {
+  overflow-x: auto;
+}
+
+.panel-body.no-pad .data-table {
+  min-width: 860px;
 }
 
 .data-table th {
@@ -950,6 +990,15 @@ body {
 
 .pending-actions { display: flex; gap: 0.5rem; align-items: center; }
 
+.input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-muted);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.76rem;
+}
+
 /* ─── EMPTY STATE ─── */
 .empty-state {
   padding: 4rem 2rem;
@@ -1005,3 +1054,160 @@ body {
 .flex-gap-sm { display: flex; align-items: center; gap: 0.5rem; }
 .mb-1 { margin-bottom: 1rem; }
 .mb-sm { margin-bottom: 1.5rem; }
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-topbar {
+    padding: 0 1rem;
+    height: auto;
+    min-height: 58px;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.65rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .topbar-status {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .admin-page-body {
+    padding: 1rem;
+  }
+
+  .panel-header,
+  .panel-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .pending-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .pending-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    height: 100dvh;
+  }
+
+  .admin-layout {
+    width: 100%;
+    height: 100dvh;
+    position: relative;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.58);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition);
+    z-index: 70;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    transition: transform var(--transition);
+    z-index: 80;
+    width: min(86vw, 300px);
+    min-width: min(86vw, 300px);
+  }
+
+  .admin-main {
+    width: 100%;
+  }
+
+  .admin-layout.sidebar-open .admin-sidebar {
+    transform: translateX(0);
+  }
+
+  .admin-layout.sidebar-open .sidebar-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .topbar-breadcrumb {
+    font-size: 0.74rem;
+    width: calc(100% - 42px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-breadcrumb .current {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .subject-cell {
+    min-width: 220px;
+  }
+
+  .panel-body.no-pad .data-table {
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-page-body {
+    padding: 0.75rem;
+  }
+
+  .panel-header,
+  .panel-body {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .topbar-btn,
+  .btn-approve,
+  .btn-deny,
+  .icon-btn {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.55rem;
+  }
+}

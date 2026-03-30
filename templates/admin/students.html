@@ -20,7 +20,7 @@
 {% set total_subjects = students | length %}
 {% set total_solved = students | sum(attribute='total_solved') %}
 
-<div class="admin-layout">
+<div class="admin-layout" id="admin-layout">
 
   <!-- ═══════════════════════════════════════════
        SIDEBAR
@@ -90,6 +90,8 @@
 
   </aside>
 
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
   <!-- ═══════════════════════════════════════════
        MAIN CONTENT
   ═══════════════════════════════════════════ -->
@@ -97,6 +99,7 @@
 
     <!-- TOP BAR -->
     <div class="admin-topbar">
+      <button class="mobile-menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
       <div class="topbar-breadcrumb">
         <span>RESEARCH_OPS</span>
         <span class="sep">›</span>
@@ -268,7 +271,7 @@
                   </td>
                   <td><span class="mono text-muted">{{ student.enrollment_id or '—' }}</span></td>
                   <td>
-                    <span class="badge {% if student.role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">
+                    <span class="badge {% if student.role == 'admin' or student.role == 'analyzer' %}badge-admin{% else %}badge-user{% endif %}">
                       {{ student.role | upper }}
                     </span>
                   </td>
@@ -320,6 +323,7 @@
                       onclick='showStudentCard({{ {
                         "username": student.username,
                         "email": student.email,
+                        "role": student.role,
                         "enrollment_id": student.enrollment_id,
                         "is_approved": student.is_approved,
                         "total_solved": student.total_solved,
@@ -328,6 +332,18 @@
                       } | tojson }})'>
                       View
                     </button>
+                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem; align-items:center;">
+                      <select id="role-{{ loop.index }}" class="input" style="min-width:120px;">
+                        <option value="user" {% if student.role not in ['admin', 'analyzer'] %}selected{% endif %}>Student</option>
+                        <option value="admin" {% if student.role == 'admin' %}selected{% endif %}>Admin</option>
+                        <option value="analyzer" {% if student.role == 'analyzer' %}selected{% endif %}>Analyzer</option>
+                      </select>
+                      <button
+                        class="icon-btn"
+                        onclick="setUserRole('{{ student.email }}', '{{ '1' if student.is_approved else '0' }}', 'role-{{ loop.index }}')">
+                        Apply Role
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}
@@ -427,8 +443,13 @@
                 </div>
                 <div class="pending-actions">
                   <span class="badge badge-pending" style="margin-right:0.5rem;">PENDING</span>
-                  <button class="btn-approve" onclick="approveUser('{{ user.email }}', '1', {{ loop.index }})">✓ Authorize</button>
-                  <button class="btn-deny" onclick="approveUser('{{ user.email }}', '0', {{ loop.index }})">✕ Deny</button>
+                  <select id="pending-role-{{ loop.index }}" class="input" style="min-width:120px;">
+                    <option value="user" {% if user.role not in ['admin', 'analyzer'] %}selected{% endif %}>Student</option>
+                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="analyzer" {% if user.role == 'analyzer' %}selected{% endif %}>Analyzer</option>
+                  </select>
+                  <button class="btn-approve" onclick="approveUser('{{ user.email }}', '1', {{ loop.index }}, 'pending-role-{{ loop.index }}')">✓ Authorize</button>
+                  <button class="btn-deny" onclick="approveUser('{{ user.email }}', '0', {{ loop.index }}, 'pending-role-{{ loop.index }}')">✕ Deny</button>
                 </div>
               </div>
               {% endfor %}
@@ -606,6 +627,36 @@
     logs:          'Audit Logs',
   };
 
+  function toggleSidebar() {
+    const layout = document.getElementById('admin-layout');
+    layout.classList.toggle('sidebar-open');
+  }
+
+  function closeSidebar() {
+    const layout = document.getElementById('admin-layout');
+    layout.classList.remove('sidebar-open');
+  }
+
+  function attachSidebarSwipeClose() {
+    const sidebar = document.querySelector('#admin-layout .admin-sidebar');
+    if (!sidebar) return;
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    sidebar.addEventListener('touchstart', (event) => {
+      touchStartX = event.changedTouches[0].clientX;
+    }, { passive: true });
+
+    sidebar.addEventListener('touchend', (event) => {
+      touchEndX = event.changedTouches[0].clientX;
+      const delta = touchStartX - touchEndX;
+      if (window.innerWidth <= 768 && delta > 45) {
+        closeSidebar();
+      }
+    }, { passive: true });
+  }
+
   function switchTab(id) {
     TABS.forEach(t => {
       document.getElementById('tab-' + t).classList.toggle('active', t === id);
@@ -613,38 +664,65 @@
       if (nav) nav.classList.toggle('active', t === id);
     });
     document.getElementById('breadcrumb-current').textContent = LABELS[id] || id;
+    if (window.innerWidth <= 768) closeSidebar();
   }
 
-  function approveUser(email, isApproved, cardIndex) {
-    const action = isApproved === '1' ? 'authorize' : 'deny';
-    if (!confirm(`Confirm: ${action} access for ${email}?`)) return;
-
+  function updateUserAccess(email, isApproved, role) {
     const formData = new URLSearchParams();
     formData.append('email', email);
     formData.append('is_approved', isApproved);
+    if (role) {
+      formData.append('role', role);
+    }
 
-    fetch('/admin/approve_user', {
+    return fetch('/admin/approve_user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: formData.toString()
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        const card = document.getElementById('pending-' + cardIndex);
-        if (card) {
-          card.style.transition = 'opacity 0.3s, transform 0.3s';
-          card.style.opacity = '0';
-          card.style.transform = 'translateX(20px)';
-          setTimeout(() => { card.remove(); location.reload(); }, 400);
+    }).then(res => res.json());
+  }
+
+  function approveUser(email, isApproved, cardIndex, roleSelectId) {
+    const action = isApproved === '1' ? 'authorize' : 'deny';
+    const selectedRole = roleSelectId ? document.getElementById(roleSelectId)?.value : 'user';
+    if (!confirm(`Confirm: ${action} access for ${email} with role ${selectedRole}?`)) return;
+
+    updateUserAccess(email, isApproved, selectedRole)
+      .then(data => {
+        if (data.success) {
+          const card = document.getElementById('pending-' + cardIndex);
+          if (card) {
+            card.style.transition = 'opacity 0.3s, transform 0.3s';
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(20px)';
+            setTimeout(() => { card.remove(); location.reload(); }, 400);
+          } else {
+            location.reload();
+          }
         } else {
-          location.reload();
+          alert('Error: ' + (data.error || 'Unknown error'));
         }
-      } else {
-        alert('Error: ' + (data.error || 'Unknown error'));
-      }
-    })
-    .catch(() => alert('Network error — check server connection.'));
+      })
+      .catch(() => alert('Network error - check server connection.'));
+  }
+
+  function setUserRole(email, isApproved, roleSelectId) {
+    const selectedRole = document.getElementById(roleSelectId)?.value;
+    if (!selectedRole) {
+      alert('Select a role first.');
+      return;
+    }
+    if (!confirm(`Apply role ${selectedRole} for ${email}?`)) return;
+
+    updateUserAccess(email, isApproved, selectedRole)
+      .then(data => {
+        if (data.success) {
+          location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(() => alert('Network error - check server connection.'));
   }
 
   function renderStudentDetail(student, mode) {
@@ -722,6 +800,13 @@
     {% if pending_count > 0 %}
     switchTab('authorization');
     {% endif %}
+    attachSidebarSwipeClose();
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 768) {
+      closeSidebar();
+    }
   });
 </script>
 </body>

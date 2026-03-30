@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyzer Console - Student Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+{% set total_students = students | length %}
+{% set total_solved = students | sum(attribute='total_solved') %}
+{% set avg_progress = ((students | sum(attribute='avg_progress')) / total_students) if total_students > 0 else 0 %}
+
+<div class="admin-layout" id="analyzer-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">📈</div>
+      <div class="brand-text">
+        <div class="name">ANALYZER OPS</div>
+        <div class="sub">Student Intelligence v1</div>
+      </div>
+    </div>
+
+    <div class="sidebar-body">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
+          <span class="nav-icon">📊</span> Dashboard
+        </button>
+        <button class="nav-item" id="nav-students" onclick="switchTab('students')">
+          <span class="nav-icon">👥</span> Student Records
+        </button>
+        <button class="nav-item" id="nav-activity" onclick="switchTab('activity')">
+          <span class="nav-icon">📡</span> Solved Feed
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="admin-profile">
+        <div class="profile-avatar">N</div>
+        <div class="profile-info">
+          <div class="pname">ANALYZER_NODE</div>
+          <div class="prole">Read-only telemetry access</div>
+        </div>
+      </div>
+      <a href="{{ url_for('home') }}" class="btn-back">Back to Main App</a>
+      <a href="{{ url_for('logout') }}" class="btn-logout">Disconnect</a>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <button class="mobile-menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
+      <div class="topbar-breadcrumb">
+        <span>ANALYZER_OPS</span>
+        <span class="sep">›</span>
+        <span class="current" id="breadcrumb-current">Dashboard</span>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-status">
+          <span class="pulse-dot"></span>
+          ANALYTICS ONLINE
+        </div>
+        <button class="topbar-btn" onclick="location.reload()">Refresh</button>
+      </div>
+    </div>
+
+    <div class="admin-page-body">
+      <div id="tab-dashboard" class="tab-pane active">
+        <div class="page-header">
+          <h2>Analyzer Dashboard</h2>
+          <p>Analyze each student record, solved labs, and engagement health.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-label">Students Tracked</div>
+            <div class="stat-value">{{ total_students }}</div>
+            <div class="stat-trend up">Active student records</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Total Solved Labs</div>
+            <div class="stat-value">{{ total_solved }}</div>
+            <div class="stat-trend up">Cross-student solve count</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-label">Average Progress</div>
+            <div class="stat-value">{{ avg_progress | round | int }}%</div>
+            <div class="stat-trend">Overall cohort progress</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-students" class="tab-pane">
+        <div class="page-header">
+          <h2>Student Records</h2>
+          <p>Per-student breakdown for enrollment, status, and solved units.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Student Dossier</div>
+          </div>
+          <div class="panel-body no-pad">
+            {% if students %}
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Enrollment ID</th>
+                  <th>Status</th>
+                  <th>Solved</th>
+                  <th>Progress</th>
+                  <th>Report</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student in students %}
+                <tr>
+                  <td>
+                    <div class="subject-cell">
+                      <div class="subject-avatar">{{ student.username[0]|upper if student.username else '?' }}</div>
+                      <div>
+                        <div class="subject-name">{{ student.username }}</div>
+                        <div class="subject-email">{{ student.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="mono text-muted">{{ student.enrollment_id or 'N/A' }}</span></td>
+                  <td>
+                    {% if student.is_approved %}
+                      <span class="badge badge-active">Active</span>
+                    {% else %}
+                      <span class="badge badge-pending">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td><span class="solved-val">{{ student.total_solved }} / {{ student.labs_enrolled }}</span></td>
+                  <td>
+                    <div class="mini-progress">
+                      <progress max="100" value="{{ (student.avg_progress or 0)|round|int }}" style="width: 100%;"></progress>
+                      <span class="mini-progress-label">{{ (student.avg_progress or 0)|round|int }}%</span>
+                    </div>
+                  </td>
+                  <td>
+                    <a class="icon-btn" href="{{ url_for('analyzer_student_report', email=student.email) }}">View Full Report</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <h3>No student records found</h3>
+              <p>No student users are available for analysis.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-activity" class="tab-pane">
+        <div class="page-header">
+          <h2>Solved Activity Feed</h2>
+          <p>Read-only stream of solved lab submissions.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Solves</div>
+          </div>
+          <div class="feed-list">
+            {% if solved_data %}
+              {% for log in solved_data %}
+              <div class="feed-entry">
+                <div class="feed-dot"></div>
+                <div class="feed-content">
+                  <div>
+                    <span class="feed-user">{{ log.email or 'Unknown' }}</span>
+                    solved <span class="feed-lab">{{ log.lab_id or 'N/A' }}</span>
+                  </div>
+                  <div class="feed-meta">
+                    {{ log.variation or 'default' }} · {{ log.solved_at or 'N/A' }}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+            <div class="empty-state">
+              <div class="empty-icon">📡</div>
+              <h3>No solve feed yet</h3>
+              <p>Waiting for solved-lab telemetry.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const TABS = ['dashboard', 'students', 'activity'];
+  const LABELS = {
+    dashboard: 'Dashboard',
+    students: 'Student Records',
+    activity: 'Solved Feed'
+  };
+
+  function toggleSidebar() {
+    const layout = document.getElementById('analyzer-layout');
+    layout.classList.toggle('sidebar-open');
+  }
+
+  function closeSidebar() {
+    const layout = document.getElementById('analyzer-layout');
+    layout.classList.remove('sidebar-open');
+  }
+
+  function attachSidebarSwipeClose() {
+    const sidebar = document.querySelector('#analyzer-layout .admin-sidebar');
+    if (!sidebar) return;
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    sidebar.addEventListener('touchstart', (event) => {
+      touchStartX = event.changedTouches[0].clientX;
+    }, { passive: true });
+
+    sidebar.addEventListener('touchend', (event) => {
+      touchEndX = event.changedTouches[0].clientX;
+      const delta = touchStartX - touchEndX;
+      if (window.innerWidth <= 768 && delta > 45) {
+        closeSidebar();
+      }
+    }, { passive: true });
+  }
+
+  function switchTab(id) {
+    TABS.forEach(t => {
+      document.getElementById('tab-' + t).classList.toggle('active', t === id);
+      const nav = document.getElementById('nav-' + t);
+      if (nav) nav.classList.toggle('active', t === id);
+    });
+    document.getElementById('breadcrumb-current').textContent = LABELS[id] || id;
+    if (window.innerWidth <= 768) closeSidebar();
+  }
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 768) {
+      closeSidebar();
+    }
+  });
+
+  window.addEventListener('load', function () {
+    attachSidebarSwipeClose();
+  });
+</script>
+</body>
+</html>

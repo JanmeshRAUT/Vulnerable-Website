@@ -16,6 +16,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from firebase_db import FirebaseDataStore
 import zipfile
 import hashlib
+import csv
+import io
 from collections import Counter
 
 
@@ -257,6 +259,18 @@ def admin_required(f):
     return decorated_function
 
 
+def analyzer_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login', next=request.path))
+
+        if session.get('role') not in ['analyzer', 'admin']:
+            return render_template('error.html', message="Analyzer clearance required."), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def sync_session_from_firebase_user(firebase_user, email=None):
     """Keep session identity aligned with the latest Firebase profile."""
     if not firebase_user:
@@ -284,8 +298,8 @@ def enforce_lab_locks():
         print(f"[SECURITY] Blocked unauthenticated access to {path}")
         return redirect(url_for('login', next=request.path))
     
-    # Authorized subjects (Admins) bypass the vetting protocol
-    if session.get('role') == 'admin':
+    # Authorized staff (Admins/Analyzers) bypass the vetting protocol
+    if session.get('role') in ['admin', 'analyzer']:
         return
         
     # Standard subjects must be vetted by the Command Center
@@ -446,9 +460,9 @@ def submit_flag():
 @admin_required
 def admin_students():
     """View and manage research subjects and their lab telemetry via Firestore"""
-    # Fetch all students from Firebase
+    # Fetch all users from Firebase so roles can be changed both ways.
     all_users = firebase_store.get_all_users()
-    students = [u for u in all_users if u.get('role') != 'admin']
+    students = all_users
     
     # Calculate aggregate stats from Firebase data
     for student in students:
@@ -465,7 +479,7 @@ def admin_students():
         )
 
     # Fetch pending users for authorization
-    pending_users = [u for u in students if not u.get('is_approved')]
+    pending_users = [u for u in students if not u.get('is_approved') and u.get('role') not in ['admin', 'analyzer']]
     
     # Fetch solved labs feed from Firebase
     solved_data = firebase_store.get_solved_labs_feed()
@@ -474,6 +488,142 @@ def admin_students():
                           students=students, 
                           solved_data=solved_data,
                           pending_users=pending_users)
+
+
+@app.route('/analyzer/students')
+@analyzer_required
+def analyzer_students():
+    """Analyzer workspace focused on student performance telemetry."""
+    all_users = firebase_store.get_all_users()
+    students = [u for u in all_users if u.get('role') not in ['admin', 'analyzer']]
+
+    for student in students:
+        progress = firebase_store.get_user_progress(student.get('email'))
+        solved_labs = build_solved_lab_records(progress)
+
+        student['labs_enrolled'] = get_total_trackable_lab_units()
+        student['labs_approved'] = get_total_trackable_lab_units()
+        student['solved_labs'] = solved_labs
+        student['total_solved'] = len(solved_labs)
+        student['avg_progress'] = (
+            student['total_solved'] / float(get_total_trackable_lab_units()) * 100
+            if get_total_trackable_lab_units() else 0
+        )
+
+    solved_data = firebase_store.get_solved_labs_feed()
+    return render_template('analyzer/students.html', students=students, solved_data=solved_data)
+
+
+@app.route('/analyzer/student/<path:email>')
+@analyzer_required
+def analyzer_student_report(email):
+    """Detailed read-only report page for one student record."""
+    student = firebase_store.get_user_by_email(email)
+    if not student:
+        return render_template('error.html', message="Student record not found."), 404
+
+    if student.get('role') in ['admin', 'analyzer']:
+        return render_template('error.html', message="Full report is available only for student records."), 403
+
+    progress = firebase_store.get_user_progress(email)
+    solved_labs = build_solved_lab_records(progress)
+    total_labs = get_total_trackable_lab_units()
+    solved_count = len(solved_labs)
+    pending_count = max(total_labs - solved_count, 0)
+    completion_pct = round((solved_count / total_labs) * 100) if total_labs else 0
+
+    canonical_counter = Counter()
+    variation_counter = Counter()
+    for lab in solved_labs:
+        canonical_counter[lab.get('canonical_lab_id') or 'unknown'] += 1
+        variation_counter[lab.get('variation') or 'default'] += 1
+
+    canonical_rows = []
+    canonical_peak = max(canonical_counter.values()) if canonical_counter else 1
+    for key, count in canonical_counter.most_common(12):
+        canonical_rows.append({
+            'label': str(key).replace('_', ' ').upper(),
+            'count': count,
+            'pct': round((count / canonical_peak) * 100) if canonical_peak else 0
+        })
+
+    variation_rows = []
+    variation_peak = max(variation_counter.values()) if variation_counter else 1
+    for key, count in variation_counter.most_common(6):
+        variation_rows.append({
+            'label': str(key),
+            'count': count,
+            'pct': round((count / variation_peak) * 100) if variation_peak else 0
+        })
+
+    report = {
+        'student': student,
+        'total_labs': total_labs,
+        'solved_count': solved_count,
+        'pending_count': pending_count,
+        'completion_pct': completion_pct,
+        'canonical_rows': canonical_rows,
+        'variation_rows': variation_rows,
+        'solved_labs': solved_labs,
+    }
+
+    return render_template('analyzer/student_report.html', report=report)
+
+
+@app.route('/analyzer/student/<path:email>/export.csv')
+@analyzer_required
+def analyzer_student_report_csv(email):
+    """Export one student's full analyzer report as CSV."""
+    student = firebase_store.get_user_by_email(email)
+    if not student:
+        return render_template('error.html', message="Student record not found."), 404
+
+    if student.get('role') in ['admin', 'analyzer']:
+        return render_template('error.html', message="CSV export is available only for student records."), 403
+
+    progress = firebase_store.get_user_progress(email)
+    solved_labs = build_solved_lab_records(progress)
+    total_labs = get_total_trackable_lab_units()
+    solved_count = len(solved_labs)
+    pending_count = max(total_labs - solved_count, 0)
+    completion_pct = round((solved_count / total_labs) * 100) if total_labs else 0
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow(['section', 'field', 'value'])
+    writer.writerow(['student', 'email', student.get('email', '')])
+    writer.writerow(['student', 'username', student.get('username', '')])
+    writer.writerow(['student', 'enrollment_id', student.get('enrollment_id', '')])
+    writer.writerow(['summary', 'total_labs', total_labs])
+    writer.writerow(['summary', 'solved_count', solved_count])
+    writer.writerow(['summary', 'pending_count', pending_count])
+    writer.writerow(['summary', 'completion_pct', completion_pct])
+
+    writer.writerow([])
+    writer.writerow(['solved_labs', 'label', 'canonical_lab_id', 'variation', 'lab_path'])
+    for lab in solved_labs:
+        writer.writerow([
+            'solved_labs',
+            lab.get('label') or lab.get('lab_id') or '',
+            lab.get('canonical_lab_id') or '',
+            lab.get('variation') or '',
+            lab.get('lab_path') or ''
+        ])
+
+    csv_data = output.getvalue()
+    output.close()
+
+    safe_name = re.sub(r'[^a-zA-Z0-9._-]', '_', student.get('username') or 'student')
+    filename = f"student_report_{safe_name}.csv"
+
+    return Response(
+        csv_data,
+        mimetype='text/csv',
+        headers={
+            'Content-Disposition': f'attachment; filename={filename}'
+        }
+    )
 
 @app.route('/admin/approve', methods=['POST'])
 @admin_required
@@ -523,6 +673,12 @@ def approve_user():
     email = request.form.get('email') # Use email as ID for Firebase
     user_id = request.form.get('user_id') # Fallback if email not provided
     is_approved = request.form.get('is_approved') == '1'
+    requested_role = (request.form.get('role') or '').strip().lower()
+
+    if requested_role == 'student':
+        requested_role = 'user'
+    if requested_role and requested_role not in ['user', 'admin', 'analyzer']:
+        return jsonify({'error': 'Invalid role. Allowed values are user/student/admin/analyzer.'}), 400
 
     if not email and not user_id:
         return jsonify({'error': 'Subject identifier required'}), 400
@@ -535,10 +691,11 @@ def approve_user():
     if not email:
         return jsonify({'error': 'Subject not found in registry'}), 404
 
-    firebase_store.update_user_approval(email, is_approved)
+    firebase_store.update_user_access(email, is_approved, requested_role or None)
     
     status_message = "authorized" if is_approved else "denied"
-    return jsonify({'success': True, 'message': f'Research subject {status_message}.'})
+    role_message = f" Role set to {requested_role}." if requested_role else ""
+    return jsonify({'success': True, 'message': f'Research subject {status_message}.{role_message}'})
 
 # -------------------------
 # INITIALIZATION (DECOMMISSIONED)
@@ -699,7 +856,7 @@ def google_callback():
 
         # Check if user is authorized by Command Center
         print(f"[AUTH] User profile retrieved. Approval status: {firebase_user.get('is_approved')}")
-        if not firebase_user.get('is_approved') and firebase_user.get('role') != 'admin':
+        if not firebase_user.get('is_approved') and firebase_user.get('role') not in ['admin', 'analyzer']:
             return redirect(url_for('auth_pending'))
         
         # Redirection Logic
@@ -709,6 +866,8 @@ def google_callback():
         
         if firebase_user.get('role') == 'admin':
             return redirect(url_for('admin_students'))
+        if firebase_user.get('role') == 'analyzer':
+            return redirect(url_for('analyzer_students'))
         return redirect(url_for('home'))
         
     print(f"[AUTH] FINAL FAILURE: No firebase user found after all attempts for {email}")
@@ -717,6 +876,10 @@ def google_callback():
 @app.route('/login', methods=['GET'])
 def login():
     if session.get('user_id'):
+        if session.get('role') == 'admin':
+            return redirect(url_for('admin_students'))
+        if session.get('role') == 'analyzer':
+            return redirect(url_for('analyzer_students'))
         return redirect(url_for('home'))
 
     error = request.args.get('error')
@@ -747,13 +910,15 @@ def auth_pending():
 
     sync_session_from_firebase_user(firebase_user, email)
 
-    if firebase_user.get('is_approved') or firebase_user.get('role') == 'admin':
+    if firebase_user.get('is_approved') or firebase_user.get('role') in ['admin', 'analyzer']:
         next_url = session.pop('oauth_next', '')
         if next_url and next_url.startswith('/') and not next_url.startswith('//'):
             return redirect(next_url)
 
         if firebase_user.get('role') == 'admin':
             return redirect(url_for('admin_students'))
+        if firebase_user.get('role') == 'analyzer':
+            return redirect(url_for('analyzer_students'))
         return redirect(url_for('home'))
 
     return render_template('auth_pending.html', user=firebase_user)
