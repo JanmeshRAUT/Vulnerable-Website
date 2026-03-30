@@ -435,6 +435,11 @@ def get_random_flag(lab_id, variation='default'):
             identity_key = None
             
     if not identity_key:
+        if lab_id == 'lab1':
+            # Provide high-fidelity static fallbacks for guest researchers
+            if variation == 'variation_A': return "FLAG{file_system_traversal_alpha}"
+            if variation == 'variation_B': return "FLAG{directory_enumeration_beta}"
+            if variation == 'variation_C': return "FLAG{path_manipulation_gamma}"
         return "FLAG{unauthenticated_research_lock}"
 
     # Rotate nonce per lab access so repeated visits yield fresh flags.
