@@ -99,4 +99,46 @@
   <a href="{{ url_for('register') }}" class="btn">Join the Platform</a>
 </div>
 
+<section class="policy-hub">
+  <div id="privacy" class="policy-card">
+    <h3>Privacy Policy</h3>
+    <p>We store only the minimum operational data required for account access, flag verification, and lab progress tracking.</p>
+    <ul>
+      <li>Identity data: username, role, and authentication state.</li>
+      <li>Training data: submitted flags, progress entries, and timestamps.</li>
+      <li>Security logs: request metadata used to prevent abuse and protect platform integrity.</li>
+    </ul>
+  </div>
+
+  <div id="terms" class="policy-card">
+    <h3>Terms of Service</h3>
+    <p>Use of RESEARCH_OPS is limited to authorized educational and training activity within the platform boundaries.</p>
+    <ul>
+      <li>Do not attack external systems or unrelated infrastructure.</li>
+      <li>Do not share account credentials or impersonate other users.</li>
+      <li>Do not attempt to disrupt platform availability for other learners.</li>
+    </ul>
+  </div>
+
+  <div id="cookies" class="policy-card">
+    <h3>Cookie Policy</h3>
+    <p>Cookies are used strictly for session continuity and authentication, not ad targeting.</p>
+    <ul>
+      <li>Session cookies: keep you signed in while navigating labs.</li>
+      <li>Security cookies: support CSRF/session protections where enabled.</li>
+      <li>Preference cookies: maintain non-sensitive UI behavior when available.</li>
+    </ul>
+  </div>
+
+  <div id="status" class="policy-card">
+    <h3>System Status</h3>
+    <p>This section communicates whether core services are currently reachable so learners know if an issue is local or platform-wide.</p>
+    <ul>
+      <li>Web Interface: Operational</li>
+      <li>Authentication Layer: Operational</li>
+      <li>Lab Routing and Static Assets: Operational</li>
+    </ul>
+  </div>
+</section>
+
 {% endblock %}
