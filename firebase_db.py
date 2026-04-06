@@ -236,6 +236,116 @@ class FirebaseDataStore:
             print(f"[Firebase] Access update failed for {email}: {e}")
             return False
 
+    def _lab_enrollment_doc_id(self, email, lab_id):
+        return f"{email}__{lab_id}"
+
+    def get_lab_enrollment(self, email, lab_id):
+        """Fetch one lab enrollment record for a subject."""
+        db = self.db
+        if db is None or not self.is_ready:
+            return None
+        try:
+            doc_id = self._lab_enrollment_doc_id(email, lab_id)
+            doc = db.collection("lab_enrollments").document(doc_id).get()
+            return doc.to_dict() if doc.exists else None
+        except Exception as e:
+            print(f"[Firebase] Lab enrollment lookup failed for {email} / {lab_id}: {e}")
+            return None
+
+    def get_user_lab_enrollments(self, email):
+        """Fetch all lab enrollment records for a subject."""
+        db = self.db
+        if db is None or not self.is_ready:
+            return []
+        try:
+            docs = db.collection("lab_enrollments").where("email", "==", email).stream()
+            records = []
+            for doc in docs:
+                payload = doc.to_dict() or {}
+                payload["doc_id"] = doc.id
+                records.append(payload)
+            records.sort(key=lambda item: str(item.get("lab_id") or ""))
+            return records
+        except Exception as e:
+            print(f"[Firebase] Lab enrollment list failed for {email}: {e}")
+            return []
+
+    def create_lab_enrollment(self, email, lab_id, approval_status="pending"):
+        """Create or overwrite one lab enrollment record."""
+        db = self.db
+        fs = self.firestore
+        if db is None or fs is None or not self.is_ready:
+            return False
+
+        try:
+            payload = {
+                "email": email,
+                "lab_id": lab_id,
+                "approval_status": approval_status,
+                "updated_at": fs.SERVER_TIMESTAMP,
+            }
+            db.collection("lab_enrollments").document(self._lab_enrollment_doc_id(email, lab_id)).set(payload, merge=True)
+            return True
+        except Exception as e:
+            print(f"[Firebase] Lab enrollment create failed for {email} / {lab_id}: {e}")
+            return False
+
+    def update_lab_enrollment_status(self, email, lab_id, approval_status):
+        """Update the approval state for one lab enrollment."""
+        db = self.db
+        fs = self.firestore
+        if db is None or fs is None or not self.is_ready:
+            return False
+
+        try:
+            payload = {
+                "email": email,
+                "lab_id": lab_id,
+                "approval_status": approval_status,
+                "updated_at": fs.SERVER_TIMESTAMP,
+            }
+            db.collection("lab_enrollments").document(self._lab_enrollment_doc_id(email, lab_id)).set(payload, merge=True)
+            return True
+        except Exception as e:
+            print(f"[Firebase] Lab enrollment update failed for {email} / {lab_id}: {e}")
+            return False
+
+    def delete_lab_enrollment(self, email, lab_id):
+        """Delete one lab enrollment record."""
+        db = self.db
+        if db is None or not self.is_ready:
+            return False
+
+        try:
+            db.collection("lab_enrollments").document(self._lab_enrollment_doc_id(email, lab_id)).delete()
+            return True
+        except Exception as e:
+            print(f"[Firebase] Lab enrollment delete failed for {email} / {lab_id}: {e}")
+            return False
+
+    def replace_user_lab_access(self, email, allowed_lab_ids):
+        """Replace a subject's active lab allowlist with the selected lab IDs."""
+        db = self.db
+        if db is None or not self.is_ready:
+            return False
+
+        try:
+            allowed = {str(lab_id).strip() for lab_id in allowed_lab_ids if str(lab_id).strip()}
+            current_enrollments = self.get_user_lab_enrollments(email)
+
+            for lab_id in allowed:
+                self.update_lab_enrollment_status(email, lab_id, "approved")
+
+            for enrollment in current_enrollments:
+                lab_id = str(enrollment.get("lab_id") or "").strip()
+                if lab_id and lab_id not in allowed:
+                    self.delete_lab_enrollment(email, lab_id)
+
+            return True
+        except Exception as e:
+            print(f"[Firebase] Lab access replacement failed for {email}: {e}")
+            return False
+
     def submit_lab_progress(self, email, lab_id, variation, flag, is_correct, message="", canonical_lab_id=None, exact_lab_id=None, lab_path=None):
         """Record a research deliverable submission"""
         db = self.db

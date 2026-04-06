@@ -3,10 +3,14 @@ import sys
 import sqlite3
 import subprocess
 import requests
+import smtplib
+import ssl
 import string
 import random
 import re
 import uuid
+from html import escape as html_escape
+from email.message import EmailMessage
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g, send_file, send_from_directory, Response, g, jsonify
 from datetime import datetime, timedelta
 import shutil
@@ -105,6 +109,211 @@ def get_google_redirect_uri():
     if os.environ.get('VERCEL') or os.environ.get('FORCE_HTTPS'):
         uri = uri.replace('http://', 'https://', 1)
     return uri
+
+
+def send_admin_authorization_email(request_type, requester_email, requester_name=None, lab_id=None, requester_role='user'):
+    """Send admin notification when a user requests account or lab authorization."""
+    recipients_raw = (os.environ.get('ADMIN_ALERT_EMAILS') or '').strip()
+    if not recipients_raw:
+        return False
+
+    smtp_host = (os.environ.get('SMTP_HOST') or '').strip()
+    smtp_user = (os.environ.get('SMTP_USERNAME') or '').strip()
+    smtp_password = os.environ.get('SMTP_PASSWORD') or ''
+    smtp_port = int((os.environ.get('SMTP_PORT') or '587').strip())
+    smtp_use_tls = (os.environ.get('SMTP_USE_TLS', 'true').strip().lower() in {'1', 'true', 'yes', 'on'})
+    sender = (os.environ.get('SMTP_FROM_EMAIL') or smtp_user or 'no-reply@research-ops.local').strip()
+
+    if not smtp_host or not sender:
+        return False
+
+    recipients = [email.strip() for email in recipients_raw.split(',') if email.strip()]
+    if not recipients:
+        return False
+
+    requested_at = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
+    app_url = (request.host_url or '').rstrip('/')
+    requester_display = requester_name or requester_email
+    identity_value = f"{requester_display} ({(requester_role or 'user').upper()})"
+    approve_url = f"{app_url}/admin/students#tab-authorization"
+    deny_url = f"{app_url}/admin/students#tab-authorization"
+
+    if request_type == 'account':
+        subject = "🚨 Action Required: New VulnHub Access Request"
+        request_label = "Account approval"
+        detail_lines = [
+            f"Identity: {identity_value}",
+            f"Email: {requester_email}",
+            f"Request Type: {request_label}",
+            f"Requested At: {requested_at}",
+            f"Admin Queue: {app_url}/admin/students",
+        ]
+    else:
+        subject = "🚨 Action Required: New VulnHub Access Request"
+        request_label = f"Lab access approval ({lab_id})"
+        detail_lines = [
+            f"Identity: {identity_value}",
+            f"Email: {requester_email}",
+            f"Request Type: {request_label}",
+            f"Requested At: {requested_at}",
+            f"Admin Queue: {app_url}/admin/students",
+        ]
+
+    html_body = f"""<!doctype html>
+<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\">
+    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">
+    <title>Admin Access Request Notification</title>
+</head>
+<body style=\"margin:0; padding:0; background-color:#f3f6fb; font-family:Arial, Helvetica, sans-serif; color:#1f2937;\">
+    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f3f6fb; padding:24px 0;\">
+        <tr>
+            <td align=\"center\">
+                <table role=\"presentation\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:640px; max-width:640px; background:#ffffff; border:1px solid #dbe3ef; border-radius:12px; overflow:hidden;\">
+                    <tr>
+                        <td style=\"padding:24px 28px; background:linear-gradient(90deg,#1d4ed8,#3b82f6);\">
+                            <h1 style=\"margin:0; font-size:22px; line-height:1.3; color:#ffffff; font-weight:700;\">VulnHub Access System</h1>
+                            <p style=\"margin:8px 0 0; font-size:14px; line-height:1.5; color:#dbeafe;\">New access request requires administrator review</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style=\"padding:24px 28px 10px;\">
+                            <p style=\"margin:0; font-size:15px; line-height:1.7; color:#374151;\">A new authorization request has been submitted and is awaiting your decision.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style=\"padding:12px 28px 8px;\">
+                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border:1px solid #dbe3ef; border-radius:10px; background:#f8fbff;\">
+                                <tr>
+                                    <td colspan=\"2\" style=\"padding:14px 16px; border-bottom:1px solid #dbe3ef; background:#eef4ff;\">
+                                        <h2 style=\"margin:0; font-size:16px; color:#1e40af; font-weight:700;\">Request Details</h2>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding:12px 16px; width:180px; font-size:14px; color:#6b7280; border-bottom:1px solid #e5eaf3;\">Identity</td>
+                                    <td style=\"padding:12px 16px; font-size:14px; color:#111827; border-bottom:1px solid #e5eaf3;\">{html_escape(identity_value)}</td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding:12px 16px; width:180px; font-size:14px; color:#6b7280; border-bottom:1px solid #e5eaf3;\">User Email</td>
+                                    <td style=\"padding:12px 16px; font-size:14px; color:#111827; border-bottom:1px solid #e5eaf3;\">{html_escape(requester_email)}</td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding:12px 16px; width:180px; font-size:14px; color:#6b7280; border-bottom:1px solid #e5eaf3;\">Request Type</td>
+                                    <td style=\"padding:12px 16px; font-size:14px; color:#111827; border-bottom:1px solid #e5eaf3;\">{html_escape(request_label)}</td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding:12px 16px; width:180px; font-size:14px; color:#6b7280;\">Timestamp</td>
+                                    <td style=\"padding:12px 16px; font-size:14px; color:#111827;\">{html_escape(requested_at)}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style=\"padding:20px 28px 8px;\">
+                            <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">
+                                <tr>
+                                    <td style=\"padding-right:10px;\"><a href=\"{html_escape(approve_url)}\" style=\"display:inline-block; padding:12px 22px; background:#16a34a; color:#ffffff; text-decoration:none; font-size:14px; font-weight:700; border-radius:8px; border:1px solid #15803d;\">Approve</a></td>
+                                    <td><a href=\"{html_escape(deny_url)}\" style=\"display:inline-block; padding:12px 22px; background:#dc2626; color:#ffffff; text-decoration:none; font-size:14px; font-weight:700; border-radius:8px; border:1px solid #b91c1c;\">Deny</a></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style=\"padding:22px 28px 26px;\"><p style=\"margin:0; font-size:12px; color:#6b7280; line-height:1.6;\">This is an automated message. Please do not reply.</p></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>"""
+
+    message = EmailMessage()
+    message['Subject'] = subject
+    message['From'] = sender
+    message['To'] = ', '.join(recipients)
+    message.set_content(
+        "Authorization request received.\n\n"
+        + "\n".join(detail_lines)
+        + "\n\nPlease review this request in the admin console."
+    )
+    message.add_alternative(html_body, subtype='html')
+
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as smtp:
+            smtp.ehlo()
+            if smtp_use_tls:
+                smtp.starttls(context=ssl.create_default_context())
+                smtp.ehlo()
+            if smtp_user and smtp_password:
+                smtp.login(smtp_user, smtp_password)
+            smtp.send_message(message)
+        return True
+    except Exception as exc:
+        print(f"[MAIL] Failed to send authorization notification: {exc}")
+        return False
+
+
+def send_user_access_granted_email(user_email, role='user', approved_lab_ids=None):
+    """Send end-user confirmation when admin grants account/lab access."""
+    if not user_email:
+        return False
+
+    smtp_host = (os.environ.get('SMTP_HOST') or '').strip()
+    smtp_user = (os.environ.get('SMTP_USERNAME') or '').strip()
+    smtp_password = os.environ.get('SMTP_PASSWORD') or ''
+    smtp_port = int((os.environ.get('SMTP_PORT') or '587').strip())
+    smtp_use_tls = (os.environ.get('SMTP_USE_TLS', 'true').strip().lower() in {'1', 'true', 'yes', 'on'})
+    sender = (os.environ.get('SMTP_FROM_EMAIL') or smtp_user or 'no-reply@research-ops.local').strip()
+
+    if not smtp_host or not sender:
+        return False
+
+    granted_labs = approved_lab_ids or []
+    role_label = (role or 'user').upper()
+    app_url = (request.host_url or '').rstrip('/')
+
+    if granted_labs:
+        lab_lines = []
+        for lab_id in granted_labs:
+            lab_unit = TRACKABLE_LAB_ID_INDEX.get(lab_id)
+            if lab_unit:
+                lab_lines.append(f"- {lab_unit['label']} ({lab_id})")
+            else:
+                lab_lines.append(f"- {lab_id}")
+        labs_text = "\n".join(lab_lines)
+    else:
+        labs_text = "- Access was granted without a specific lab list."
+
+    message = EmailMessage()
+    message['Subject'] = "[RESEARCH_OPS] Access Granted"
+    message['From'] = sender
+    message['To'] = user_email
+    message.set_content(
+        "Your access request has been approved by an administrator.\n\n"
+        + f"Role: {role_label}\n"
+        + f"Approved At: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+        + "\nGranted Labs:\n"
+        + labs_text
+        + "\n\n"
+        + f"You can sign in here: {app_url}/login\n"
+    )
+
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as smtp:
+            smtp.ehlo()
+            if smtp_use_tls:
+                smtp.starttls(context=ssl.create_default_context())
+                smtp.ehlo()
+            if smtp_user and smtp_password:
+                smtp.login(smtp_user, smtp_password)
+            smtp.send_message(message)
+        return True
+    except Exception as exc:
+        print(f"[MAIL] Failed to send user access confirmation: {exc}")
+        return False
 
 firebase_store = FirebaseDataStore(BASE_PATH)
 firebase_store.initialize()
@@ -376,8 +585,8 @@ def enforce_lab_locks():
     """Global access controller for the laboratory environment"""
     path = request.path.lower()
     
-    # Bypass protection for system, authentication, and Level Zero Research (Lab 1)
-    if not path.startswith('/lab') or request.remote_addr == '127.0.0.1' or path.startswith('/lab1'):
+    # Only protect lab routes; everything else keeps its normal behavior.
+    if not path.startswith('/lab'):
         return
         
     print(f"[SECURITY] Access attempt to {path} from {request.remote_addr}")
@@ -397,6 +606,29 @@ def enforce_lab_locks():
     if not user or not user.get('is_approved'):
         print(f"[SECURITY] Blocked unvetted subject {email} from entering {path}")
         return redirect(url_for('auth_pending'))
+
+    lab_context = resolve_lab_context(lab_path=path)
+    exact_lab_id = lab_context.get('exact_lab_id')
+    if not exact_lab_id:
+        family_match = re.fullmatch(r'/lab(\d+)', path.rstrip('/'))
+        if family_match:
+            family_prefix = f"lab{family_match.group(1)}_"
+            approved_enrollments = firebase_store.get_user_lab_enrollments(email)
+            has_family_access = any(
+                str(enrollment.get('lab_id') or '').startswith(family_prefix)
+                and enrollment.get('approval_status') == 'approved'
+                for enrollment in approved_enrollments
+            )
+            if not has_family_access:
+                print(f"[SECURITY] Blocked locked lab landing page for {email}: {path}")
+                return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id='UNMAPPED'))
+            return
+        return
+
+    allowed_enrollment = firebase_store.get_lab_enrollment(email, exact_lab_id)
+    if not allowed_enrollment or allowed_enrollment.get('approval_status') != 'approved':
+        print(f"[SECURITY] Blocked locked lab {exact_lab_id} for {email}")
+        return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id=exact_lab_id))
 
 # -------------------------
 # DYNAMIC RESEARCH DELIVERABLES (FLAGS)
@@ -553,11 +785,19 @@ def admin_students():
     for student in students:
         progress = firebase_store.get_user_progress(student.get('email'))
         solved_labs = build_solved_lab_records(progress)
+        lab_enrollments = firebase_store.get_user_lab_enrollments(student.get('email'))
+        allowed_lab_ids = [
+            enrollment.get('lab_id')
+            for enrollment in lab_enrollments
+            if enrollment.get('approval_status') == 'approved' and enrollment.get('lab_id')
+        ]
 
         student['labs_enrolled'] = get_total_trackable_lab_units()
         student['labs_approved'] = get_total_trackable_lab_units()
         student['solved_labs'] = solved_labs
         student['total_solved'] = len(solved_labs)
+        student['lab_access'] = allowed_lab_ids
+        student['lab_access_count'] = len(allowed_lab_ids)
         student['avg_progress'] = (
             student['total_solved'] / float(get_total_trackable_lab_units()) * 100
             if get_total_trackable_lab_units() else 0
@@ -574,7 +814,8 @@ def admin_students():
                           students=students, 
                           solved_data=solved_data,
                           pending_users=pending_users,
-                          dashboard=dashboard)
+                          dashboard=dashboard,
+                          trackable_labs=TRACKABLE_LAB_UNITS)
 
 
 @app.route('/analyzer/students')
@@ -741,6 +982,13 @@ def request_lab_enrollment(lab_id):
     
     try:
         firebase_store.create_lab_enrollment(user_email, lab_id, 'pending')
+        send_admin_authorization_email(
+            request_type='lab',
+            requester_email=user_email,
+            requester_name=session.get('username'),
+            lab_id=lab_id,
+            requester_role=session.get('role') or 'user'
+        )
         return jsonify({'success': True, 'message': 'Access request sent for authorization.'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -762,6 +1010,11 @@ def approve_user():
     user_id = request.form.get('user_id') # Fallback if email not provided
     is_approved = request.form.get('is_approved') == '1'
     requested_role = (request.form.get('role') or '').strip().lower()
+    assign_lab_access = request.form.get('assign_lab_access') == '1'
+    selected_lab_ids = [
+        lab_id for lab_id in request.form.getlist('lab_ids')
+        if lab_id in TRACKABLE_LAB_ID_INDEX
+    ]
 
     if requested_role == 'student':
         requested_role = 'user'
@@ -779,7 +1032,24 @@ def approve_user():
     if not email:
         return jsonify({'error': 'Subject not found in registry'}), 404
 
+    existing_user = firebase_store.get_user_by_email(email) or {}
+    was_approved = bool(existing_user.get('is_approved'))
+
     firebase_store.update_user_access(email, is_approved, requested_role or None)
+
+    if assign_lab_access or not is_approved:
+        if is_approved:
+            firebase_store.replace_user_lab_access(email, selected_lab_ids)
+        else:
+            firebase_store.replace_user_lab_access(email, [])
+
+    should_email_user = is_approved and (not was_approved or (assign_lab_access and bool(selected_lab_ids)))
+    if should_email_user:
+        send_user_access_granted_email(
+            user_email=email,
+            role=requested_role or existing_user.get('role') or 'user',
+            approved_lab_ids=selected_lab_ids if assign_lab_access else None
+        )
     
     status_message = "authorized" if is_approved else "denied"
     role_message = f" Role set to {requested_role}." if requested_role else ""
@@ -934,6 +1204,12 @@ def google_callback():
         )
         firebase_user = firebase_store.get_user_by_email(email) # Re-fetch the newly created user
         print(f"[AUTH] New identity {email} committed to Firebase.")
+        send_admin_authorization_email(
+            request_type='account',
+            requester_email=email,
+            requester_name=selected_username,
+            requester_role='user'
+        )
 
     # 4. Global Identifier Management
     firebase_user = firebase_store.get_user_by_email(email)
@@ -953,6 +1229,12 @@ def google_callback():
             is_approved=False
         )
         firebase_user = firebase_store.get_user_by_email(email)
+        send_admin_authorization_email(
+            request_type='account',
+            requester_email=email,
+            requester_name=selected_username,
+            requester_role='user'
+        )
 
     # 5. Session Finalization
     if firebase_user:
@@ -1026,6 +1308,20 @@ def auth_pending():
         return redirect(url_for('home'))
 
     return render_template('auth_pending.html', user=firebase_user)
+
+
+@app.route('/lab/locked')
+@login_required
+def lab_locked():
+    """Crime-scene style lock screen for labs blocked by per-user allowlist."""
+    blocked_path = request.args.get('blocked_path', '').strip()
+    blocked_lab_id = request.args.get('blocked_lab_id', '').strip()
+
+    return render_template(
+        'lab_locked.html',
+        blocked_path=blocked_path,
+        blocked_lab_id=blocked_lab_id
+    )
 
 @app.route('/logout')
 def logout():
@@ -1194,7 +1490,7 @@ def student_dashboard():
 @app.route('/dashboard/enroll', methods=['POST'])
 @login_required
 def dashboard_enroll_lab():
-    """Enroll a student in a lab via Cloud Firestore"""
+    """Prevent self-enrollment from bypassing the admin lab allowlist."""
     email = session.get('email')
     lab_id = request.form.get('lab_id')
     
@@ -1202,13 +1498,11 @@ def dashboard_enroll_lab():
         return jsonify({'error': 'Lab identifier required'}), 400
     
     try:
-        # Check if already enrolled in Firebase
         existing = firebase_store.get_lab_enrollment(email, lab_id)
-        if existing:
-            return jsonify({'error': 'Subject already enrolled in this telemetry sequence.'}), 400
-            
-        firebase_store.create_lab_enrollment(email, lab_id, 'approved') # Auto-approve for dashboard enroll
-        return jsonify({'success': True, 'message': 'Successfully enrolled in lab telemetry.'})
+        if existing and existing.get('approval_status') == 'approved':
+            return jsonify({'success': True, 'message': 'Subject already has approved access for this lab.'})
+
+        return jsonify({'error': 'Lab access is managed by the admin allowlist.'}), 403
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1797,18 +2091,24 @@ def lab2_3_login_page():
         elif target_theme == 'pets': target_route = 'lab2_3_pets'
         else: target_route = 'lab2_3_music'
 
+        variation = 'a'
+        if target_theme == 'sports':
+            variation = 'b'
+        elif target_theme == 'pets':
+            variation = 'c'
+
         # Multi-Variant Isolation: Scope cookies to current variation only
-        v_upper = v_param.upper()
+        v_upper = variation.upper()
         session_cookie = f'Lab2_3_{v_upper}_Session'
         admin_cookie = f'Lab2_3_{v_upper}_Admin'
 
         if username == 'admin' and password == 'admin123':
-            resp = redirect(url_for('lab2_3_profile', v=v_param))
+            resp = redirect(url_for('lab2_3_profile', v=variation))
             resp.set_cookie(admin_cookie, 'false', path='/lab2/3/') # FORCE MANUAL PRIVILEGE ESCALATION
             resp.set_cookie(session_cookie, 'admin', path='/lab2/3/')
             return resp
         elif username == 'researcher' and password == 'researcher':
-            resp = redirect(url_for('lab2_3_profile', v=v_param))
+            resp = redirect(url_for('lab2_3_profile', v=variation))
             resp.set_cookie(admin_cookie, 'false', path='/lab2/3/') # DEFAULT USER PRIVILEGE
             resp.set_cookie(session_cookie, 'researcher', path='/lab2/3/')
             return resp
@@ -1837,15 +2137,29 @@ def lab2_3_logout():
 @app.route('/lab2/3/profile', methods=['GET', 'POST'])
 def lab2_3_profile():
     """VULNERABLE: Mock profile page that checks 'Admin' cookie to show panel"""
+    variation = (request.args.get('v') or '').strip().lower()
+    if variation not in {'a', 'b', 'c'}:
+        referrer = (request.referrer or '').lower()
+        if 'sports' in referrer:
+            variation = 'b'
+        elif 'pets' in referrer:
+            variation = 'c'
+        elif request.cookies.get('Lab2_3_B_Session'):
+            variation = 'b'
+        elif request.cookies.get('Lab2_3_C_Session'):
+            variation = 'c'
+        else:
+            variation = 'a'
+
     # Isolated Credential Check
-    cookie_prefix = f'Lab2_3_{v.upper()}'
+    cookie_prefix = f'Lab2_3_{variation.upper()}'
     username = request.cookies.get(f'{cookie_prefix}_Session')
     
     if not username:
         # Determine fallback route based on variation
         target_route = 'lab2_3_music'
-        if v == 'b': target_route = 'lab2_3_sports'
-        elif v == 'c': target_route = 'lab2_3_pets'
+        if variation == 'b': target_route = 'lab2_3_sports'
+        elif variation == 'c': target_route = 'lab2_3_pets'
         return redirect(url_for(target_route, login_error="Session orientation lost. Please re-authenticate."))
 
     is_admin = request.cookies.get(f'{cookie_prefix}_Admin') == 'true'

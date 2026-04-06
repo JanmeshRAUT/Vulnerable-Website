@@ -261,10 +261,16 @@
         <div class="panel">
           <div class="panel-header">
             <div class="panel-title">👥 Subject Registry <span class="text-muted text-sm">({{ total_subjects }} records)</span></div>
+            <div class="registry-tabs" role="tablist" aria-label="Subject registry filters">
+              <button type="button" class="registry-tab active" data-role="all" onclick="setSubjectRegistryFilter('all')">All</button>
+              <button type="button" class="registry-tab" data-role="user" onclick="setSubjectRegistryFilter('user')">Student</button>
+              <button type="button" class="registry-tab" data-role="admin" onclick="setSubjectRegistryFilter('admin')">Admin</button>
+              <button type="button" class="registry-tab" data-role="analyzer" onclick="setSubjectRegistryFilter('analyzer')">Analyzer</button>
+            </div>
           </div>
           <div class="panel-body no-pad">
             {% if students %}
-            <table class="data-table">
+            <table class="data-table" id="subject-registry-table">
               <thead>
                 <tr>
                   <th>Subject Identity</th>
@@ -279,7 +285,7 @@
               </thead>
               <tbody>
                 {% for student in students %}
-                <tr>
+                <tr data-role="{{ student.role if student.role in ['admin', 'analyzer'] else 'user' }}">
                   <td>
                     <div class="subject-cell">
                       <div class="subject-avatar">{{ student.username[0]|upper if student.username else '?' }}</div>
@@ -352,7 +358,7 @@
                       } | tojson }})'>
                       View
                     </button>
-                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem; align-items:center;">
+                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem; align-items:center; flex-wrap:wrap;">
                       <select id="role-{{ loop.index }}" class="input" style="min-width:120px;">
                         <option value="user" {% if student.role not in ['admin', 'analyzer'] %}selected{% endif %}>Student</option>
                         <option value="admin" {% if student.role == 'admin' %}selected{% endif %}>Admin</option>
@@ -363,6 +369,25 @@
                         onclick="setUserRole('{{ student.email }}', '{{ '1' if student.is_approved else '0' }}', 'role-{{ loop.index }}')">
                         Apply Role
                       </button>
+                      <button
+                        class="icon-btn lab-access-trigger"
+                        onclick='openLabAccessModal({{ {
+                          "username": student.username,
+                          "email": student.email,
+                          "role": student.role,
+                          "is_approved": student.is_approved,
+                          "lab_access": student.lab_access,
+                          "lab_access_count": student.lab_access_count
+                        } | tojson }}, false)'>
+                        Lab Access ▾
+                      </button>
+                    </div>
+                    <div class="text-muted text-sm" style="margin-top:0.35rem;">
+                      {% if student.lab_access_count %}
+                        {{ student.lab_access_count }} lab{{ 's' if student.lab_access_count != 1 else '' }} enabled
+                      {% else %}
+                        No lab access assigned
+                      {% endif %}
                     </div>
                   </td>
                 </tr>
@@ -379,58 +404,6 @@
           </div>
         </div>
 
-        <div class="panel detail-panel" id="subject-detail-panel">
-          <div class="panel-header">
-            <div class="panel-title">🗂 Subject Detail Workspace</div>
-            <span class="text-muted text-sm" id="detail-panel-status">Select a subject to inspect details.</span>
-          </div>
-          <div class="panel-body">
-            <div id="subject-detail-empty" class="empty-state compact-empty-state">
-              <div class="empty-icon">🧭</div>
-              <h3>No Subject Selected</h3>
-              <p>Use the View buttons in the table to inspect profile details or solved labs in this workspace.</p>
-            </div>
-
-            <div id="subject-detail-card" class="subject-detail-card" hidden>
-              <div class="subject-detail-top">
-                <div class="subject-detail-identity">
-                  <div class="subject-detail-avatar" id="detail-avatar">?</div>
-                  <div>
-                    <div class="subject-detail-name" id="detail-name">Unknown</div>
-                    <div class="subject-detail-email" id="detail-email">—</div>
-                  </div>
-                </div>
-                <div class="subject-detail-badges">
-                  <span class="badge" id="detail-status-badge">Pending</span>
-                  <span class="badge badge-user" id="detail-mode-badge">Profile</span>
-                </div>
-              </div>
-
-              <div class="detail-stats-grid">
-                <div class="detail-stat-card">
-                  <div class="detail-stat-label">Enrollment ID</div>
-                  <div class="detail-stat-value mono" id="detail-enrollment">—</div>
-                </div>
-                <div class="detail-stat-card">
-                  <div class="detail-stat-label">Solved Units</div>
-                  <div class="detail-stat-value" id="detail-solved-count">0 / 0</div>
-                </div>
-                <div class="detail-stat-card">
-                  <div class="detail-stat-label">Progress</div>
-                  <div class="detail-stat-value" id="detail-progress">0%</div>
-                </div>
-              </div>
-
-              <div class="detail-section">
-                <div class="detail-section-header">
-                  <div class="detail-section-title">Solved Labs</div>
-                  <span class="text-muted text-sm" id="detail-solved-meta">No telemetry loaded.</span>
-                </div>
-                <div class="detail-lab-grid" id="detail-lab-grid"></div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
 
@@ -468,7 +441,13 @@
                     <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
                     <option value="analyzer" {% if user.role == 'analyzer' %}selected{% endif %}>Analyzer</option>
                   </select>
-                  <button class="btn-approve" onclick="approveUser('{{ user.email }}', '1', {{ loop.index }}, 'pending-role-{{ loop.index }}')">✓ Authorize</button>
+                  <button class="btn-approve" onclick='openLabAccessModal({{ {
+                    "username": user.username,
+                    "email": user.email,
+                    "role": user.role,
+                    "is_approved": true,
+                    "lab_access": []
+                  } | tojson }}, true, "pending-role-{{ loop.index }}", {{ loop.index }})'>✓ Authorize</button>
                   <button class="btn-deny" onclick="approveUser('{{ user.email }}', '0', {{ loop.index }}, 'pending-role-{{ loop.index }}')">✕ Deny</button>
                 </div>
               </div>
@@ -636,6 +615,118 @@
   </main>
 </div>
 
+<div class="student-detail-modal" id="student-detail-modal" hidden>
+  <div class="student-detail-modal-backdrop" onclick="closeStudentDetailModal()"></div>
+  <div class="student-detail-modal-panel" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+    <div class="panel-header student-detail-modal-header">
+      <div>
+        <div class="panel-title" id="detail-modal-title">Subject Detail Report</div>
+        <span class="text-muted text-sm" id="detail-panel-status">Select a subject to inspect details.</span>
+      </div>
+      <button type="button" class="icon-btn" onclick="closeStudentDetailModal()">✕</button>
+    </div>
+    <div class="panel-body student-detail-modal-body">
+      <div id="subject-detail-empty" class="empty-state compact-empty-state">
+        <div class="empty-icon">🧭</div>
+        <h3>No Subject Selected</h3>
+        <p>Use the View buttons in the table to inspect profile details or solved labs in this report.</p>
+      </div>
+
+      <div id="subject-detail-card" class="subject-detail-card" hidden>
+        <div class="subject-detail-top">
+          <div class="subject-detail-identity">
+            <div class="subject-detail-avatar" id="detail-avatar">?</div>
+            <div>
+              <div class="subject-detail-name" id="detail-name">Unknown</div>
+              <div class="subject-detail-email" id="detail-email">—</div>
+            </div>
+          </div>
+          <div class="subject-detail-badges">
+            <span class="badge" id="detail-status-badge">Pending</span>
+            <span class="badge badge-user" id="detail-mode-badge">Profile</span>
+          </div>
+        </div>
+
+        <div class="detail-stats-grid">
+          <div class="detail-stat-card">
+            <div class="detail-stat-label">Enrollment ID</div>
+            <div class="detail-stat-value mono" id="detail-enrollment">—</div>
+          </div>
+          <div class="detail-stat-card">
+            <div class="detail-stat-label">Solved Units</div>
+            <div class="detail-stat-value" id="detail-solved-count">0 / 0</div>
+          </div>
+          <div class="detail-stat-card">
+            <div class="detail-stat-label">Progress</div>
+            <div class="detail-stat-value" id="detail-progress">0%</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-header">
+            <div class="detail-section-title">Solved Labs</div>
+            <span class="text-muted text-sm" id="detail-solved-meta">No telemetry loaded.</span>
+          </div>
+          <div class="detail-lab-grid" id="detail-lab-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="lab-access-modal" id="lab-access-modal" hidden>
+  <div class="lab-access-modal-backdrop" onclick="closeLabAccessModal()"></div>
+  <div class="lab-access-modal-panel" role="dialog" aria-modal="true" aria-labelledby="lab-access-modal-title">
+    <div class="panel-header lab-access-modal-header">
+      <div>
+        <div class="panel-title" id="lab-access-modal-title">Lab Access Control</div>
+        <div class="text-muted text-sm" id="lab-access-modal-subtitle">Select which labs this subject can open.</div>
+      </div>
+      <button type="button" class="icon-btn" onclick="closeLabAccessModal()">✕</button>
+    </div>
+    <div class="panel-body lab-access-modal-body">
+      <div class="lab-access-meta">
+        <div>
+          <div class="text-muted text-sm">Subject</div>
+          <div class="lab-access-subject" id="lab-access-subject">—</div>
+        </div>
+        <div>
+          <div class="text-muted text-sm">Current allowlist</div>
+          <div class="lab-access-subject" id="lab-access-count">0 labs</div>
+        </div>
+      </div>
+
+      <label class="lab-access-approve-toggle" id="lab-access-approve-wrap">
+        <input type="checkbox" id="lab-access-approve" checked>
+        Approve account with selected labs
+      </label>
+
+      <div class="lab-access-summary" id="lab-access-summary">No labs selected.</div>
+
+      <div class="lab-access-grid-actions">
+        <button type="button" class="topbar-btn" onclick="setAllLabAccess(true)">Select All</button>
+        <button type="button" class="topbar-btn" onclick="setAllLabAccess(false)">Clear All</button>
+      </div>
+
+      <div class="lab-access-grid" id="lab-access-grid">
+        {% for lab in trackable_labs %}
+        <label class="lab-access-option">
+          <input type="checkbox" value="{{ lab.id }}" data-label="{{ lab.label }}" data-path="{{ lab.path }}">
+          <span class="lab-access-option-body">
+            <span class="lab-access-option-title">{{ lab.label }}</span>
+            <span class="lab-access-option-path">{{ lab.path }}</span>
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="panel-footer lab-access-modal-footer">
+      <button type="button" class="btn-deny" onclick="closeLabAccessModal()">Cancel</button>
+      <button type="button" class="btn-approve" id="lab-access-save-btn" onclick="saveLabAccess()">Save Access</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const TABS = ['dashboard','subjects','authorization','activity','labs','logs'];
   const LABELS = {
@@ -646,6 +737,13 @@
     labs:          'Lab Registry',
     logs:          'Audit Logs',
   };
+  const TRACKABLE_LABS = {{ trackable_labs | tojson }};
+
+  let activeLabAccessStudent = null;
+  let activeLabAccessMode = 'manage';
+  let activeLabAccessRoleSelectId = null;
+  let activeLabAccessCardIndex = null;
+  let activeSubjectRegistryRole = 'all';
 
   function toggleSidebar() {
     const layout = document.getElementById('admin-layout');
@@ -702,6 +800,154 @@
     }).then(res => res.json());
   }
 
+  function setSubjectRegistryFilter(role) {
+    activeSubjectRegistryRole = role;
+    document.querySelectorAll('.registry-tab').forEach(button => {
+      button.classList.toggle('active', button.dataset.role === role);
+    });
+
+    document.querySelectorAll('#subject-registry-table tbody tr[data-role]').forEach(row => {
+      const rowRole = row.dataset.role || 'user';
+      row.hidden = role !== 'all' && rowRole !== role;
+    });
+  }
+
+  function refreshLabAccessSelectionSummary() {
+    const selectedCount = collectSelectedLabIds().length;
+    document.getElementById('lab-access-count').textContent = `${selectedCount} lab${selectedCount === 1 ? '' : 's'}`;
+    document.getElementById('lab-access-summary').textContent = selectedCount
+      ? `${selectedCount} selected lab${selectedCount === 1 ? '' : 's'} will be approved.`
+      : 'No labs selected. Existing access will be revoked.';
+  }
+
+  function openStudentDetailModal() {
+    document.getElementById('student-detail-modal').hidden = false;
+  }
+
+  function closeStudentDetailModal() {
+    document.getElementById('student-detail-modal').hidden = true;
+    document.getElementById('subject-detail-empty').hidden = false;
+    document.getElementById('subject-detail-card').hidden = true;
+  }
+
+  function setAllLabAccess(checked) {
+    document.querySelectorAll('#lab-access-grid input[type="checkbox"]').forEach(input => {
+      input.checked = checked;
+    });
+    refreshLabAccessSelectionSummary();
+  }
+
+  function openLabAccessModal(student, isAuthorizeMode, roleSelectId = null, cardIndex = null) {
+    activeLabAccessStudent = student || null;
+    activeLabAccessMode = isAuthorizeMode ? 'authorize' : 'manage';
+    activeLabAccessRoleSelectId = roleSelectId;
+    activeLabAccessCardIndex = cardIndex;
+
+    const modal = document.getElementById('lab-access-modal');
+    const subjectLabel = document.getElementById('lab-access-subject');
+    const countLabel = document.getElementById('lab-access-count');
+    const summary = document.getElementById('lab-access-summary');
+    const approveWrap = document.getElementById('lab-access-approve-wrap');
+    const approveToggle = document.getElementById('lab-access-approve');
+    const saveButton = document.getElementById('lab-access-save-btn');
+
+    const selectedLabs = new Set(Array.isArray(student?.lab_access) ? student.lab_access : []);
+
+    document.querySelectorAll('#lab-access-grid input[type="checkbox"]').forEach(input => {
+      input.checked = selectedLabs.has(input.value);
+    });
+
+    subjectLabel.textContent = student?.username ? `${student.username} (${student.email || 'unknown'})` : (student?.email || 'Unknown');
+    countLabel.textContent = `${selectedLabs.size} lab${selectedLabs.size === 1 ? '' : 's'}`;
+
+    if (isAuthorizeMode) {
+      approveWrap.hidden = false;
+      approveToggle.checked = true;
+      saveButton.textContent = 'Authorize & Save';
+      document.getElementById('lab-access-modal-title').textContent = 'Authorize Subject Access';
+      document.getElementById('lab-access-modal-subtitle').textContent = 'Choose the labs this subject should be allowed to open after approval.';
+    } else {
+      approveWrap.hidden = true;
+      saveButton.textContent = 'Save Access';
+      document.getElementById('lab-access-modal-title').textContent = 'Lab Access Control';
+      document.getElementById('lab-access-modal-subtitle').textContent = 'Update the exact labs this subject can open.';
+    }
+
+    refreshLabAccessSelectionSummary();
+
+    modal.hidden = false;
+  }
+
+  function closeLabAccessModal() {
+    const modal = document.getElementById('lab-access-modal');
+    modal.hidden = true;
+    activeLabAccessStudent = null;
+    activeLabAccessMode = 'manage';
+    activeLabAccessRoleSelectId = null;
+    activeLabAccessCardIndex = null;
+  }
+
+  function collectSelectedLabIds() {
+    return Array.from(document.querySelectorAll('#lab-access-grid input[type="checkbox"]'))
+      .filter(input => input.checked)
+      .map(input => input.value)
+      .filter(Boolean);
+  }
+
+  function saveLabAccess() {
+    if (!activeLabAccessStudent?.email) {
+      alert('Select a subject first.');
+      return;
+    }
+
+    const isAuthorizeMode = activeLabAccessMode === 'authorize';
+    const cardIndex = activeLabAccessCardIndex;
+    const selectedLabIds = collectSelectedLabIds();
+    const isApproved = isAuthorizeMode
+      ? document.getElementById('lab-access-approve').checked
+      : !!activeLabAccessStudent.is_approved;
+    const roleSelectId = isAuthorizeMode
+      ? activeLabAccessRoleSelectId
+      : null;
+    const selectedRole = roleSelectId ? document.getElementById(roleSelectId)?.value : (activeLabAccessStudent.role || 'user');
+
+    const targetLabel = isAuthorizeMode ? 'authorize subject and save lab access' : 'save lab access';
+    if (!confirm(`Confirm: ${targetLabel} for ${activeLabAccessStudent.email}?`)) return;
+
+    const formData = new URLSearchParams();
+    formData.append('email', activeLabAccessStudent.email);
+    formData.append('is_approved', isApproved ? '1' : '0');
+    formData.append('role', selectedRole || 'user');
+    formData.append('assign_lab_access', '1');
+    selectedLabIds.forEach(labId => formData.append('lab_ids', labId));
+
+    fetch('/admin/approve_user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          closeLabAccessModal();
+          if (isAuthorizeMode && cardIndex !== null) {
+            const card = document.getElementById('pending-' + cardIndex);
+            if (card) {
+              card.style.transition = 'opacity 0.3s, transform 0.3s';
+              card.style.opacity = '0';
+              card.style.transform = 'translateX(20px)';
+              setTimeout(() => { card.remove(); location.reload(); }, 400);
+              return;
+            }
+          }
+          location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(() => alert('Network error - check server connection.'));
+  }
+
   function approveUser(email, isApproved, cardIndex, roleSelectId) {
     const action = isApproved === '1' ? 'authorize' : 'deny';
     const selectedRole = roleSelectId ? document.getElementById(roleSelectId)?.value : 'user';
@@ -755,6 +1001,7 @@
 
     emptyState.hidden = true;
     card.hidden = false;
+    openStudentDetailModal();
 
     document.getElementById('detail-panel-status').textContent =
       mode === 'solved'
@@ -814,6 +1061,16 @@
   function showSolvedLabsCard(student) {
     renderStudentDetail(student, 'solved');
   }
+
+  document.addEventListener('input', (event) => {
+    if (event.target && event.target.matches('#lab-access-grid input[type="checkbox"]')) {
+      refreshLabAccessSelectionSummary();
+    }
+  });
+
+  window.addEventListener('load', function () {
+    setSubjectRegistryFilter('all');
+  });
 
   // Auto-switch to authorization tab if there are pending requests
   window.addEventListener('load', function () {
