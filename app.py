@@ -273,33 +273,106 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
 
     granted_labs = approved_lab_ids or []
     role_label = (role or 'user').upper()
-    app_url = (request.host_url or '').rstrip('/')
+    try:
+        app_url = (request.host_url or '').rstrip('/')
+    except RuntimeError:
+        app_url = (os.environ.get('APP_BASE_URL') or '').strip().rstrip('/')
+
+    approved_at = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
 
     if granted_labs:
         lab_lines = []
+        html_rows = []
         for lab_id in granted_labs:
             lab_unit = TRACKABLE_LAB_ID_INDEX.get(lab_id)
             if lab_unit:
-                lab_lines.append(f"- {lab_unit['label']} ({lab_id})")
+                label = lab_unit['label']
+                lab_lines.append(f"- {label} ({lab_id})")
+                html_rows.append(
+                    f"<li style=\"margin: 0 0 8px 0;\"><strong>{label}</strong>"
+                    f" <span style=\"color:#6b7280;\">({lab_id})</span></li>"
+                )
             else:
                 lab_lines.append(f"- {lab_id}")
+                html_rows.append(
+                    f"<li style=\"margin: 0 0 8px 0;\"><strong>{lab_id}</strong></li>"
+                )
         labs_text = "\n".join(lab_lines)
+        labs_html = "".join(html_rows)
     else:
         labs_text = "- Access was granted without a specific lab list."
+        labs_html = "<li style=\"margin: 0 0 8px 0;\">Access was granted without a specific lab list.</li>"
+
+    login_url = f"{app_url}/login" if app_url else ""
 
     message = EmailMessage()
-    message['Subject'] = "[RESEARCH_OPS] Access Granted"
+    message['Subject'] = "VulnHub Access Approved"
     message['From'] = sender
     message['To'] = user_email
     message.set_content(
         "Your access request has been approved by an administrator.\n\n"
         + f"Role: {role_label}\n"
-        + f"Approved At: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+        + f"Approved At: {approved_at}\n"
         + "\nGranted Labs:\n"
         + labs_text
         + "\n\n"
-        + f"You can sign in here: {app_url}/login\n"
+        + (f"You can sign in here: {login_url}\n" if login_url else "")
     )
+
+    html_body = f"""
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+    <meta charset=\"UTF-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+    <title>Access Approved</title>
+</head>
+<body style=\"margin:0;padding:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;color:#0f172a;\">
+    <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background:#f4f6fb;padding:24px 12px;\">
+        <tr>
+            <td align=\"center\">
+                <table role=\"presentation\" width=\"640\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:640px;background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;\">
+                    <tr>
+                        <td style=\"background:linear-gradient(90deg,#0f172a 0%,#1d4ed8 100%);padding:22px 24px;\">
+                            <h1 style=\"margin:0;font-size:20px;line-height:1.3;color:#ffffff;\">✅ Access Approved</h1>
+                            <p style=\"margin:8px 0 0 0;font-size:13px;color:#dbeafe;\">VulnHub Access System</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style=\"padding:24px;\">
+                            <p style=\"margin:0 0 16px 0;font-size:14px;line-height:1.7;color:#111827;\">
+                                Your access request has been approved by an administrator. You can now continue your assigned labs.
+                            </p>
+
+                            <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;margin:0 0 16px 0;\">
+                                <tr>
+                                    <td style=\"padding:14px 16px;font-size:13px;color:#374151;line-height:1.7;\">
+                                        <div><strong>Role:</strong> {role_label}</div>
+                                        <div><strong>Approved At:</strong> {approved_at}</div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <h2 style=\"margin:0 0 8px 0;font-size:15px;color:#111827;\">Granted Labs</h2>
+                            <ul style=\"margin:0 0 18px 18px;padding:0;font-size:13px;color:#111827;line-height:1.6;\">
+                                {labs_html}
+                            </ul>
+
+                            {f'''<a href=\"{login_url}\" style=\"display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:11px 16px;border-radius:8px;\">Sign In to VulnHub</a>''' if login_url else ''}
+
+                            <p style=\"margin:18px 0 0 0;font-size:12px;color:#6b7280;line-height:1.6;\">
+                                If you did not request this access, contact your administrator immediately.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+"""
+    message.add_alternative(html_body, subtype='html')
 
     try:
         with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as smtp:
