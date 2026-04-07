@@ -7,128 +7,218 @@
 {% endblock %}
 
 {% block layout_container %}
-<div class="admin-style-layout animate-fade-in">
-    <!-- Sidebar -->
+<div class="profile-shell animate-fade-in">
     <aside class="profile-sidebar">
         <div class="sidebar-user-section">
-            <div class="mini-avatar">
-                {{ user.username[0]|upper }}
-            </div>
-            <div class="sidebar-user-name">{{ user.username }}</div>
+            <div class="sidebar-user-kicker">Google Synced Identity</div>
+            <div class="sidebar-user-name">{{ display_name }}</div>
             <div class="sidebar-user-role">{{ user.role }} / tier 1</div>
+            <div class="sidebar-user-email">{{ user.email }}</div>
         </div>
 
         <div class="nav-group">
-            <a href="#" class="nav-link-btn active">📊 Intelligence Summary</a>
-            <a href="{{ url_for('home') }}" class="nav-link-btn">🧪 Lab Registry</a>
-            <a href="{{ url_for('admin_students') if user.role == 'admin' else '#' }}" class="nav-link-btn">🔐 Security Console</a>
-            <a href="{{ url_for('logout') }}" class="nav-link-btn">↩ Logout</a>
+            <a href="{{ url_for('home') }}" class="nav-link-btn">Lab Registry</a>
+            <a href="{{ url_for('admin_students') if user.role == 'admin' else '#' }}" class="nav-link-btn">Security Console</a>
+            <a href="{{ url_for('logout') }}" class="nav-link-btn">Logout</a>
         </div>
 
-        <div style="margin-top: auto; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
-            <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">Registry Health</div>
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--status-success);">Nominal</div>
+        <div class="sidebar-status-card">
+            <div class="metric-label">Registry Health</div>
+            <div class="sidebar-status-value">Nominal</div>
+            <div class="sidebar-status-sub">Google identity synced</div>
         </div>
     </aside>
 
-    <!-- Content -->
     <main class="profile-main-content">
-        <div class="breadcrumb-trail">
-            RESEARCH_OPS / <span>Subject Dossier</span> / {{ user.username }}
-        </div>
-
-        <div class="page-head">
-            <h2>Researcher Intelligence</h2>
-            <p>Subject telemetry and registry status for laboratory operations.</p>
-        </div>
-
-        <!-- Metrics bar -->
-        <div class="metrics-bar">
-            <div class="metric-card">
-                <div class="metric-label">Completed Units</div>
-                <div class="metric-val">{{ stats.solved_count }}</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Research XP</div>
-                <div class="metric-val">{{ stats.xp }}</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Curriculum Mastery</div>
-                <div class="metric-val">{{ stats.mastery }}<span style="font-size: 1rem; opacity: 0.5;">%</span></div>
-                <div class="mini-p-bar"><div class="mini-p-fill" style="width:{{ stats.mastery }}%;"></div></div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Registry Level</div>
-                <div class="metric-val">L{{ stats.level }}</div>
-            </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem;">
-            <!-- Solve feed -->
-            <div class="admin-panel">
-                <div class="panel-head">
-                    <h3>Verified Research Activity</h3>
-                    <span style="font-size: 0.7rem; color: var(--text-dim);">LAST 10 EVENTS</span>
+        <section class="profile-hero" id="overview">
+            <div class="profile-hero-copy">
+                <div class="hero-kicker">Premium Subject Dossier</div>
+                <div class="breadcrumb-trail">
+                    RESEARCH_OPS / <span>Subject Dossier</span> / {{ display_name }}
                 </div>
-                <div class="panel-body" style="padding: 0;">
-                    <table class="compact-table">
-                        <thead>
-                            <tr>
-                                <th>Unit ID</th>
-                                <th>Namespace</th>
-                                <th>Variation</th>
-                                <th>Verification</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in solved_labs|reverse %}
-                            <tr>
-                                <td class="mono-cell">{{ record.lab_id }}</td>
-                                <td style="font-weight: 600;">{{ record.label }}</td>
-                                <td>{{ record.variation }}</td>
-                                <td><span style="color: #4ade80; font-size: 0.75rem; font-weight: 800;">[ VALIDATED ]</span></td>
-                            </tr>
-                            {% endfor %}
-                            {% if not solved_labs %}
-                            <tr>
-                                <td colspan="4" style="text-align: center; color: var(--text-dim); padding: 3rem;">No telemetry recorded.</td>
-                            </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                <h2>Researcher Intelligence</h2>
+                <p>Premium identity dashboard for the current subject. Activity and identity are separated below for faster review.</p>
 
-            <!-- Subject Details -->
-            <div class="admin-panel">
-                <div class="panel-head">
-                    <h3>Subject Identity</h3>
+                <div class="profile-chip-row">
+                    <span class="profile-chip">{% if user.is_approved %}ACTIVE OPERATIVE{% else %}AUDIT PENDING{% endif %}</span>
+                    <span class="profile-chip profile-chip-muted">{{ user.role|upper }}</span>
+                    <span class="profile-chip profile-chip-muted">LEVEL {{ stats.level }}</span>
                 </div>
-                <div class="panel-body">
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <div>
-                            <div class="metric-label">Authorized Email</div>
-                            <div style="font-size: 0.9rem; font-family: 'JetBrains Mono', monospace;">{{ user.email }}</div>
-                        </div>
-                        <div>
-                            <div class="metric-label">Global Registry GUID</div>
-                            <div style="font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; color: var(--primary-color);">{{ user.guid[:20] }}...</div>
-                        </div>
-                        <div>
-                            <div class="metric-label">Enrollment Identifier</div>
-                            <div style="font-size: 0.9rem;">{{ user.enrollment_id or "UNATTACHED" }}</div>
-                        </div>
-                        <div style="padding-top: 1rem; border-top: 1px solid var(--border-dim);">
-                            <div class="metric-label">Status</div>
-                            <span style="background: rgba(74, 222, 128, 0.1); color: #4ade80; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">
-                                {% if user.is_approved %}ACTIVE_OPERATIVE{% else %}AUDIT_PENDING{% endif %}
-                            </span>
-                        </div>
+
+                <div class="hero-metadata-grid">
+                    <div class="hero-meta-card">
+                        <div class="metric-label">Completed Units</div>
+                        <div class="hero-meta-value">{{ stats.solved_count }}</div>
+                    </div>
+                    <div class="hero-meta-card">
+                        <div class="metric-label">Research XP</div>
+                        <div class="hero-meta-value">{{ stats.xp }}</div>
+                    </div>
+                    <div class="hero-meta-card">
+                        <div class="metric-label">Mastery</div>
+                        <div class="hero-meta-value">{{ stats.mastery }}%</div>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <div class="profile-hero-avatar-wrap">
+                <div class="hero-avatar-ring">
+                    <div class="hero-avatar">
+                        {% if profile_picture %}
+                        <img src="{{ profile_picture }}" alt="{{ display_name }} profile picture">
+                        {% else %}
+                        <span>{{ user.username[0]|upper }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="hero-avatar-caption">
+                    <div class="hero-avatar-name">{{ display_name }}</div>
+                    <div class="hero-avatar-meta">{{ user.email }}</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="profile-tabs">
+            <button type="button" class="profile-tab active" data-profile-tab="main">Overview & Identity</button>
+            <button type="button" class="profile-tab" data-profile-tab="activity">Activity</button>
+        </section>
+
+        <section class="profile-tab-panel active" data-profile-panel="main">
+            <section class="profile-section" id="identity">
+                <div class="section-heading">
+                    <div>
+                        <div class="section-kicker">Main Dossier</div>
+                        <h3>Overview and Identity</h3>
+                    </div>
+                    <div class="section-sub">Only identity and key status are shown here.</div>
+                </div>
+
+                <div class="profile-overview-grid">
+                    <div class="admin-panel premium-panel">
+                        <div class="panel-head">
+                            <h3>Identity Snapshot</h3>
+                            <span class="panel-kicker">GOOGLE SYNCED</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="identity-stack">
+                                <div class="identity-row">
+                                    <div class="metric-label">Authorized Email</div>
+                                    <div class="identity-value mono">{{ user.email }}</div>
+                                </div>
+                                <div class="identity-row">
+                                    <div class="metric-label">Global Registry GUID</div>
+                                    <div class="identity-value mono accent">{{ user.guid[:20] }}...</div>
+                                </div>
+                                <div class="identity-row">
+                                    <div class="metric-label">Enrollment Identifier</div>
+                                    <div class="identity-value">{{ user.enrollment_id or "UNATTACHED" }}</div>
+                                </div>
+                                <div class="identity-row identity-status-row">
+                                    <div class="metric-label">Status</div>
+                                    <span class="status-pill {% if user.is_approved %}status-pill-active{% else %}status-pill-pending{% endif %}">
+                                        {% if user.is_approved %}ACTIVE_OPERATIVE{% else %}AUDIT_PENDING{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-panel premium-panel">
+                        <div class="panel-head">
+                            <h3>Quick Registry State</h3>
+                            <span class="panel-kicker">OVERVIEW</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="identity-stack">
+                                <div class="identity-row">
+                                    <div class="metric-label">Completed Units</div>
+                                    <div class="identity-value">{{ stats.solved_count }}</div>
+                                </div>
+                                <div class="identity-row">
+                                    <div class="metric-label">Research XP</div>
+                                    <div class="identity-value">{{ stats.xp }}</div>
+                                </div>
+                                <div class="identity-row">
+                                    <div class="metric-label">Mastery</div>
+                                    <div class="identity-value">{{ stats.mastery }}%</div>
+                                </div>
+                                <div class="identity-row">
+                                    <div class="metric-label">Registry Level</div>
+                                    <div class="identity-value">L{{ stats.level }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="profile-tab-panel" data-profile-panel="activity">
+            <section class="profile-section" id="activity">
+                <div class="section-heading">
+                    <div>
+                        <div class="section-kicker">Activity Log</div>
+                        <h3>Recent Validation Timeline</h3>
+                    </div>
+                    <div class="section-sub">Activity appears only in this tab.</div>
+                </div>
+
+                <div class="admin-panel premium-panel">
+                    <div class="panel-body panel-body-tight">
+                        <table class="compact-table premium-table">
+                            <thead>
+                                <tr>
+                                    <th>Unit ID</th>
+                                    <th>Namespace</th>
+                                    <th>Variation</th>
+                                    <th>Verification</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in solved_labs|reverse %}
+                                <tr>
+                                    <td class="mono-cell">{{ record.lab_id }}</td>
+                                    <td class="table-strong">{{ record.label }}</td>
+                                    <td>{{ record.variation }}</td>
+                                    <td><span class="table-valid">[ VALIDATED ]</span></td>
+                                </tr>
+                                {% endfor %}
+                                {% if not solved_labs %}
+                                <tr>
+                                    <td colspan="4" class="empty-state">No telemetry recorded.</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </section>
     </main>
 </div>
+
+<script>
+(function initializeProfileTabs() {
+    const tabs = Array.from(document.querySelectorAll('[data-profile-tab]'));
+    const panels = Array.from(document.querySelectorAll('[data-profile-panel]'));
+    if (!tabs.length || !panels.length) {
+        return;
+    }
+
+    function activateTab(name) {
+        tabs.forEach((tab) => {
+            tab.classList.toggle('active', tab.getAttribute('data-profile-tab') === name);
+        });
+        panels.forEach((panel) => {
+            panel.classList.toggle('active', panel.getAttribute('data-profile-panel') === name);
+        });
+    }
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => activateTab(tab.getAttribute('data-profile-tab')));
+    });
+
+    activateTab('main');
+})();
+</script>
 {% endblock %}

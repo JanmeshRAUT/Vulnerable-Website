@@ -119,7 +119,7 @@ class FirebaseDataStore:
             traceback.print_exc()
             return False
 
-    def upsert_user(self, user_id, username, role=None, email=None, full_name=None, guid=None, enrollment_id=None, is_approved=False):
+    def upsert_user(self, user_id, username, role=None, email=None, full_name=None, guid=None, enrollment_id=None, is_approved=False, profile_picture=None):
         db = self.db
         fs = self.firestore
         if db is None or fs is None or not self.is_ready:
@@ -141,6 +141,8 @@ class FirebaseDataStore:
                 "is_approved": bool(is_approved),
                 "updated_at": fs.SERVER_TIMESTAMP,
             }
+            if profile_picture:
+                payload["profile_picture"] = profile_picture
             # Use email as document ID for stable identity across database resets
             db.collection("users").document(email).set(payload, merge=True)
             print(f"[Firebase] Successfully updated profile for {email}")

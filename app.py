@@ -257,7 +257,7 @@ def send_admin_authorization_email(request_type, requester_email, requester_name
 
 
 def send_user_access_granted_email(user_email, role='user', approved_lab_ids=None):
-    """Send end-user confirmation when admin grants account/lab access."""
+    """Send a premium account confirmation email to the end user."""
     if not user_email:
         return False
 
@@ -271,8 +271,6 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
     if not smtp_host or not sender:
         return False
 
-    granted_labs = approved_lab_ids or []
-    role_label = (role or 'user').upper()
     try:
         app_url = (request.host_url or '').rstrip('/')
     except RuntimeError:
@@ -280,47 +278,21 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
 
     approved_at = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
 
-    if granted_labs:
-        lab_lines = []
-        html_rows = []
-        for lab_id in granted_labs:
-            lab_unit = TRACKABLE_LAB_ID_INDEX.get(lab_id)
-            if lab_unit:
-                label = lab_unit['label']
-                lab_lines.append(f"- {label} ({lab_id})")
-                html_rows.append(
-                    f"<li style=\"margin: 0 0 8px 0;\"><strong>{label}</strong>"
-                    f" <span style=\"color:#6b7280;\">({lab_id})</span></li>"
-                )
-            else:
-                lab_lines.append(f"- {lab_id}")
-                html_rows.append(
-                    f"<li style=\"margin: 0 0 8px 0;\"><strong>{lab_id}</strong></li>"
-                )
-        labs_text = "\n".join(lab_lines)
-        labs_html = "".join(html_rows)
-    else:
-        labs_text = "- Access was granted without a specific lab list."
-        labs_html = "<li style=\"margin: 0 0 8px 0;\">Access was granted without a specific lab list.</li>"
-
     login_url = f"{app_url}/login" if app_url else ""
 
     message = EmailMessage()
-    message['Subject'] = "VulnHub Access Approved"
+    message['Subject'] = "Your Account Has Been Approved"
     message['From'] = sender
     message['To'] = user_email
     message.set_content(
-        "Your access request has been approved by an administrator.\n\n"
-        + f"Role: {role_label}\n"
-        + f"Approved At: {approved_at}\n"
-        + "\nGranted Labs:\n"
-        + labs_text
-        + "\n\n"
-        + (f"You can sign in here: {login_url}\n" if login_url else "")
+        "Your account review is complete and your profile is now ready for use.\n\n"
+        + f"Approved At: {approved_at}\n\n"
+        + "You may sign in at your convenience to continue.\n"
+        + (f"Sign in: {login_url}\n" if login_url else "")
     )
 
     login_button_html = (
-        f'<a href="{login_url}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:11px 16px;border-radius:8px;">Sign In to VulnHub</a>'
+        f'<a href="{login_url}" style="display:inline-block;background:linear-gradient(90deg,#0f172a 0%,#1d4ed8 100%);color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:12px 18px;border-radius:999px;letter-spacing:0.2px;">Sign In</a>'
         if login_url else ''
     )
 
@@ -330,43 +302,47 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
 <head>
     <meta charset=\"UTF-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
-    <title>Access Approved</title>
+    <title>Account Approved</title>
 </head>
-<body style=\"margin:0;padding:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;color:#0f172a;\">
-    <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background:#f4f6fb;padding:24px 12px;\">
+<body style=\"margin:0;padding:0;background:#eef2ff;font-family:Arial,Helvetica,sans-serif;color:#0f172a;\">
+    <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background:linear-gradient(180deg,#eef2ff 0%,#f8fafc 100%);padding:28px 12px;\">
         <tr>
             <td align=\"center\">
-                <table role=\"presentation\" width=\"640\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:640px;background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;\">
+                <table role=\"presentation\" width=\"640\" cellspacing=\"0\" cellpadding=\"0\" style=\"max-width:640px;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;box-shadow:0 18px 50px rgba(15,23,42,0.08);\">
                     <tr>
-                        <td style=\"background:linear-gradient(90deg,#0f172a 0%,#1d4ed8 100%);padding:22px 24px;\">
-                            <h1 style=\"margin:0;font-size:20px;line-height:1.3;color:#ffffff;\">✅ Access Approved</h1>
-                            <p style=\"margin:8px 0 0 0;font-size:13px;color:#dbeafe;\">VulnHub Access System</p>
+                        <td style=\"background:linear-gradient(90deg,#0f172a 0%,#1d4ed8 100%);padding:28px 28px 24px;\">
+                            <div style=\"font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#c7d2fe;margin-bottom:10px;\">RESEARCH_OPS</div>
+                            <h1 style=\"margin:0;font-size:26px;line-height:1.2;color:#ffffff;font-weight:700;\">Your account is ready</h1>
+                            <p style=\"margin:10px 0 0 0;font-size:14px;line-height:1.6;color:#dbeafe;max-width:500px;\">A formal review has been completed and your profile has been prepared for a seamless sign-in experience.</p>
                         </td>
                     </tr>
                     <tr>
-                        <td style=\"padding:24px;\">
-                            <p style=\"margin:0 0 16px 0;font-size:14px;line-height:1.7;color:#111827;\">
-                                Your access request has been approved by an administrator. You can now continue your assigned labs.
+                        <td style=\"padding:28px 28px 20px;\">
+                            <p style=\"margin:0 0 16px 0;font-size:15px;line-height:1.8;color:#111827;\">
+                                Hello,
+                            </p>
+                            <p style=\"margin:0 0 16px 0;font-size:15px;line-height:1.8;color:#111827;\">
+                                We are pleased to let you know that your account review has been completed successfully. Your profile is now active and ready whenever you are.
                             </p>
 
-                            <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;margin:0 0 16px 0;\">
+                            <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"border:1px solid #dbe3ef;border-radius:14px;background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);margin:0 0 18px 0;\">
                                 <tr>
-                                    <td style=\"padding:14px 16px;font-size:13px;color:#374151;line-height:1.7;\">
-                                        <div><strong>Role:</strong> {role_label}</div>
-                                        <div><strong>Approved At:</strong> {approved_at}</div>
+                                    <td style=\"padding:16px 18px;font-size:13px;color:#374151;line-height:1.8;\">
+                                        <div><strong>Status:</strong> Approved and ready</div>
+                                        <div><strong>Reviewed:</strong> {approved_at}</div>
                                     </td>
                                 </tr>
                             </table>
 
-                            <h2 style=\"margin:0 0 8px 0;font-size:15px;color:#111827;\">Granted Labs</h2>
-                            <ul style=\"margin:0 0 18px 18px;padding:0;font-size:13px;color:#111827;line-height:1.6;\">
-                                {labs_html}
-                            </ul>
+                            <div style=\"background:linear-gradient(90deg,rgba(15,23,42,0.03),rgba(29,78,216,0.06));border:1px solid #e2e8f0;border-radius:14px;padding:18px 18px 16px;margin:0 0 18px 0;\">
+                                <div style=\"font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:#64748b;margin-bottom:8px;\">Next Step</div>
+                                <p style=\"margin:0;font-size:14px;line-height:1.7;color:#111827;\">Please sign in to continue. If you need help, our support team is available to assist you.</p>
+                            </div>
 
                             {login_button_html}
 
-                            <p style=\"margin:18px 0 0 0;font-size:12px;color:#6b7280;line-height:1.6;\">
-                                If you did not request this access, contact your administrator immediately.
+                            <p style=\"margin:18px 0 0 0;font-size:12px;color:#64748b;line-height:1.7;\">
+                                If this update was unexpected, please contact support so we can assist promptly.
                             </p>
                         </td>
                     </tr>
@@ -656,6 +632,7 @@ def sync_session_from_firebase_user(firebase_user, email=None):
     session['role'] = firebase_user.get('role', 'user')
     session['email'] = email or firebase_user.get('email')
     session['guid'] = firebase_user.get('guid')
+    session['profile_picture'] = firebase_user.get('profile_picture')
     session.permanent = True
 
 @app.before_request
@@ -1311,6 +1288,7 @@ def google_callback():
     # Researcher branded logic remains but uses real data
     email = userinfo.get('email')
     full_name = userinfo.get('name')
+    google_picture = userinfo.get('picture')
     if not email:
         return redirect(url_for('login', error="Google authentication failed: email not available"))
 
@@ -1362,7 +1340,8 @@ def google_callback():
             full_name=full_name,
             guid=uuid.uuid4().hex,
             enrollment_id=enrollment_id,
-            is_approved=False # New users are not approved by default
+            is_approved=False, # New users are not approved by default
+            profile_picture=google_picture
         )
         firebase_user = firebase_store.get_user_by_email(email) # Re-fetch the newly created user
         print(f"[AUTH] New identity {email} committed to Firebase.")
@@ -1388,7 +1367,8 @@ def google_callback():
             full_name=full_name,
             guid=uuid.uuid4().hex,
             enrollment_id=enrollment_id,
-            is_approved=False
+            is_approved=False,
+            profile_picture=google_picture
         )
         firebase_user = firebase_store.get_user_by_email(email)
         send_admin_authorization_email(
@@ -1400,6 +1380,20 @@ def google_callback():
 
     # 5. Session Finalization
     if firebase_user:
+        if google_picture and firebase_user.get('profile_picture') != google_picture:
+            firebase_store.upsert_user(
+                user_id=firebase_user.get('user_id'),
+                username=firebase_user.get('username'),
+                role=firebase_user.get('role'),
+                email=email,
+                full_name=firebase_user.get('full_name'),
+                guid=firebase_user.get('guid'),
+                enrollment_id=firebase_user.get('enrollment_id'),
+                is_approved=firebase_user.get('is_approved', False),
+                profile_picture=google_picture
+            )
+            firebase_user = firebase_store.get_user_by_email(email)
+
         sync_session_from_firebase_user(firebase_user, email)
 
         # Check if user is authorized by Command Center
@@ -1510,6 +1504,8 @@ def profile():
     mastery = round((solved_count / total_labs * 100)) if total_labs > 0 else 0
     xp = solved_count * 250
     level = (solved_count // 3) + 1
+    profile_picture = user.get('profile_picture') or session.get('profile_picture')
+    display_name = user.get('full_name') or user.get('username') or email.split('@')[0]
     
     stats = {
         'total_labs': total_labs,
@@ -1519,7 +1515,7 @@ def profile():
         'level': level
     }
     
-    return render_template('profile.html', user=user, solved_labs=solved_labs, stats=stats)
+    return render_template('profile.html', user=user, solved_labs=solved_labs, stats=stats, profile_picture=profile_picture, display_name=display_name)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

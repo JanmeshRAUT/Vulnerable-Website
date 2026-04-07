@@ -25,16 +25,23 @@
             <span class="dot red"></span>
             <span class="dot yellow"></span>
             <span class="dot green"></span>
-            <span class="title">researcher@ops: ~</span>
+            <span class="title">researcher@ops: ~/landing-terminal</span>
           </div>
-          <div class="terminal-body mono">
-            <div class="line"><span class="prompt">$</span> ./initialize_lab.sh --module SSRF</div>
-            <div class="line"><span class="info">[!]</span> Initializing internal network sensors...</div>
-            <div class="line"><span class="info">[!]</span> Target identified: 192.168.0.10</div>
-            <div class="line"><span class="success">[+]</span> Access acquired via metadata injection.</div>
-            <div class="line"><span class="prompt">$</span> get_flag --location /admin/secrets.txt</div>
-            <div class="line"><span class="warning">FLAG{internal_network_recon_success}</span></div>
-            <div class="line blink">_</div>
+          <div class="terminal-body mono terminal-live" data-terminal-shell>
+            <div class="terminal-output" data-terminal-output aria-live="polite"></div>
+            <form class="terminal-command-row" data-terminal-form autocomplete="off">
+              <span class="terminal-prompt">researcher@ops:~$</span>
+              <input
+                type="text"
+                class="terminal-input"
+                data-terminal-input
+                aria-label="Landing page terminal command"
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="off"
+                placeholder="Type help, labs, status, or join"
+              >
+            </form>
           </div>
        </div>
     </div>
@@ -98,5 +105,247 @@
   <p>Join hundreds of researchers currently refining their clinical methodology.</p>
   <a href="{{ url_for('register') }}" class="btn">Join the Platform</a>
 </div>
+
+<script>
+(function initializeLandingTerminal() {
+  const shell = document.querySelector('[data-terminal-shell]');
+  if (!shell) {
+    return;
+  }
+
+  const output = shell.querySelector('[data-terminal-output]');
+  const form = shell.querySelector('[data-terminal-form]');
+  const input = shell.querySelector('[data-terminal-input]');
+
+  const routes = {
+    home: "{{ url_for('home') }}",
+    labs: "{{ url_for('labs') }}",
+    help: "{{ url_for('help') }}",
+    login: "{{ url_for('login') }}",
+    join: "{{ url_for('register') }}",
+    register: "{{ url_for('register') }}",
+    status: "{{ url_for('system_status') }}",
+    profile: "{{ url_for('profile') }}"
+  };
+
+  const commandHelp = [
+    ['help', 'Show available commands'],
+    ['clear', 'Clear the terminal'],
+    ['status', 'Open the live system status page'],
+    ['labs', 'Open the lab catalog'],
+    ['support', 'Open the support center'],
+    ['login', 'Go to sign in'],
+    ['join', 'Open account registration'],
+    ['profile', 'Open your profile'],
+    ['pwd', 'Print the current working directory'],
+    ['whoami', 'Show the active terminal identity'],
+    ['date', 'Display the current system time'],
+    ['open <destination>', 'Navigate to a known page']
+  ];
+
+  const state = {
+    history: [],
+    historyIndex: -1
+  };
+
+  function scrollToBottom() {
+    shell.scrollTop = shell.scrollHeight;
+  }
+
+  function createLine(type, content) {
+    const row = document.createElement('div');
+    row.className = `terminal-line terminal-line-${type}`;
+    row.innerHTML = content;
+    output.appendChild(row);
+    scrollToBottom();
+    return row;
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function printPrompt(command) {
+    createLine('command', `<span class="terminal-prompt">researcher@ops:~$</span> ${escapeHtml(command)}`);
+  }
+
+  function printBanner() {
+    createLine('info', 'RESEARCH_OPS landing terminal online. Type <span class="terminal-emphasis">help</span> for commands.');
+    createLine('muted', 'Simulated environment with live navigation shortcuts and command history.');
+  }
+
+  function printHelp() {
+    createLine('info', 'Available commands:');
+    commandHelp.forEach(([name, description]) => {
+      createLine('table', `<span class="terminal-help-name">${escapeHtml(name)}</span><span class="terminal-help-desc">${escapeHtml(description)}</span>`);
+    });
+  }
+
+  function navigateTo(routeKey) {
+    const target = routes[routeKey];
+    if (!target) {
+      createLine('warning', `Unknown destination: ${escapeHtml(routeKey)}.`);
+      return;
+    }
+    createLine('success', `Opening ${escapeHtml(routeKey)}...`);
+    setTimeout(() => {
+      window.location.href = target;
+    }, 180);
+  }
+
+  function runCommand(rawCommand) {
+    const command = rawCommand.trim();
+    if (!command) {
+      return;
+    }
+
+    printPrompt(command);
+    state.history.unshift(command);
+    state.historyIndex = -1;
+
+    const [name, ...rest] = command.split(/\s+/);
+    const normalized = name.toLowerCase();
+    const argument = rest.join(' ').trim();
+
+    if (normalized === 'help') {
+      printHelp();
+      return;
+    }
+
+    if (normalized === 'clear') {
+      output.innerHTML = '';
+      printBanner();
+      return;
+    }
+
+    if (normalized === 'pwd') {
+      createLine('success', '/landing-terminal');
+      return;
+    }
+
+    if (normalized === 'whoami') {
+      createLine('success', 'researcher');
+      return;
+    }
+
+    if (normalized === 'date') {
+      createLine('success', new Date().toLocaleString());
+      return;
+    }
+
+    if (normalized === 'ls' || normalized === 'dir') {
+      createLine('info', 'labs  help  status  login  join  profile');
+      return;
+    }
+
+    if (normalized === 'status') {
+      navigateTo('status');
+      return;
+    }
+
+    if (normalized === 'labs') {
+      navigateTo('labs');
+      return;
+    }
+
+    if (normalized === 'support' || normalized === 'helpcenter') {
+      navigateTo('help');
+      return;
+    }
+
+    if (normalized === 'login') {
+      navigateTo('login');
+      return;
+    }
+
+    if (normalized === 'join' || normalized === 'register') {
+      navigateTo('join');
+      return;
+    }
+
+    if (normalized === 'support') {
+      navigateTo('help');
+      return;
+    }
+
+    if (normalized === 'profile') {
+      navigateTo('profile');
+      return;
+    }
+
+    if (normalized === 'open') {
+      const destination = argument.toLowerCase();
+      if (!destination) {
+        createLine('warning', 'Usage: open <labs|help|status|login|join|profile>');
+        return;
+      }
+      navigateTo(destination);
+      return;
+    }
+
+    if (normalized === 'echo') {
+      createLine('muted', escapeHtml(argument || ''));
+      return;
+    }
+
+    createLine('warning', `Command not found: ${escapeHtml(normalized)}. Type help to view available commands.`);
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    runCommand(input.value);
+    input.value = '';
+    input.focus();
+  });
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (state.historyIndex + 1 < state.history.length) {
+        state.historyIndex += 1;
+        input.value = state.history[state.historyIndex];
+      }
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (state.historyIndex > 0) {
+        state.historyIndex -= 1;
+        input.value = state.history[state.historyIndex];
+      } else {
+        state.historyIndex = -1;
+        input.value = '';
+      }
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      const value = input.value.trim().toLowerCase();
+      if (!value) {
+        return;
+      }
+
+      const matches = Object.keys(routes).concat(['help', 'clear', 'pwd', 'whoami', 'date', 'ls', 'dir', 'echo', 'open'])
+        .filter((commandName) => commandName.startsWith(value));
+
+      if (matches.length === 1) {
+        input.value = matches[0] + (['open', 'echo'].includes(matches[0]) ? ' ' : '');
+      }
+    }
+  });
+
+  shell.addEventListener('click', () => input.focus());
+
+  printBanner();
+  input.focus();
+})();
+</script>
 
 {% endblock %}

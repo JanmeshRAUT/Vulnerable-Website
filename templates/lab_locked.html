@@ -1,37 +1,725 @@
 {% extends 'base.html' %}
 {% block title %}Crime Scene Lock - RESEARCH_OPS{% endblock %}
 
+{% block extra_head %}
+<style>
+  .crime-scene-stage {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at top, rgba(248, 113, 113, 0.18), transparent 30%),
+      radial-gradient(circle at 20% 20%, rgba(251, 191, 36, 0.12), transparent 24%),
+      radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.10), transparent 22%),
+      linear-gradient(180deg, #070303 0%, #120607 48%, #050203 100%);
+  }
+
+  .crime-scene-stage::before,
+  .crime-scene-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .crime-scene-stage::before {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 18px, 18px 100%;
+    mix-blend-mode: screen;
+    opacity: 0.35;
+  }
+
+  .crime-scene-stage::after {
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.15) 48%, rgba(0, 0, 0, 0.62) 100%);
+  }
+
+  .scene-noise,
+  .scene-scanline,
+  .scene-vignette,
+  .scene-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .scene-noise {
+    background-image:
+      radial-gradient(rgba(255,255,255,0.08) 0.8px, transparent 0.8px),
+      radial-gradient(rgba(255,255,255,0.04) 0.8px, transparent 0.8px);
+    background-position: 0 0, 12px 12px;
+    background-size: 24px 24px;
+    opacity: 0.08;
+    animation: noiseShift 8s steps(10) infinite;
+  }
+
+  .scene-scanline {
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+    background-size: 100% 180px;
+    mix-blend-mode: screen;
+    opacity: 0.22;
+    animation: scanlineMove 7s linear infinite;
+  }
+
+  .scene-glow {
+    background:
+      radial-gradient(circle at 50% 42%, rgba(239, 68, 68, 0.18), transparent 18%),
+      radial-gradient(circle at 18% 78%, rgba(251, 191, 36, 0.14), transparent 14%),
+      radial-gradient(circle at 82% 72%, rgba(248, 113, 113, 0.12), transparent 15%);
+    filter: blur(18px);
+    animation: glowPulse 6s ease-in-out infinite;
+  }
+
+  .crime-scene-shell {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, 96vw);
+    margin: 0 auto;
+    padding: 1.5rem 0 2rem;
+  }
+
+  .crime-scene-card {
+    position: relative;
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    border-radius: 24px;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(18, 8, 10, 0.96), rgba(9, 4, 5, 0.97));
+    box-shadow:
+      0 30px 80px rgba(0, 0, 0, 0.58),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .crime-header-band {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.95rem 1.1rem;
+    background: repeating-linear-gradient(135deg, #fbbf24 0 16px, #111827 16px 32px);
+    color: #111827;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.76rem;
+    white-space: nowrap;
+  }
+
+  .crime-header-band span:last-child {
+    margin-left: auto;
+  }
+
+  .crime-body {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 0;
+  }
+
+  .crime-left,
+  .crime-right {
+    position: relative;
+    padding: 2rem;
+  }
+
+  .crime-left {
+    border-right: 1px solid rgba(239, 68, 68, 0.10);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(239, 68, 68, 0.10), transparent 24%),
+      linear-gradient(180deg, rgba(28, 8, 9, 0.72), rgba(10, 4, 5, 0.32));
+  }
+
+  .crime-right {
+    background:
+      linear-gradient(180deg, rgba(8, 8, 10, 0.55), rgba(8, 8, 10, 0.78));
+  }
+
+  .scene-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    border-radius: 999px;
+    background: rgba(251, 191, 36, 0.09);
+    color: #fde68a;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  .scene-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .scene-mark {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    background: linear-gradient(180deg, rgba(127, 29, 29, 0.36), rgba(24, 12, 13, 0.95));
+    box-shadow: inset 0 0 30px rgba(248, 113, 113, 0.08);
+  }
+
+  .scene-mark::before,
+  .scene-mark::after {
+    content: '';
+    position: absolute;
+    inset: 16px;
+    border: 2px solid rgba(248, 113, 113, 0.82);
+    border-radius: 18px;
+  }
+
+  .scene-mark::after {
+    inset: 25px;
+    border-radius: 999px;
+    border-color: rgba(251, 191, 36, 0.9);
+    animation: pulseMark 2.8s ease-in-out infinite;
+  }
+
+  .scene-mark-line {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 42px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.7);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
+  }
+
+  .scene-mark-line::before,
+  .scene-mark-line::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.7);
+    transform: translate(-50%, -50%);
+  }
+
+  .scene-copy h1 {
+    margin: 0;
+    font-size: clamp(2rem, 3.6vw, 3.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    color: #fff7ed;
+  }
+
+  .scene-copy p {
+    margin: 0.85rem 0 0;
+    max-width: 48rem;
+    color: #fca5a5;
+    font-size: 1.02rem;
+    line-height: 1.75;
+  }
+
+  .scene-note-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+  }
+
+  .scene-note {
+    border: 1px solid rgba(239, 68, 68, 0.18);
+    border-radius: 18px;
+    padding: 1rem 1rem 0.95rem;
+    background: linear-gradient(180deg, rgba(127, 29, 29, 0.15), rgba(8, 4, 5, 0.72));
+  }
+
+  .scene-note-label {
+    margin-bottom: 0.45rem;
+    color: #fda4af;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .scene-note-value {
+    color: #fff7ed;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  .scene-evidence-panel {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .evidence-stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    color: #fde68a;
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .crime-details {
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    border-radius: 20px;
+    background:
+      linear-gradient(180deg, rgba(17, 24, 39, 0.72), rgba(8, 8, 10, 0.84));
+    overflow: hidden;
+  }
+
+  .crime-details-head {
+    padding: 1rem 1.1rem;
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.18), rgba(251, 191, 36, 0.12));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #fff7ed;
+    font-size: 0.84rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .crime-details-body {
+    padding: 1.05rem 1.1rem 1.1rem;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.72rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.84rem;
+  }
+
+  .detail-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .detail-label {
+    color: #fda4af;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .detail-value {
+    color: #fff7ed;
+    text-align: right;
+    word-break: break-word;
+  }
+
+  .scene-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+
+  .scene-action,
+  .scene-action-secondary {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.8rem 1.05rem;
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .scene-action {
+    color: #0f172a;
+    background: linear-gradient(90deg, #fde68a 0%, #fbbf24 100%);
+    box-shadow: 0 14px 30px rgba(251, 191, 36, 0.2);
+  }
+
+  .scene-action-secondary {
+    color: #fff7ed;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  .scene-action:hover,
+  .scene-action-secondary:hover {
+    transform: translateY(-1px);
+  }
+
+  .evidence-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .mini-activity-card {
+    border: 1px solid rgba(96, 165, 250, 0.24);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.58), rgba(12, 18, 30, 0.74));
+    padding: 1rem;
+  }
+
+  .mini-activity-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .mini-activity-title {
+    font-size: 0.82rem;
+    color: #dbeafe;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .mini-activity-progress {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #93c5fd;
+  }
+
+  .mini-activity-copy {
+    margin: 0 0 0.75rem;
+    color: #cbd5e1;
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .clue-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .clue-btn {
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.65);
+    color: #bfdbfe;
+    padding: 0.6rem 0.45rem;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  }
+
+  .clue-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(96, 165, 250, 0.72);
+  }
+
+  .clue-btn.scanned {
+    background: rgba(34, 197, 94, 0.18);
+    border-color: rgba(34, 197, 94, 0.7);
+    color: #86efac;
+    box-shadow: 0 10px 22px rgba(34, 197, 94, 0.16);
+  }
+
+  .activity-result {
+    margin-top: 0.75rem;
+    padding: 0.7rem 0.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    background: rgba(14, 116, 144, 0.16);
+    color: #e0f2fe;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    min-height: 2.7rem;
+  }
+
+  .activity-result.done {
+    border-color: rgba(34, 197, 94, 0.5);
+    background: rgba(22, 163, 74, 0.16);
+    color: #dcfce7;
+  }
+
+  .evidence-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.52rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    background: rgba(255, 255, 255, 0.03);
+    color: #fecaca;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  @keyframes pulseMark {
+    0%, 100% { transform: scale(1); opacity: 0.78; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.68; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.015); }
+  }
+
+  @keyframes scanlineMove {
+    from { transform: translateY(-10%); }
+    to { transform: translateY(110%); }
+  }
+
+  @keyframes noiseShift {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    25% { transform: translate3d(-1%, 1%, 0); }
+    50% { transform: translate3d(1.5%, -0.5%, 0); }
+    75% { transform: translate3d(-0.5%, -1.25%, 0); }
+  }
+
+  @media (max-width: 960px) {
+    .crime-body {
+      grid-template-columns: 1fr;
+    }
+
+    .crime-left {
+      border-right: 0;
+      border-bottom: 1px solid rgba(239, 68, 68, 0.10);
+    }
+
+    .scene-note-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .crime-scene-shell {
+      width: min(100vw, 100%);
+      padding: 0.75rem 0 1rem;
+    }
+
+    .crime-left,
+    .crime-right {
+      padding: 1.25rem;
+    }
+
+    .crime-header-band {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+    }
+
+    .scene-title-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .detail-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .detail-value {
+      text-align: left;
+    }
+
+    .clue-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block header %}{% endblock %}
 
 {% block content %}
-<div style="min-height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #190707 0%, #070304 100%); padding: 1.25rem;">
-  <div style="width: min(820px, 96vw); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 14px; background: rgba(15, 12, 16, 0.95); overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.55);">
-    <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1.1rem; background: repeating-linear-gradient(135deg, #f59e0b 0 14px, #111827 14px 28px); color: #111827; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.84rem;">
-      <span>Crime Scene</span>
-      <span>Do Not Cross</span>
-      <span style="margin-left: auto; color: #111827;">Lab Access Blocked</span>
-    </div>
+<div class="crime-scene-stage">
+  <div class="scene-noise"></div>
+  <div class="scene-scanline"></div>
+  <div class="scene-glow"></div>
+  <div class="scene-vignette"></div>
 
-    <div style="padding: 1.4rem 1.3rem 1.2rem;">
-      <div style="display: flex; align-items: flex-start; gap: 0.9rem; margin-bottom: 1rem;">
-        <div style="font-size: 2.2rem; line-height: 1;">🚫</div>
-        <div>
-          <h1 style="font-size: 1.55rem; margin: 0 0 0.35rem; color: #fecaca;">Restricted Laboratory Zone</h1>
-          <p style="margin: 0; color: #fca5a5; line-height: 1.6;">Your profile does not have clearance for this lab. Access is blocked until an admin grants explicit lab permission.</p>
-        </div>
+  <div class="crime-scene-shell">
+    <div class="crime-scene-card animate-fade-in">
+      <div class="crime-header-band">
+        <span>Crime Scene</span>
+        <span>Do Not Cross</span>
+        <span>Evidence Locked</span>
       </div>
 
-      <div style="border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; background: rgba(127,29,29,0.18); padding: 0.95rem 1rem; margin-bottom: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; color: #fecaca;">
-        <div style="display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem;"><span style="color: #fda4af;">STATUS</span><span>ACCESS_DENIED</span></div>
-        <div style="display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem;"><span style="color: #fda4af;">REQUESTED_ROUTE</span><span>{{ blocked_path or request.path }}</span></div>
-        <div style="display: flex; justify-content: space-between; gap: 1rem;"><span style="color: #fda4af;">LAB_REFERENCE</span><span>{{ blocked_lab_id or 'UNMAPPED' }}</span></div>
-      </div>
+      <div class="crime-body">
+        <section class="crime-left">
+          <div class="scene-kicker">Restricted simulation zone</div>
 
-      <div style="display: flex; flex-wrap: wrap; gap: 0.65rem;">
-        <a href="{{ url_for('labs') }}" class="btn btn-primary" style="text-decoration: none;">Back to Lab Registry</a>
-        <a href="{{ url_for('help') }}" class="btn btn-secondary" style="text-decoration: none;">Contact Admin</a>
+          <div class="scene-title-row">
+            <div class="scene-mark" aria-hidden="true">
+              <div class="scene-mark-line"></div>
+            </div>
+
+            <div class="scene-copy">
+              <h1>Crime Scene Simulation Locked</h1>
+              <p>
+                This area is secured as an active crime-scene simulation. Your current profile is not cleared to enter until the required review is complete.
+              </p>
+            </div>
+          </div>
+
+          <div class="scene-note-grid">
+            <div class="scene-note">
+              <div class="scene-note-label">Scene Status</div>
+              <div class="scene-note-value">ACCESS_DENIED</div>
+            </div>
+            <div class="scene-note">
+              <div class="scene-note-label">Security State</div>
+              <div class="scene-note-value">LOCKED_FOR_REVIEW</div>
+            </div>
+            <div class="scene-note">
+              <div class="scene-note-label">Route Attempted</div>
+              <div class="scene-note-value">{{ blocked_path or request.path }}</div>
+            </div>
+            <div class="scene-note">
+              <div class="scene-note-label">Evidence Tag</div>
+              <div class="scene-note-value">{{ blocked_lab_id or 'UNMAPPED' }}</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem;" class="evidence-tags">
+            <span class="evidence-tag">Chain of custody intact</span>
+            <span class="evidence-tag">Admin review required</span>
+            <span class="evidence-tag">No entry without clearance</span>
+          </div>
+        </section>
+
+        <aside class="crime-right">
+          <div class="scene-evidence-panel">
+            <div class="evidence-stamp">Evidence Board</div>
+
+            <div class="crime-details">
+              <div class="crime-details-head">Case file telemetry</div>
+              <div class="crime-details-body">
+                <div class="detail-row">
+                  <span class="detail-label">Status</span>
+                  <span class="detail-value">Scene secured</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Access</span>
+                  <span class="detail-value">Blocked</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Requested route</span>
+                  <span class="detail-value">{{ blocked_path or request.path }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Lab reference</span>
+                  <span class="detail-value">{{ blocked_lab_id or 'UNMAPPED' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="crime-details">
+              <div class="crime-details-head">Field instructions</div>
+              <div class="crime-details-body">
+                <p style="margin: 0 0 1rem; color: #f8fafc; line-height: 1.75; font-size: 0.95rem;">
+                  Return to the lab registry, or contact an administrator to continue the approval workflow.
+                </p>
+
+                <div class="mini-activity-card" data-mini-activity>
+                  <div class="mini-activity-head">
+                    <div class="mini-activity-title">Evidence Scan Challenge</div>
+                    <div class="mini-activity-progress" data-clue-progress>0 / 3 scanned</div>
+                  </div>
+                  <p class="mini-activity-copy">Tap three clue cards to reconstruct the scene summary while your access request is pending.</p>
+
+                  <div class="clue-grid">
+                    <button type="button" class="clue-btn" data-clue="camera">Camera Feed</button>
+                    <button type="button" class="clue-btn" data-clue="badge">Access Badge</button>
+                    <button type="button" class="clue-btn" data-clue="logs">Route Logs</button>
+                  </div>
+
+                  <div class="activity-result" data-clue-result>Scan clues to generate a quick case note.</div>
+                </div>
+
+                <div class="scene-actions">
+                  <a href="{{ url_for('labs') }}" class="scene-action">Back to Lab Registry</a>
+                  <a href="{{ url_for('help') }}" class="scene-action-secondary">Contact Admin</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+(function initializeCrimeSceneMiniActivity() {
+  const card = document.querySelector('[data-mini-activity]');
+  if (!card) {
+    return;
+  }
+
+  const clueButtons = Array.from(card.querySelectorAll('[data-clue]'));
+  const progressEl = card.querySelector('[data-clue-progress]');
+  const resultEl = card.querySelector('[data-clue-result]');
+
+  const clueNotes = {
+    camera: 'Camera feed shows movement halted at the restricted corridor gate.',
+    badge: 'Badge scanner logged an unauthorized tier mismatch for this profile.',
+    logs: 'Route telemetry confirms attempted entry into a locked lab segment.'
+  };
+
+  const scanned = new Set();
+
+  function updateView() {
+    if (progressEl) {
+      progressEl.textContent = `${scanned.size} / 3 scanned`;
+    }
+
+    if (!resultEl) {
+      return;
+    }
+
+    if (!scanned.size) {
+      resultEl.classList.remove('done');
+      resultEl.textContent = 'Scan clues to generate a quick case note.';
+      return;
+    }
+
+    const snippets = Array.from(scanned).map((key) => clueNotes[key]).filter(Boolean);
+    const summary = snippets.join(' ');
+
+    if (scanned.size >= 3) {
+      resultEl.classList.add('done');
+      resultEl.textContent = `${summary} Case note complete: access remains locked pending administrator clearance.`;
+    } else {
+      resultEl.classList.remove('done');
+      resultEl.textContent = summary;
+    }
+  }
+
+  clueButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const clueId = button.getAttribute('data-clue');
+      if (!clueId || scanned.has(clueId)) {
+        return;
+      }
+
+      scanned.add(clueId);
+      button.classList.add('scanned');
+      button.textContent = `${button.textContent} ✓`;
+      updateView();
+    });
+  });
+})();
+</script>
 {% endblock %}
