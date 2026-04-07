@@ -319,6 +319,11 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
         + (f"You can sign in here: {login_url}\n" if login_url else "")
     )
 
+    login_button_html = (
+        f'<a href="{login_url}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:11px 16px;border-radius:8px;">Sign In to VulnHub</a>'
+        if login_url else ''
+    )
+
     html_body = f"""
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -358,7 +363,7 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
                                 {labs_html}
                             </ul>
 
-                            {f'''<a href=\"{login_url}\" style=\"display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;padding:11px 16px;border-radius:8px;\">Sign In to VulnHub</a>''' if login_url else ''}
+                            {login_button_html}
 
                             <p style=\"margin:18px 0 0 0;font-size:12px;color:#6b7280;line-height:1.6;\">
                                 If you did not request this access, contact your administrator immediately.
@@ -1140,6 +1145,82 @@ def approve_user():
 # The laboratory now relies exclusively on Cloud Firestore for all persistence.
 # SQLite logic has been decommissioned to ensure global synchronization.
 
+
+def build_chatbot_response(user_message, current_path=None):
+    """Return a concise, support-focused response for the site chatbot."""
+    message = (user_message or '').strip().lower()
+    path = (current_path or '').strip().lower()
+
+    def response(text, suggestions):
+        return {
+            'reply': text,
+            'suggestions': suggestions,
+            'context': path or '/',
+        }
+
+    if not message:
+        return response(
+            'Ask me about logging in, creating an account, the help center, system status, or submitting a deliverable.',
+            ['How do I join?', 'How do I sign in?', 'Where do I submit a deliverable?']
+        )
+
+    blocked_terms = {
+        'bypass', 'exploit', 'payload', 'sql injection', 'sqli', 'xss', 'rce', 'csrf',
+        'steal', 'hack', 'reverse shell', 'privilege escalation'
+    }
+    if any(term in message for term in blocked_terms):
+        return response(
+            'I can help with navigation, account setup, support channels, system status, and deliverable submission. For lab-safe guidance, open the Help Center.',
+            ['Open Help Center', 'How do I submit a deliverable?', 'How do I sign in?']
+        )
+
+    if any(term in message for term in {'register', 'join', 'create account', 'enroll', 'identity'}):
+        return response(
+            'Use Join in the top bar, enter your preferred username and enrollment ID, then complete Google sign-in to finalize your identity.',
+            ['What if my account is pending?', 'How do I sign in?', 'Open Help Center']
+        )
+
+    if any(term in message for term in {'login', 'log in', 'sign in', 'signin', 'sign-in'}):
+        return response(
+            'Use Log In from the header. If the platform says your identity is not found, join first or check with support.',
+            ['How do I join?', 'Open Help Center', 'Check system status']
+        )
+
+    if any(term in message for term in {'deliverable', 'flag', 'submit', 'intake'}):
+        return response(
+            'On lab pages, open the floating Research Deliverable Intake widget in the bottom-right corner, choose the variation if needed, and submit your FLAG{...} value.',
+            ['Where is the widget?', 'What if submission fails?', 'Open Help Center']
+        )
+
+    if any(term in message for term in {'status', 'health', 'outage', 'down', 'service'}):
+        return response(
+            'Use the System Status page in the footer to check platform health and service telemetry before troubleshooting.',
+            ['Open System Status', 'Open Help Center', 'Where do I submit a deliverable?']
+        )
+
+    if any(term in message for term in {'help', 'faq', 'support', 'contact'}):
+        return response(
+            'The Help Center covers onboarding, deliverable submission, and support contacts. It is the fastest place to start.',
+            ['Open Help Center', 'How do I join?', 'How do I submit a deliverable?']
+        )
+
+    if any(term in path for term in {'/register', '/login'}) or any(term in message for term in {'account', 'profile'}):
+        return response(
+            'For account issues, use Join for setup, Log In for access, and Profile after authentication. Pending enrollments must be reviewed by an administrator.',
+            ['How do I join?', 'How do I sign in?', 'Why is my account pending?']
+        )
+
+    if '/lab' in path:
+        return response(
+            'On lab pages, the floating widget handles deliverable submission. If you need general guidance, use the Help Center from the top-level navigation or footer.',
+            ['How do I submit a deliverable?', 'Open Help Center', 'Check system status']
+        )
+
+    return response(
+        'I can help with account setup, sign-in, deliverable submission, and support links. Try asking about one of those topics.',
+        ['How do I join?', 'How do I sign in?', 'Where do I submit a deliverable?']
+    )
+
 # -------------------------
 # MAIN ROUTES
 # -------------------------
@@ -1162,6 +1243,14 @@ def cookie_policy():
 @app.route('/status')
 def system_status():
     return render_template('status.html')
+
+
+@app.route('/api/chatbot', methods=['POST'])
+def chatbot_reply():
+    payload = request.get_json(silent=True) or request.form or {}
+    message = payload.get('message', '')
+    current_path = payload.get('path', request.path)
+    return jsonify(build_chatbot_response(message, current_path))
 
 @app.route('/labs')
 def labs():

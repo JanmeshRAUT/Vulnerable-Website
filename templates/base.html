@@ -46,6 +46,7 @@
                 </div>
                 <nav class="header-nav-flex">
                     <a href="{{ url_for('home') }}" class="nav-link-custom">Modules</a>
+                    <button type="button" id="chatbot-toggle-btn" class="nav-link-custom chatbot-nav-link" aria-label="Open chatbot" aria-expanded="false" onclick="toggleChatbotWidget()">Chatbot</button>
                     
                     <div class="nav-divider"></div>
                     
@@ -130,11 +131,167 @@
                 </div>
             </div>
         </footer>
+
+        <div id="chatbot-widget" class="chatbot-shell" hidden>
+            <section class="chatbot-panel glass-morphism" aria-label="Support chatbot">
+                <header class="chatbot-header">
+                    <div>
+                        <div class="chatbot-kicker">Support Assistant</div>
+                        <h3 class="chatbot-title">RESEARCH_OPS Guide</h3>
+                    </div>
+                    <button type="button" class="chatbot-icon-btn" aria-label="Close chatbot" onclick="toggleChatbotWidget(false)">✕</button>
+                </header>
+
+                <div class="chatbot-status-row">
+                    <span class="chatbot-status-dot"></span>
+                    <span>Online for account, support, and navigation help</span>
+                </div>
+
+                <div id="chatbot-messages" class="chatbot-messages" aria-live="polite">
+                    <div class="chatbot-message chatbot-message-bot">
+                        <div class="chatbot-bubble">
+                            I can help with joining the platform, signing in, system status, and deliverable submission. Ask me a question or tap a quick prompt below.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chatbot-suggestions" class="chatbot-suggestions">
+                    <button type="button" class="chatbot-chip" data-chatbot-prompt="How do I join the platform?">How do I join?</button>
+                    <button type="button" class="chatbot-chip" data-chatbot-prompt="How do I sign in?">How do I sign in?</button>
+                    <button type="button" class="chatbot-chip" data-chatbot-prompt="Where do I submit a deliverable?">Submit deliverable</button>
+                    <button type="button" class="chatbot-chip" data-chatbot-prompt="Check system status">System status</button>
+                </div>
+
+                <form id="chatbot-form" class="chatbot-form" autocomplete="off">
+                    <input id="chatbot-input" type="text" class="chatbot-input" placeholder="Ask for help..." aria-label="Chatbot message">
+                    <button type="submit" class="btn chatbot-send">Send</button>
+                </form>
+
+                <div class="chatbot-footer-note">Support topics only. For lab guidance, use the Help Center.</div>
+            </section>
+        </div>
+
+        <script>
+        (function initializeChatbot() {
+            const chatbotEndpoint = "{{ url_for('chatbot_reply') }}";
+            const widget = document.getElementById('chatbot-widget');
+            const toggleButton = document.getElementById('chatbot-toggle-btn');
+            const form = document.getElementById('chatbot-form');
+            const input = document.getElementById('chatbot-input');
+            const messages = document.getElementById('chatbot-messages');
+            const suggestions = document.getElementById('chatbot-suggestions');
+
+            if (!widget || !toggleButton || !form || !input || !messages || !suggestions) {
+                return;
+            }
+
+            const defaultPrompts = [
+                'How do I join the platform?',
+                'How do I sign in?',
+                'Where do I submit a deliverable?',
+                'Check system status'
+            ];
+
+            function scrollMessagesToBottom() {
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            function addMessage(role, text, className) {
+                const messageRow = document.createElement('div');
+                messageRow.className = `chatbot-message chatbot-message-${role}`;
+                if (className) {
+                    messageRow.classList.add(className);
+                }
+
+                const bubble = document.createElement('div');
+                bubble.className = 'chatbot-bubble';
+                bubble.textContent = text;
+                messageRow.appendChild(bubble);
+                messages.appendChild(messageRow);
+                scrollMessagesToBottom();
+                return messageRow;
+            }
+
+            function setSuggestions(items) {
+                const promptList = Array.isArray(items) && items.length ? items : defaultPrompts;
+                suggestions.innerHTML = '';
+
+                promptList.slice(0, 4).forEach((prompt) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'chatbot-chip';
+                    button.textContent = prompt;
+                    button.addEventListener('click', () => {
+                        input.value = prompt;
+                        submitQuestion();
+                    });
+                    suggestions.appendChild(button);
+                });
+            }
+
+            async function submitQuestion() {
+                const question = input.value.trim();
+                if (!question) {
+                    return;
+                }
+
+                addMessage('user', question);
+                input.value = '';
+
+                const typingRow = addMessage('bot', 'Thinking...', 'chatbot-typing');
+
+                try {
+                    const response = await fetch(chatbotEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: question, path: window.location.pathname })
+                    });
+                    const data = await response.json();
+                    typingRow.remove();
+                    addMessage('bot', data.reply || 'I can help with account setup, support, and navigation.');
+                    setSuggestions(data.suggestions);
+                } catch (error) {
+                    typingRow.remove();
+                    addMessage('bot', 'I could not reach the support service right now. Try the Help Center or check System Status.');
+                    setSuggestions(defaultPrompts);
+                }
+            }
+
+            window.toggleChatbotWidget = function(forceOpen) {
+                const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : widget.hidden;
+                widget.hidden = !shouldOpen;
+                toggleButton.setAttribute('aria-expanded', String(shouldOpen));
+                toggleButton.setAttribute('aria-label', shouldOpen ? 'Close chatbot' : 'Open chatbot');
+                if (shouldOpen) {
+                    input.focus({ preventScroll: true });
+                    scrollMessagesToBottom();
+                }
+            };
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                submitQuestion();
+            });
+
+            suggestions.addEventListener('click', (event) => {
+                const button = event.target.closest('[data-chatbot-prompt]');
+                if (!button) {
+                    return;
+                }
+                input.value = button.dataset.chatbotPrompt || button.textContent.trim();
+                submitQuestion();
+            });
+
+            setSuggestions(defaultPrompts);
+        })();
+        </script>
+
         <!-- FLOATING FLAG SUBMISSION WIDGET (Persistent across Labs) -->
         {% if session.get('user_id') %}
         <div id="flag-widget" class="glass-morphism animate-slide-up" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); width: 300px; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
                 <h4 style="margin: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-color);">Research Deliverable Intake</h4>
+                <button type="button" onclick="cancelFlagWidget()" class="flag-widget-cancel">Cancel</button>
             </div>
             
             <form id="widget-flag-form" onsubmit="handleWidgetSubmit(event)">
@@ -170,6 +327,30 @@
                 btn.style.display = 'none';
             } else {
                 widget.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        function cancelFlagWidget() {
+            const widget = document.getElementById('flag-widget');
+            const btn = document.getElementById('flag-toggle-btn');
+            const flagInput = document.getElementById('widget-flag-input');
+            const variationSelect = document.getElementById('widget-variation');
+            const statusDiv = document.getElementById('widget-status');
+
+            if (flagInput) {
+                flagInput.value = '';
+            }
+            if (variationSelect) {
+                variationSelect.value = 'default';
+            }
+            if (statusDiv) {
+                statusDiv.innerHTML = '';
+            }
+            if (widget) {
+                widget.style.display = 'none';
+            }
+            if (btn) {
                 btn.style.display = 'flex';
             }
         }
