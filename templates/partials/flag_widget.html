@@ -1,0 +1,165 @@
+<!-- FLOATING FLAG SUBMISSION WIDGET (Persistent across Labs) -->
+{% if session.get('user_id') %}
+<div id="flag-widget" class="glass-morphism animate-slide-up" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); width: 300px; display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <h4 style="margin: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-color);">Research Deliverable Intake</h4>
+        <button type="button" onclick="cancelFlagWidget()" class="flag-widget-cancel">Cancel</button>
+    </div>
+    
+    <form id="widget-flag-form" onsubmit="handleWidgetSubmit(event)">
+        <input type="hidden" id="widget-lab-id" value="{{ lab_id or '' }}">
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Variation</label>
+            <select id="widget-variation" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 6px;">
+                <option value="variation_A">Variation A</option>
+                <option value="variation_B">Variation B</option>
+                <option value="variation_C">Variation C</option>
+                <option value="default" selected>Default</option>
+            </select>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">Clinical Flag</label>
+            <input type="text" id="widget-flag-input" placeholder="FLAG{...}" required style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: var(--warning-color); padding: 0.8rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-weight: 700;">Submit Research Deliverable</button>
+    </form>
+    <div id="widget-status" style="margin-top: 1rem; font-size: 0.85rem; text-align: center;"></div>
+</div>
+
+<button id="flag-toggle-btn" onclick="toggleFlagWidget()" class="glass-morphism" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 999; width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+    🚩
+</button>
+
+<script>
+function toggleFlagWidget() {
+    const widget = document.getElementById('flag-widget');
+    const btn = document.getElementById('flag-toggle-btn');
+    if(widget.style.display === 'none' || widget.style.display === '') {
+        widget.style.display = 'block';
+        btn.style.display = 'none';
+    } else {
+        widget.style.display = 'none';
+        btn.style.display = 'flex';
+    }
+}
+
+function cancelFlagWidget() {
+    const widget = document.getElementById('flag-widget');
+    const btn = document.getElementById('flag-toggle-btn');
+    const flagInput = document.getElementById('widget-flag-input');
+    const variationSelect = document.getElementById('widget-variation');
+    const statusDiv = document.getElementById('widget-status');
+
+    if (flagInput) {
+        flagInput.value = '';
+    }
+    if (variationSelect) {
+        variationSelect.value = 'default';
+    }
+    if (statusDiv) {
+        statusDiv.innerHTML = '';
+    }
+    if (widget) {
+        widget.style.display = 'none';
+    }
+    if (btn) {
+        btn.style.display = 'flex';
+    }
+}
+
+function handleWidgetSubmit(e) {
+    e.preventDefault();
+    const detectedContext = detectLabContext();
+    const explicitLabId = document.getElementById('widget-lab-id').value;
+    const labId = explicitLabId || detectedContext.canonicalLabId;
+    const exactLabId = detectedContext.exactLabId || explicitLabId;
+    const variation = document.getElementById('widget-variation').value;
+    const flag = document.getElementById('widget-flag-input').value;
+    const statusDiv = document.getElementById('widget-status');
+    
+    if(!labId || !exactLabId) {
+        statusDiv.innerHTML = '<span style="color: #ffc107;">Error: Could not identify Lab ID.</span>';
+        return;
+    }
+
+    statusDiv.innerHTML = '<span style="color: var(--text-muted);">Verifying Deliverable...</span>';
+
+    const formData = new URLSearchParams();
+    formData.append('lab_id', labId);
+    formData.append('exact_lab_id', exactLabId);
+    formData.append('lab_path', detectedContext.path || window.location.pathname);
+    formData.append('variation', variation);
+    formData.append('flag', flag);
+
+    fetch('/submit_flag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            statusDiv.innerHTML = `<span style="color: #28a745;">✓ ${data.message}</span>`;
+            document.getElementById('widget-flag-input').value = '';
+            setTimeout(toggleFlagWidget, 2000);
+        } else {
+            statusDiv.innerHTML = `<span style="color: #dc3545;">✗ ${data.error}</span>`;
+        }
+    })
+    .catch(err => {
+        statusDiv.innerHTML = '<span style="color: #dc3545;">Connection Error.</span>';
+    });
+}
+
+function detectLabContext() {
+    const normalizePath = (value) => {
+        if (!value) return null;
+        let normalized = String(value).toLowerCase();
+        if (!normalized.startsWith('/')) normalized = '/' + normalized;
+        if (normalized.length > 1) normalized = normalized.replace(/\/+$/, '');
+        return normalized;
+    };
+
+    const path = normalizePath(window.location.pathname);
+    const exactLabRoutes = {
+        '/lab8': { exactLabId: 'lab8_1_a', canonicalLabId: 'lab8' },
+        '/lab8/1': { exactLabId: 'lab8_1_a', canonicalLabId: 'lab8' },
+        '/lab8/1/a': { exactLabId: 'lab8_1_a', canonicalLabId: 'lab8' },
+        '/lab8/1/b': { exactLabId: 'lab8_1_b', canonicalLabId: 'lab8' },
+        '/lab8/1/c': { exactLabId: 'lab8_1_c', canonicalLabId: 'lab8' },
+        '/lab8/1/d': { exactLabId: 'lab8_1_d', canonicalLabId: 'lab8' },
+        '/lab8/1/e': { exactLabId: 'lab8_1_e', canonicalLabId: 'lab8' },
+        '/lab8/2': { exactLabId: 'lab8_2_a', canonicalLabId: 'lab8_2' }
+    };
+
+    if (window.LAB_ID && exactLabRoutes[path]) {
+        return { ...exactLabRoutes[path], path };
+    }
+
+    if (path && exactLabRoutes[path]) {
+        return { ...exactLabRoutes[path], path };
+    }
+
+    if (path) {
+        const candidatePaths = Object.keys(exactLabRoutes).sort((a, b) => b.length - a.length);
+        for (const candidatePath of candidatePaths) {
+            if (path.startsWith(candidatePath + '/')) {
+                return { ...exactLabRoutes[candidatePath], path };
+            }
+        }
+    }
+
+    return {
+        exactLabId: window.LAB_ID || null,
+        canonicalLabId: window.LAB_ID || null,
+        path
+    };
+}
+
+if(window.location.pathname.includes('/lab')) {
+    document.getElementById('flag-toggle-btn').style.display = 'flex';
+} else {
+    document.getElementById('flag-toggle-btn').style.display = 'none';
+}
+</script>
+{% endif %}

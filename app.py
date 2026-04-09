@@ -706,20 +706,27 @@ def generate_lab_flags(lab_id, identity_key):
         'variation_A': get_or_generate_flag(identity_key, lab_id, 'variation_A'),
         'variation_B': get_or_generate_flag(identity_key, lab_id, 'variation_B'),
         'variation_C': get_or_generate_flag(identity_key, lab_id, 'variation_C'),
+        'variation_D': get_or_generate_flag(identity_key, lab_id, 'variation_D'),
+        'variation_E': get_or_generate_flag(identity_key, lab_id, 'variation_E'),
         'default': get_or_generate_flag(identity_key, lab_id, 'default')
     }
+
+
+def get_research_identity_key(allow_header=True):
+    identity_key = session.get('guid') or session.get('user_id')
+    if not identity_key and allow_header:
+        try:
+            identity_key = request.headers.get('X-SSRF-Researcher-GUID')
+        except Exception:
+            identity_key = None
+    if not identity_key:
+        identity_key = session.get('lab8_subject')
+    return identity_key
 
 def get_random_flag(lab_id, variation='default'):
     """Compatibility wrapper for legacy lab routes to use dynamic flags"""
     # Check session first (standard)
-    identity_key = session.get('guid') or session.get('user_id')
-    
-    # SSRF Fallback: Check for identity forwarded via internal simulation header
-    if not identity_key:
-        try:
-            identity_key = request.headers.get('X-SSRF-Researcher-GUID')
-        except:
-            identity_key = None
+    identity_key = get_research_identity_key(allow_header=True)
             
     if not identity_key:
         # High-Fidelity: Standardize on static fallbacks for guest researchers
@@ -767,7 +774,7 @@ def submit_flag():
     expected_flags = session.get('lab_flags', {}).get(canonical_lab_id, [])
     if not expected_flags:
         # Regenerate if session timed out or missing.
-        identity_key = session.get('guid') or session.get('user_id')
+        identity_key = get_research_identity_key(allow_header=False)
         expected_flags = list(generate_lab_flags(canonical_lab_id, identity_key).values())
 
         # Backward compatibility for users whose visible flags were generated
@@ -4783,6 +4790,56 @@ def lab8():
 def lab8_1():
     return render_template('lab8/sub1_index.html')
 
+
+def strip_script_tags(user_input: str) -> str:
+    if not user_input:
+        return ''
+    # For pattern-matching mode: don't strip anything, let backend detect the payload
+    return user_input
+
+
+def check_xss_payload(user_input: str, variant: str) -> bool:
+    if not user_input:
+        return False
+    # Check if input contains active XSS patterns (script, event handlers, protocol handlers)
+    xss_patterns = [
+        '<script',
+        'onerror=',
+        'onload=',
+        'onclick=',
+        'javascript:',
+        '"; fetch',
+        "'; fetch"
+    ]
+    return any(pattern.lower() in user_input.lower() for pattern in xss_patterns)
+
+
+@app.route('/xss-success')
+def xss_success():
+    """Endpoint that JavaScript payloads call to prove execution"""
+    variant = (request.args.get('variant') or '').strip().upper()
+    variant_map = {
+        'A': 'variation_A',
+        'B': 'variation_B',
+        'C': 'variation_C',
+        'D': 'variation_D',
+        'E': 'variation_E',
+    }
+    mapped_variation = variant_map.get(variant)
+    if not mapped_variation:
+        return "Invalid variant", 400
+    
+    # Generate and store flag for this execution
+    flag = str(get_random_flag('lab8', variation=mapped_variation))
+    session[f'xss_flag_{variant}'] = flag
+    
+    # Return JSON with flag so JavaScript can display it
+    return {
+        'success': True,
+        'flag': flag,
+        'message': f'XSS Payload Executed Successfully on Variant {variant}!'
+    }, 200, {'Content-Type': 'application/json'}
+
 # Lab 8.1.A: TechCorp Employee Portal - Multi-page with Navigation
 @app.route('/lab8/1/a', methods=['GET', 'POST'])
 @app.route('/lab8/1/a/<page>', methods=['GET', 'POST'])
@@ -4792,6 +4849,7 @@ def lab8_1_a(page='home'):
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         if username and password:
+            session['lab8_subject'] = f"lab8:{username.strip().lower()}"
             session['lab8_1_a_user'] = username
             return redirect(url_for('lab8_1_a', page='home'))
     
@@ -4799,6 +4857,7 @@ def lab8_1_a(page='home'):
     if request.method == 'POST' and 'logout_btn' in request.form:
         session.pop('lab8_1_a_user', None)
         session.pop('lab8_1_a_search', None)
+        session.pop('lab8_subject', None)
         return redirect(url_for('lab8_1_a', page='home'))
     
     # Get login status
@@ -4806,24 +4865,80 @@ def lab8_1_a(page='home'):
     username = session.get('lab8_1_a_user', None)
     
     # Redirect non-logged-in users to login page for protected pages
-    if page in ['profile', 'dashboard'] and not logged_in:
+    if page in ['search', 'profile', 'dashboard'] and not logged_in:
         page = 'login'
     
-    # Handle search page with XSS detection
-    search_data = {'detected': False, 'flag': '', 'query': ''}
+    # Handle search page - reflects user input (XSS vulnerability)
+    search_data = {'query': '', 'results': [], 'payload_detected': False, 'flag': None}
     if page == 'search' and logged_in:
+        directory_records = [
+            {
+                'username': 'admin',
+                'name': 'Arjun Kapoor',
+                'role': 'Security Administrator',
+                'department': 'Identity & Access Management',
+                'email': 'admin@techcorp.local',
+                'location': 'Bangalore SOC',
+                'status': 'Active',
+                'last_login': 'Today, 09:42 AM'
+            },
+            {
+                'username': 'nverma',
+                'name': 'Neha Verma',
+                'role': 'SOC Analyst',
+                'department': 'Security Operations',
+                'email': 'neha.verma@techcorp.local',
+                'location': 'Mumbai Security Hub',
+                'status': 'Active',
+                'last_login': 'Today, 08:15 AM'
+            },
+            {
+                'username': 'rpatel',
+                'name': 'Rohan Patel',
+                'role': 'Cloud Security Engineer',
+                'department': 'Cloud Security',
+                'email': 'rohan.patel@techcorp.local',
+                'location': 'Pune Engineering Center',
+                'status': 'Active',
+                'last_login': 'Today, 07:58 AM'
+            },
+            {
+                'username': 'pmehta',
+                'name': 'Priya Mehta',
+                'role': 'Compliance Engineer',
+                'department': 'Governance & Risk',
+                'email': 'priya.mehta@techcorp.local',
+                'location': 'Delhi Audit Office',
+                'status': 'On Leave',
+                'last_login': 'Yesterday, 06:20 PM'
+            }
+        ]
+
         if request.method == 'POST' and 'search_btn' in request.form:
             search_query = request.form.get('search_query', '').strip()
-            
+
             if search_query:
-                xss_patterns = ['<script', 'javascript:', '%3cscript', 'onerror=', 'onload=']
+                # Check if payload is detected (will execute in browser)
+                if check_xss_payload(search_query, 'A'):
+                    search_data['payload_detected'] = True
+                    # Generate flag (will be retrieved via /xss-success call)
+                    search_data['flag'] = str(get_random_flag('lab8', variation='variation_A'))
+
+                # Search directory (if it's not a payload)
                 search_query_lower = search_query.lower()
-                for pattern in xss_patterns:
-                    if pattern in search_query_lower:
-                        search_data['detected'] = True
-                        search_data['flag'] = str(get_random_flag('lab8'))
-                        break
-            
+                for record in directory_records:
+                    haystack = " ".join([
+                        record['username'],
+                        record['name'],
+                        record['role'],
+                        record['department'],
+                        record['email'],
+                        record['location'],
+                        record['status']
+                    ]).lower()
+                    if search_query_lower in haystack:
+                        search_data['results'].append(record)
+
             search_data['query'] = search_query
     
     return render_template('lab8/realworld_nav_a.html',
@@ -4832,7 +4947,7 @@ def lab8_1_a(page='home'):
                          username=username,
                          search_data=search_data)
 
-# Lab 8.1.B: PixelArt NFT Marketplace - Multi-page with Navigation
+# Lab 8.1.B: PixelArt Photo Selling Marketplace - Multi-page with Navigation
 @app.route('/lab8/1/b', methods=['GET', 'POST'])
 @app.route('/lab8/1/b/<page>', methods=['GET', 'POST'])
 def lab8_1_b(page='gallery'):
@@ -4841,6 +4956,7 @@ def lab8_1_b(page='gallery'):
         seller_name = request.form.get('seller_name', '').strip()
         password = request.form.get('password', '')
         if seller_name and password:
+            session['lab8_subject'] = f"lab8:{seller_name.strip().lower()}"
             session['lab8_1_b_seller'] = seller_name
             return redirect(url_for('lab8_1_b', page='gallery'))
     
@@ -4848,6 +4964,8 @@ def lab8_1_b(page='gallery'):
     if request.method == 'POST' and 'logout_btn' in request.form:
         session.pop('lab8_1_b_seller', None)
         session.pop('lab8_1_b_upload', None)
+        session.pop('lab8_1_b_assets', None)
+        session.pop('lab8_subject', None)
         return redirect(url_for('lab8_1_b', page='gallery'))
     
     # Get login status
@@ -4857,21 +4975,68 @@ def lab8_1_b(page='gallery'):
     # Redirect non-logged-in users to login page
     if page in ['upload', 'profile'] and not logged_in:
         page = 'login'
+
+    default_gallery_assets = [
+        {
+            'title': 'Golden Hour Street',
+            'description': 'Cinematic city frame captured during evening golden hour.',
+            'price': '$340.00',
+            'image_url': 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80'
+        },
+        {
+            'title': 'Ocean Blue Minimal',
+            'description': 'Minimal ocean composition designed for premium editorial use.',
+            'price': '$125.00',
+            'image_url': 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92eee?auto=format&fit=crop&w=900&q=80'
+        },
+        {
+            'title': 'Aurora Ridge',
+            'description': 'Fine-art mountain photograph with premium print quality.',
+            'price': '$890.00',
+            'image_url': 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=900&q=80'
+        }
+    ]
+
+    uploaded_assets = session.get('lab8_1_b_assets', [])
+    gallery_assets = list(uploaded_assets) + default_gallery_assets
     
     # Handle upload page with XSS detection
-    upload_result = {'detected': False, 'flag': None, 'meta': ''}
+    upload_result = {'alt_text': '', 'flag': None, 'payload_detected': False}
     if page == 'upload' and logged_in:
         if request.method == 'POST' and 'upload_btn' in request.form:
+            artwork_title = request.form.get('artwork_title', '').strip()
+            price_raw = request.form.get('price', '').strip()
             image_alt = request.form.get('image_alt', '').strip()
+            image_url = request.form.get('image_url', '').strip()
+
+            if artwork_title and price_raw:
+                try:
+                    normalized_price = f"${float(price_raw):.2f}"
+                except Exception:
+                    normalized_price = "$1.00"
+
+                fallback_urls = [
+                    'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80',
+                    'https://images.unsplash.com/photo-1633412802994-5c058f151b66?auto=format&fit=crop&w=900&q=80',
+                    'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=900&q=80'
+                ]
+
+                selected_image_url = image_url or fallback_urls[len(uploaded_assets) % len(fallback_urls)]
+                uploaded_asset = {
+                    'title': artwork_title,
+                    'description': image_alt or 'Custom photo listing submitted by seller.',
+                    'price': normalized_price,
+                    'image_url': selected_image_url
+                }
+                uploaded_assets.insert(0, uploaded_asset)
+                if len(uploaded_assets) > 12:
+                    uploaded_assets = uploaded_assets[:12]
+                session['lab8_1_b_assets'] = uploaded_assets
+                gallery_assets = list(uploaded_assets) + default_gallery_assets
             
-            if image_alt:
-                xss_patterns = ['<img', 'onerror=', '%3cimg', 'onload=', 'onmouseover=']
-                image_alt_lower = image_alt.lower()
-                for pattern in xss_patterns:
-                    if pattern in image_alt_lower:
-                        upload_result['detected'] = True
-                        upload_result['flag'] = str(get_random_flag('lab8'))
-                        break
+            if check_xss_payload(image_alt, 'B'):
+                upload_result['flag'] = str(get_random_flag('lab8', variation='variation_B'))
+                upload_result['payload_detected'] = True
             
             upload_result['alt_text'] = image_alt
     
@@ -4879,7 +5044,8 @@ def lab8_1_b(page='gallery'):
                          page=page,
                          logged_in=logged_in,
                          username=username,
-                         upload_result=upload_result if upload_result else None)
+                         upload_result=upload_result if upload_result else None,
+                         gallery_assets=gallery_assets)
 
 # Lab 8.1.C: GraphicStudio Design Platform - Multi-page with Navigation
 @app.route('/lab8/1/c', methods=['GET', 'POST'])
@@ -4890,6 +5056,7 @@ def lab8_1_c(page='portfolio'):
         designer_name = request.form.get('designer_name', '').strip()
         password = request.form.get('password', '')
         if designer_name and password:
+            session['lab8_subject'] = f"lab8:{designer_name.strip().lower()}"
             session['lab8_1_c_designer'] = designer_name
             return redirect(url_for('lab8_1_c', page='portfolio'))
     
@@ -4897,6 +5064,7 @@ def lab8_1_c(page='portfolio'):
     if request.method == 'POST' and 'logout_btn' in request.form:
         session.pop('lab8_1_c_designer', None)
         session.pop('lab8_1_c_create', None)
+        session.pop('lab8_subject', None)
         return redirect(url_for('lab8_1_c', page='portfolio'))
     
     # Get login status
@@ -4908,21 +5076,17 @@ def lab8_1_c(page='portfolio'):
         page = 'login'
     
     # Handle create page with XSS detection
-    create_result = {'detected': False, 'flag': ''}
+    create_result = {'description': '', 'flag': None, 'payload_detected': False}
     if page == 'create' and logged_in:
         if request.method == 'POST' and 'create_btn' in request.form:
             project_desc = request.form.get('project_desc', '').strip()
             
             if project_desc:
-                xss_patterns = ['<svg', 'onload=', '%3csvg', '<script', 'javascript:']
-                project_desc_lower = project_desc.lower()
-                for pattern in xss_patterns:
-                    if pattern in project_desc_lower:
-                        create_result['detected'] = True
-                        create_result['flag'] = str(get_random_flag('lab8'))
-                        break
-            
-            create_result['description'] = project_desc
+                if check_xss_payload(project_desc, 'C'):
+                    create_result['flag'] = str(get_random_flag('lab8', variation='variation_C'))
+                    create_result['payload_detected'] = True
+                
+                create_result['description'] = project_desc
     
     return render_template('lab8/realworld_nav_c.html',
                          page=page,
@@ -4939,6 +5103,7 @@ def lab8_1_d(page='home'):
         user_handle = request.form.get('user_handle', '').strip()
         password = request.form.get('password', '')
         if user_handle and password:
+            session['lab8_subject'] = f"lab8:{user_handle.strip().lower()}"
             session['lab8_1_d_user'] = user_handle
             return redirect(url_for('lab8_1_d', page='myfeed'))
     
@@ -4946,6 +5111,7 @@ def lab8_1_d(page='home'):
     if request.method == 'POST' and 'logout_btn' in request.form:
         session.pop('lab8_1_d_user', None)
         session.pop('lab8_1_d_posts', None)
+        session.pop('lab8_subject', None)
         return redirect(url_for('lab8_1_d', page='home'))
     
     # Get login status
@@ -4964,23 +5130,18 @@ def lab8_1_d(page='home'):
             post_content = request.form.get('post_content', '').strip()
             
             if post_content:
-                xss_patterns = ['onmouseover=', 'onmouseenter=', 'onkeydown=', 'onfocus=', 
-                              'ondblclick=', '<script', 'javascript:', '%3cscript']
-                post_content_lower = post_content.lower()
-                for pattern in xss_patterns:
-                    if pattern in post_content_lower:
-                        post_result = {
-                            'content': post_content,
-                            'detected': True,
-                            'flag': str(get_random_flag('lab8'))
-                        }
-                        break
-            
-            if not post_result:
-                post_result = {
-                    'content': post_content,
-                    'detected': False
-                }
+                if check_xss_payload(post_content, 'D'):
+                    post_result = {
+                        'content': post_content,
+                        'flag': str(get_random_flag('lab8', variation='variation_D')),
+                        'payload_detected': True
+                    }
+                else:
+                    post_result = {
+                        'content': post_content,
+                        'flag': None,
+                        'payload_detected': False
+                    }
     
     return render_template('lab8/realworld_nav_d.html',
                          page=page,
@@ -4995,9 +5156,10 @@ def lab8_1_d(page='home'):
 def lab8_1_e(page='dashboard'):
     # Handle login from any page
     if request.method == 'POST' and 'login_btn' in request.form:
-        user_email = request.form.get('user_email', '').strip()
+        user_email = request.form.get('user_email', '').strip() or request.form.get('admin_user', '').strip()
         password = request.form.get('password', '')
         if user_email and password:
+            session['lab8_subject'] = f"lab8:{user_email.strip().lower()}"
             session['lab8_1_e_user'] = user_email
             return redirect(url_for('lab8_1_e', page='dashboard'))
     
@@ -5005,6 +5167,7 @@ def lab8_1_e(page='dashboard'):
     if request.method == 'POST' and 'logout_btn' in request.form:
         session.pop('lab8_1_e_user', None)
         session.pop('lab8_1_e_upload', None)
+        session.pop('lab8_subject', None)
         return redirect(url_for('lab8_1_e', page='dashboard'))
     
     # Get login status
@@ -5016,21 +5179,17 @@ def lab8_1_e(page='dashboard'):
         page = 'login'
     
     # Handle upload page with XSS detection
-    upload_result = {'detected': False, 'flag': None, 'meta': ''}
+    upload_result = {'source': '', 'flag': None, 'payload_detected': False}
     if page == 'upload' and logged_in:
         if request.method == 'POST' and 'upload_btn' in request.form:
             doc_source = request.form.get('doc_source', '').strip()
             
             if doc_source:
-                xss_patterns = ['<iframe', 'javascript:', '%3ciframe', '<script', 'onload=']
-                doc_source_lower = doc_source.lower()
-                for pattern in xss_patterns:
-                    if pattern in doc_source_lower:
-                        upload_result['detected'] = True
-                        upload_result['flag'] = str(get_random_flag('lab8'))
-                        break
-            
-            upload_result['source'] = doc_source
+                if check_xss_payload(doc_source, 'E'):
+                    upload_result['flag'] = str(get_random_flag('lab8', variation='variation_E'))
+                    upload_result['payload_detected'] = True
+                
+                upload_result['source'] = doc_source
     
     return render_template('lab8/realworld_nav_e.html',
                          page=page,

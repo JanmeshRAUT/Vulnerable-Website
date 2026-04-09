@@ -6,58 +6,6 @@
     <title>Lab 8.1.C - SVG Injection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        .svg-canvas {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 2px dashed var(--dir-border);
-            border-radius: 8px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dir-text-muted);
-        }
-        
-        .lab-instructions {
-            background: rgba(59, 130, 246, 0.1);
-            border-left: 4px solid #3b82f6;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-            color: #e0e7ff;
-        }
-        
-        .payload-code {
-            background: #0f172a;
-            padding: 0.5rem;
-            border-radius: 4px;
-            margin-top: 0.25rem;
-            border-left: 2px solid #60a5fa;
-            color: #60a5fa;
-            font-family: 'Courier New', monospace;
-            word-break: break-all;
-            font-size: 0.8rem;
-        }
-        
-        .execution-indicator {
-            display: inline-block;
-            background: #10b981;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-    </style>
 </head>
 <body>
 
@@ -70,7 +18,7 @@
                     <h1 class="login-title">Lab 8.1.C - SVG Injection</h1>
                     <p class="login-subtitle">Graphics Editor</p>
                 </div>
-                
+
                 {% if xss_detected and flag %}
                     <div class="flag-container">
                         <div class="flag-header">
@@ -83,11 +31,11 @@
 
                 {% if title %}
                     {% if xss_detected %}
-                        <div class="alert-message" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7;">
+                        <div class="alert-message lab-success-message">
                             <div class="alert-icon">✓</div>
                             <div class="alert-content">
                                 SVG Executed on Load <span class="execution-indicator">ACTIVE</span>
-                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Payload: <strong>{{ title | safe }}</strong></span>
+                                <br><span class="lab-secondary-copy">Payload: <strong>{{ title | safe }}</strong></span>
                             </div>
                         </div>
                     {% else %}
@@ -95,7 +43,7 @@
                             <div class="alert-icon">ℹ️</div>
                             <div class="alert-content">
                                 Title reflected: <strong>{{ title }}</strong>
-                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Try injecting an SVG tag with onload handler.</span>
+                                <br><span class="lab-secondary-copy">Try injecting an SVG tag with onload handler.</span>
                             </div>
                         </div>
                     {% endif %}
@@ -114,29 +62,29 @@
                     <h3>📚 Lab 8.1.C: SVG Vector Injection</h3>
                     <p>SVG is a vector graphics format that supports event handlers. When you inject an SVG tag, the <strong>onload event fires automatically</strong> as soon as the element is rendered.</p>
                     
-                    <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 6px; margin-top: 1rem; font-size: 0.85rem; border: 1px solid rgba(59, 130, 246, 0.3);">
-                        <p style="color: #cbd5e1;"><strong>💡 SVG Injection Techniques:</strong></p>
+                    <div class="lab-inline-panel">
+                        <p class="lab-muted-message"><strong>💡 SVG Injection Techniques:</strong></p>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Basic onload:</p>
+                        <p class="lab-muted-message lab-content-gap">Basic onload:</p>
                         <div class="payload-code">&lt;svg onload=alert('SVG Loaded')&gt;</div>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Nested element injection:</p>
+                        <p class="lab-muted-message lab-content-gap">Nested element injection:</p>
                         <div class="payload-code">&lt;svg&gt;&lt;circle cx=50 cy=50 r=40 onload=alert('XSS')/&gt;&lt;/svg&gt;</div>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Animate injection:</p>
+                        <p class="lab-muted-message lab-content-gap">Animate injection:</p>
                         <div class="payload-code">&lt;svg&gt;&lt;animate onload="alert('Animated XSS')"&gt;&lt;/svg&gt;</div>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Script within SVG:</p>
+                        <p class="lab-muted-message lab-content-gap">Script within SVG:</p>
                         <div class="payload-code">&lt;svg&gt;&lt;script&gt;alert('SVG Script')&lt;/script&gt;&lt;/svg&gt;</div>
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin-top: 1.5rem;">
-                    <a href="{{ url_for('lab8_1') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Back to Lab 8.1</a>
+                <div class="lab-center-actions">
+                    <a href="{{ url_for('lab8_1') }}" class="lab-back-link-inline">&larr; Back to Lab 8.1</a>
                 </div>
             </div>
             
-            <footer style="margin-top:2rem; text-align:center; color:#64748b; font-size:0.8rem;">
+            <footer class="lab-small-footer">
                 &copy; 2025 Security Training Labs. Educational Purpose Only.
             </footer>
         </div>
@@ -146,7 +94,7 @@
     <div class="site-wrapper">
         <nav class="site-nav">
             <div class="nav-logo">
-                <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">📐</div>
+                <div class="lab-hero-icon">📐</div>
                 Lab 8.1.C <span>SVG Injection</span>
             </div>
             <div class="nav-links">
@@ -158,11 +106,13 @@
             <div class="hero-content">
                 <h1 class="hero-title">SVG Injection<br>Attack Lab</h1>
                 <p class="hero-subtitle">Exploit automatic SVG rendering to execute malicious code through vector graphics.</p>
-                <a href="{{ url_for('lab8_1_c', mode='create') }}" class="btn-primary" style="padding:1rem 2rem; font-size:1.1rem;">Start Lab</a>
+                <a href="{{ url_for('lab8_1_c', mode='create') }}" class="btn-primary lab-start-cta">Start Lab</a>
             </div>
         </section>
     </div>
 {% endif %}
+
+{% include 'partials/flag_widget.html' %}
 
 </body>
 </html>

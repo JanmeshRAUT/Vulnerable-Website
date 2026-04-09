@@ -1,259 +1,99 @@
-{% extends 'base.html' %} 
-{% block title %}Lab 8.1 - Reflected XSS Modules{% endblock %} 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
-<style>
-    .module-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        padding: 4rem 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-    
-    .module-card {
-        background: var(--dir-surface);
-        border: 2px solid var(--dir-border);
-        border-radius: 12px;
-        padding: 2rem;
-        transition: all 0.3s;
-        cursor: pointer;
-    }
-    
-    .module-card:hover {
-        transform: translateY(-8px);
-        border-color: var(--dir-accent);
-        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
-    }
-    
-    .module-code {
-        display: inline-block;
-        background: var(--dir-accent);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 4px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        margin-bottom: 1rem;
-    }
-    
-    .module-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 0.75rem;
-    }
-    
-    .module-desc {
-        color: var(--dir-text-muted);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 1rem;
-    }
-    
-    .payload-type {
-        background: rgba(59, 130, 246, 0.1);
-        border-left: 3px solid var(--dir-accent);
-        padding: 0.75rem;
-        margin: 1rem 0;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        color: #60a5fa;
-        font-family: monospace;
-    }
-    
-    .start-btn {
-        display: inline-block;
-        background: var(--dir-accent);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: background 0.2s;
-        margin-top: 1rem;
-    }
-    
-    .start-btn:hover {
-        background: var(--dir-accent-hover);
-    }
-    
-    .difficulty {
-        display: inline-block;
-        margin-left: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    
-    .difficulty.beginner {
-        color: #10b981;
-    }
-    
-    .difficulty.intermediate {
-        color: #f59e0b;
-    }
-    
-    .difficulty.advanced {
-        color: #ef4444;
-    }
-    
-    /* Disable Labs C, D, E */
-    .module-card:nth-child(3),
-    .module-card:nth-child(4),
-    .module-card:nth-child(5) {
-        opacity: 0.4;
-        filter: grayscale(100%);
-        pointer-events: none;
-        position: relative;
-    }
-    
-    .module-card:nth-child(3):hover,
-    .module-card:nth-child(4):hover,
-    .module-card:nth-child(5):hover {
-        transform: none;
-        border-color: var(--dir-border);
-        box-shadow: none;
-    }
-    
-    .module-card:nth-child(3)::after,
-    .module-card:nth-child(4)::after,
-    .module-card:nth-child(5)::after {
-        content: 'UNAVAILABLE';
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: #dc2626;
-        color: white;
-        padding: 0.35rem 0.75rem;
-        border-radius: 4px;
-        font-weight: 700;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        z-index: 10;
-    }
-</style>
-{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}Lab 8.1 - Reflected XSS | Lab Center{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab8/index.css') }}">
+{% endblock %}
 
 {% block content %}
-<div class="site-wrapper">
-    <nav class="site-nav">
-        <div class="nav-logo">
-            <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🔍</div>
-            Lab 8.1 <span>Reflected XSS</span>
+<div class="lab-index-container">
+    <section class="lab-header-premium">
+        <a href="{{ url_for('lab8') }}" class="back-link-premium">&larr; Back to Lab 8</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Lab 8.1</p>
+            <h1 class="lab-sub-title">Reflected XSS</h1>
         </div>
-        <div class="nav-links">
-            <span style="color: var(--dir-text-muted);">Security Research Labs</span>
-            <a href="{{ url_for('lab8') }}" class="nav-link">Back to Lab 8</a>
-        </div>
-    </nav>
+        <p class="lab-header-desc">
+            Practice reflected XSS across five active targets. Each mission uses a different input context so you can compare payload behavior and response handling.
+        </p>
+    </section>
 
-    <div class="hero-section" style="padding: 4rem 2rem; min-height: 40vh;">
-        <div class="hero-content">
-            <h1 class="hero-title">Reflected XSS<br>Attack Vectors</h1>
-            <p class="hero-subtitle">
-                Master different techniques to execute XSS attacks through various input vectors. 
-                Each sub-lab focuses on a specific real-world attack scenario.
-            </p>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Operator Note:</strong> All Lab 8.1 modules are active. Start with the login flow, then move through media, SVG, comment, and iframe contexts.
         </div>
     </div>
 
-    <div class="module-grid">
-        <!-- 8.1.A: Script Injection -->
-        <div class="module-card">
-            <div class="module-code">8.1.A</div>
-            <h3 class="module-title">Employee Login Portal <span class="difficulty beginner">Beginner</span></h3>
-            <p class="module-desc">
-                Classic script injection attack on a corporate login page. Reflect malicious JavaScript through the username field.
-            </p>
-            <div class="payload-type">
-                &lt;script&gt;alert('XSS')&lt;/script&gt;
+    <section class="premium-lab-grid" aria-label="Lab 8.1 modules">
+        <a href="{{ url_for('lab8_1_a', mode='login') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2);">⚡</div>
+                <div class="premium-card-badge">8.1.A</div>
             </div>
-            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
-                ✓ Direct script execution<br>
-                ✓ Simple alert boxes<br>
-                ✓ JavaScript injection
-            </p>
-            <a href="{{ url_for('lab8_1_a', mode='login') }}" class="start-btn">Start Module</a>
-        </div>
-
-        <!-- 8.1.B: Image Tag Injection -->
-        <div class="module-card">
-            <div class="module-code">8.1.B</div>
-            <h3 class="module-title">Product Image Gallery <span class="difficulty beginner">Beginner</span></h3>
-            <p class="module-desc">
-                Inject malicious code through image metadata on an e-commerce product upload feature. Uses error event handlers.
-            </p>
-            <div class="payload-type">
-                &lt;img src=x onerror=alert('XSS')&gt;
+            <div class="premium-card-body">
+                <h3>Script Injection</h3>
+                <p>Classic reflected script execution through a login form.</p>
             </div>
-            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
-                ✓ Image tag injection<br>
-                ✓ Error event handlers<br>
-                ✓ Broken image exploitation
-            </p>
-            <a href="{{ url_for('lab8_1_b', mode='upload') }}" class="start-btn">Start Module</a>
-        </div>
-
-        <!-- 8.1.C: SVG Injection -->
-        <div class="module-card">
-            <div class="module-code">8.1.C</div>
-            <h3 class="module-title">SVG Graphics Editor <span class="difficulty intermediate">Intermediate</span></h3>
-            <p class="module-desc">
-                Craft SVG payloads on a graphics editing platform. Leverage SVG's onload event for automatic execution upon rendering.
-            </p>
-            <div class="payload-type">
-                &lt;svg onload=alert('XSS')&gt;
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Module &rarr;</span>
             </div>
-            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
-                ✓ SVG vector graphics<br>
-                ✓ Onload event triggering<br>
-                ✓ Automatic execution
-            </p>
-            <a href="{{ url_for('lab8_1_c', mode='create') }}" class="start-btn">Start Module</a>
-        </div>
+        </a>
 
-        <!-- 8.1.D: Event Handler Injection -->
-        <div class="module-card">
-            <div class="module-code">8.1.D</div>
-            <h3 class="module-title">Social Media Comments <span class="difficulty intermediate">Intermediate</span></h3>
-            <p class="module-desc">
-                Post XSS payloads in user comments. Attack through hover and interaction events that trigger on user behavior.
-            </p>
-            <div class="payload-type">
-                &lt;span onmouseover=alert('XSS')&gt;Hover me&lt;/span&gt;
+        <a href="{{ url_for('lab8_1_b', mode='upload') }}" class="premium-lab-card" style="--card-color: #06b6d4;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(6, 182, 212, 0.1); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.2);">🖼️</div>
+                <div class="premium-card-badge">8.1.B</div>
             </div>
-            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
-                ✓ Event handler injection<br>
-                ✓ User interaction triggers<br>
-                ✓ Multiple event types
-            </p>
-            <a href="{{ url_for('lab8_1_d', mode='comment') }}" class="start-btn">Start Module</a>
-        </div>
-
-        <!-- 8.1.E: IFrame Injection -->
-        <div class="module-card">
-            <div class="module-code">8.1.E</div>
-            <h3 class="module-title">Document Viewer <span class="difficulty advanced">Advanced</span></h3>
-            <p class="module-desc">
-                Embed malicious frames in a document viewing application. Chain vulnerabilities using the JavaScript protocol in iframe sources.
-            </p>
-            <div class="payload-type">
-                &lt;iframe src="javascript:alert('XSS')"&gt;&lt;/iframe&gt;
+            <div class="premium-card-body">
+                <h3>Image Injection</h3>
+                <p>Exploit image-tag handling and broken image error events.</p>
             </div>
-            <p style="color: var(--dir-text-muted); font-size: 0.9rem;">
-                ✓ IFrame embedding<br>
-                ✓ JavaScript protocol<br>
-                ✓ Complex payload chaining
-            </p>
-            <a href="{{ url_for('lab8_1_e', mode='view') }}" class="start-btn">Start Module</a>
-        </div>
-    </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Module &rarr;</span>
+            </div>
+        </a>
 
-    <footer class="site-footer" style="margin-top: 4rem;">
-        <p>&copy; 2025 Security Training Labs. Educational Purpose Only.</p>
-    </footer>
+        <a href="{{ url_for('lab8_1_c', mode='create') }}" class="premium-lab-card" style="--card-color: #8b5cf6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(139, 92, 246, 0.1); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.2);">🧩</div>
+                <div class="premium-card-badge">8.1.C</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>SVG Injection</h3>
+                <p>Use SVG payloads to trigger execution on render.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Module &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab8_1_d', mode='comment') }}" class="premium-lab-card" style="--card-color: #f59e0b;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2);">💬</div>
+                <div class="premium-card-badge">8.1.D</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>Event Handler Injection</h3>
+                <p>Trigger payloads through hover and interaction events.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Module &rarr;</span>
+            </div>
+        </a>
+
+        <a href="{{ url_for('lab8_1_e', mode='view') }}" class="premium-lab-card" style="--card-color: #ef4444;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2);">🪟</div>
+                <div class="premium-card-badge">8.1.E</div>
+            </div>
+            <div class="premium-card-body">
+                <h3>IFrame Injection</h3>
+                <p>Chain iframe sources with JavaScript protocol payloads.</p>
+            </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Start Module &rarr;</span>
+            </div>
+        </a>
+    </section>
 </div>
 {% endblock %}

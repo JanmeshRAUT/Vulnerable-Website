@@ -1,555 +1,289 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechCorp - Professional Employee Services</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f5f6fa;
-            color: #333;
-        }
-        
-        /* ===== NAVIGATION HEADER ===== */
-        nav {
-            background: linear-gradient(135deg, #001a4d 0%, #0a3566 100%);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .logo {
-            color: white;
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-            align-items: center;
-        }
-        
-        .nav-links a, .nav-links button {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            border-radius: 6px;
-        }
-        
-        .nav-links a:hover, .nav-links button:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        .logged-in {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-left: auto;
-        }
-        
-        .user-greeting {
-            color: white;
-            font-size: 0.9rem;
-        }
-        
-        .btn-logout {
-            padding: 0.6rem 1.2rem;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-logout:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        /* ===== MAIN CONTENT ===== */
-        .container {
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 0 2rem;
-        }
-        
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            color: #001a4d;
-        }
-        
-        .page-subtitle {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 2rem;
-        }
-        
-        /* ===== HOME PAGE ===== */
-        .hero-section {
-            background: linear-gradient(135deg, #001a4d 0%, #0a3566 100%);
-            color: white;
-            padding: 4rem 2rem;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        
-        .hero-section h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .hero-section p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-        
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
-        }
-        
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .feature-card h3 {
-            color: #001a4d;
-            margin-bottom: 0.5rem;
-        }
-        
-        .feature-card p {
-            color: #666;
-            font-size: 0.95rem;
-        }
-        
-        /* ===== SEARCH PAGE ===== */
-        .search-box {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
-        }
-        
-        .search-input-group {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .search-input-group input {
-            flex: 1;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.95rem;
-        }
-        
-        .search-input-group button {
-            padding: 0.8rem 2rem;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .search-input-group button:hover {
-            background: #0052a3;
-        }
-        
-        .search-results {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
-        
-        .result-item {
-            padding: 1.5rem;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .result-item:last-child {
-            border-bottom: none;
-        }
-        
-        .result-title {
-            font-size: 1.1rem;
-            color: #001a4d;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        
-        .result-content {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-        
-        /* ===== CONTACT PAGE ===== */
-        .contact-form {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            max-width: 600px;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.95rem;
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 150px;
-        }
-        
-        .btn-submit {
-            width: 100%;
-            padding: 0.8rem;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-submit:hover {
-            background: #0052a3;
-        }
-        
-        /* ===== SUCCESS/ERROR MESSAGES ===== */
-        .alert {
-            padding: 1rem;
-            margin-bottom: 2rem;
-            border-radius: 6px;
-            font-weight: 500;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        
-        .flag-display {
-            background: #d4edda;
-            padding: 1.5rem;
-            border-radius: 6px;
-            margin-top: 2rem;
-            border-left: 4px solid #28a745;
-        }
-        
-        .flag-display .flag-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-        
-        .flag-display .flag-value {
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: #155724;
-            font-weight: 700;
-            word-break: break-all;
-        }
-        
-        @media (max-width: 768px) {
-            .features {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-links {
-                gap: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- NAVIGATION HEADER -->
-    <nav>
-        <div class="logo">TechCorp</div>
-        <ul class="nav-links">
-            <li><a href="/lab8/1/a">Home</a></li>
-            <li><a href="/lab8/1/a/about">About</a></li>
-            <li><a href="/lab8/1/a/services">Services</a></li>
-            <li><a href="/lab8/1/a/search">Search</a></li>
-            <li><a href="/lab8/1/a/contact">Contact</a></li>
+﻿{% extends 'base.html' %}
+
+{% block title %}TechCorp - Professional Employee Services | Lab 8.1.A{% endblock %}
+
+{% block header %}
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/realworld_nav_a.css') }}">
+{% endblock %}
+
+{% block layout_container %}
+<div class="lab8a-app">
+    <div class="lab8a-shell">
+        <nav class="lab8a-nav">
+            <a href="/lab8/1/a" class="lab8a-brand">TechCorp</a>
+            <ul class="lab8a-nav-links">
+                <li><a href="/lab8/1/a" class="lab8a-nav-link {% if page == 'home' %}is-active{% endif %}">Home</a></li>
+                <li><a href="/lab8/1/a/about" class="lab8a-nav-link {% if page == 'about' %}is-active{% endif %}">About</a></li>
+                <li><a href="/lab8/1/a/services" class="lab8a-nav-link {% if page == 'services' %}is-active{% endif %}">Services</a></li>
+                <li><a href="/lab8/1/a/search" class="lab8a-nav-link {% if page == 'search' %}is-active{% endif %}">Search</a></li>
+                <li><a href="/lab8/1/a/contact" class="lab8a-nav-link {% if page == 'contact' %}is-active{% endif %}">Contact</a></li>
+            </ul>
             {% if logged_in %}
-            <li><a href="/lab8/1/a/profile">Profile</a></li>
+            <div class="lab8a-user">
+                <span class="lab8a-user-copy">Reflected context: <strong class="lab8a-user-chip">{{ username }}</strong></span>
+                <form method="POST" class="lab8a-user-form">
+                    <button type="submit" name="logout_btn" class="lab8a-ghost-btn">Exit System</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="lab8a-user">
+                <a href="/lab8/1/a/login" class="lab8a-ghost-btn">Login</a>
+            </div>
             {% endif %}
-        </ul>
-        {% if logged_in %}
-        <div class="logged-in">
-            <span class="user-greeting">Welcome, {{ username }}!</span>
-            <form method="POST" style="display: inline;">
-                <button type="submit" name="logout_btn" class="btn-logout">Logout</button>
-            </form>
-        </div>
-        {% else %}
-        <div class="logged-in">
-            <a href="/lab8/1/a/login" style="color: white; text-decoration: none;">Login</a>
-        </div>
-        {% endif %}
-    </nav>
+        </nav>
 
-    <div class="container">
-        {% if page == 'home' %}
-            <h1 class="page-title">Welcome to TechCorp</h1>
-            <p class="page-subtitle">Your trusted partner for enterprise solutions</p>
-            
-            <div class="hero-section">
-                <h2>Innovative Technology Solutions</h2>
-                <p>Empowering businesses with cutting-edge technology and expert services</p>
-            </div>
-            
-            <div class="features">
-                <div class="feature-card">
-                    <div class="feature-icon">🚀</div>
-                    <h3>Fast Implementation</h3>
-                    <p>Quick and efficient deployment of our services tailored to your needs</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Secure & Reliable</h3>
-                    <p>Enterprise-grade security with 99.99% uptime guarantee</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💼</div>
-                    <h3>Expert Support</h3>
-                    <p>24/7 technical support from our experienced team of professionals</p>
-                </div>
+        <main class="lab8a-main">
+            <div class="lab8a-breadcrumb">
+                <a href="{{ url_for('lab8') }}">Module 8</a> /
+                <a href="{{ url_for('lab8_1') }}">Lab 8.1</a> /
+                <span>Script Injection (Reflected)</span>
             </div>
 
-        {% elif page == 'login' %}
-            <div style="max-width: 500px; margin: 2rem auto;">
-                <h1 class="page-title">Employee Login</h1>
-                <form method="POST" class="contact-form">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" name="username" required>
+            {% if page == 'home' %}
+                <section class="lab8a-hero">
+                    <h1 class="lab8a-hero-title">Enterprise Solutions.</h1>
+                    <p class="lab8a-hero-sub">Secure. Scalable. Professional.</p>
+                    <div class="lab8a-hero-cta-wrap">
+                        <a href="/lab8/1/a/search" class="lab8a-hero-cta">Explore Database &rarr;</a>
                     </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" required>
-                    </div>
-                    <button type="submit" name="login_btn" class="btn-submit">Login</button>
-                </form>
-            </div>
+                </section>
 
-        {% elif page == 'search' %}
-            <h1 class="page-title">Employee Directory Search</h1>
-            <p class="page-subtitle">Search our employee database for contact information and details</p>
-            
-            <div class="search-box">
-                <form method="POST">
-                    <div class="search-input-group">
-                        <input type="text" name="search_query" placeholder="Enter employee name, department, or skill..." value="{{ search_data.get('query', '') if search_data else '' }}">
-                        <button type="submit" name="search_btn">Search</button>
-                    </div>
-                </form>
-                
-                {% if search_data %}
-                    {% if search_data.get('detected') %}
-                        <div class="alert alert-success">
-                            ✓ XSS Vulnerability Detected! You've successfully injected code into the search functionality.
+                <section class="lab8a-grid-3">
+                    <article class="lab8a-card">
+                        <div class="lab8a-icon">&#128640;</div>
+                        <h3 class="lab8a-card-title">Rapid Deploy</h3>
+                        <p class="lab8a-card-copy">Next-gen deployment pipelines for modern infrastructure.</p>
+                    </article>
+                    <article class="lab8a-card">
+                        <div class="lab8a-icon">&#128274;</div>
+                        <h3 class="lab8a-card-title">Ironclad Security</h3>
+                        <p class="lab8a-card-copy">Bank-grade encryption protecting your most sensitive assets.</p>
+                    </article>
+                    <article class="lab8a-card">
+                        <div class="lab8a-icon">&#128202;</div>
+                        <h3 class="lab8a-card-title">Deep Insights</h3>
+                        <p class="lab8a-card-copy">Advanced analytics for data-driven organization growth.</p>
+                    </article>
+                </section>
+
+            {% elif page == 'login' %}
+                <section class="lab8a-panel">
+                    <article class="lab8a-card">
+                        <p class="lab8a-kicker">TechCorp Secure Gateway</p>
+                        <h2 class="lab8a-panel-title">Portal Login</h2>
+                        <p class="lab8a-panel-sub">Authenticate to continue to enterprise systems.</p>
+                        <div class="lab8a-creds">
+                            <p class="lab8a-creds-title">Demo Login Details</p>
+                            <p class="lab8a-creds-copy">Username: any non-empty value</p>
+                            <p class="lab8a-creds-copy">Password: any non-empty value</p>
                         </div>
-                        {% if search_data.get('flag') %}
-                            <div class="flag-display">
-                                <div class="flag-label">🏁 Challenge Completed - Flag:</div>
-                                <div class="flag-value">{{ search_data['flag'] }}</div>
+                        <form method="POST" class="lab8a-form">
+                            <div class="lab8a-field">
+                                <label class="lab8a-label">Username</label>
+                                <input type="text" name="username" class="lab8a-input" placeholder="employee@techcorp.local" required>
+                            </div>
+                            <div class="lab8a-field">
+                                <label class="lab8a-label">Password</label>
+                                <input type="password" name="password" class="lab8a-input" placeholder="Enter your password" required>
+                            </div>
+                            <button type="submit" name="login_btn" class="lab8a-btn lab8a-btn-full">Access System</button>
+                        </form>
+                        <p class="lab8a-tip"><strong>Tip:</strong> The login field is the primary research target for reflection vectors.</p>
+                    </article>
+                </section>
+
+            {% elif page == 'search' %}
+                <section class="lab8a-split">
+                    <article class="lab8a-card">
+                        <h2 class="lab8a-card-title">Directory Search</h2>
+                        <p class="lab8a-card-copy">Search records and inspect how your query is reflected in response output.</p>
+                        <form method="POST" class="lab8a-form">
+                            <div class="lab8a-field">
+                                <label class="lab8a-label">Search Query</label>
+                                <input type="text" name="search_query" placeholder="Enter query..." class="lab8a-input" value="{{ search_data.get('query', '') if search_data else '' }}">
+                            </div>
+                            <button type="submit" name="search_btn" class="lab8a-btn lab8a-btn-full">Run Search</button>
+                        </form>
+                    </article>
+
+                    <aside class="lab8a-card lab8a-result-card">
+                        <h4 class="lab8a-card-title">Reflection Preview</h4>
+                        {% if search_data and search_data.get('query') %}
+                            {% if search_data.get('payload_detected') %}
+                                <div class="lab8a-flag">
+                                    <h3>&#9889; Script Execution Successful</h3>
+                                    <p>Vulnerability confirmed: Reflective code execution achieved in search context.</p>
+                                    {% if search_data.get('flag') %}
+                                    <div class="lab8a-flag-code">{{ search_data['flag'] }}</div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="lab8a-empty">
+                                    <p>Search buffer: <span class="lab8a-accent">{{ search_data.get('query', '') }}</span></p>
+                                    <div class="lab8a-code-panel">
+                                        <p class="lab8a-code-title">Rendered Response</p>
+                                        <div class="lab8a-pre">
+                                            <div>Result: {{ search_data.get('query', '') }}</div>
+                                        </div>
+                                    </div>
+                                    <p class="lab8a-tip-small">Try injecting a payload with fetch call.</p>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="lab8a-empty">
+                                <div class="lab8a-ghost-icon">&#128269;</div>
+                                <p>No query executed yet.</p>
                             </div>
                         {% endif %}
+                    </aside>
+                </section>
+
+                {% if search_data and search_data.get('query') %}
+                <section class="lab8a-card lab8a-results">
+                    <h3 class="lab8a-results-title">Directory Matches</h3>
+                    {% if search_data.get('results') %}
+                    <div class="lab8a-results-list">
+                        {% for item in search_data.get('results', []) %}
+                        <article class="lab8a-result-item">
+                            <h4 class="lab8a-result-name">{{ item.name }} <span class="lab8a-result-tag">@{{ item.username }}</span></h4>
+                            <p class="lab8a-result-copy"><strong>Role:</strong> {{ item.role }}</p>
+                            <p class="lab8a-result-copy"><strong>Department:</strong> {{ item.department }}</p>
+                            <p class="lab8a-result-copy"><strong>Email:</strong> {{ item.email }}</p>
+                            <p class="lab8a-result-copy"><strong>Location:</strong> {{ item.location }}</p>
+                            <p class="lab8a-result-copy"><strong>Status:</strong> {{ item.status }} | <strong>Last Login:</strong> {{ item.last_login }}</p>
+                        </article>
+                        {% endfor %}
+                    </div>
                     {% else %}
-                        <div class="search-results">
-                            <div class="result-item">
-                                <div class="result-title">Search Results for: {{ search_data.get('query', '') }}</div>
-                                <div class="result-content">
-                                    Try injecting JavaScript code (example: &lt;script&gt;alert('XSS')&lt;/script&gt;) to test the vulnerability.
+                    <div class="lab8a-empty">
+                        <p>No directory records found for: <span class="lab8a-accent">{{ search_data.get('query', '') }}</span></p>
+                    </div>
+                    {% endif %}
+                </section>
+                {% endif %}
+
+            {% elif page == 'contact' %}
+                <section class="lab8a-split">
+                    <article class="lab8a-card">
+                        <h2 class="lab8a-card-title">Support Request</h2>
+                        <form method="POST" class="lab8a-form">
+                            <div class="lab8a-form-row">
+                                <div class="lab8a-field">
+                                    <label class="lab8a-label">Name</label>
+                                    <input type="text" class="lab8a-input">
+                                </div>
+                                <div class="lab8a-field">
+                                    <label class="lab8a-label">Email</label>
+                                    <input type="email" class="lab8a-input">
                                 </div>
                             </div>
+                            <div class="lab8a-field">
+                                <label class="lab8a-label">Subject</label>
+                                <input type="text" class="lab8a-input">
+                            </div>
+                            <div class="lab8a-field">
+                                <label class="lab8a-label">Message</label>
+                                <textarea class="lab8a-textarea"></textarea>
+                            </div>
+                            <button type="submit" class="lab8a-btn lab8a-btn-full">Submit Ticket</button>
+                        </form>
+                    </article>
+                    <aside class="lab8a-card lab8a-contact-card">
+                        <h4 class="lab8a-card-title">Direct Contact</h4>
+                        <p class="lab8a-card-copy">Our team is available 24/7 for critical enterprise support.</p>
+                        <div class="lab8a-list">
+                            <div>&#128222; +1 (800) TECH-CORP</div>
+                            <div>&#9993;&#65039; support@techcorp.local</div>
+                            <div>&#128205; Silicon Valley, CA</div>
                         </div>
-                    {% endif %}
-                {% endif %}
-            </div>
+                    </aside>
+                </section>
 
-        {% elif page == 'contact' %}
-            <h1 class="page-title">Contact Us</h1>
-            <p class="page-subtitle">Get in touch with our support team</p>
-            
-            <div class="contact-form">
-                <form method="POST">
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="contact_name" required>
+            {% elif page == 'about' %}
+                <section class="lab8a-card">
+                    <h1 class="lab8a-card-title">Legacy Excellence.</h1>
+                    <p class="lab8a-card-copy">TechCorp has been the backbone of digital transformation for over two decades.</p>
+                    <div class="lab8a-list">
+                        <p class="lab8a-card-copy">Founded in 2004, TechCorp started as a small data management firm and evolved into a global leader in professional employee services and secure infrastructure.</p>
+                        <p class="lab8a-card-copy">Our commitment to security and innovation has made us the trusted choice for Fortune 500 companies worldwide.</p>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="contact_email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Subject</label>
-                        <input type="text" name="contact_subject" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Message</label>
-                        <textarea name="contact_message" required></textarea>
-                    </div>
-                    <button type="submit" name="contact_btn" class="btn-submit">Send Message</button>
-                </form>
-            </div>
+                </section>
 
-        {% elif page == 'about' %}
-            <h1 class="page-title">About TechCorp</h1>
-            <p class="page-subtitle">Leading technology company since 2010</p>
-            
-            <div class="search-results">
-                <div class="result-item">
-                    <div class="result-title">Our Mission</div>
-                    <div class="result-content">
-                        To provide innovative technology solutions that empower businesses and transform industries through cutting-edge research and development.
-                    </div>
-                </div>
-                <div class="result-item">
-                    <div class="result-title">Our Values</div>
-                    <div class="result-content">
-                        Innovation • Integrity • Excellence • Collaboration • Customer Focus
-                    </div>
-                </div>
-                <div class="result-item">
-                    <div class="result-title">Our Team</div>
-                    <div class="result-content">
-                        With over 500 dedicated professionals, we deliver world-class solutions to clients across the globe.
-                    </div>
-                </div>
-            </div>
 
-        {% elif page == 'services' %}
-            <h1 class="page-title">Our Services</h1>
-            <p class="page-subtitle">Comprehensive technology solutions for your business</p>
-            
-            <div class="features">
-                <div class="feature-card">
-                    <div class="feature-icon">🛠️</div>
-                    <h3>System Integration</h3>
-                    <p>Seamlessly integrate your existing systems with modern technology</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Data Analytics</h3>
-                    <p>Transform raw data into actionable insights for better decision making</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">☁️</div>
-                    <h3>Cloud Solutions</h3>
-                    <p>Scalable and secure cloud infrastructure for your growing business</p>
-                </div>
-            </div>
+            {% elif page == 'services' %}
+                <section>
+                    <h1 class="lab8a-services-title">Enterprise Stack</h1>
+                    <div class="lab8a-grid-2">
+                        <article class="lab8a-card">
+                            <h3 class="lab8a-card-title">Managed Infrastructure</h3>
+                            <p class="lab8a-card-copy">End-to-end management of your private cloud and on-premise hardware.</p>
+                        </article>
+                        <article class="lab8a-card">
+                            <h3 class="lab8a-card-title">Identity Governance</h3>
+                            <p class="lab8a-card-copy">Robust IAM solutions with multi-factor authentication and role-based access.</p>
+                        </article>
+                        <article class="lab8a-card">
+                            <h3 class="lab8a-card-title">Security Audit</h3>
+                            <p class="lab8a-card-copy">Periodic penetration testing and vulnerability assessments for your stack.</p>
+                        </article>
+                        <article class="lab8a-card">
+                            <h3 class="lab8a-card-title">Technical Support</h3>
+                            <p class="lab8a-card-copy">Our engineers are on standby 24/7 to resolve complex architectural issues.</p>
+                        </article>
+                    </div>
+                </section>
 
-        {% elif page == 'profile' and logged_in %}
-            <h1 class="page-title">Your Profile</h1>
-            
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-                <div class="search-results">
-                    <div class="result-item">
-                        <div class="result-title">Employee Information</div>
-                        <div style="margin-top: 1rem;">
-                            <p><strong>Name:</strong> {{ username }}</p>
-                            <p><strong>Email:</strong> {{ username }}@techcorp.local</p>
-                            <p><strong>Department:</strong> Engineering</p>
-                            <p><strong>Join Date:</strong> 2023-01-15</p>
+
+            {% elif page == 'profile' and logged_in %}
+                <section class="lab8a-profile-layout">
+                    <article class="lab8a-card">
+                        <h2 class="lab8a-profile-title">Employee Record</h2>
+                        <div class="lab8a-profile-head">
+                            <div class="lab8a-avatar">&#128100;</div>
+                            <div>
+                                <h3 class="lab8a-profile-name">{{ username }}</h3>
+                                <p class="lab8a-profile-role">Senior Security Research Lead</p>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="search-results">
-                    <div class="result-item">
-                        <div class="result-title">Quick Actions</div>
-                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
-                            <li>View Payslip</li>
-                            <li>Update Password</li>
-                            <li>Download Resume</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
+                        <div class="lab8a-meta-grid">
+                            <div>
+                                <p class="lab8a-meta-key">Employee ID</p>
+                                <p class="lab8a-meta-val">TC-{{ username[:4] | upper }}-2024</p>
+                            </div>
+                            <div>
+                                <p class="lab8a-meta-key">Location</p>
+                                <p class="lab8a-meta-val">Remote / Global Ops</p>
+                            </div>
+                            <div>
+                                <p class="lab8a-meta-key">Status</p>
+                                <p class="lab8a-meta-val"><span class="lab8a-status-dot">&#9679;</span>Active - Research Mode</p>
+                            </div>
+                            <div>
+                                <p class="lab8a-meta-key">Clearance</p>
+                                <p class="lab8a-meta-val">Level 4 - Administrator</p>
+                            </div>
+                        </div>
+                    </article>
+                    <aside class="lab8a-card lab8a-log-card">
+                        <h4 class="lab8a-card-title">Access Log</h4>
+                        <div class="lab8a-log-list">
+                            <div class="lab8a-log-item">
+                                <p class="lab8a-log-time">Today, 09:42 AM</p>
+                                <p class="lab8a-log-copy">Authentication success via WebPortal</p>
+                            </div>
+                            <div class="lab8a-log-item">
+                                <p class="lab8a-log-time">Yesterday, 14:15 PM</p>
+                                <p class="lab8a-log-copy">Database query: <span class="lab8a-code">search?q={{ username }}</span></p>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+
+            {% endif %}
+        </main>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
+
+

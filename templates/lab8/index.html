@@ -1,58 +1,43 @@
-{% extends 'base.html' %} 
-{% block title %}Security Assessment Modules{% endblock %} 
-{% block header %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
-{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}Module 8 - Cross-Site Scripting | Lab Center{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/labs/lab8/index.css') }}">
+{% endblock %}
 
 {% block content %}
-<div class="site-wrapper">
-    <!-- Internal Nav -->
-    <nav class="site-nav">
-        <div class="nav-logo">
-            <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">R</div>
-            Research <span>Division</span>
+<div class="lab-index-container">
+    <div class="lab-header-premium">
+        <a href="{{ url_for('home') }}" class="back-link-premium">&larr; Back to Dashboard</a>
+        <div class="lab-title-wrapper">
+            <p class="lab-main-title">Module 8</p>
+            <h1 class="lab-sub-title">Cross-Site Scripting</h1>
         </div>
-        <div class="nav-links">
-            <span style="color: var(--dir-text-muted);">Internal Training Portal</span>
-            <a href="{{ url_for('home') }}" class="nav-link">Main Hub</a>
-        </div>
-    </nav>
+        <p class="lab-header-desc">
+            Test reflected XSS handling in a controlled browser workflow. Lab 8 now contains a single active entry point focused on the reflected attack surface.
+        </p>
+    </div>
 
-    <div class="hero-section" style="padding: 4rem 2rem; min-height: auto;">
-        <div class="hero-content">
-            <h1 class="hero-title">Security Assessment<br>Portal</h1>
-            <p class="hero-subtitle">
-                Inject malicious scripts into trusted web applications. Understand the difference between Reflected and Stored execution contexts in a safe, controlled environment.
-            </p>
+    <div class="lab-alert-banner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Operator Note:</strong> Only Lab 8.1 is available from this module entry. Use it to explore login, media, SVG, comment, and iframe payload handling.
         </div>
     </div>
 
-    <div class="features-grid" style="padding-top: 0;">
-        <!-- Module 8.1 -->
-        <div class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3 class="feature-title">Module 8.1</h3>
-            <p class="feature-desc">
-                Analyze how the system processes and displays external input. Test various input scenarios.
-            </p>
-            <div style="margin-top: 1.5rem;">
-                <!-- Link to the "Homepage" version -->
-                <a href="{{ url_for('lab8_1') }}" class="btn-primary">Launch Module</a>
+    <div class="premium-lab-grid">
+        <a href="{{ url_for('lab8_1') }}" class="premium-lab-card" style="--card-color: #3b82f6;">
+            <div class="premium-card-header">
+                <div class="premium-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2);">⚡</div>
+                <div class="premium-card-badge">Lab 8.1</div>
             </div>
-        </div>
-
-        <!-- Module 8.2 -->
-        <div class="feature-card" style="border-top: 4px solid var(--dir-danger);">
-            <div class="feature-icon" style="color: var(--dir-danger);">💾</div>
-            <h3 class="feature-title">Module 8.2</h3>
-            <p class="feature-desc">
-                Test how the system handles user-generated content and data persistence. Focus on profile management flows.
-            </p>
-            <div style="margin-top: 1.5rem;">
-                <a href="{{ url_for('lab8_2') }}" class="btn-primary" style="background-color: var(--dir-danger);">Launch Module</a>
+            <div class="premium-card-body">
+                <h3>Reflected XSS</h3>
+                <p>Launch the active reflected XSS mission set and work through the available payload contexts.</p>
             </div>
-        </div>
+            <div class="premium-card-footer">
+                <span class="premium-card-action">Open Lab &rarr;</span>
+            </div>
+        </a>
     </div>
-
 </div>
 {% endblock %}

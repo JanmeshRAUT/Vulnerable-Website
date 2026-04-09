@@ -1,480 +1,252 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SocialHub - Connect & Share</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-            color: #333;
-        }
-        
-        /* ===== NAVIGATION HEADER ===== */
-        nav {
-            background: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 3px solid #1877f2;
-        }
-        
-        .logo {
-            color: #1877f2;
-            font-size: 1.8rem;
-            font-weight: 800;
-        }
-        
-        .nav-search {
-            flex: 1;
-            margin: 0 2rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .nav-search input {
-            width: 100%;
-            max-width: 300px;
-            padding: 0.6rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            background: #f0f2f5;
-            font-size: 0.9rem;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-            align-items: center;
-        }
-        
-        .nav-links a, .nav-links button {
-            color: #65676b;
-            text-decoration: none;
-            padding: 0.5rem 0;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .nav-links a:hover, .nav-links button:hover {
-            color: #1877f2;
-            border-bottom-color: #1877f2;
-        }
-        
-        .logged-in {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-left: auto;
-        }
-        
-        .user-greeting {
-            color: #333;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        .btn-logout {
-            padding: 0.6rem 1.5rem;
-            background: #1877f2;
-            border: none;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-logout:hover {
-            background: #166fe5;
-        }
-        
-        /* ===== MAIN CONTENT ===== */
-        .container {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            color: #050505;
-        }
-        
-        /* ===== FEED ===== */
-        .post-box {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1rem;
-        }
-        
-        .post-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .post-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #1877f2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            margin-right: 0.8rem;
-        }
-        
-        .post-user-info h4 {
-            margin: 0;
-            font-size: 0.95rem;
-        }
-        
-        .post-user-info p {
-            margin: 0;
-            font-size: 0.8rem;
-            color: #65676b;
-        }
-        
-        .post-content {
-            background: #f0f2f5;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.8rem;
-            word-break: break-word;
-            line-height: 1.5;
-        }
-        
-        .post-actions {
-            display: flex;
-            justify-content: space-around;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 0.8rem;
-        }
-        
-        .post-action {
-            flex: 1;
-            padding: 0.6rem;
-            text-align: center;
-            color: #65676b;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-radius: 4px;
-        }
-        
-        .post-action:hover {
-            background: #f0f2f5;
-            color: #1877f2;
-        }
-        
-        .create-post-box {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .create-post-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .create-post-input {
-            flex: 1;
-            background: #f0f2f5;
-            border: none;
-            padding: 0.8rem 1rem;
-            border-radius: 20px;
-            margin-left: 0.8rem;
-            font-size: 0.95rem;
-            cursor: pointer;
-        }
-        
-        .post-form {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Poppins', sans-serif;
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #1877f2;
-            box-shadow: 0 0 5px rgba(24, 119, 242, 0.2);
-        }
-        
-        .btn-submit {
-            width: 100%;
-            padding: 0.8rem;
-            background: #1877f2;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-        }
-        
-        .btn-submit:hover {
-            background: #166fe5;
-        }
-        
-        .btn-submit:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        /* ===== ALERTS ===== */
-        .alert {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-        
-        .flag-display {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            border-left: 4px solid #28a745;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .flag-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-        
-        .flag-value {
-            font-family: monospace;
-            font-size: 1rem;
-            color: #155724;
-            font-weight: 700;
-            word-break: break-all;
-        }
-        
-        @media (max-width: 768px) {
-            .nav-search {
-                display: none;
-            }
-            
-            .nav-links {
-                gap: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- NAVIGATION HEADER -->
-    <nav>
-        <div class="logo">SocialHub</div>
-        <div class="nav-search" style="display: none;">
-            <input type="text" placeholder="Search">
-        </div>
-        <ul class="nav-links">
-            <li><a href="/lab8/1/d">Home</a></li>
-            <li><a href="/lab8/1/d/friends">Friends</a></li>
-            <li><a href="/lab8/1/d/messages">Messages</a></li>
-            <li><a href="/lab8/1/d/notifications">Notifications</a></li>
+{% extends 'base.html' %}
+
+{% block title %}SocialHub - Connect & Discover | Lab 8.1.D{% endblock %}
+
+{% block header %}
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/realworld_nav_d.css') }}">
+{% endblock %}
+
+{% block layout_container %}
+<div class="lab8d-app">
+    <div class="lab8d-shell">
+        <nav class="lab8d-nav">
+            <a href="/lab8/1/d" class="lab8d-brand">SocialHub</a>
+            <ul class="lab8d-nav-links">
+                <li><a href="/lab8/1/d" class="lab8d-nav-link {% if page == 'home' %}is-active{% endif %}">Home</a></li>
+                <li><a href="/lab8/1/d/explore" class="lab8d-nav-link {% if page == 'explore' %}is-active{% endif %}">Explore</a></li>
+                <li><a href="/lab8/1/d/about" class="lab8d-nav-link {% if page == 'about' %}is-active{% endif %}">About</a></li>
+                <li><a href="/lab8/1/d/myfeed" class="lab8d-nav-link {% if page == 'myfeed' %}is-active{% endif %}">My Feed</a></li>
+                <li><a href="/lab8/1/d/contact" class="lab8d-nav-link {% if page == 'contact' %}is-active{% endif %}">Support</a></li>
+            </ul>
             {% if logged_in %}
-            <li><a href="/lab8/1/d/myfeed">Feed</a></li>
-            {% endif %}
-        </ul>
-        {% if logged_in %}
-        <div class="logged-in">
-            <span class="user-greeting">@{{ user_handle }}</span>
-            <form method="POST" style="display: inline;">
-                <button type="submit" name="logout_btn" class="btn-logout">Logout</button>
-            </form>
-        </div>
-        {% else %}
-        <div class="logged-in">
-            <a href="/lab8/1/d/login" style="text-decoration: none;">
-                <button class="btn-logout">Sign In</button>
-            </a>
-        </div>
-        {% endif %}
-    </nav>
-
-    <div class="container">
-        {% if page == 'home' %}
-            <h1 class="page-title">Welcome to SocialHub</h1>
-            <p style="color: #65676b; margin-bottom: 2rem;">Connect with friends and share your thoughts</p>
-            
-            <div class="post-box">
-                <div class="post-header">
-                    <div class="post-avatar">S</div>
-                    <div class="post-user-info">
-                        <h4>SocialHub Team</h4>
-                        <p>Official • 2 hours ago</p>
-                    </div>
-                </div>
-                <div class="post-content">
-                    Welcome to SocialHub! Your new favorite place to connect. Share your thoughts, photos, and ideas with friends from around the world.
-                </div>
-                <div class="post-actions">
-                    <div class="post-action">👍 Like</div>
-                    <div class="post-action">💬 Comment</div>
-                    <div class="post-action">↗️ Share</div>
-                </div>
-            </div>
-
-        {% elif page == 'login' %}
-            <div style="max-width: 400px; margin: 4rem auto;">
-                <h1 class="page-title" style="text-align: center;">Sign In to SocialHub</h1>
-                <div class="post-form">
-                    <form method="POST">
-                        <div class="form-group">
-                            <label>Username / Handle</label>
-                            <input type="text" name="user_handle" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" name="password" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;" required>
-                        </div>
-                        <button type="submit" name="login_btn" class="btn-submit">Sign In</button>
-                    </form>
-                </div>
-            </div>
-
-        {% elif page == 'myfeed' and logged_in %}
-            <h1 class="page-title">Your Feed</h1>
-            
-            <div class="post-form">
-                <div class="post-header">
-                    <div class="post-avatar" style="margin: 0; margin-right: 0.8rem;">{{ user_handle[0].upper() }}</div>
-                    <div style="flex: 1;">
-                        <div class="post-user-info">
-                            <h4>{{ user_handle }}</h4>
-                        </div>
-                    </div>
-                </div>
-                <form method="POST">
-                    <div class="form-group">
-                        <textarea name="post_content" placeholder="What's on your mind?" required></textarea>
-                    </div>
-                    <button type="submit" name="post_btn" class="btn-submit">Post</button>
+            <div class="lab8d-user">
+                <span class="lab8d-user-copy">Session: <strong class="lab8d-user-chip">@{{ user_handle }}</strong></span>
+                <form method="POST" class="lab8d-user-form">
+                    <button type="submit" name="logout_btn" class="lab8d-ghost-btn">Log Out</button>
                 </form>
-                
-                {% if post_result %}
-                    {% if post_result.get('detected') %}
-                        <div class="alert alert-success">
-                            ✓ XSS Vulnerability Detected! Event handler injection successful.
-                        </div>
-                        {% if post_result.get('flag') %}
-                            <div class="flag-display">
-                                <div class="flag-label">🏁 Challenge Completed - Flag:</div>
-                                <div class="flag-value">{{ post_result['flag'] }}</div>
+            </div>
+            {% else %}
+            <div class="lab8d-user">
+                <a href="/lab8/1/d/login" class="lab8d-ghost-btn">Join SocialHub</a>
+            </div>
+            {% endif %}
+        </nav>
+
+        <main class="lab8d-main">
+            <div class="lab8d-breadcrumb">
+                <a href="{{ url_for('lab8') }}">Module 8</a> /
+                <a href="{{ url_for('lab8_1') }}">Lab 8.1</a> /
+                <span>Event Injection (Reflected)</span>
+            </div>
+
+            {% if page == 'home' %}
+                <section class="lab8d-hero">
+                    <h1 class="lab8d-hero-title">Connect Globally.</h1>
+                    <p class="lab8d-hero-sub">The pulse of the decentralized social network.</p>
+                    <div class="lab8d-hero-cta-wrap">
+                        <a href="/lab8/1/d/myfeed" class="lab8d-hero-cta">View Live Feed &rarr;</a>
+                    </div>
+                </section>
+
+                <section class="lab8d-grid-3">
+                    <article class="lab8d-card">
+                        <div class="lab8d-icon">🌐</div>
+                        <h3 class="lab8d-card-title">Real-time Sync</h3>
+                        <p class="lab8d-card-copy">Stay updated with instant broadcasts from your global network.</p>
+                    </article>
+                    <article class="lab8d-card">
+                        <div class="lab8d-icon">🔒</div>
+                        <h3 class="lab8d-card-title">Privacy First</h3>
+                        <p class="lab8d-card-copy">End-to-end encrypted interactions and verifiable identity protocols.</p>
+                    </article>
+                    <article class="lab8d-card">
+                        <div class="lab8d-icon">⚡</div>
+                        <h3 class="lab8d-card-title">High Speed</h3>
+                        <p class="lab8d-card-copy">Optimized delivery for media-rich updates and interactive feeds.</p>
+                    </article>
+                </section>
+
+            {% elif page == 'login' %}
+                <section class="lab8d-panel">
+                    <article class="lab8d-card">
+                        <h2 class="lab8d-panel-title">Social Sign-In</h2>
+                        <p class="lab8d-panel-sub">Access your personal social graph</p>
+                        <p class="lab8d-tip"><strong>Demo Login:</strong> Use any non-empty handle and keyphrase.</p>
+                        <form method="POST" class="lab8d-form">
+                            <div class="lab8d-field">
+                                <label class="lab8d-label">Handle (@username)</label>
+                                <input type="text" name="user_handle" class="lab8d-input" required>
+                            </div>
+                            <div class="lab8d-field">
+                                <label class="lab8d-label">Keyphrase</label>
+                                <input type="password" name="password" class="lab8d-input" required>
+                            </div>
+                            <button type="submit" name="login_btn" class="lab8d-btn lab8d-btn-full">Enter Hub</button>
+                        </form>
+                        <p class="lab8d-tip"><strong>Target:</strong> Review how user broadcasts are rendered in feed preview.</p>
+                    </article>
+                </section>
+
+            {% elif page == 'myfeed' %}
+                {% if logged_in %}
+                <section class="lab8d-split">
+                    <article class="lab8d-card">
+                        <h2 class="lab8d-card-title">Broadcast Update</h2>
+                        <form method="POST" class="lab8d-form">
+                            <div class="lab8d-field">
+                                <label class="lab8d-label">Status Content</label>
+                                <textarea name="post_content" class="lab8d-textarea" placeholder="What's happening?" required>{{ post_result.get('content', '') if post_result else '' }}</textarea>
+                            </div>
+                            <button type="submit" name="post_btn" class="lab8d-btn lab8d-btn-full">Broadcast</button>
+                        </form>
+                    </article>
+
+                    <aside class="lab8d-card lab8d-result-card">
+                        <h4 class="lab8d-card-title">Feed Preview</h4>
+                        {% if post_result %}
+                            {% if post_result.get('payload_detected') %}
+                                <div class="lab8d-flag">
+                                    <h3>⚡ Event Handler Triggered</h3>
+                                    <p>Vulnerability confirmed: Reflective code execution achieved via HTML attribute injection.</p>
+                                    {% if post_result.get('flag') %}
+                                    <div class="lab8d-flag-code">{{ post_result['flag'] }}</div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="lab8d-empty">
+                                    <div class="lab8d-ghost-post">
+                                        <div class="lab8d-avatar-small"></div>
+                                        <div>
+                                            <p class="lab8d-accent">@{{ user_handle }}</p>
+                                            <p class="lab8d-post-text">"{{ post_result.get('content', '') }}"</p>
+                                        </div>
+                                    </div>
+                                    <p class="lab8d-tip-small">Try injecting a payload with fetch call.</p>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="lab8d-empty">
+                                <div class="lab8d-ghost-icon">💬</div>
+                                <p>Awaiting broadcast data.</p>
                             </div>
                         {% endif %}
-                    {% endif %}
+                    </aside>
+                </section>
+                {% else %}
+                <section class="lab8d-panel">
+                    <article class="lab8d-card">
+                        <h2 class="lab8d-panel-title">Authentication Required</h2>
+                        <p class="lab8d-panel-sub">Please join SocialHub to participate in the global feed.</p>
+                        <a href="/lab8/1/d/login" class="lab8d-btn lab8d-btn-full" style="text-align: center; text-decoration: none;">Go to Login</a>
+                    </article>
+                </section>
                 {% endif %}
-            </div>
-            
-            <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Recent Posts</h2>
-            {% for post in posts %}
-                <div class="post-box">
-                    <div class="post-header">
-                        <div class="post-avatar">{{ user_handle[0].upper() }}</div>
-                        <div class="post-user-info">
-                            <h4>{{ user_handle }}</h4>
-                            <p>Just now</p>
+
+            {% elif page == 'explore' %}
+                <section class="lab8d-grid-2">
+                    <article class="lab8d-card">
+                        <h3 class="lab8d-card-title">📈 Trending Topics</h3>
+                        <p class="lab8d-card-copy">#CyberSecurity dominates the network today following the global research summit.</p>
+                    </article>
+                    <article class="lab8d-card">
+                        <h3 class="lab8d-card-title">👥 Suggested Connects</h3>
+                        <p class="lab8d-card-copy">Explore nodes with similar research interests and high-bandwidth interaction.</p>
+                    </article>
+                </section>
+
+            {% elif page == 'contact' %}
+                <section class="lab8d-split">
+                    <article class="lab8d-card">
+                        <h2 class="lab8d-card-title">Network Support</h2>
+                        <form method="POST" class="lab8d-form">
+                            <div class="lab8d-form-row">
+                                <div class="lab8d-field">
+                                    <label class="lab8d-label">Handle</label>
+                                    <input type="text" class="lab8d-input">
+                                </div>
+                                <div class="lab8d-field">
+                                    <label class="lab8d-label">Email</label>
+                                    <input type="email" class="lab8d-input">
+                                </div>
+                            </div>
+                            <div class="lab8d-field">
+                                <label class="lab8d-label">Issue Category</label>
+                                <select class="lab8d-input">
+                                    <option>Account Sync</option>
+                                    <option>Feed Latency</option>
+                                    <option>Security Inquiry</option>
+                                </select>
+                            </div>
+                            <div class="lab8d-field">
+                                <label class="lab8d-label">Description</label>
+                                <textarea class="lab8d-textarea"></textarea>
+                            </div>
+                            <button type="submit" class="lab8d-btn lab8d-btn-full">Open Channel</button>
+                        </form>
+                    </article>
+                    <aside class="lab8d-card lab8d-contact-card">
+                        <h4 class="lab8d-card-title">Direct Comms</h4>
+                        <p class="lab8d-card-copy">Connect directly with our core engineering nodes.</p>
+                        <ul class="lab8d-list">
+                            <li>📡 Matrix: #socialhub:matrix.org</li>
+                            <li>📧 ops@socialhub.local</li>
+                        </ul>
+                    </aside>
+                </section>
+
+            {% elif page == 'about' %}
+                <section class="lab8d-card">
+                    <h1 class="lab8d-card-title">The Future is Social.</h1>
+                    <p class="lab8d-card-copy">SocialHub is the world's first fully decentralized, event-driven communication platform.</p>
+                    <div class="lab8d-list">
+                        <p class="lab8d-card-copy">We believe in a web where every update is an event, and every interaction is a secure handshake between nodes.</p>
+                        <p class="lab8d-card-copy">Our platform is designed for research transparency and radical user agency in digital spaces.</p>
+                    </div>
+                </section>
+
+            {% elif page == 'profile' and logged_in %}
+                <section class="lab8d-profile-layout">
+                    <article class="lab8d-card">
+                        <h2 class="lab8d-profile-title">Social Identity</h2>
+                        <div class="lab8d-profile-head">
+                            <div class="lab8d-avatar">👤</div>
+                            <div>
+                                <h3 class="lab8d-profile-name">@{{ user_handle }}</h3>
+                                <p class="lab8d-profile-role">Node Participant</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="post-content">
-                        {{ post.get('content', '') }}
-                    </div>
-                    <div class="post-actions">
-                        <div class="post-action">👍 Like</div>
-                        <div class="post-action">💬 Reply</div>
-                        <div class="post-action">↗️ Share</div>
-                    </div>
-                </div>
-            {% endfor %}
-
-        {% elif page == 'friends' %}
-            <h1 class="page-title">Friends</h1>
-            
-            <div class="post-box" style="text-align: center; padding: 2rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
-                <p>Connect with friends to see their posts and updates</p>
-            </div>
-
-        {% elif page == 'messages' %}
-            <h1 class="page-title">Messages</h1>
-            
-            <div class="post-box" style="text-align: center; padding: 2rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
-                <p>Send and receive private messages with your friends</p>
-            </div>
-
-        {% elif page == 'notifications' %}
-            <h1 class="page-title">Notifications</h1>
-            
-            <div class="post-box">
-                <div style="font-size: 0.9rem; color: #65676b;">
-                    <p>✅ You have no new notifications</p>
-                </div>
-            </div>
-        {% endif %}
+                        <div class="lab8d-meta-grid">
+                            <div>
+                                <p class="lab8d-meta-key">Followers</p>
+                                <p class="lab8d-meta-val">842</p>
+                            </div>
+                            <div>
+                                <p class="lab8d-meta-key">Broadcasts</p>
+                                <p class="lab8d-meta-val">156</p>
+                            </div>
+                            <div>
+                                <p class="lab8d-meta-key">Reputation</p>
+                                <p class="lab8d-meta-val">Level 4</p>
+                            </div>
+                        </div>
+                    </article>
+                    <aside class="lab8d-card lab8d-log-card">
+                        <h4 class="lab8d-card-title">Recent Activity</h4>
+                        <div class="lab8d-log-list">
+                            <div class="lab8d-log-item">
+                                <p class="lab8d-log-time">Today, 10:15</p>
+                                <p class="lab8d-log-copy">Broadcast sync success</p>
+                            </div>
+                            <div class="lab8d-log-item">
+                                <p class="lab8d-log-time">Yesterday, 18:42</p>
+                                <p class="lab8d-log-copy">Handshake with @research_node</p>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+            {% endif %}
+        </main>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

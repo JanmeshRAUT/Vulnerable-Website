@@ -1,0 +1,183 @@
+/* Unified theme layer for Lab 8.1 standalone variant pages. */
+
+:root {
+    --lab8-bg-1: #0b1220;
+    --lab8-bg-2: #111c32;
+    --lab8-surface: rgba(15, 23, 42, 0.86);
+    --lab8-surface-strong: rgba(30, 41, 59, 0.9);
+    --lab8-border: rgba(148, 163, 184, 0.22);
+    --lab8-text: #e2e8f0;
+    --lab8-muted: #94a3b8;
+    --lab8-accent: #3b82f6;
+    --lab8-accent-2: #2563eb;
+    --lab8-success: #10b981;
+    --lab8-danger: #ef4444;
+}
+
+body {
+    background: radial-gradient(circle at top, var(--lab8-bg-2) 0%, var(--lab8-bg-1) 60%) !important;
+    color: var(--lab8-text) !important;
+}
+
+nav,
+.header {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)) !important;
+    border-bottom: 1px solid var(--lab8-border) !important;
+    box-shadow: 0 14px 35px rgba(2, 6, 23, 0.45) !important;
+}
+
+.logo,
+.header-left,
+.page-title,
+.section-title,
+.result-title,
+.nft-title,
+.doc-name,
+.post-author {
+    color: #f8fafc !important;
+}
+
+.user-greeting,
+.page-subtitle,
+.result-content,
+.doc-info,
+.post-time,
+.user-handle,
+.section-desc,
+.stat-label,
+.explore-hint,
+small,
+p {
+    color: var(--lab8-muted) !important;
+}
+
+.container,
+.login-card,
+.contact-form,
+.search-box,
+.search-results,
+.upload-box,
+.document-section,
+.post-box,
+.post,
+.post-composer,
+.create-section,
+.upload-section,
+.projects-section,
+.gallery-section,
+.documents-section,
+.stat-card,
+.project-card,
+.nft-card,
+.document-item,
+.result-item {
+    background: var(--lab8-surface) !important;
+    border: 1px solid var(--lab8-border) !important;
+    box-shadow: 0 14px 35px rgba(2, 6, 23, 0.25) !important;
+    color: var(--lab8-text) !important;
+}
+
+.hero-section,
+.flag-display,
+.search-result,
+.upload-result,
+.create-result,
+.post-result,
+.alert,
+.alert-success,
+.alert-warning,
+.alert-danger {
+    background: var(--lab8-surface-strong) !important;
+    border: 1px solid var(--lab8-border) !important;
+    color: var(--lab8-text) !important;
+}
+
+.btn-submit,
+.btn-logout,
+.btn-create,
+.btn-upload,
+.btn-post,
+.btn-search,
+.btn-download {
+    background: linear-gradient(135deg, var(--lab8-accent), var(--lab8-accent-2)) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(147, 197, 253, 0.32) !important;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3) !important;
+}
+
+.btn-submit:hover,
+.btn-logout:hover,
+.btn-create:hover,
+.btn-upload:hover,
+.btn-post:hover,
+.btn-search:hover,
+.btn-download:hover {
+    filter: brightness(1.06);
+}
+
+.nav-links a,
+.nav-links button,
+.nav-link,
+a {
+    color: #cbd5e1;
+}
+
+.nav-links a:hover,
+.nav-links button:hover,
+.nav-link:hover,
+a:hover {
+    color: #93c5fd !important;
+}
+
+input,
+textarea,
+select,
+.search-input,
+.form-input,
+.form-textarea,
+.nav-search input {
+    background: rgba(15, 23, 42, 0.82) !important;
+    border: 1px solid var(--lab8-border) !important;
+    color: var(--lab8-text) !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+.search-input::placeholder,
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: #64748b !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.search-input:focus,
+.form-input:focus,
+.form-textarea:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+}
+
+.flag-text,
+.flag-code,
+.flag-value {
+    background: #020617 !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+@media (max-width: 900px) {
+    .container {
+        padding: 0 1rem !important;
+    }
+
+    nav,
+    .header {
+        padding: 1rem !important;
+    }
+
+    .nav-links {
+        gap: 0.75rem !important;
+    }
+}

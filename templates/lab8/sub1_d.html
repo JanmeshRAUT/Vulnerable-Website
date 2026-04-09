@@ -6,69 +6,6 @@
     <title>Lab 8.1.D - Event Handler Injection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lab8/xss-lab.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        .comment-thread {
-            background: var(--dir-surface);
-            border: 1px solid var(--dir-border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .comment {
-            background: rgba(59, 130, 246, 0.05);
-            border-left: 3px solid var(--dir-accent);
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 4px;
-        }
-        
-        .comment-author {
-            font-weight: 700;
-            color: #60a5fa;
-            font-size: 0.9rem;
-        }
-        
-        .lab-instructions {
-            background: rgba(59, 130, 246, 0.1);
-            border-left: 4px solid #3b82f6;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-            color: #e0e7ff;
-        }
-        
-        .payload-code {
-            background: #0f172a;
-            padding: 0.5rem;
-            border-radius: 4px;
-            margin-top: 0.25rem;
-            border-left: 2px solid #60a5fa;
-            color: #60a5fa;
-            font-family: 'Courier New', monospace;
-            word-break: break-all;
-            font-size: 0.8rem;
-        }
-        
-        .execution-indicator {
-            display: inline-block;
-            background: #10b981;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-    </style>
 </head>
 <body>
 
@@ -81,7 +18,7 @@
                     <h1 class="login-title">Lab 8.1.D - Event Handler Injection</h1>
                     <p class="login-subtitle">Social Media Comments</p>
                 </div>
-                
+
                 {% if xss_detected and flag %}
                     <div class="flag-container">
                         <div class="flag-header">
@@ -94,11 +31,11 @@
 
                 {% if comment %}
                     {% if xss_detected %}
-                        <div class="alert-message" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7;">
+                        <div class="alert-message lab-success-message">
                             <div class="alert-icon">✓</div>
                             <div class="alert-content">
                                 Event Handler Active <span class="execution-indicator">ACTIVE</span>
-                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Comment: <strong>{{ comment | safe }}</strong></span>
+                                <br><span class="lab-secondary-copy">Comment: <strong>{{ comment | safe }}</strong></span>
                             </div>
                         </div>
                     {% else %}
@@ -106,7 +43,7 @@
                             <div class="alert-icon">ℹ️</div>
                             <div class="alert-content">
                                 Comment posted: <strong>{{ comment }}</strong>
-                                <br><span style="font-size: 0.9rem; opacity: 0.8;">Try adding an event handler attribute.</span>
+                                <br><span class="lab-secondary-copy">Try adding an event handler attribute.</span>
                             </div>
                         </div>
                     {% endif %}
@@ -115,7 +52,7 @@
                 <form action="{{ url_for('lab8_1_d') }}" method="POST" class="login-form">
                     <div class="form-group">
                         <label for="comment" class="form-label">Post Comment (Event Injection)</label>
-                        <textarea id="comment" name="comment" class="form-input" placeholder="&lt;span onmouseover=alert('XSS')&gt;Hover me&lt;/span&gt;" required style="min-height: 80px; resize: vertical; font-family: monospace;"></textarea>
+                        <textarea id="comment" name="comment" class="form-input lab-textarea-compact" placeholder="&lt;span onmouseover=alert('XSS')&gt;Hover me&lt;/span&gt;" required></textarea>
                     </div>
                     
                     <button type="submit" class="btn-submit">Post Comment</button>
@@ -125,32 +62,32 @@
                     <h3>📚 Lab 8.1.D: Event Handler Injection</h3>
                     <p>Insert HTML with event handlers that trigger when users interact with the content. These events can be triggered by user actions like hovering, clicking, or focusing.</p>
                     
-                    <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 6px; margin-top: 1rem; font-size: 0.85rem; border: 1px solid rgba(59, 130, 246, 0.3);">
-                        <p style="color: #cbd5e1;"><strong>💡 Event Handler Injection Techniques:</strong></p>
+                    <div class="lab-inline-panel">
+                        <p class="lab-muted-message"><strong>💡 Event Handler Injection Techniques:</strong></p>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Mouseover trigger:</p>
+                        <p class="lab-muted-message lab-content-gap">Mouseover trigger:</p>
                         <div class="payload-code">&lt;span onmouseover=alert('Hovered!')&gt;Hover over me&lt;/span&gt;</div>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Focus event:</p>
+                        <p class="lab-muted-message lab-content-gap">Focus event:</p>
                         <div class="payload-code">&lt;input onfocus=alert('Focused!') autofocus&gt;</div>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Mouse enter:</p>
+                        <p class="lab-muted-message lab-content-gap">Mouse enter:</p>
                         <div class="payload-code">&lt;div onmouseenter=alert('Entered!')&gt;Enter area&lt;/div&gt;</div>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Double click:</p>
+                        <p class="lab-muted-message lab-content-gap">Double click:</p>
                         <div class="payload-code">&lt;p ondblclick=alert('Clicked twice!')&gt;Double click me&lt;/p&gt;</div>
                         
-                        <p style="color: #cbd5e1; margin-top: 0.75rem;">Load event:</p>
+                        <p class="lab-muted-message lab-content-gap">Load event:</p>
                         <div class="payload-code">&lt;body onload=alert('Page loaded')&gt;</div>
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin-top: 1.5rem;">
-                    <a href="{{ url_for('lab8_1') }}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">&larr; Back to Lab 8.1</a>
+                <div class="lab-center-actions">
+                    <a href="{{ url_for('lab8_1') }}" class="lab-back-link-inline">&larr; Back to Lab 8.1</a>
                 </div>
             </div>
             
-            <footer style="margin-top:2rem; text-align:center; color:#64748b; font-size:0.8rem;">
+            <footer class="lab-small-footer">
                 &copy; 2025 Security Training Labs. Educational Purpose Only.
             </footer>
         </div>
@@ -160,7 +97,7 @@
     <div class="site-wrapper">
         <nav class="site-nav">
             <div class="nav-logo">
-                <div style="width:32px; height:32px; background:var(--dir-accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">💬</div>
+                <div class="lab-hero-icon">💬</div>
                 Lab 8.1.D <span>Event Handlers</span>
             </div>
             <div class="nav-links">
@@ -172,11 +109,13 @@
             <div class="hero-content">
                 <h1 class="hero-title">Event Handler<br>Injection Lab</h1>
                 <p class="hero-subtitle">Exploit DOM event handlers to execute code when users interact with injected content.</p>
-                <a href="{{ url_for('lab8_1_d', mode='comment') }}" class="btn-primary" style="padding:1rem 2rem; font-size:1.1rem;">Start Lab</a>
+                <a href="{{ url_for('lab8_1_d', mode='comment') }}" class="btn-primary lab-start-cta">Start Lab</a>
             </div>
         </section>
     </div>
 {% endif %}
+
+{% include 'partials/flag_widget.html' %}
 
 </body>
 </html>
