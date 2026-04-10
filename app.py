@@ -17,6 +17,7 @@ import shutil
 import secrets
 import time
 import threading
+import copy
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 from firebase_db import FirebaseDataStore
@@ -75,6 +76,10 @@ ACCESS_GATE_CACHE_TTL_SECONDS = int(os.environ.get('ACCESS_GATE_CACHE_TTL_SECOND
 ACCESS_GATE_CACHE = {}
 ACCESS_GATE_CACHE_LOCK = threading.Lock()
 
+ADMIN_VIEW_CACHE_TTL_SECONDS = int(os.environ.get('ADMIN_VIEW_CACHE_TTL_SECONDS', '30'))
+ADMIN_VIEW_CACHE = {}
+ADMIN_VIEW_CACHE_LOCK = threading.Lock()
+
 
 def get_or_refresh_access_gate_cache(email, force_refresh=False, preloaded_user=None):
     """Return approval and enrollment access data for an email using TTL cache."""
@@ -114,6 +119,33 @@ def get_or_refresh_access_gate_cache(email, force_refresh=False, preloaded_user=
         ACCESS_GATE_CACHE[email] = refreshed
 
     return refreshed
+
+
+def get_admin_view_cache(cache_key):
+    """Return cached admin payload when still fresh."""
+    now_ts = int(time.time())
+    with ADMIN_VIEW_CACHE_LOCK:
+        entry = ADMIN_VIEW_CACHE.get(cache_key)
+    if not entry:
+        return None
+    if (now_ts - int(entry.get('ts', 0))) > ADMIN_VIEW_CACHE_TTL_SECONDS:
+        return None
+    return copy.deepcopy(entry.get('payload'))
+
+
+def set_admin_view_cache(cache_key, payload):
+    """Store a copy of admin payload for short-lived reuse."""
+    with ADMIN_VIEW_CACHE_LOCK:
+        ADMIN_VIEW_CACHE[cache_key] = {
+            'ts': int(time.time()),
+            'payload': copy.deepcopy(payload)
+        }
+
+
+def invalidate_admin_view_cache():
+    """Clear cached admin/analyzer aggregates after data mutations."""
+    with ADMIN_VIEW_CACHE_LOCK:
+        ADMIN_VIEW_CACHE.clear()
 
 
 if IS_VERCEL:
@@ -866,6 +898,7 @@ def submit_flag():
             exact_lab_id=resolved_exact_lab_id,
             lab_path=lab_context.get('lab_path')
         )
+        invalidate_admin_view_cache()
         return jsonify({'success': True, 'message': 'Research deliverable verified and serialized.'})
     else:
         # Record attempt in Firebase
@@ -881,14 +914,15 @@ def submit_flag():
             exact_lab_id=resolved_exact_lab_id,
             lab_path=lab_context.get('lab_path')
         )
+        invalidate_admin_view_cache()
         return jsonify({'success': False, 'error': f'Invalid deliverable signal for {resolved_exact_lab_id}.'})
 
 
 
 @app.route('/admin/students')
 @admin_required
-def admin_students():
-    """View and manage research subjects and their lab telemetry via Firestore"""
+def build_admin_students_payload():
+    """Build admin view payload from Firestore sources."""
     # Fetch all users from Firebase so roles can be changed both ways.
     all_users = firebase_store.get_all_users()
     students = all_users
@@ -929,12 +963,30 @@ def admin_students():
     solved_data = firebase_store.get_solved_labs_feed()
     dashboard = build_dashboard_metrics(students, solved_data)
 
+    return {
+        'students': students,
+        'solved_data': solved_data,
+        'pending_users': pending_users,
+        'dashboard': dashboard,
+        'trackable_labs': TRACKABLE_LAB_UNITS,
+    }
+
+
+@app.route('/admin/students')
+@admin_required
+def admin_students():
+    """View and manage research subjects and their lab telemetry via Firestore"""
+    payload = get_admin_view_cache('admin_students')
+    if payload is None:
+        payload = build_admin_students_payload()
+        set_admin_view_cache('admin_students', payload)
+
     return render_template('admin/students.html', 
-                          students=students, 
-                          solved_data=solved_data,
-                          pending_users=pending_users,
-                          dashboard=dashboard,
-                          trackable_labs=TRACKABLE_LAB_UNITS)
+                          students=payload['students'], 
+                          solved_data=payload['solved_data'],
+                          pending_users=payload['pending_users'],
+                          dashboard=payload['dashboard'],
+                          trackable_labs=payload['trackable_labs'])
 
 
 @app.route('/analyzer/students')
@@ -1089,6 +1141,7 @@ def approve_enrollment():
         return jsonify({'error': 'Invalid parameters'}), 400
         
     firebase_store.update_lab_enrollment_status(user_email, lab_id, new_status)
+    invalidate_admin_view_cache()
     
     return jsonify({'success': True, 'message': f'Enrollment {new_status} successfully.'})
 
@@ -1165,6 +1218,8 @@ def approve_user():
             firebase_store.replace_user_lab_access(email, selected_lab_ids)
         else:
             firebase_store.replace_user_lab_access(email, [])
+
+    invalidate_admin_view_cache()
 
     should_email_user = is_approved and (not was_approved or (assign_lab_access and bool(selected_lab_ids)))
     if should_email_user:
