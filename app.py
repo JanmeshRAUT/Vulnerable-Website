@@ -3846,16 +3846,17 @@ def get_lab4_2_identity_key():
 
 
 def get_lab4_2_target_ip(identity_key, variant='a'):
-    identity_key = str(identity_key or 'anonymous-researcher')
-    identity_targets = LAB4_2_RUNTIME_STATE['target_ips'].setdefault(identity_key, {})
-    if variant in identity_targets:
-        return int(identity_targets[variant])
+    """Return a stable per-identity, per-variant target octet (1..255)."""
+    identity_value = str(identity_key or 'anonymous-researcher')
+    variant_value = str(variant or 'a').strip().lower()
+    if variant_value not in {'a', 'b', 'c'}:
+        variant_value = 'a'
 
-    existing_targets = {int(value) for value in identity_targets.values() if str(value).isdigit()}
-    available_octets = [octet for octet in range(1, 256) if octet not in existing_targets]
-    target_octet = random.choice(available_octets or list(range(1, 256)))
-    identity_targets[variant] = target_octet
-    return target_octet
+    # Deterministic mapping prevents target drift across serverless instances/cold starts.
+    digest = hashlib.sha256(
+        f"lab4_2|{identity_value}|{variant_value}|{app.secret_key}".encode('utf-8')
+    ).hexdigest()
+    return (int(digest[:8], 16) % 255) + 1
 
 
 def log_lab4_2_target_ip(variant, context_label, session_key='lab4_2_logged_variants'):
@@ -4074,21 +4075,21 @@ def lab4_2c_product(product_id):
 @login_required
 def lab4_2a_stock():
     target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'a')
-    return process_lab4_2_ssrf_request(request.form.get('stockApi'), 'a', expected_target_octet=target_octet)
+    return process_lab4_2_ssrf_request(extract_stock_api_param(), 'a', expected_target_octet=target_octet)
 
 
 @app.route('/lab4/2/b/stock', methods=['POST'])
 @login_required
 def lab4_2b_stock():
     target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'b')
-    return process_lab4_2_ssrf_request(request.form.get('stockApi'), 'b', expected_target_octet=target_octet)
+    return process_lab4_2_ssrf_request(extract_stock_api_param(), 'b', expected_target_octet=target_octet)
 
 
 @app.route('/lab4/2/c/stock', methods=['POST'])
 @login_required
 def lab4_2c_stock():
     target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'c')
-    return process_lab4_2_ssrf_request(request.form.get('stockApi'), 'c', expected_target_octet=target_octet)
+    return process_lab4_2_ssrf_request(extract_stock_api_param(), 'c', expected_target_octet=target_octet)
 
 
 # -------------------------
