@@ -4491,11 +4491,13 @@ def lab5_2_login():
             return redirect(url_for('lab5_2_account'))
         return render_template('lab5/sub2_login.html')
     
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username_raw = (request.form.get('username') or '')
+    password_raw = (request.form.get('password') or '')
+    username = username_raw.strip().lower()
+    password = password_raw.strip()
     
     if username == 'wiener' and password == 'peter':
-        session['lab5_2_user'] = username
+        session['lab5_2_user'] = username_raw.strip() or username
         if 'lab5_2_uid' not in session:
             session['lab5_2_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_2_account'))
@@ -4516,11 +4518,14 @@ def lab5_2_account():
 
 @app.route('/lab5/2/upload', methods=['POST'])
 def lab5_2_upload():
-    if 'lab5_2_user' not in session:
+    username = session.get('lab5_2_user')
+    if not username:
         return redirect(url_for('lab5_2_login'))
         
     if 'avatar' not in request.files:
-        return redirect(url_for('lab5_2_account'))
+        return render_template('lab5/sub2_account.html',
+                             username=username,
+                             error='No file selected for upload.')
     
     if 'lab5_2_uid' not in session:
         session['lab5_2_uid'] = str(uuid.uuid4())
@@ -4528,37 +4533,52 @@ def lab5_2_upload():
         
     file = request.files['avatar']
     if file.filename == '':
-        return redirect(url_for('lab5_2_account'))
+        return render_template('lab5/sub2_account.html',
+                             username=username,
+                             error='Filename cannot be empty.')
     
     # VULNERABILITY: Content-Type Bypass
     # We check the Content-Type header, but not the actual file content or extension
     if file.content_type not in ['image/jpeg', 'image/png']:
-        return render_template('lab5/sub2_error.html', 
-                             username=session['lab5_2_user'], 
+        return render_template('lab5/sub2_account.html', 
+                             username=username, 
                              error=f"Error: File type {file.content_type} is not allowed. Only image/jpeg and image/png are accepted in this secure environment.")
     
     # If the attacker changes Content-Type to image/jpeg, we accept it, even if filename is exploit.php
     filename = file.filename
     
-    base_dir = BASE_PATH
-    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
-        
-    file.save(os.path.join(upload_dir, filename))
+    # Create User Specific Directory with fallback
+    try:
+        upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir, exist_ok=True)
+    except (OSError, PermissionError):
+        try:
+            upload_dir = os.path.join('/tmp', 'lab5_avatars', user_uid)
+            os.makedirs(upload_dir, exist_ok=True)
+        except Exception:
+            return render_template('lab5/sub2_account.html',
+                                 username=username,
+                                 error='Upload directory unavailable. Please try again.')
+    
+    try:
+        file.save(os.path.join(upload_dir, filename))
+    except (IOError, OSError) as write_err:
+        return render_template('lab5/sub2_account.html',
+                             username=username,
+                             error=f'Failed to save file: {str(write_err)[:50]}')
 
-    file_path = os.path.join(upload_dir, filename)
-    flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
+    try:
+        file_path = os.path.join(upload_dir, filename)
+        flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
+    except Exception:
+        flag = None
     
     relative_path = f"{user_uid}/{filename}"
     session['lab5_2_avatar'] = relative_path
     session['lab5_2_flag'] = flag
     
-    return render_template('lab5/sub2_account.html', 
-                         username=session['lab5_2_user'], 
-                         avatar=f"/files/avatars/{relative_path}",
-                         message=f"Avatar {filename} uploaded successfully!",
-                         flag=flag)
+    return render_template('lab5/sub2_account.html', username=username, avatar=f"/files/avatars/{relative_path}", message=f"Avatar {filename} uploaded successfully!", flag=flag)
 
 @app.route('/lab5/2/logout')
 def lab5_2_logout():
@@ -4598,11 +4618,13 @@ def lab5_2_b_login():
             return redirect(url_for('lab5_2_b_account'))
         return render_template('lab5/sub2_b_login.html')
     
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username_raw = (request.form.get('username') or '')
+    password_raw = (request.form.get('password') or '')
+    username = username_raw.strip().lower()
+    password = password_raw.strip()
     
     if username == 'wiener' and password == 'peter':
-        session['lab5_2_b_user'] = username
+        session['lab5_2_b_user'] = username_raw.strip() or username
         if 'lab5_2_b_uid' not in session:
             session['lab5_2_b_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_2_b_account'))
@@ -4623,11 +4645,14 @@ def lab5_2_b_account():
 
 @app.route('/lab5/2/b/upload', methods=['POST'])
 def lab5_2_b_upload():
-    if 'lab5_2_b_user' not in session:
+    username = session.get('lab5_2_b_user')
+    if not username:
         return redirect(url_for('lab5_2_b_login'))
         
     if 'avatar' not in request.files:
-        return redirect(url_for('lab5_2_b_account'))
+        return render_template('lab5/sub2_b_account.html',
+                             username=username,
+                             error='No file selected for upload.')
     
     if 'lab5_2_b_uid' not in session:
         session['lab5_2_b_uid'] = str(uuid.uuid4())
@@ -4635,30 +4660,50 @@ def lab5_2_b_upload():
         
     file = request.files['avatar']
     if file.filename == '':
-        return redirect(url_for('lab5_2_b_account'))
+        return render_template('lab5/sub2_b_account.html',
+                             username=username,
+                             error='Filename cannot be empty.')
     
     # VULNERABILITY (Same as 5.2): Check Content-Type only
     if file.content_type not in ['image/jpeg', 'image/png']:
-        return render_template('lab5/sub2_error.html', 
-                             username=session['lab5_2_b_user'], 
+        return render_template('lab5/sub2_b_account.html', 
+                             username=username, 
                              error=f"ERROR P-902: Invalid format {file.content_type}. Driver app only accepts camera images (JPEG/PNG).")
     
     filename = file.filename
-    base_dir = BASE_PATH
-    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
-        
-    file.save(os.path.join(upload_dir, filename))
+    
+    # Create User Specific Directory with fallback
+    try:
+        upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir, exist_ok=True)
+    except (OSError, PermissionError):
+        try:
+            upload_dir = os.path.join('/tmp', 'lab5_avatars', user_uid)
+            os.makedirs(upload_dir, exist_ok=True)
+        except Exception:
+            return render_template('lab5/sub2_b_account.html',
+                                 username=username,
+                                 error='Upload directory unavailable. Please try again.')
+    
+    try:
+        file.save(os.path.join(upload_dir, filename))
+    except (IOError, OSError) as write_err:
+        return render_template('lab5/sub2_b_account.html',
+                             username=username,
+                             error=f'Failed to save file: {str(write_err)[:50]}')
 
-    file_path = os.path.join(upload_dir, filename)
-    flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
+    try:
+        file_path = os.path.join(upload_dir, filename)
+        flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
+    except Exception:
+        flag = None
     
     relative_path = f"{user_uid}/{filename}"
     session['lab5_2_b_avatar'] = relative_path
     session['lab5_2_b_flag'] = flag
     
-    return render_template('lab5/sub2_b_account.html', username=session['lab5_2_b_user'], avatar=f"/files/avatars/{relative_path}", message=f"Signature {filename} updated!", flag=flag)
+    return render_template('lab5/sub2_b_account.html', username=username, avatar=f"/files/avatars/{relative_path}", message=f"Signature {filename} updated!", flag=flag)
 
 @app.route('/lab5/2/b/logout')
 def lab5_2_b_logout():
@@ -4693,11 +4738,13 @@ def lab5_2_c_login():
             return redirect(url_for('lab5_2_c_account'))
         return render_template('lab5/sub2_c_login.html')
     
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username_raw = (request.form.get('username') or '')
+    password_raw = (request.form.get('password') or '')
+    username = username_raw.strip().lower()
+    password = password_raw.strip()
     
     if username == 'wiener' and password == 'peter':
-        session['lab5_2_c_user'] = username
+        session['lab5_2_c_user'] = username_raw.strip() or username
         if 'lab5_2_c_uid' not in session:
             session['lab5_2_c_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_2_c_account'))
@@ -4718,11 +4765,14 @@ def lab5_2_c_account():
 
 @app.route('/lab5/2/c/upload', methods=['POST'])
 def lab5_2_c_upload():
-    if 'lab5_2_c_user' not in session:
+    username = session.get('lab5_2_c_user')
+    if not username:
         return redirect(url_for('lab5_2_c_login'))
         
     if 'avatar' not in request.files:
-        return redirect(url_for('lab5_2_c_account'))
+        return render_template('lab5/sub2_c_account.html',
+                             username=username,
+                             error='No file selected for upload.')
     
     if 'lab5_2_c_uid' not in session:
         session['lab5_2_c_uid'] = str(uuid.uuid4())
@@ -4730,24 +4780,44 @@ def lab5_2_c_upload():
         
     file = request.files['avatar']
     if file.filename == '':
-        return redirect(url_for('lab5_2_c_account'))
+        return render_template('lab5/sub2_c_account.html',
+                             username=username,
+                             error='Filename cannot be empty.')
     
     # VULNERABILITY (Same as 5.2)
     if file.content_type not in ['image/jpeg', 'image/png']:
-         return render_template('lab5/sub2_error.html', 
-                             username=session['lab5_2_c_user'], 
+        return render_template('lab5/sub2_c_account.html', 
+                             username=username, 
                              error=f"SECURITY ALERT: The format {file.content_type} is not compliant with banking regulations. Upload only JPEG/PNG scans.")
     
     filename = file.filename
-    base_dir = BASE_PATH
-    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
-        
-    file.save(os.path.join(upload_dir, filename))
+    
+    # Create User Specific Directory with fallback
+    try:
+        upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir, exist_ok=True)
+    except (OSError, PermissionError):
+        try:
+            upload_dir = os.path.join('/tmp', 'lab5_avatars', user_uid)
+            os.makedirs(upload_dir, exist_ok=True)
+        except Exception:
+            return render_template('lab5/sub2_c_account.html',
+                                 username=username,
+                                 error='Upload directory unavailable. Please try again.')
+    
+    try:
+        file.save(os.path.join(upload_dir, filename))
+    except (IOError, OSError) as write_err:
+        return render_template('lab5/sub2_c_account.html',
+                             username=username,
+                             error=f'Failed to save file: {str(write_err)[:50]}')
 
-    file_path = os.path.join(upload_dir, filename)
-    flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
+    try:
+        file_path = os.path.join(upload_dir, filename)
+        flag = extract_lab5_flag_from_upload(file_path, 'lab5_2')
+    except Exception:
+        flag = None
     
     relative_path = f"{user_uid}/{filename}"
     session['lab5_2_c_avatar'] = relative_path
