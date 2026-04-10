@@ -919,8 +919,6 @@ def submit_flag():
 
 
 
-@app.route('/admin/students')
-@admin_required
 def build_admin_students_payload():
     """Build admin view payload from Firestore sources."""
     # Fetch all users from Firebase so roles can be changed both ways.
