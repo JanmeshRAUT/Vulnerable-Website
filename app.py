@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 import shutil
 import secrets
 import time
+import threading
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 from firebase_db import FirebaseDataStore
@@ -68,6 +69,48 @@ LAB4_2_RUNTIME_STATE = {
 
 # Reduce repeated Firebase round-trips for lab gate checks.
 ACCESS_GATE_CACHE_TTL_SECONDS = int(os.environ.get('ACCESS_GATE_CACHE_TTL_SECONDS', '90'))
+ACCESS_GATE_CACHE = {}
+ACCESS_GATE_CACHE_LOCK = threading.Lock()
+
+
+def get_or_refresh_access_gate_cache(email, force_refresh=False, preloaded_user=None):
+    """Return approval and enrollment access data for an email using TTL cache."""
+    now_ts = int(time.time())
+
+    if not force_refresh:
+        with ACCESS_GATE_CACHE_LOCK:
+            cached = ACCESS_GATE_CACHE.get(email)
+        if cached and (now_ts - int(cached.get('ts', 0))) <= ACCESS_GATE_CACHE_TTL_SECONDS:
+            return cached
+
+    user = preloaded_user if preloaded_user is not None else firebase_store.get_user_by_email(email)
+    is_approved = bool(user and user.get('is_approved'))
+
+    approved_lab_ids = set()
+    approved_family_ids = set()
+
+    if is_approved:
+        approved_enrollments = firebase_store.get_user_lab_enrollments(email)
+        for enrollment in approved_enrollments:
+            if enrollment.get('approval_status') != 'approved':
+                continue
+            lab_id_value = str(enrollment.get('lab_id') or '').strip().lower()
+            if not lab_id_value:
+                continue
+            approved_lab_ids.add(lab_id_value)
+            approved_family_ids.add(lab_id_value.split('_', 1)[0] + '_')
+
+    refreshed = {
+        'is_approved': is_approved,
+        'approved_lab_ids': approved_lab_ids,
+        'approved_family_ids': approved_family_ids,
+        'ts': now_ts,
+    }
+
+    with ACCESS_GATE_CACHE_LOCK:
+        ACCESS_GATE_CACHE[email] = refreshed
+
+    return refreshed
 
 
 if IS_VERCEL:
@@ -663,42 +706,10 @@ def enforce_lab_locks():
     if not email:
         return redirect(url_for('login', next=request.path))
 
-    now_ts = int(time.time())
-    access_cache = session.get('access_control_cache', {}) if isinstance(session.get('access_control_cache', {}), dict) else {}
-    cache_is_fresh = (
-        access_cache.get('email') == email
-        and (now_ts - int(access_cache.get('ts', 0))) <= ACCESS_GATE_CACHE_TTL_SECONDS
-    )
-
-    if cache_is_fresh:
-        is_approved = bool(access_cache.get('is_approved'))
-        approved_lab_ids = set(access_cache.get('approved_lab_ids', []))
-        approved_family_ids = set(access_cache.get('approved_family_ids', []))
-    else:
-        user = firebase_store.get_user_by_email(email)
-        is_approved = bool(user and user.get('is_approved'))
-
-        approved_lab_ids = set()
-        approved_family_ids = set()
-        if is_approved:
-            approved_enrollments = firebase_store.get_user_lab_enrollments(email)
-            for enrollment in approved_enrollments:
-                if enrollment.get('approval_status') != 'approved':
-                    continue
-                lab_id_value = str(enrollment.get('lab_id') or '').strip().lower()
-                if not lab_id_value:
-                    continue
-                approved_lab_ids.add(lab_id_value)
-                approved_family_ids.add(lab_id_value.split('_', 1)[0])
-
-        session['access_control_cache'] = {
-            'email': email,
-            'ts': now_ts,
-            'is_approved': is_approved,
-            'approved_lab_ids': sorted(approved_lab_ids),
-            'approved_family_ids': sorted(approved_family_ids),
-        }
-        session.modified = True
+    access_data = get_or_refresh_access_gate_cache(email)
+    is_approved = bool(access_data.get('is_approved'))
+    approved_lab_ids = access_data.get('approved_lab_ids', set())
+    approved_family_ids = access_data.get('approved_family_ids', set())
 
     if not is_approved:
         print(f"[SECURITY] Blocked unvetted subject {email} from entering {path}")
@@ -1438,6 +1449,9 @@ def google_callback():
             firebase_user = firebase_store.get_user_by_email(email)
 
         sync_session_from_firebase_user(firebase_user, email)
+
+        # Warm access-gate cache after login to reduce first protected-route latency.
+        get_or_refresh_access_gate_cache(email, force_refresh=True, preloaded_user=firebase_user)
 
         # Check if user is authorized by Command Center
         print(f"[AUTH] User profile retrieved. Approval status: {firebase_user.get('is_approved')}")
