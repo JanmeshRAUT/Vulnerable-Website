@@ -892,12 +892,19 @@ def admin_students():
     # Fetch all users from Firebase so roles can be changed both ways.
     all_users = firebase_store.get_all_users()
     students = all_users
+    all_progress_by_email = firebase_store.get_all_users_progress()
+    all_enrollments_by_email = firebase_store.get_all_lab_enrollments()
     
     # Calculate aggregate stats from Firebase data
     for student in students:
-        progress = firebase_store.get_user_progress(student.get('email'))
+        student_email = student.get('email')
+        progress = all_progress_by_email.get(student_email)
+        if progress is None:
+            progress = firebase_store.get_user_progress(student_email)
         solved_labs = build_solved_lab_records(progress)
-        lab_enrollments = firebase_store.get_user_lab_enrollments(student.get('email'))
+        lab_enrollments = all_enrollments_by_email.get(student_email)
+        if lab_enrollments is None:
+            lab_enrollments = firebase_store.get_user_lab_enrollments(student_email)
         allowed_lab_ids = [
             enrollment.get('lab_id')
             for enrollment in lab_enrollments
@@ -936,9 +943,13 @@ def analyzer_students():
     """Analyzer workspace focused on student performance telemetry."""
     all_users = firebase_store.get_all_users()
     students = [u for u in all_users if u.get('role') not in ['admin', 'analyzer']]
+    all_progress_by_email = firebase_store.get_all_users_progress()
 
     for student in students:
-        progress = firebase_store.get_user_progress(student.get('email'))
+        student_email = student.get('email')
+        progress = all_progress_by_email.get(student_email)
+        if progress is None:
+            progress = firebase_store.get_user_progress(student_email)
         solved_labs = build_solved_lab_records(progress)
 
         student['labs_enrolled'] = get_total_trackable_lab_units()

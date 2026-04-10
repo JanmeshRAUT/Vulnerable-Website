@@ -398,6 +398,57 @@ class FirebaseDataStore:
             print(f"[Firebase] Progress fetch failed: {e}")
             return {}
 
+    def get_all_users_progress(self):
+        """Fetch progress for all subjects in one pass to avoid N+1 reads."""
+        if not self.is_ready:
+            return {}
+        try:
+            records_by_email = {}
+            docs = self.db.collection_group("labs").stream()
+            for doc in docs:
+                payload = doc.to_dict() or {}
+                try:
+                    parent_doc = doc.reference.parent.parent
+                    email = parent_doc.id if parent_doc else None
+                except Exception:
+                    email = None
+
+                if not email:
+                    continue
+
+                if email not in records_by_email:
+                    records_by_email[email] = {}
+                records_by_email[email][doc.id] = payload
+
+            return records_by_email
+        except Exception as e:
+            print(f"[Firebase] Global progress fetch failed: {e}")
+            return {}
+
+    def get_all_lab_enrollments(self):
+        """Fetch lab enrollments for all subjects in one pass to avoid N+1 reads."""
+        db = self.db
+        if db is None or not self.is_ready:
+            return {}
+        try:
+            docs = db.collection("lab_enrollments").stream()
+            records_by_email = {}
+            for doc in docs:
+                payload = doc.to_dict() or {}
+                email = payload.get("email")
+                if not email:
+                    continue
+                payload["doc_id"] = doc.id
+                records_by_email.setdefault(email, []).append(payload)
+
+            for email, items in records_by_email.items():
+                items.sort(key=lambda item: str(item.get("lab_id") or ""))
+
+            return records_by_email
+        except Exception as e:
+            print(f"[Firebase] Global lab enrollment fetch failed: {e}")
+            return {}
+
     def get_solved_labs_feed(self, limit=50):
         """Fetch the global solved labs feed for Command Center monitoring"""
         if not self.is_ready: return []
