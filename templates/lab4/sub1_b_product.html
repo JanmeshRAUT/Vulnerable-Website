@@ -17,9 +17,6 @@
                 <h1>{{ product.name }}</h1>
                 <p class="l4-detail-desc">{{ product.description }}</p>
                 <div class="l4-detail-price">${{ product.price }}</div>
-                <p class="l4-detail-desc" style="margin-top: 1rem; padding: 0.85rem 1rem; border-left: 3px solid #38bdf8; background: rgba(56, 189, 248, 0.08);">
-                    Research note: send this request to Burp Repeater and change <code>stockApi</code> to <code>http://localhost/admin</code>. Then inspect the HTML for the delete action targeting <code>carlos</code>.
-                </p>
                 
                 <div class="l4-stock-box">
                     <form action="{{ url_for('lab4_1b_stock') }}" method="POST" id="stockForm">

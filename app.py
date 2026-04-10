@@ -4005,10 +4005,12 @@ def process_lab4_2_ssrf_request(stock_api, variant, expected_target_octet=None):
             if requested_octet != target_octet:
                 return "<h1>Not Found</h1><p>No administration service detected on this host.</p>", 404
 
-            return redirect(
-                url_for('lab4_2_admin_panel', variant=variant, host_octet=requested_octet),
-                code=302
-            )
+            return render_template(
+                'lab4/admin_v2_panel.html',
+                host_ip=f"192.168.0.{requested_octet}",
+                user_to_delete='carlos',
+                variant_context=get_lab4_2_variant_context(variant)
+            ), 200
 
         if path == '/admin/delete':
             if requested_octet != target_octet:
