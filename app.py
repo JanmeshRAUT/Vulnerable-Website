@@ -153,14 +153,21 @@ if IS_VERCEL:
     app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
     app.config['PREFERRED_URL_SCHEME'] = 'https'
     FLAG_BASE_PATH = '/tmp'
+    LAB5_AVATAR_ROOT = '/tmp/lab5/uploads/avatars'
 else:
     app.config['DB_NAME'] = os.path.join(BASE_PATH, 'database.db')
     app.config['UPLOAD_FOLDER'] = os.path.join(STATIC_ROOT, 'uploads')
     FLAG_BASE_PATH = BASE_PATH
+    LAB5_AVATAR_ROOT = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars')
 
 # Ensure upload directory exists (silent fail on read-only FS)
 try:
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+except Exception:
+    pass
+
+try:
+    os.makedirs(LAB5_AVATAR_ROOT, exist_ok=True)
 except Exception:
     pass
 
@@ -4160,7 +4167,7 @@ def reset_lab5_state():
         if not uid:
             continue
 
-        upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
+        upload_dir = os.path.join(LAB5_AVATAR_ROOT, uid)
         if os.path.exists(upload_dir):
             try:
                 shutil.rmtree(upload_dir)
@@ -4322,7 +4329,7 @@ def lab5_1_upload():
     
     # Create User Specific Directory
     base_dir = BASE_PATH
-    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
 
@@ -4349,7 +4356,7 @@ def lab5_1_logout():
     uid = session.get('lab5_1_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(LAB5_AVATAR_ROOT, uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4368,7 +4375,7 @@ def lab5_1_file(filename):
     # Filename here will be "uid/actual_filename.ext" because of <path:filename>
     base_dir = BASE_PATH
     # Base upload directory
-    upload_base_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars')
+    upload_base_dir = LAB5_AVATAR_ROOT
     
     # Securely join paths? No, we want to allow access to the file.
     # But let's construct the full path.
@@ -4502,7 +4509,7 @@ def lab5_2_upload():
     filename = file.filename
     
     base_dir = BASE_PATH
-    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
@@ -4527,7 +4534,7 @@ def lab5_2_logout():
     uid = session.get('lab5_2_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(LAB5_AVATAR_ROOT, uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4606,7 +4613,7 @@ def lab5_2_b_upload():
     
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
@@ -4628,7 +4635,7 @@ def lab5_2_b_logout():
     if uid:
         import shutil
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(LAB5_AVATAR_ROOT, uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4701,7 +4708,7 @@ def lab5_2_c_upload():
     
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
@@ -4723,7 +4730,7 @@ def lab5_2_c_logout():
     if uid:
         import shutil
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(LAB5_AVATAR_ROOT, uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4800,7 +4807,7 @@ def lab5_1_b_upload():
     # VULNERABILITY
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     filename = save_lab5_avatar_upload(file, upload_dir)
@@ -4820,7 +4827,7 @@ def lab5_1_b_logout():
     uid = session.get('lab5_1_b_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(LAB5_AVATAR_ROOT, uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4897,7 +4904,7 @@ def lab5_1_c_upload():
     # VULNERABILITY
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     filename = save_lab5_avatar_upload(file, upload_dir)
@@ -4917,7 +4924,7 @@ def lab5_1_c_logout():
     uid = session.get('lab5_1_c_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(LAB5_AVATAR_ROOT, uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -6072,4 +6079,5 @@ if __name__ == '__main__':
 
     # Cloud-Native Initialization: Local DB sequence decommissioned
     app.run(debug=not IS_VERCEL, use_reloader=not IS_VERCEL, host='0.0.0.0', port=5000)
+
 
