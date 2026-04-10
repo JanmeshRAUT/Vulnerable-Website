@@ -3578,8 +3578,33 @@ def lab4_1a_product(product_id):
 @app.route('/lab4/1/a/stock', methods=['POST'])
 @login_required
 def lab4_1a_stock():
-    stock_api = request.form.get('stockApi')
+    stock_api = extract_stock_api_param()
     return process_ssrf_request(stock_api, variant_hint='a')
+
+
+def extract_stock_api_param():
+    """Read stockApi from common request payload shapes used by browsers/tools."""
+    # Standard form submissions
+    for key in ('stockApi', 'stock_api', 'stockapi', 'url', 'targetUrl'):
+        value = request.form.get(key)
+        if value:
+            return value
+
+    # JSON payload support for API clients / proxy tools
+    json_payload = request.get_json(silent=True)
+    if isinstance(json_payload, dict):
+        for key in ('stockApi', 'stock_api', 'stockapi', 'url', 'targetUrl'):
+            value = json_payload.get(key)
+            if value:
+                return value
+
+    # Query-string fallback (last resort)
+    for key in ('stockApi', 'stock_api', 'stockapi', 'url', 'targetUrl'):
+        value = request.args.get(key)
+        if value:
+            return value
+
+    return None
 
 
 def process_ssrf_request(stock_api, variant_hint='a'):
@@ -3770,7 +3795,7 @@ def lab4_1b_product(product_id):
 @app.route('/lab4/1/b/stock', methods=['POST'])
 @login_required
 def lab4_1b_stock():
-    stock_api = request.form.get('stockApi')
+    stock_api = extract_stock_api_param()
     return process_ssrf_request(stock_api, variant_hint='b')
 
 # Lab 4.1.C: Global Logistics
@@ -3799,7 +3824,7 @@ def lab4_1c_product(product_id):
 @app.route('/lab4/1/c/stock', methods=['POST'])
 @login_required
 def lab4_1c_stock():
-    stock_api = request.form.get('stockApi')
+    stock_api = extract_stock_api_param()
     return process_ssrf_request(stock_api, variant_hint='c')
 
 
