@@ -4277,11 +4277,14 @@ def save_lab5_avatar_upload(file_obj, upload_dir):
         or ''
     )
 
-    if payload_override:
-        with open(file_path, 'wb') as uploaded_file:
-            uploaded_file.write(payload_override.encode('utf-8'))
-    else:
-        file_obj.save(file_path)
+    try:
+        if payload_override:
+            with open(file_path, 'wb') as uploaded_file:
+                uploaded_file.write(payload_override.encode('utf-8'))
+        else:
+            file_obj.save(file_path)
+    except (IOError, OSError) as e:
+        raise IOError(f"Failed to write file {filename}: {str(e)}")
 
     return filename
 
@@ -4330,7 +4333,9 @@ def lab5_1_upload():
         return redirect(url_for('lab5_1_login'))
         
     if 'avatar' not in request.files:
-        return redirect(url_for('lab5_1_account'))
+        return render_template('lab5/sub1_account.html',
+                             username=session.get('lab5_1_user'),
+                             error='No file selected for upload.')
     
     # Ensure UID exists
     if 'lab5_1_uid' not in session:
@@ -4340,21 +4345,40 @@ def lab5_1_upload():
         
     file = request.files['avatar']
     if file.filename == '':
-        return redirect(url_for('lab5_1_account'))
+        return render_template('lab5/sub1_account.html',
+                             username=session.get('lab5_1_user'),
+                             error='Filename cannot be empty.')
     
     # VULNERABILITY: No validation of file extension or content
     filename = file.filename
     
-    # Create User Specific Directory
-    base_dir = BASE_PATH
-    upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
+    # Create User Specific Directory with fallback
+    try:
+        upload_dir = os.path.join(LAB5_AVATAR_ROOT, user_uid)
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir, exist_ok=True)
+    except (OSError, PermissionError) as e:
+        # Fallback to /tmp if primary directory fails
+        try:
+            upload_dir = os.path.join('/tmp', 'lab5_avatars', user_uid)
+            os.makedirs(upload_dir, exist_ok=True)
+        except Exception as fallback_err:
+            return render_template('lab5/sub1_account.html',
+                                 username=session.get('lab5_1_user'),
+                                 error=f'Upload directory unavailable. Please try again.')
 
-    filename = save_lab5_avatar_upload(file, upload_dir)
+    try:
+        filename = save_lab5_avatar_upload(file, upload_dir)
+    except (IOError, OSError) as write_err:
+        return render_template('lab5/sub1_account.html',
+                             username=session.get('lab5_1_user'),
+                             error=f'Failed to save file: {str(write_err)[:50]}')
     
-    file_path = os.path.join(upload_dir, filename)
-    flag = extract_lab5_flag_from_upload(file_path, 'lab5_1')
+    try:
+        file_path = os.path.join(upload_dir, filename)
+        flag = extract_lab5_flag_from_upload(file_path, 'lab5_1')
+    except Exception as read_err:
+        flag = None
 
     # Update session with relative path
     relative_path = f"{user_uid}/{filename}"
