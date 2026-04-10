@@ -3585,6 +3585,12 @@ def lab4_1a_stock():
 def process_ssrf_request(stock_api, variant_hint='a'):
     if not stock_api:
         return "Missing stockApi parameter", 400
+
+    # Normalize variant context so A/B/C paths always propagate correctly.
+    normalized_variant = str(variant_hint or '').strip().lower()
+    if normalized_variant not in {'a', 'b', 'c'}:
+        path_variant_match = re.search(r'/lab4/1/([abc])/', request.path.lower())
+        normalized_variant = path_variant_match.group(1) if path_variant_match else 'a'
     
     # VULNERABILITY: SSRF
     try:
@@ -3623,10 +3629,15 @@ def process_ssrf_request(stock_api, variant_hint='a'):
             guid = session.get('guid') or session.get('user_id')
             if guid:
                 headers_dict['X-SSRF-Researcher-GUID'] = str(guid)
+
+            # Explicit marker for internal SSRF bridge requests. This avoids
+            # false 403s on hosted environments where request.host/remote_addr
+            # may not look like loopback even during internal dispatch.
+            headers_dict['X-Internal-Dispatch'] = '1'
             
             # Forward the original target host to help the backend identify the industry variant
             headers_dict['X-SSRF-Target-Host'] = target_host
-            headers_dict['X-Lab4-Variant'] = variant_hint
+            headers_dict['X-Lab4-Variant'] = normalized_variant
             
             with app.test_client() as client:
                 # Forward each cookie individually to the test client using keyword arguments
@@ -3680,7 +3691,11 @@ def stock_check_api():
 @app.route('/admin')
 def ssrf_admin_panel():
     # SSRF Gate: Only accessible via internal loopback (127.0.0.1)
-    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
+    is_internal = (
+        request.remote_addr == '127.0.0.1'
+        or 'localhost' in request.host
+        or request.headers.get('X-Internal-Dispatch') == '1'
+    )
     
     if not is_internal:
         print(f"[SECURITY] Unauthorized access attempt to /admin from {request.remote_addr} blocked.")
@@ -3696,7 +3711,11 @@ def ssrf_admin_panel():
 @app.route('/admin/delete')
 def ssrf_admin_delete_user():
     # SSRF Gate: Ensure this action is only performed by the server itself
-    is_internal = request.remote_addr == '127.0.0.1' or 'localhost' in request.host
+    is_internal = (
+        request.remote_addr == '127.0.0.1'
+        or 'localhost' in request.host
+        or request.headers.get('X-Internal-Dispatch') == '1'
+    )
     
     if not is_internal:
         return "403 Forbidden", 403
