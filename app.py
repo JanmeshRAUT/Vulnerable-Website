@@ -1331,6 +1331,7 @@ def build_chatbot_response(user_message, current_path=None):
 # -------------------------
 @app.route('/')
 def home():
+    clear_lab8_session_state()
     return render_template('index.html')
 
 @app.route('/privacy')
@@ -1359,6 +1360,7 @@ def chatbot_reply():
 
 @app.route('/labs')
 def labs():
+    clear_lab8_session_state()
     return render_template('labs.html')
 
 @app.route('/favicon.ico')
@@ -5130,6 +5132,9 @@ def check_xss_payload(user_input: str, variant: str) -> bool:
     if not user_input:
         return False
     # Check if input contains active XSS patterns (script, event handlers, protocol handlers)
+    normalized_input = user_input.lower()
+    variant_normalized = (variant or '').strip().upper()
+
     xss_patterns = [
         '<script',
         'onerror=',
@@ -5139,7 +5144,19 @@ def check_xss_payload(user_input: str, variant: str) -> bool:
         '"; fetch',
         "'; fetch"
     ]
-    return any(pattern.lower() in user_input.lower() for pattern in xss_patterns)
+
+    # Variant C uses JavaScript string breakout payloads, including simplified alert forms.
+    if variant_normalized == 'C':
+        xss_patterns.extend([
+            '"; alert',
+            "'; alert",
+            '";prompt',
+            "';prompt",
+            '";confirm',
+            "';confirm",
+        ])
+
+    return any(pattern in normalized_input for pattern in xss_patterns)
 
 
 @app.route('/xss-success')
