@@ -5126,6 +5126,12 @@ def strip_script_tags(user_input: str) -> str:
     return user_input
 
 
+def resolve_lab8_mode_page(page: str) -> str:
+    """Support legacy ?mode=... links used by some Lab 8 templates."""
+    mode_page = (request.args.get('mode') or '').strip().lower()
+    return mode_page or page
+
+
 def check_xss_payload(user_input: str, variant: str) -> bool:
     if not user_input:
         return False
@@ -5136,6 +5142,8 @@ def check_xss_payload(user_input: str, variant: str) -> bool:
         'onload=',
         'onclick=',
         'javascript:',
+        '"; alert',
+        "'; alert",
         '"; fetch',
         "'; fetch"
     ]
@@ -5172,6 +5180,8 @@ def xss_success():
 @app.route('/lab8/1/a', methods=['GET', 'POST'])
 @app.route('/lab8/1/a/<page>', methods=['GET', 'POST'])
 def lab8_1_a(page='home'):
+    page = resolve_lab8_mode_page(page)
+
     # Handle login from any page
     if request.method == 'POST' and 'login_btn' in request.form:
         username = request.form.get('username', '').strip()
@@ -5280,6 +5290,8 @@ def lab8_1_a(page='home'):
 @app.route('/lab8/1/b', methods=['GET', 'POST'])
 @app.route('/lab8/1/b/<page>', methods=['GET', 'POST'])
 def lab8_1_b(page='gallery'):
+    page = resolve_lab8_mode_page(page)
+
     # Handle login from any page
     if request.method == 'POST' and 'login_btn' in request.form:
         seller_name = request.form.get('seller_name', '').strip()
@@ -5381,6 +5393,8 @@ def lab8_1_b(page='gallery'):
 @app.route('/lab8/1/c', methods=['GET', 'POST'])
 @app.route('/lab8/1/c/<page>', methods=['GET', 'POST'])
 def lab8_1_c(page='portfolio'):
+    page = resolve_lab8_mode_page(page)
+
     # Handle login from any page
     if request.method == 'POST' and 'login_btn' in request.form:
         designer_name = request.form.get('designer_name', '').strip()
@@ -5429,6 +5443,8 @@ def lab8_1_c(page='portfolio'):
 @app.route('/lab8/1/d', methods=['GET', 'POST'])
 @app.route('/lab8/1/d/<page>', methods=['GET', 'POST'])
 def lab8_1_d(page='home'):
+    page = resolve_lab8_mode_page(page)
+
     # Handle login from any page
     if request.method == 'POST' and 'login_btn' in request.form:
         user_handle = request.form.get('user_handle', '').strip()
@@ -5486,6 +5502,8 @@ def lab8_1_d(page='home'):
 @app.route('/lab8/1/e', methods=['GET', 'POST'])
 @app.route('/lab8/1/e/<page>', methods=['GET', 'POST'])
 def lab8_1_e(page='dashboard'):
+    page = resolve_lab8_mode_page(page)
+
     # Handle login from any page
     if request.method == 'POST' and 'login_btn' in request.form:
         user_email = request.form.get('user_email', '').strip() or request.form.get('admin_user', '').strip()
@@ -5547,12 +5565,13 @@ LAB8_USERS_DB = {
 def lab8_2():
     # Login Logic
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = (request.form.get('username') or '').strip()
+        password = (request.form.get('password') or '').strip()
         
         # Static check for credentials (test/test)
         if username == 'test' and password == 'test':
             session['lab8_2_user'] = username
+            session.permanent = True
             
             # Initialize isolated profile in session if not exists
             if 'lab8_2_profile' not in session:
@@ -5613,6 +5632,7 @@ def lab8_2_update():
 @app.route('/lab8/2/logout')
 def lab8_2_logout():
     session.pop('lab8_2_user', None)
+    session.pop('lab8_2_profile', None)
     return redirect(url_for('lab8_2'))
     
 # Clean up old stored comments route if it exists (not used anymore)
