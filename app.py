@@ -4214,16 +4214,18 @@ def lab5_1():
 @app.route('/lab5/1/login', methods=['GET', 'POST'])
 def lab5_1_login():
     if request.method == 'GET':
-        if 'lab5_1_user' in session:
+        if ensure_lab5_1_user_session():
             return redirect(url_for('lab5_1_account'))
         return render_template('lab5/sub1_login.html')
     
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username_raw = (request.form.get('username') or '')
+    password_raw = (request.form.get('password') or '')
+    username = username_raw.strip().lower()
+    password = password_raw.strip()
     
     # Wiener:peter (Standard PortSwigger user)
     if username == 'wiener' and password == 'peter':
-        session['lab5_1_user'] = username
+        session['lab5_1_user'] = username_raw.strip() or username
         # Generate a unique session ID for file isolation if not exists
         if 'lab5_1_uid' not in session:
             session['lab5_1_uid'] = str(uuid.uuid4())
