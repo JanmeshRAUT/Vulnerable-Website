@@ -3867,6 +3867,10 @@ def log_lab4_2_target_ip(variant, context_label, session_key='lab4_2_logged_vari
         f"[LAB4.2] {context_label} | variant={variant.upper()} "
         f"| identity={identity_key} | target_ip=192.168.0.{target_octet}"
     )
+    print(
+        f"[LAB4.2][ALLOCATED_IP] variant={variant.upper()} "
+        f"identity={identity_key} allocated_ip=192.168.0.{target_octet}"
+    )
     return target_octet
 
 
@@ -4075,6 +4079,7 @@ def lab4_2c_product(product_id):
 @login_required
 def lab4_2a_stock():
     target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'a')
+    log_lab4_2_target_ip('a', 'Stock API invoked')
     return process_lab4_2_ssrf_request(extract_stock_api_param(), 'a', expected_target_octet=target_octet)
 
 
@@ -4082,6 +4087,7 @@ def lab4_2a_stock():
 @login_required
 def lab4_2b_stock():
     target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'b')
+    log_lab4_2_target_ip('b', 'Stock API invoked')
     return process_lab4_2_ssrf_request(extract_stock_api_param(), 'b', expected_target_octet=target_octet)
 
 
@@ -4089,6 +4095,7 @@ def lab4_2b_stock():
 @login_required
 def lab4_2c_stock():
     target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), 'c')
+    log_lab4_2_target_ip('c', 'Stock API invoked')
     return process_lab4_2_ssrf_request(extract_stock_api_param(), 'c', expected_target_octet=target_octet)
 
 
