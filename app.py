@@ -4214,7 +4214,7 @@ def lab5_1():
 @app.route('/lab5/1/login', methods=['GET', 'POST'])
 def lab5_1_login():
     if request.method == 'GET':
-        if ensure_lab5_1_user_session():
+        if session.get('lab5_1_user'):
             return redirect(url_for('lab5_1_account'))
         return render_template('lab5/sub1_login.html')
     
@@ -4235,7 +4235,7 @@ def lab5_1_login():
 
 @app.route('/lab5/1/account')
 def lab5_1_account():
-    username = ensure_lab5_1_user_session()
+    username = session.get('lab5_1_user')
     if not username:
         return redirect(url_for('lab5_1_login'))
     
@@ -4251,19 +4251,8 @@ def lab5_1_account():
 
 
 def ensure_lab5_1_user_session():
-    """Backfill Lab 5.1 session from the main signed-in identity when available."""
-    username = session.get('lab5_1_user')
-    if username:
-        return username
-
-    fallback_identity = (session.get('username') or session.get('email') or '').strip()
-    if not fallback_identity:
-        return None
-
-    session['lab5_1_user'] = fallback_identity
-    if 'lab5_1_uid' not in session:
-        session['lab5_1_uid'] = str(uuid.uuid4())
-    return fallback_identity
+    """Lab 5.1 requires explicit wiener/peter login - no global fallback."""
+    return session.get('lab5_1_user')
 
 
 def save_lab5_avatar_upload(file_obj, upload_dir):
@@ -4329,12 +4318,13 @@ def extract_lab5_flag_from_upload(file_path, lab_id):
 
 @app.route('/lab5/1/upload', methods=['POST'])
 def lab5_1_upload():
-    if not ensure_lab5_1_user_session():
+    username = session.get('lab5_1_user')
+    if not username:
         return redirect(url_for('lab5_1_login'))
         
     if 'avatar' not in request.files:
         return render_template('lab5/sub1_account.html',
-                             username=session.get('lab5_1_user'),
+                             username=username,
                              error='No file selected for upload.')
     
     # Ensure UID exists
@@ -4346,7 +4336,7 @@ def lab5_1_upload():
     file = request.files['avatar']
     if file.filename == '':
         return render_template('lab5/sub1_account.html',
-                             username=session.get('lab5_1_user'),
+                             username=username,
                              error='Filename cannot be empty.')
     
     # VULNERABILITY: No validation of file extension or content
@@ -4364,14 +4354,14 @@ def lab5_1_upload():
             os.makedirs(upload_dir, exist_ok=True)
         except Exception as fallback_err:
             return render_template('lab5/sub1_account.html',
-                                 username=session.get('lab5_1_user'),
+                                 username=username,
                                  error=f'Upload directory unavailable. Please try again.')
 
     try:
         filename = save_lab5_avatar_upload(file, upload_dir)
     except (IOError, OSError) as write_err:
         return render_template('lab5/sub1_account.html',
-                             username=session.get('lab5_1_user'),
+                             username=username,
                              error=f'Failed to save file: {str(write_err)[:50]}')
     
     try:
@@ -4386,7 +4376,7 @@ def lab5_1_upload():
     session['lab5_1_flag'] = flag
     
     return render_template('lab5/sub1_account.html', 
-                         username=session['lab5_1_user'], 
+                         username=username, 
                          avatar=f"/files/avatars/{relative_path}",
                          message=f"Avatar {filename} uploaded successfully!",
                          flag=flag)
