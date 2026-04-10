@@ -15,6 +15,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from datetime import datetime, timedelta
 import shutil
 import secrets
+import time
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 from firebase_db import FirebaseDataStore
@@ -64,6 +65,9 @@ LAB4_2_RUNTIME_STATE = {
     'target_ips': {},
     'logged_variants': {}
 }
+
+# Reduce repeated Firebase round-trips for lab gate checks.
+ACCESS_GATE_CACHE_TTL_SECONDS = int(os.environ.get('ACCESS_GATE_CACHE_TTL_SECONDS', '90'))
 
 
 if IS_VERCEL:
@@ -656,9 +660,47 @@ def enforce_lab_locks():
         
     # Standard subjects must be vetted by the Command Center
     email = session.get('email')
-    user = firebase_store.get_user_by_email(email)
-    
-    if not user or not user.get('is_approved'):
+    if not email:
+        return redirect(url_for('login', next=request.path))
+
+    now_ts = int(time.time())
+    access_cache = session.get('access_control_cache', {}) if isinstance(session.get('access_control_cache', {}), dict) else {}
+    cache_is_fresh = (
+        access_cache.get('email') == email
+        and (now_ts - int(access_cache.get('ts', 0))) <= ACCESS_GATE_CACHE_TTL_SECONDS
+    )
+
+    if cache_is_fresh:
+        is_approved = bool(access_cache.get('is_approved'))
+        approved_lab_ids = set(access_cache.get('approved_lab_ids', []))
+        approved_family_ids = set(access_cache.get('approved_family_ids', []))
+    else:
+        user = firebase_store.get_user_by_email(email)
+        is_approved = bool(user and user.get('is_approved'))
+
+        approved_lab_ids = set()
+        approved_family_ids = set()
+        if is_approved:
+            approved_enrollments = firebase_store.get_user_lab_enrollments(email)
+            for enrollment in approved_enrollments:
+                if enrollment.get('approval_status') != 'approved':
+                    continue
+                lab_id_value = str(enrollment.get('lab_id') or '').strip().lower()
+                if not lab_id_value:
+                    continue
+                approved_lab_ids.add(lab_id_value)
+                approved_family_ids.add(lab_id_value.split('_', 1)[0])
+
+        session['access_control_cache'] = {
+            'email': email,
+            'ts': now_ts,
+            'is_approved': is_approved,
+            'approved_lab_ids': sorted(approved_lab_ids),
+            'approved_family_ids': sorted(approved_family_ids),
+        }
+        session.modified = True
+
+    if not is_approved:
         print(f"[SECURITY] Blocked unvetted subject {email} from entering {path}")
         return redirect(url_for('auth_pending'))
 
@@ -668,20 +710,14 @@ def enforce_lab_locks():
         family_match = re.fullmatch(r'/lab(\d+)', path.rstrip('/'))
         if family_match:
             family_prefix = f"lab{family_match.group(1)}_"
-            approved_enrollments = firebase_store.get_user_lab_enrollments(email)
-            has_family_access = any(
-                str(enrollment.get('lab_id') or '').startswith(family_prefix)
-                and enrollment.get('approval_status') == 'approved'
-                for enrollment in approved_enrollments
-            )
+            has_family_access = family_prefix in approved_family_ids
             if not has_family_access:
                 print(f"[SECURITY] Blocked locked lab landing page for {email}: {path}")
                 return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id='UNMAPPED'))
             return
         return
 
-    allowed_enrollment = firebase_store.get_lab_enrollment(email, exact_lab_id)
-    if not allowed_enrollment or allowed_enrollment.get('approval_status') != 'approved':
+    if exact_lab_id not in approved_lab_ids:
         print(f"[SECURITY] Blocked locked lab {exact_lab_id} for {email}")
         return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id=exact_lab_id))
 

