@@ -5100,8 +5100,17 @@ LAB8_COMMENTS = [
     }
 ]
 
+
+def clear_lab8_session_state() -> None:
+    """Clear only Lab 8-related session keys."""
+    lab8_keys = [key for key in session.keys() if key.startswith('lab8_') or key.startswith('xss_flag_')]
+    for key in lab8_keys:
+        session.pop(key, None)
+
 @app.route('/lab8')
 def lab8():
+    # Treat navigating back to Lab 8 hub as exiting active Lab 8 sessions.
+    clear_lab8_session_state()
     return render_template('lab8/index.html')
 
 # Lab 8.1: Reflected XSS - Hub Page
@@ -5170,6 +5179,7 @@ def lab8_1_a(page='home'):
         if username and password:
             session['lab8_subject'] = f"lab8:{username.strip().lower()}"
             session['lab8_1_a_user'] = username
+            session.permanent = True
             return redirect(url_for('lab8_1_a', page='home'))
     
     # Handle logout from any page
@@ -5277,6 +5287,7 @@ def lab8_1_b(page='gallery'):
         if seller_name and password:
             session['lab8_subject'] = f"lab8:{seller_name.strip().lower()}"
             session['lab8_1_b_seller'] = seller_name
+            session.permanent = True
             return redirect(url_for('lab8_1_b', page='gallery'))
     
     # Handle logout from any page
@@ -5377,6 +5388,7 @@ def lab8_1_c(page='portfolio'):
         if designer_name and password:
             session['lab8_subject'] = f"lab8:{designer_name.strip().lower()}"
             session['lab8_1_c_designer'] = designer_name
+            session.permanent = True
             return redirect(url_for('lab8_1_c', page='portfolio'))
     
     # Handle logout from any page
@@ -5424,6 +5436,7 @@ def lab8_1_d(page='home'):
         if user_handle and password:
             session['lab8_subject'] = f"lab8:{user_handle.strip().lower()}"
             session['lab8_1_d_user'] = user_handle
+            session.permanent = True
             return redirect(url_for('lab8_1_d', page='myfeed'))
     
     # Handle logout from any page
@@ -5480,6 +5493,7 @@ def lab8_1_e(page='dashboard'):
         if user_email and password:
             session['lab8_subject'] = f"lab8:{user_email.strip().lower()}"
             session['lab8_1_e_user'] = user_email
+            session.permanent = True
             return redirect(url_for('lab8_1_e', page='dashboard'))
     
     # Handle logout from any page
