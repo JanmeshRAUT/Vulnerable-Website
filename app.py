@@ -3673,6 +3673,20 @@ def process_ssrf_request(stock_api, variant_hint='a'):
                 return resp.get_data(as_text=True)
         
         else:
+            # Avoid real private-network egress for Lab 4.2 simulation payloads.
+            try:
+                parsed_for_guard = urllib.parse.urlparse(stock_api)
+                guard_host = (parsed_for_guard.hostname or '').strip().lower()
+                guard_port = parsed_for_guard.port if parsed_for_guard.port is not None else 80
+                if re.fullmatch(r'192\.168\.0\.\d{1,3}', guard_host) and guard_port == 8080:
+                    return (
+                        "<h1>Simulation Notice</h1>"
+                        "<p>192.168.0.X:8080 targets are simulated in Lab 4.2 routes only.</p>"
+                        "<p>Use /lab4/2/a/stock, /lab4/2/b/stock, or /lab4/2/c/stock for blind SSRF discovery.</p>"
+                    ), 400
+            except Exception:
+                pass
+
             # External Request (Simulation)
             # In a real environment, this makes the server a proxy.
             # Using requests here is fine for external targets (if allowed)
@@ -3929,6 +3943,33 @@ def build_lab4_2_stock_api(product_id):
     return f"http://192.168.0.1:8080/product/stock/check?productId={product_id}&storeId=1"
 
 
+@app.route('/lab4/2/<variant>/admin-panel')
+@login_required
+def lab4_2_admin_panel(variant):
+    variant_key = str(variant or '').strip().lower()
+    if variant_key not in {'a', 'b', 'c'}:
+        return "Variant not found", 404
+
+    host_octet_raw = request.args.get('host_octet', '').strip()
+    if not host_octet_raw.isdigit():
+        return "Invalid host", 400
+
+    host_octet = int(host_octet_raw)
+    if host_octet < 1 or host_octet > 255:
+        return "Invalid host", 400
+
+    target_octet = get_lab4_2_target_ip(get_lab4_2_identity_key(), variant_key)
+    if host_octet != target_octet:
+        return "Admin interface unavailable for this host.", 404
+
+    return render_template(
+        'lab4/admin_v2_panel.html',
+        host_ip=f"192.168.0.{host_octet}",
+        user_to_delete='carlos',
+        variant_context=get_lab4_2_variant_context(variant_key)
+    )
+
+
 def process_lab4_2_ssrf_request(stock_api, variant, expected_target_octet=None):
     if not stock_api:
         return "Missing stockApi parameter", 400
@@ -3964,12 +4005,10 @@ def process_lab4_2_ssrf_request(stock_api, variant, expected_target_octet=None):
             if requested_octet != target_octet:
                 return "<h1>Not Found</h1><p>No administration service detected on this host.</p>", 404
 
-            return render_template(
-                'lab4/admin_v2.html',
-                host_ip=f"192.168.0.{requested_octet}",
-                user_to_delete='carlos',
-                variant_context=get_lab4_2_variant_context(variant)
-            ), 200
+            return redirect(
+                url_for('lab4_2_admin_panel', variant=variant, host_octet=requested_octet),
+                code=302
+            )
 
         if path == '/admin/delete':
             if requested_octet != target_octet:
