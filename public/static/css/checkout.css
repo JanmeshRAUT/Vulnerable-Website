@@ -1,0 +1,291 @@
+/* ================================
+   CHECKOUT PAGE STYLING
+   ================================ */
+
+/* Checkout Container */
+.checkout-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Checkout Steps */
+.checkout-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.checkout-steps::before {
+    content: '';
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+    flex: 1;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.step.completed .step-number {
+    background: var(--success);
+}
+
+.step-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Checkout Content */
+.checkout-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+/* Shipping Information */
+.shipping-address {
+    margin-bottom: 0;
+}
+
+/* Shipping Methods */
+.shipping-method-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.shipping-option {
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.shipping-option:hover {
+    border-color: var(--accent);
+}
+
+.shipping-option input[type="radio"] {
+    margin-top: 0;
+    width: auto;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+}
+
+.shipping-option-content {
+    flex: 1;
+}
+
+.shipping-option-title {
+    font-weight: 600;
+}
+
+.shipping-option-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.shipping-option-price {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* Payment Methods */
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.payment-method {
+    padding: 1rem;
+    background: var(--bg-color);
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.payment-method:hover {
+    border-color: var(--accent);
+}
+
+.payment-method.selected {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.payment-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.payment-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Summary Box */
+.order-summary-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.order-summary-box h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+/* Summary Items */
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.summary-item span:last-child {
+    text-align: right;
+}
+
+/* Summary Divider */
+.summary-section {
+    border-top: 1px solid var(--border);
+    margin: 1rem 0;
+    padding: 1rem 0;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* Trust Indicators */
+.trust-indicators {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 0.8rem;
+}
+
+.trust-indicator {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    color: var(--text-secondary);
+}
+
+/* Free Shipping Text */
+.free-text {
+    color: var(--success);
+}
+
+/* Page Heading */
+.page-heading {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Terms & Conditions */
+.terms-agreement {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: flex-start;
+}
+
+.terms-agreement input {
+    margin-top: 0.25rem;
+    width: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+.terms-agreement label {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.terms-agreement a {
+    color: var(--accent);
+}
+
+/* Complete Purchase Button */
+.complete-purchase {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.05rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkout-content {
+        grid-template-columns: 1fr;
+    }
+
+    .order-summary-box {
+        position: static;
+    }
+
+    .payment-methods {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-steps::before {
+        display: none;
+    }
+
+    .step-label {
+        display: none;
+    }
+
+    .shipping-option {
+        padding: 0.75rem;
+    }
+}

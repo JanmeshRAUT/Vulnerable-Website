@@ -1,0 +1,214 @@
+/* =========================================
+   Lab 2.5: ShopHub Premium (Blue Theme)
+   ========================================= */
+
+:root {
+    --shophub-primary: #0066cc;
+    --shophub-primary-glow: rgba(0, 102, 204, 0.4);
+    --shophub-secondary: #00a680;
+    --shophub-bg-deep: #050a14;
+    --shophub-glass-bg: rgba(255, 255, 255, 0.03);
+    --shophub-glass-border: rgba(255, 255, 255, 0.1);
+    --shophub-text-dim: #94a3b8;
+}
+
+/* Header */
+.shophub-header {
+    background: rgba(5, 10, 20, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--shophub-glass-border);
+    padding: 1.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.brand-logo {
+    font-weight: 900;
+    font-size: 1.8rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Hero Section */
+.store-hero {
+    background: radial-gradient(circle at center, rgba(0, 102, 204, 0.15) 0%, var(--shophub-bg-deep) 100%);
+    border-radius: 24px;
+    padding: 6rem 4rem;
+    color: white;
+    margin: 2rem auto 4rem;
+    max-width: 1300px;
+    text-align: center;
+    border: 1px solid var(--shophub-glass-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, #ffffff, #93c5fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: var(--shophub-text-dim);
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Product Cards */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1300px;
+    margin: 0 auto 5rem;
+}
+
+.product-card {
+    background: var(--shophub-glass-bg);
+    border: 1px solid var(--shophub-glass-border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--shophub-primary);
+    box-shadow: 0 15px 35px rgba(0, 102, 204, 0.2);
+}
+
+.product-image {
+    height: 220px;
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.product-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.price-current {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #60a5fa;
+}
+
+/* Account Page Specifics */
+.account-card {
+    background: var(--shophub-glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--shophub-glass-border);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.9rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--shophub-primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-update {
+    background: var(--shophub-secondary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-update:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 166, 128, 0.4);
+}
+
+/* Modal and Login */
+.modal-card {
+    background: rgba(10, 15, 30, 0.95);
+    border: 1px solid var(--shophub-primary);
+    border-radius: 24px;
+}
+
+.btn-block {
+    width: 100%;
+    padding: 1rem;
+    background: var(--shophub-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Admin Console Styles */
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.admin-table tr {
+    background: var(--shophub-glass-bg);
+}
+
+.admin-table td {
+    padding: 1.25rem;
+    border-top: 1px solid var(--shophub-glass-border);
+    border-bottom: 1px solid var(--shophub-glass-border);
+}
+
+.admin-table td:first-child {
+    border-left: 1px solid var(--shophub-glass-border);
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.admin-table td:last-child {
+    border-right: 1px solid var(--shophub-glass-border);
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}

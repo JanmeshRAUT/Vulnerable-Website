@@ -1,0 +1,286 @@
+/* =========================================
+   Lab 4.1c - Global Logistics Premium Styles
+   ========================================= */
+
+:root {
+    --logi-bg: #0a0910;
+    --logi-card: rgba(15, 14, 22, 0.8);
+    --logi-accent: #f59e0b;
+    --logi-accent-hover: #d97706;
+    --logi-accent-light: #fbbf24;
+    --logi-text: #f8fafc;
+    --logi-sub: #94a3b8;
+    --logi-border: rgba(245, 158, 11, 0.12);
+}
+
+.logi-body {
+    background-color: var(--logi-bg);
+    color: var(--logi-text);
+    font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+}
+
+/* Header */
+.logi-header {
+    background: rgba(10, 9, 16, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--logi-border);
+    padding: 1.25rem 0;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.logi-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Product Grid */
+.logi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding-bottom: 4rem;
+}
+
+/* Cards */
+.logi-card {
+    background: var(--logi-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.logi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--logi-accent), transparent);
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+    border-radius: 4px 0 0 4px;
+}
+
+.logi-card:hover {
+    border-color: rgba(245, 158, 11, 0.25);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.08);
+}
+
+.logi-card:hover::before {
+    opacity: 1;
+}
+
+.logi-img {
+    height: 160px;
+    background: radial-gradient(circle at center, rgba(30, 28, 40, 1), rgba(10, 9, 16, 1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: var(--logi-sub);
+    border-bottom: 1px solid rgba(245, 158, 11, 0.06);
+    transition: all 0.3s ease;
+}
+
+.logi-card:hover .logi-img {
+    background: radial-gradient(circle at center, rgba(245, 158, 11, 0.04), rgba(10, 9, 16, 1));
+}
+
+.logi-content {
+    padding: 1.5rem;
+}
+
+.logi-id {
+    font-size: 0.7rem;
+    color: var(--logi-accent);
+    margin-bottom: 0.5rem;
+    display: block;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.logi-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: var(--logi-text);
+}
+
+.logi-desc {
+    font-size: 0.85rem;
+    color: var(--logi-sub);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.logi-btn {
+    display: inline-block;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    color: var(--logi-accent-light);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.logi-btn:hover {
+    background: var(--logi-accent);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Detail View */
+.logi-detail {
+    background: var(--logi-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    display: flex;
+    margin-top: 2rem;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.logi-tracking-panel {
+    flex: 1.5;
+    padding: 2.5rem;
+    border-right: 1px solid rgba(245, 158, 11, 0.08);
+}
+
+.logi-status-panel {
+    flex: 1;
+    background: rgba(5, 4, 8, 0.8);
+    padding: 2.5rem;
+    color: var(--logi-accent);
+    position: relative;
+}
+
+.status-line {
+    margin-bottom: 1.25rem;
+    border-left: 2px solid rgba(245, 158, 11, 0.3);
+    padding-left: 1.25rem;
+    position: relative;
+    transition: border-color 0.3s ease;
+}
+
+.status-line:hover {
+    border-left-color: var(--logi-accent);
+}
+
+.status-line::before {
+    content: '●';
+    position: absolute;
+    left: -7px;
+    top: 0;
+    color: var(--logi-accent);
+    font-size: 0.7rem;
+}
+
+/* Form */
+.logi-form-group {
+    margin-top: 2rem;
+    border-top: 1px solid rgba(245, 158, 11, 0.08);
+    padding-top: 2rem;
+}
+
+.logi-input-mock {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    color: var(--logi-sub);
+    padding: 0.85rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.logi-input-mock:focus {
+    outline: none;
+    border-color: var(--logi-accent);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.logi-scan-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000;
+    border: none;
+    padding: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    transition: all 0.3s ease;
+    clip-path: none;
+}
+
+.logi-scan-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+}
+
+.logi-terminal {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1.25rem;
+    border: 1px solid rgba(245, 158, 11, 0.08);
+    border-radius: 10px;
+    min-height: 100px;
+    color: #10b981;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .logi-detail {
+        flex-direction: column;
+    }
+
+    .logi-tracking-panel {
+        border-right: none;
+        border-bottom: 1px solid rgba(245, 158, 11, 0.08);
+    }
+
+    .logi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .logi-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

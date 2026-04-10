@@ -1,0 +1,383 @@
+/* =========================================
+   Lab 2.3 PetShop Premium Styles
+   ========================================= */
+
+body {
+    background-color: #0c0912 !important;
+    font-family: 'Verdana', sans-serif;
+    color: #e0d4e8;
+}
+
+/* Header */
+.pet-header {
+    background: rgba(12, 9, 18, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(236, 72, 153, 0.15);
+    padding: 1.25rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(236, 72, 153, 0.05);
+    margin-bottom: 2rem;
+}
+
+.pet-header-brand-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pet-brand-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.4));
+}
+
+.pet-brand {
+    text-decoration: none;
+    font-size: 1.7rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fbcfe8, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.pet-brand-accent {
+    -webkit-text-fill-color: #14b8a6;
+}
+
+.pet-user-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.pet-logged-in-text {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.pet-username-highlight {
+    color: #f472b6;
+    font-weight: 700;
+}
+
+.pet-logout-btn {
+    color: #ef4444;
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.45rem 1rem;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.06);
+    transition: all 0.3s ease;
+}
+
+.pet-logout-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+}
+
+.pet-login-btn {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 99px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+    transition: all 0.3s ease;
+}
+
+.pet-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+}
+
+/* Back Link */
+.pet-back-link {
+    display: inline-block;
+    color: #f472b6;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+}
+
+.pet-back-link:hover {
+    color: #ec4899;
+    transform: translateX(-3px);
+}
+
+/* Hero */
+.hero-pet {
+    background: radial-gradient(ellipse at center, rgba(236, 72, 153, 0.08) 0%, rgba(12, 9, 18, 1) 70%);
+    color: #fbcfe8;
+    padding: 5rem 2rem;
+    text-align: center;
+    border-radius: 24px;
+    margin: 0 auto 4rem;
+    max-width: 1000px;
+    border: 1px solid rgba(236, 72, 153, 0.12);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-pet::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="2" cy="2" r="0.6" fill="%23ec4899" fill-opacity="0.06"%3E%3C/circle%3E%3C/svg%3E');
+    z-index: 0;
+}
+
+.hero-pet::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.4), transparent);
+}
+
+.pet-hero-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, #ffffff, #f472b6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.pet-hero-subtitle {
+    font-size: 1.15rem;
+    color: #a78bfa;
+    position: relative;
+    z-index: 1;
+}
+
+/* Product Grid */
+.product-grid-pet {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 5rem;
+}
+
+/* Product Card */
+.product-card-pet {
+    background: rgba(15, 12, 22, 0.8);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(236, 72, 153, 0.08);
+}
+
+.product-card-pet:hover {
+    transform: translateY(-10px) rotate(1deg);
+    border-color: rgba(236, 72, 153, 0.25);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(236, 72, 153, 0.1);
+}
+
+.product-image-pet {
+    height: 200px;
+    background: radial-gradient(circle at center, rgba(30, 20, 35, 1), rgba(12, 9, 18, 1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    border-bottom: 1px solid rgba(236, 72, 153, 0.05);
+    transition: all 0.3s ease;
+}
+
+.product-card-pet:hover .product-image-pet {
+    background: radial-gradient(circle at center, rgba(236, 72, 153, 0.06), rgba(12, 9, 18, 1));
+}
+
+.product-info-pet {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.product-title-pet {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #f9a8d4;
+}
+
+.pet-product-desc {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.product-price-pet {
+    color: #5eead4;
+    font-weight: 800;
+    font-size: 1.3rem;
+    margin: 0.75rem 0;
+    display: block;
+}
+
+.btn-add-pet {
+    width: 80%;
+    margin-top: 0.5rem;
+    padding: 0.7rem;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: white;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 99px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-add-pet:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.4);
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+}
+
+/* Login Modal */
+.modal-pet {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(5, 3, 10, 0.9);
+    backdrop-filter: blur(10px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content-pet {
+    background: rgba(15, 12, 22, 0.98);
+    border: 1px solid rgba(236, 72, 153, 0.25);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 380px;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(236, 72, 153, 0.1);
+    animation: petModalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes petModalIn {
+    from { transform: translateY(30px) scale(0.95); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.close-btn-pet {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f472b6;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-btn-pet:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.pet-modal-title {
+    color: #f9a8d4;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+}
+
+.login-input-pet {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid rgba(236, 72, 153, 0.15);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.login-input-pet:focus {
+    border-color: #ec4899;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-login-pet {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-login-pet:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+}
+
+/* Footer */
+.footer-pet {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(236, 72, 153, 0.08);
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pet-header {
+        flex-direction: column;
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+
+    .pet-hero-title {
+        font-size: 1.75rem;
+    }
+
+    .hero-pet {
+        padding: 3rem 1.5rem;
+    }
+
+    .product-grid-pet {
+        grid-template-columns: 1fr;
+    }
+}

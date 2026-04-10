@@ -1,0 +1,198 @@
+/* ================================
+   LAB 1 SUB-TEMPLATES STYLING
+   ================================ */
+
+/* Sticky Glass Header */
+.lab1-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.glass-header {
+    background: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-container-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+    margin-bottom: 0;
+    padding: 0.75rem 0;
+}
+
+.header-nav-gap {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header-logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.header-logo-text {
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.025em;
+    color: white;
+}
+
+.accent-text {
+    color: var(--accent);
+}
+
+/* Navigation */
+.header-nav {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.header-nav a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.header-nav a:hover {
+    color: var(--accent);
+}
+
+.nav-secondary {
+    color: #9CA3AF;
+}
+
+.nav-secondary:hover {
+    color: white;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Category Navigation */
+.category-nav {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(17, 24, 39, 0.5);
+    backdrop-filter: blur(8px);
+}
+
+.category-container {
+    display: flex;
+    gap: 2rem;
+    border: none;
+    margin-bottom: 0;
+    padding: 0.5rem 0;
+    overflow-x: auto;
+}
+
+.category-link {
+    color: #6B7280;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s;
+}
+
+.category-link:hover {
+    color: white;
+}
+
+/* Hero Title */
+.hero-title {
+    font-size: 4.5rem;
+    margin-bottom: 2rem;
+    line-height: 1.1;
+}
+
+/* Hero Description */
+.hero-description {
+    color: #94a3b8;
+    font-size: 1.25rem;
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+}
+
+/* Search Bar */
+.search-container {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1.25rem 2rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1.1rem;
+    outline: none;
+    font-family: inherit;
+}
+
+.search-input::placeholder {
+    color: #9CA3AF;
+}
+
+.search-button {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.search-button:hover {
+    transform: scale(1.05);
+}
+
+/* Trending Section */
+.trending-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.trending-products {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #E5E7EB;
+}
+
+/* Container Padding */
+.container-padding {
+    padding-top: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-nav {
+        display: none;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .header-nav-gap {
+        gap: 1rem;
+    }
+}

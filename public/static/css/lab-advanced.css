@@ -1,0 +1,250 @@
+/* ================================
+   LAB 4, 7, AND OTHER LAB PAGES
+   ================================ */
+
+/* Lab Module Header Flex */
+.lab-header-flex {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.lab-header-icon {
+    font-size: 2rem;
+}
+
+.lab-header h2 {
+    margin: 0;
+}
+
+/* Nexus Inventory Title */
+.nexus-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 800;
+    font-size: 3rem;
+    background: linear-gradient(to right, #fff, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Shop Module Container */
+.shop-container {
+    margin-bottom: 2rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Shop Card */
+.shop-card {
+    padding: 0;
+}
+
+.shop-card-image {
+    height: 200px;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.shop-card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.shop-card-title {
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.shop-card-description {
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.shop-search-icon {
+    font-size: 1.25rem;
+}
+
+.shop-search-btn {
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 0.6rem 2rem;
+}
+
+/* Lab 7: NexusRetail/SQL Injection Theme */
+:root {
+    --nx-accent: #f59e0b;
+    --nx-bg: #0f172a;
+}
+
+.nx-search-header {
+    background: #1e293b;
+    padding: 3rem 0;
+    border-bottom: 1px solid #334155;
+    margin-bottom: 2rem;
+}
+
+.nx-header-flex {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.nx-header-flex h2 {
+    margin: 0;
+    color: white;
+}
+
+.nx-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 800;
+    font-size: 3rem;
+    background: linear-gradient(to right, #fff, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.search-pill {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 999px;
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.search-pill input {
+    background: transparent;
+    border: none;
+    margin-bottom: 0;
+    padding: 0;
+    font-size: 1rem;
+    color: white;
+}
+
+.search-pill input::placeholder {
+    color: #9CA3AF;
+}
+
+.search-pill input:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.nx-search-icon {
+    font-size: 1.25rem;
+}
+
+.nx-search-btn {
+    background: var(--nx-accent);
+    border-radius: 999px;
+    padding: 0.6rem 2rem;
+}
+
+.nx-card {
+    background: #1e293b;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #334155;
+    transition: transform 0.2s;
+    padding: 0;
+}
+
+.nx-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.nx-card-image {
+    height: 200px;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.nx-card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.nx-product-title {
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.nx-product-desc {
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.nx-product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.nx-product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--nx-accent);
+}
+
+.nx-product-sku {
+    font-size: 0.75rem;
+    color: #475569;
+    font-family: 'JetBrains Mono';
+}
+
+.nx-results-info {
+    margin-bottom: 2rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.nx-no-results {
+    text-align: center;
+    padding: 5rem 0;
+    opacity: 0.5;
+}
+
+.nx-no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.nx-developer-note {
+    margin-top: 4rem;
+    padding: 1.5rem;
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px dashed var(--nx-accent);
+    border-radius: 0.5rem;
+    color: var(--nx-accent);
+    font-size: 0.85rem;
+}

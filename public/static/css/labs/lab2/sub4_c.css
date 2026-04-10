@@ -1,0 +1,956 @@
+/* =========================================
+   Lab 2.4 Variation C: ElectroMart Premium Styles
+   ========================================= */
+
+/* Header */
+.electro-header {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: white;
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin-bottom: 2rem;
+}
+
+.electro-header-brand-container {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.electro-header-nav-container {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.electro-brand {
+    font-weight: 900;
+    font-size: 1.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #ffffff, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.electro-brand span {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: white;
+    -webkit-text-fill-color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+}
+
+.electro-back-link {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.electro-back-link:hover {
+    background: rgba(37, 99, 235, 0.2);
+    color: #60a5fa;
+    transform: translateX(-3px);
+}
+
+/* Search */
+.search-container-electro {
+    position: relative;
+}
+
+.search-input-electro {
+    padding: 0.7rem 1.25rem 0.7rem 2.5rem;
+    border-radius: 99px;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    width: 260px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.search-input-electro:focus {
+    width: 300px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+}
+
+.search-input-electro::placeholder {
+    color: #94a3b8;
+}
+
+.search-icon-electro {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+}
+
+.electro-login-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+}
+
+.electro-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+}
+
+/* Layout */
+.electro-layout-grid {
+    display: flex;
+    gap: 2.5rem;
+}
+
+/* Sidebar */
+.electro-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.electro-sidebar-card {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(37, 99, 235, 0.15) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+}
+
+.electro-sidebar-title {
+    color: #60a5fa;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.03em;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.electro-sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.electro-sidebar-list li {
+    margin-bottom: 0.25rem;
+}
+
+.electro-sidebar-link {
+    display: block;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.electro-sidebar-link:hover {
+    color: #60a5fa;
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.electro-sidebar-link-active {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: rgba(37, 99, 235, 0.15);
+    border-left: 3px solid #2563eb;
+}
+
+.electro-main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Hero Section */
+.electro-hero {
+    background: radial-gradient(circle at center, rgba(37, 99, 235, 0.15) 0%, rgba(15, 23, 42, 1) 100%);
+    color: white;
+    border-radius: 24px;
+    padding: 4rem 3rem;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.electro-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="2" cy="2" r="0.8" fill="%232563eb" fill-opacity="0.1"%3E%3C/circle%3E%3C/svg%3E');
+    z-index: 0;
+}
+
+.electro-hero h2 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.electro-hero-subtitle {
+    color: #bfdbfe;
+    font-size: 1.15rem;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.electro-hero-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 0.85rem 2.5rem;
+    border: none;
+    font-weight: 800;
+    font-size: 1rem;
+    border-radius: 99px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    transition: all 0.3s ease;
+}
+
+.electro-hero-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.6);
+}
+
+/* Card Grid */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 5rem;
+}
+
+/* Product Cards */
+.product-card-electro {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(37, 99, 235, 0.1) !important;
+    border-radius: 20px !important;
+    padding: 0 !important;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card-electro:hover {
+    transform: translateY(-10px) !important;
+    border-color: rgba(37, 99, 235, 0.4) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(37, 99, 235, 0.15) !important;
+}
+
+.electro-product-card-interactive {
+    cursor: pointer;
+}
+
+.product-image-electro {
+    height: 240px;
+    background: radial-gradient(circle at center, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
+    border-radius: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    position: relative;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.08);
+}
+
+.product-image-electro::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    box-shadow: inset 0 -20px 20px -20px rgba(0,0,0,0.5);
+}
+
+.electro-product-title {
+    padding: 1.5rem 1.5rem 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.electro-product-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.electro-product-desc {
+    padding: 0 1.5rem;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.electro-product-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-top: 1px solid rgba(37, 99, 235, 0.08);
+    background: rgba(37, 99, 235, 0.02);
+    margin-top: auto;
+}
+
+.electro-price {
+    color: #60a5fa;
+    font-weight: 800;
+    font-size: 1.4rem;
+}
+
+.electro-add-btn {
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    color: #60a5fa;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.electro-add-btn:hover {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+/* Login Modal */
+.modal-electro {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(3, 4, 7, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content-electro {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(15, 23, 42, 0.95) !important;
+    border: 1px solid rgba(37, 99, 235, 0.3) !important;
+    border-radius: 20px !important;
+    padding: 3rem 2.5rem !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(37, 99, 235, 0.15) !important;
+    animation: electroModalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes electroModalIn {
+    from { transform: translateY(30px) scale(0.95); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.electro-modal-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.electro-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.electro-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.login-input-electro {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.login-input-electro:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.btn-signin-electro {
+    width: 100%;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1.05rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-signin-electro:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+}
+
+.electro-modal-hint {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* ================================
+   Product Detail Page
+   ================================ */
+.electro-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.electro-product-detail-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 24px;
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.electro-product-detail-flex {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.electro-product-image-box {
+    flex: 1;
+    height: 350px;
+    background: radial-gradient(circle at center, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.electro-product-info-box {
+    flex: 1;
+}
+
+.electro-product-detail-name {
+    font-size: 2.25rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #ffffff, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.electro-product-detail-desc {
+    font-size: 1.125rem;
+    color: #94a3b8;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.electro-product-detail-price {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #60a5fa;
+    margin-bottom: 2.5rem;
+}
+
+.electro-details-box {
+    background: rgba(37, 99, 235, 0.04);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    border-left: 3px solid #2563eb;
+    margin-bottom: 2.5rem;
+}
+
+.electro-details-title {
+    font-size: 0.85rem;
+    color: #60a5fa;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.electro-details-text {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.electro-details-strong {
+    color: #e2e8f0;
+}
+
+.electro-details-link {
+    color: #60a5fa;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.electro-details-link:hover {
+    color: #93c5fd;
+}
+
+.electro-details-ref {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.electro-owner-banner {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(37, 99, 235, 0.1);
+    color: #22c55e;
+    font-weight: 700;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.electro-owner-check {
+    background: #22c55e;
+    color: white;
+    border-radius: 50%;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.electro-add-cart-btn {
+    width: 100%;
+    padding: 1.15rem;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+}
+
+.electro-add-cart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+}
+
+/* ================================
+   Account Page
+   ================================ */
+.electro-signout-link {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    background: rgba(37, 99, 235, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.electro-signout-link:hover {
+    background: rgba(37, 99, 235, 0.15);
+    color: #93c5fd;
+}
+
+.electro-acct-layout {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 2rem;
+}
+
+.electro-sidebar-wrapper {
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.electro-sidebar-card-clean {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(37, 99, 235, 0.15) !important;
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.electro-account-header {
+    background: rgba(37, 99, 235, 0.08);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #60a5fa;
+    letter-spacing: 0.08em;
+}
+
+.electro-nav-list {
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+}
+
+.electro-nav-item {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.electro-nav-item:hover {
+    color: #60a5fa;
+    background: rgba(37, 99, 235, 0.06);
+}
+
+.electro-nav-item.active {
+    color: white;
+    background: rgba(37, 99, 235, 0.12);
+    border-left: 3px solid #2563eb;
+    font-weight: 700;
+}
+
+.electro-main-card {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(37, 99, 235, 0.15) !important;
+    border-radius: 20px !important;
+    padding: 2.5rem !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.electro-welcome-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+}
+
+.electro-welcome-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.35rem;
+    color: white;
+}
+
+.electro-welcome-sub {
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+.electro-welcome-right {
+    text-align: right;
+}
+
+.electro-status-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: #60a5fa;
+    letter-spacing: 0.05em;
+}
+
+.electro-last-login {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+.electro-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.electro-account-card {
+    background: rgba(37, 99, 235, 0.04);
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.electro-card-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+    padding-bottom: 0.75rem;
+    color: #60a5fa;
+}
+
+.electro-card-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.electro-label {
+    font-size: 0.7rem;
+    color: #64748b;
+    display: block;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.electro-value {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 1rem;
+}
+
+.electro-infra-text {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.electro-sync-btn {
+    margin-top: 1rem;
+    background: rgba(37, 99, 235, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.electro-sync-btn:hover {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+/* ================================
+   Admin Page
+   ================================ */
+.electro-admin-header {
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(20px);
+    color: #60a5fa;
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.electro-admin-banner {
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.electro-admin-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    color: #94a3b8;
+    padding: 2rem;
+    border-radius: 16px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.electro-admin-title {
+    color: #60a5fa;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.electro-directory-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.06);
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.electro-terminal-box {
+    height: 200px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    border-radius: 12px;
+    padding: 1.25rem;
+    overflow-y: hidden;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #94a3b8;
+}
+
+.electro-admin-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.electro-status-online {
+    color: #22c55e;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.electro-status-offline {
+    color: #475569;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.electro-log-pre {
+    display: block;
+    width: 100%;
+    white-space: pre-wrap;
+    padding: 1rem;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.electro-log-alert {
+    color: #22c55e;
+}
+
+.electro-log-error {
+    color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .electro-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .electro-layout-grid {
+        flex-direction: column;
+    }
+
+    .electro-sidebar {
+        width: 100%;
+    }
+
+    .electro-acct-layout {
+        flex-direction: column;
+    }
+
+    .electro-sidebar-wrapper {
+        width: 100%;
+    }
+
+    .electro-product-detail-flex {
+        flex-direction: column;
+    }
+
+    .electro-admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .electro-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .electro-hero {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+    }
+}

@@ -1,0 +1,18 @@
+# FoodMart Robots.txt - Food & Grocery
+User-agent: *
+Disallow: /lab2/1/c/kitchen_admin_zone
+Disallow: /inventory/
+Disallow: /orders/
+Disallow: /receipts/
+Disallow: /admin-panel/
+
+User-agent: DuckDuckBot
+Disallow: /private/dashboard/
+
+# Admin dashboard location (hidden in disallow list)
+# Access: /lab2/1/c/kitchen_admin_zone
+Allow: /products/
+Allow: /categories/
+Allow: /recipes/
+
+Sitemap: https://foodmart.local/sitemap_v2.xml

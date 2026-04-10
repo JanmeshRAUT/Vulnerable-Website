@@ -2,21 +2,24 @@
   "version": 2,
   "builds": [
     {
-      "src": "app.py",
+      "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
         "includeFiles": [
           "data/wordlists/**",
-          "templates/**",
-          "static/**"
+          "templates/**"
         ]
       }
     }
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "/public/static/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "api/index.py"
     }
   ]
 }

@@ -1,0 +1,37 @@
+/* Lab 2.3 Admin Styles */
+.admin-success-cookie {
+    padding: 3rem;
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.admin-flag-cookie {
+    font-family: monospace;
+    font-size: 1.5rem;
+    background: #064e3b;
+    padding: 1rem 2rem;
+    border-radius: 999px;
+    display: inline-block;
+    color: #6ee7b7;
+    border: 2px solid #059669;
+}
+
+.user-identity-card {
+    background: #020617;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-identity-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.user-identity-session {
+    color: #64748b;
+    font-size: 0.8rem;
+}

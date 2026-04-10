@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import sqlite3
 import subprocess
@@ -49,11 +49,14 @@ def get_base_path():
         return os.path.dirname(os.path.abspath(__file__))
 
 BASE_PATH = get_base_path()
+PUBLIC_STATIC_ROOT = os.path.join(BASE_PATH, 'public', 'static')
+LEGACY_STATIC_ROOT = os.path.join(BASE_PATH, 'static')
+STATIC_ROOT = PUBLIC_STATIC_ROOT if os.path.isdir(PUBLIC_STATIC_ROOT) else LEGACY_STATIC_ROOT
 
 # Detect Vercel Environment
 IS_VERCEL = os.environ.get('VERCEL') == '1'
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=STATIC_ROOT, static_url_path='/static')
 # USE ENVIRONMENT VARIABLES FOR PRODUCTION SECRETS
 app.secret_key = os.environ.get('SECRET_KEY', 'default_vulnerable_key_replace_in_prod')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=14)
@@ -120,7 +123,7 @@ if IS_VERCEL:
     FLAG_BASE_PATH = '/tmp'
 else:
     app.config['DB_NAME'] = os.path.join(BASE_PATH, 'database.db')
-    app.config['UPLOAD_FOLDER'] = os.path.join(BASE_PATH, 'static', 'uploads')
+    app.config['UPLOAD_FOLDER'] = os.path.join(STATIC_ROOT, 'uploads')
     FLAG_BASE_PATH = BASE_PATH
 
 # Ensure upload directory exists (silent fail on read-only FS)
@@ -186,7 +189,7 @@ def send_admin_authorization_email(request_type, requester_email, requester_name
     deny_url = f"{app_url}/admin/students#tab-authorization"
 
     if request_type == 'account':
-        subject = "🚨 Action Required: New VulnHub Access Request"
+        subject = "ðŸš¨ Action Required: New VulnHub Access Request"
         request_label = "Account approval"
         detail_lines = [
             f"Identity: {identity_value}",
@@ -196,7 +199,7 @@ def send_admin_authorization_email(request_type, requester_email, requester_name
             f"Admin Queue: {app_url}/admin/students",
         ]
     else:
-        subject = "🚨 Action Required: New VulnHub Access Request"
+        subject = "ðŸš¨ Action Required: New VulnHub Access Request"
         request_label = f"Lab access approval ({lab_id})"
         detail_lines = [
             f"Identity: {identity_value}",
@@ -1289,7 +1292,7 @@ def labs():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static', 'favicon'),
+    return send_from_directory(os.path.join(app.static_folder, 'favicon'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 # -------------------------
@@ -2072,7 +2075,7 @@ def lab2_5_menu():
 def robots_txt_a():
     # Serve real static file
     base_dir = BASE_PATH
-    file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'a')
+    file_dir = os.path.join(STATIC_ROOT, 'lab2', '1', 'a')
     return send_from_directory(file_dir, 'robots.txt')
 
 # Variation B Robots.txt
@@ -2080,7 +2083,7 @@ def robots_txt_a():
 def robots_txt_b():
     # Serve real static file
     base_dir = BASE_PATH
-    file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'b')
+    file_dir = os.path.join(STATIC_ROOT, 'lab2', '1', 'b')
     return send_from_directory(file_dir, 'robots.txt')
 
 # Variation C Robots.txt
@@ -2088,7 +2091,7 @@ def robots_txt_b():
 def robots_txt_c():
     # Serve real static file
     base_dir = BASE_PATH
-    file_dir = os.path.join(base_dir, 'static', 'lab2', '1', 'c')
+    file_dir = os.path.join(STATIC_ROOT, 'lab2', '1', 'c')
     return send_from_directory(file_dir, 'robots.txt')
 
 @app.route('/lab2/1')
@@ -4000,7 +4003,7 @@ def reset_lab5_state():
         if not uid:
             continue
 
-        upload_dir = os.path.join(BASE_PATH, 'static', 'lab5', 'uploads', 'avatars', uid)
+        upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(upload_dir):
             try:
                 shutil.rmtree(upload_dir)
@@ -4162,7 +4165,7 @@ def lab5_1_upload():
     
     # Create User Specific Directory
     base_dir = BASE_PATH
-    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
 
@@ -4189,7 +4192,7 @@ def lab5_1_logout():
     uid = session.get('lab5_1_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4208,7 +4211,7 @@ def lab5_1_file(filename):
     # Filename here will be "uid/actual_filename.ext" because of <path:filename>
     base_dir = BASE_PATH
     # Base upload directory
-    upload_base_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars')
+    upload_base_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars')
     
     # Securely join paths? No, we want to allow access to the file.
     # But let's construct the full path.
@@ -4342,7 +4345,7 @@ def lab5_2_upload():
     filename = file.filename
     
     base_dir = BASE_PATH
-    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
@@ -4367,7 +4370,7 @@ def lab5_2_logout():
     uid = session.get('lab5_2_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4446,7 +4449,7 @@ def lab5_2_b_upload():
     
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
@@ -4468,7 +4471,7 @@ def lab5_2_b_logout():
     if uid:
         import shutil
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4541,7 +4544,7 @@ def lab5_2_c_upload():
     
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
@@ -4563,7 +4566,7 @@ def lab5_2_c_logout():
     if uid:
         import shutil
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4640,7 +4643,7 @@ def lab5_1_b_upload():
     # VULNERABILITY
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     filename = save_lab5_avatar_upload(file, upload_dir)
@@ -4660,7 +4663,7 @@ def lab5_1_b_logout():
     uid = session.get('lab5_1_b_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -4682,8 +4685,8 @@ def lab5_1_c():
     jobs = [
         {'title': 'Senior React Developer', 'company': 'TechFlow', 'location': 'Remote', 'salary': '$120k', 'logo': 'https://ui-avatars.com/api/?name=TF&background=0D8ABC&color=fff'},
         {'title': 'DevOps Engineer', 'company': 'CloudScale', 'location': 'New York, USA', 'salary': '$150k', 'logo': 'https://ui-avatars.com/api/?name=CS&background=ff5722&color=fff'},
-        {'title': 'UX Designer', 'company': 'CreativeBox', 'location': 'London, UK', 'salary': '£65k', 'logo': 'https://ui-avatars.com/api/?name=CB&background=673ab7&color=fff'},
-        {'title': 'Product Manager', 'company': 'Innovate', 'location': 'Berlin, DE', 'salary': '€85k', 'logo': 'https://ui-avatars.com/api/?name=IN&background=4caf50&color=fff'},
+        {'title': 'UX Designer', 'company': 'CreativeBox', 'location': 'London, UK', 'salary': 'Â£65k', 'logo': 'https://ui-avatars.com/api/?name=CB&background=673ab7&color=fff'},
+        {'title': 'Product Manager', 'company': 'Innovate', 'location': 'Berlin, DE', 'salary': 'â‚¬85k', 'logo': 'https://ui-avatars.com/api/?name=IN&background=4caf50&color=fff'},
         {'title': 'Data Scientist', 'company': 'DataMind', 'location': 'Toronto, CA', 'salary': '$135k', 'logo': 'https://ui-avatars.com/api/?name=DM&background=607d8b&color=fff'}
     ]
     return render_template('lab5/sub1_c_home.html', jobs=jobs)
@@ -4737,7 +4740,7 @@ def lab5_1_c_upload():
     # VULNERABILITY
     filename = file.filename
     base_dir = BASE_PATH
-    upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', user_uid)
+    upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', user_uid)
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     filename = save_lab5_avatar_upload(file, upload_dir)
@@ -4757,7 +4760,7 @@ def lab5_1_c_logout():
     uid = session.get('lab5_1_c_uid')
     if uid:
         base_dir = BASE_PATH
-        user_upload_dir = os.path.join(base_dir, 'static', 'lab5', 'uploads', 'avatars', uid)
+        user_upload_dir = os.path.join(STATIC_ROOT, 'lab5', 'uploads', 'avatars', uid)
         if os.path.exists(user_upload_dir):
             try:
                 shutil.rmtree(user_upload_dir)
@@ -5509,7 +5512,7 @@ def _lab7_2_identity(variation, slug):
             'variation': 'variation_A',
             'slug': slug,
             'brand': 'Northstar Office',
-            'icon': '🏢',
+            'icon': 'ðŸ¢',
             'title': 'Northstar Office Portal',
             'subtitle': 'Internal employee access for finance, operations, and leadership reporting.',
             'accent': '#06b6d4',
@@ -5529,7 +5532,7 @@ def _lab7_2_identity(variation, slug):
             'variation': 'variation_B',
             'slug': slug,
             'brand': 'Aegis Workforce',
-            'icon': '🛡️',
+            'icon': 'ðŸ›¡ï¸',
             'title': 'Aegis Workforce Console',
             'subtitle': 'Restricted workforce console for staffing operations, leadership comms, and approval routing.',
             'accent': '#3b82f6',
@@ -5549,7 +5552,7 @@ def _lab7_2_identity(variation, slug):
             'variation': 'variation_C',
             'slug': slug,
             'brand': 'Helix Admin',
-            'icon': '🧬',
+            'icon': 'ðŸ§¬',
             'title': 'Helix Admin Gateway',
             'subtitle': 'Clinical administration gateway for controlled personnel records and scheduling infrastructure.',
             'accent': '#a855f7',
@@ -5912,3 +5915,4 @@ if __name__ == '__main__':
 
     # Cloud-Native Initialization: Local DB sequence decommissioned
     app.run(debug=not IS_VERCEL, use_reloader=not IS_VERCEL, host='0.0.0.0', port=5000)
+

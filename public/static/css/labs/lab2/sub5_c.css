@@ -1,0 +1,77 @@
+/* =========================================
+   Lab 2.5c: DataVault (Emerald Theme)
+   ========================================= */
+
+:root {
+    --vault-primary: #10b981;
+    --vault-secondary: #059669;
+    --vault-bg: #0b0f15;
+    --vault-glass: rgba(16, 185, 129, 0.05);
+    --vault-border: rgba(16, 185, 129, 0.2);
+    --vault-text: #94a3b8;
+}
+
+.vault-header {
+    background: rgba(11, 15, 21, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 2px solid var(--vault-border);
+    padding: 1.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.vault-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vault-logo {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--vault-primary);
+    text-transform: uppercase;
+}
+
+.vault-card {
+    background: var(--vault-glass);
+    border: 1px solid var(--vault-border);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.vault-input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--vault-border);
+    border-radius: 4px;
+    color: var(--vault-primary);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.vault-input:focus {
+    border-color: var(--vault-primary);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    outline: none;
+}
+
+.vault-btn {
+    background: var(--vault-primary);
+    color: black;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-weight: 800;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}

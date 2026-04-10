@@ -1,0 +1,434 @@
+/* =========================================
+   Lab 1.1: DocuVault Premium Styles
+   ========================================= */
+
+/* Header */
+.docuvault-header {
+    background: rgba(14, 165, 233, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(14, 165, 233, 0.18);
+    border-radius: 16px;
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(14, 165, 233, 0.06);
+    margin-bottom: 2rem;
+}
+
+.docuvault-brand {
+    font-weight: 800;
+    font-size: 1.65rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #bae6fd, #0ea5e9);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.docuvault-nav a {
+    color: #bae6fd;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.docuvault-nav a:hover {
+    background: rgba(14, 165, 233, 0.15);
+    color: #ffffff;
+}
+
+/* Hero Section */
+.docuvault-hero {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(56, 189, 248, 0.04));
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    color: white;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.docuvault-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.2), transparent 60%);
+    pointer-events: none;
+}
+
+.docuvault-hero::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.5), transparent);
+}
+
+/* Typography & Layout */
+.docuvault-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
+}
+
+.breadcrumb {
+    margin-bottom: 2rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.breadcrumb span.active {
+    color: #bae6fd;
+    font-weight: 600;
+}
+
+/* === Card Grid Layout === */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* File Cards */
+.file-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(51, 65, 85, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.4), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.file-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(14, 165, 233, 0.4);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(14, 165, 233, 0.12);
+    background: rgba(15, 23, 42, 0.85);
+}
+
+.file-card:hover::before {
+    opacity: 1;
+}
+
+.file-icon {
+    font-size: 2.25rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    margin-right: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+/* File Type Colors */
+.icon-pdf { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239, 68, 68, 0.2); }
+.icon-doc { background: rgba(59, 130, 246, 0.12); color: #93c5fd; border-color: rgba(59, 130, 246, 0.2); }
+.icon-xls { background: rgba(34, 197, 94, 0.12); color: #86efac; border-color: rgba(34, 197, 94, 0.2); }
+.icon-img { background: rgba(236, 72, 153, 0.12); color: #f9a8d4; border-color: rgba(236, 72, 153, 0.2); }
+.icon-zip { background: rgba(245, 158, 11, 0.12); color: #fcd34d; border-color: rgba(245, 158, 11, 0.2); }
+.icon-txt { background: rgba(148, 163, 184, 0.12); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.2); }
+
+/* Buttons */
+.btn-docuvault {
+    background: rgba(14, 165, 233, 0.12);
+    border: 1px solid rgba(14, 165, 233, 0.35);
+    color: #7dd3fc !important;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-docuvault:hover {
+    background: rgba(14, 165, 233, 0.22);
+    border-color: #38bdf8;
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    background: transparent;
+    border: 1px solid rgba(71, 85, 105, 0.5);
+    color: #94a3b8;
+    transition: all 0.2s;
+    border-radius: 8px;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    border-color: rgba(148, 163, 184, 0.4);
+}
+
+/* Information Banner */
+.info-banner {
+    margin-top: 3rem;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    border-left: 4px solid #0ea5e9;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+/* Quick Actions */
+.quick-action-card {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.quick-action-card:hover {
+    background: rgba(15, 23, 42, 0.7);
+    border-color: rgba(14, 165, 233, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* File Activity Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.status-recent { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.5); }
+.status-archived { background: #64748b; }
+
+/* Back Button */
+.docuvault-back-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Header Layout */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.docuvault-nav {
+    display: flex;
+    gap: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.btn-upload {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+}
+
+/* Hero Content */
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.docuvault-subtitle {
+    font-size: 1.05rem;
+    color: #bae6fd;
+    margin-top: 0.5rem;
+    opacity: 0.9;
+}
+
+/* Grid Header */
+.grid-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+}
+
+.grid-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    color: #ffffff;
+}
+
+.grid-title-icon {
+    color: #38bdf8;
+}
+
+.file-count {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: 500;
+    background: rgba(14, 165, 233, 0.08);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(14, 165, 233, 0.18);
+}
+
+/* Card Internal Layout */
+.card-top {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.card-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #f8fafc;
+}
+
+.card-status {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.btn-download {
+    flex: 1;
+    padding: 0.6rem;
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+.btn-options {
+    padding: 0.6rem 0.85rem;
+    border-radius: 8px;
+}
+
+/* Info Banner Inner */
+.banner-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.banner-icon {
+    font-size: 2rem;
+    background: rgba(56, 189, 248, 0.08);
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    flex-shrink: 0;
+}
+
+.banner-title {
+    margin-bottom: 0.35rem;
+    color: #bae6fd;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.banner-text {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Quick Actions Grid */
+.quick-actions {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+}
+
+.action-icon {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+    color: #38bdf8;
+}
+
+.action-title {
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+.action-desc {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-actions {
+        gap: 0.75rem;
+    }
+
+    .docuvault-nav {
+        display: none;
+    }
+}
