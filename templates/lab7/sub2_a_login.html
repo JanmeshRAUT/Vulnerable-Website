@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}{{ identity.brand }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<style>
+    .northstar-shell {
+        min-height: 100vh;
+        padding: 2rem;
+        background:
+            radial-gradient(circle at 14% 12%, rgba(255,255,255,0.10), transparent 35%),
+            radial-gradient(circle at 85% 82%, rgba(6,182,212,0.22), transparent 34%),
+            linear-gradient(145deg, #071223 0%, #0d2038 60%, #0a1729 100%);
+    }
+    .northstar-frame {
+        max-width: 1140px;
+        margin: 0 auto;
+        border: 1px solid rgba(148, 163, 184, 0.26);
+        border-radius: 24px;
+        background: rgba(6, 10, 20, 0.74);
+        box-shadow: 0 24px 60px rgba(2, 8, 23, 0.55);
+        overflow: hidden;
+    }
+    .northstar-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        backdrop-filter: blur(8px);
+    }
+    .northstar-brand {
+        color: #e5f6fb;
+        text-decoration: none;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+    }
+    .northstar-pill {
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8be9ff;
+        border: 1px solid rgba(139, 233, 255, 0.38);
+        padding: 0.3rem 0.55rem;
+        border-radius: 999px;
+    }
+    .northstar-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 0;
+    }
+    .northstar-left {
+        padding: 2.2rem;
+        background: linear-gradient(180deg, rgba(14, 116, 144, 0.22), rgba(2, 6, 23, 0.8));
+        border-right: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .northstar-left h1 {
+        margin: 0.9rem 0;
+        color: #f8fdff;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        line-height: 0.98;
+    }
+    .northstar-left p,
+    .northstar-left li {
+        color: #c5d8e8;
+        line-height: 1.7;
+    }
+    .northstar-right {
+        padding: 2.2rem;
+        background: rgba(2, 6, 23, 0.78);
+    }
+    .northstar-right h2 { color: #fff; margin-top: 0; }
+    .northstar-field { margin-bottom: 0.95rem; }
+    .northstar-field label {
+        display: block;
+        margin-bottom: 0.45rem;
+        color: #bae6fd;
+        font-weight: 700;
+    }
+    .northstar-field input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.85rem 0.95rem;
+        border-radius: 12px;
+        border: 1px solid rgba(56, 189, 248, 0.34);
+        background: rgba(8, 15, 29, 0.8);
+        color: #fff;
+    }
+    .northstar-field input:focus {
+        outline: none;
+        border-color: rgba(125, 211, 252, 0.8);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+    .northstar-submit {
+        width: 100%;
+        border: none;
+        border-radius: 12px;
+        margin-top: 0.25rem;
+        padding: 0.85rem 1rem;
+        color: #042f2e;
+        background: linear-gradient(135deg, #67e8f9, #06b6d4);
+        font-weight: 800;
+        cursor: pointer;
+    }
+    .northstar-error,
+    .northstar-success,
+    .northstar-box {
+        border-radius: 12px;
+        padding: 0.85rem 0.95rem;
+        margin-bottom: 0.85rem;
+    }
+    .northstar-error {
+        color: #fecaca;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        background: rgba(127, 29, 29, 0.28);
+    }
+    .northstar-success {
+        color: #bbf7d0;
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        background: rgba(20, 83, 45, 0.35);
+    }
+    .northstar-box {
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        background: rgba(15, 23, 42, 0.74);
+        color: #dbeafe;
+    }
+    .northstar-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.55rem 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .northstar-row:last-child { border-bottom: none; }
+    .northstar-row strong { color: #67e8f9; }
+    .northstar-box code {
+        display: block;
+        margin-top: 0.45rem;
+        font-family: 'JetBrains Mono', monospace;
+        word-break: break-all;
+    }
+    .northstar-links {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.9rem;
+        gap: 0.8rem;
+    }
+    .northstar-links a {
+        color: #7dd3fc;
+        text-decoration: none;
+        font-weight: 700;
+    }
+    @media (max-width: 960px) {
+        .northstar-shell { padding: 1rem; }
+        .northstar-grid { grid-template-columns: 1fr; }
+        .northstar-left { border-right: none; border-bottom: 1px solid rgba(148, 163, 184, 0.2); }
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="northstar-shell">
+    <section class="northstar-frame">
+        <div class="northstar-top">
+            <a href="{{ identity.home_url }}" class="northstar-brand"><span>{{ identity.icon }}</span><span>{{ identity.brand }}</span></a>
+            <span class="northstar-pill">Lab 7.2.A</span>
+        </div>
+        <div class="northstar-grid">
+            <article class="northstar-left">
+                <span class="northstar-pill">Executive Access Console</span>
+                <h1>{{ identity.title }}</h1>
+                <p>{{ identity.subtitle }}</p>
+                <ul>
+                    <li>Observe authentication behavior before and after crafted input.</li>
+                    <li>Determine whether password validation can be bypassed.</li>
+                    <li>Capture the post-auth state transition evidence.</li>
+                </ul>
+            </article>
+            <article class="northstar-right">
+                <h2>Staff Authentication</h2>
+
+                {% if error %}
+                <div class="northstar-error"><strong>Login failed:</strong> {{ error }}</div>
+                {% endif %}
+
+                {% if success and user_info %}
+                <div class="northstar-success"><strong>Authentication accepted.</strong> Administrative access granted.</div>
+                <div class="northstar-box">
+                    <div class="northstar-row"><strong>Employee ID</strong><span>{{ user_info.employee_id }}</span></div>
+                    <div class="northstar-row"><strong>Username</strong><span>{{ user_info.username }}</span></div>
+                    <div class="northstar-row"><strong>Department</strong><span>{{ user_info.department }}</span></div>
+                    <div class="northstar-row"><strong>Role</strong><span>{{ user_info.role }}</span></div>
+                    <div class="northstar-row"><strong>Email</strong><span>{{ user_info.email }}</span></div>
+                </div>
+                {% if query %}
+                <div class="northstar-box"><strong>Executed Query</strong><code>{{ query }}</code></div>
+                {% endif %}
+                {% else %}
+                <form method="POST">
+                    <div class="northstar-field">
+                        <label for="username">Username</label>
+                        <input id="username" name="username" type="text" placeholder="Enter your username" autocomplete="off" required>
+                    </div>
+                    <div class="northstar-field">
+                        <label for="password">Password</label>
+                        <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="off" required>
+                    </div>
+                    <button type="submit" class="northstar-submit">Authenticate</button>
+                </form>
+                {% endif %}
+
+                <div class="northstar-links">
+                    <a href="{{ url_for('lab7_2_menu') }}">Back to Variants</a>
+                    <a href="{{ identity.home_url }}">Back to Site</a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    {% if flag %}
+    <div style="position: fixed; top: 1.2rem; right: 1.2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1rem 1.3rem; border-radius: 10px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 420px;">
+        <p style="margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.45rem;">Challenge Completed</p>
+        <p style="margin: 0; font-family: monospace; font-size: 1rem; color: white; word-break: break-all;">{{ flag }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

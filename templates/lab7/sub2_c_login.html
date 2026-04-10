@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block title %}{{ identity.brand }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<style>
+    .helix-shell {
+        min-height: 100vh;
+        padding: 2rem;
+        background:
+            radial-gradient(circle at 18% 14%, rgba(255,255,255,0.1), transparent 34%),
+            radial-gradient(circle at 80% 86%, rgba(192, 132, 252, 0.26), transparent 36%),
+            linear-gradient(155deg, #120b22 0%, #211338 56%, #0f1020 100%);
+    }
+    .helix-layout {
+        max-width: 1080px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .helix-nav,
+    .helix-hero,
+    .helix-auth {
+        border: 1px dashed rgba(216, 180, 254, 0.46);
+        border-radius: 24px;
+        background: rgba(8, 6, 20, 0.8);
+    }
+    .helix-nav {
+        padding: 1rem 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    .helix-nav a {
+        color: #f5d0fe;
+        text-decoration: none;
+        font-weight: 800;
+    }
+    .helix-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.32rem 0.58rem;
+        border-radius: 999px;
+        border: 1px dashed rgba(216, 180, 254, 0.6);
+        color: #e9d5ff;
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .helix-hero {
+        padding: 1.6rem 1.8rem;
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 1rem;
+    }
+    .helix-hero h1 {
+        margin: 0.8rem 0;
+        color: #faf5ff;
+        font-size: clamp(2rem, 3.8vw, 3rem);
+        line-height: 1;
+    }
+    .helix-hero p,
+    .helix-hero li { color: #e9d5ff; line-height: 1.72; }
+    .helix-callout {
+        border: 1px dashed rgba(216, 180, 254, 0.5);
+        border-radius: 18px;
+        padding: 0.95rem 1rem;
+        background: rgba(126, 34, 206, 0.12);
+        color: #f5d0fe;
+    }
+    .helix-auth {
+        padding: 1.55rem 1.8rem;
+        background: linear-gradient(180deg, rgba(88, 28, 135, 0.2), rgba(8, 6, 20, 0.9));
+    }
+    .helix-auth h2 { margin-top: 0; color: #faf5ff; }
+    .helix-group { margin-bottom: 0.9rem; }
+    .helix-group label {
+        display: block;
+        margin-bottom: 0.45rem;
+        color: #f5d0fe;
+        font-weight: 700;
+    }
+    .helix-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.82rem 0.92rem;
+        border-radius: 12px;
+        border: 1px dashed rgba(216, 180, 254, 0.56);
+        background: rgba(30, 27, 75, 0.72);
+        color: #fff;
+    }
+    .helix-group input:focus {
+        outline: none;
+        border-color: rgba(233, 213, 255, 0.9);
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.22);
+    }
+    .helix-submit {
+        width: 100%;
+        border: 1px dashed rgba(250, 245, 255, 0.55);
+        border-radius: 12px;
+        padding: 0.82rem 1rem;
+        color: #fff;
+        background: linear-gradient(135deg, #c084fc, #9333ea);
+        font-weight: 800;
+        cursor: pointer;
+    }
+    .helix-error,
+    .helix-success,
+    .helix-box {
+        border-radius: 12px;
+        padding: 0.78rem 0.88rem;
+        margin-bottom: 0.75rem;
+        border: 1px dashed rgba(216, 180, 254, 0.45);
+    }
+    .helix-error { color: #fecaca; background: rgba(127, 29, 29, 0.36); }
+    .helix-success { color: #bbf7d0; background: rgba(20, 83, 45, 0.36); }
+    .helix-box { color: #f3e8ff; background: rgba(76, 29, 149, 0.22); }
+    .helix-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.48rem 0;
+        border-bottom: 1px dashed rgba(216, 180, 254, 0.35);
+    }
+    .helix-row:last-child { border-bottom: none; }
+    .helix-row strong { color: #e9d5ff; }
+    .helix-box code {
+        display: block;
+        margin-top: 0.4rem;
+        font-family: 'JetBrains Mono', monospace;
+        word-break: break-all;
+    }
+    .helix-links {
+        margin-top: 0.8rem;
+        display: flex;
+        gap: 0.95rem;
+        flex-wrap: wrap;
+    }
+    .helix-links a { color: #f5d0fe; text-decoration: none; font-weight: 700; }
+    @media (max-width: 960px) {
+        .helix-shell { padding: 1rem; }
+        .helix-hero { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="helix-shell">
+    <div class="helix-layout">
+        <nav class="helix-nav">
+            <a href="{{ identity.home_url }}">{{ identity.icon }} {{ identity.brand }}</a>
+            <span class="helix-chip">Lab 7.2.C</span>
+        </nav>
+
+        <section class="helix-hero">
+            <div>
+                <span class="helix-chip">Clinical Control Gateway</span>
+                <h1>{{ identity.title }}</h1>
+                <p>{{ identity.subtitle }}</p>
+                <ul>
+                    <li>Inspect whether identity input modifies query intent.</li>
+                    <li>Test if credential checks can be bypassed by crafted usernames.</li>
+                    <li>Capture privileged context and completion signal.</li>
+                </ul>
+            </div>
+            <aside class="helix-callout">
+                <strong>Operator Brief</strong>
+                <p style="margin-bottom:0;">This gateway controls administrative scheduling and role-scoped records for internal users. Validate the login boundary behavior under tampered input.</p>
+            </aside>
+        </section>
+
+        <section class="helix-auth">
+            <h2>Administrative Authentication</h2>
+
+            {% if error %}
+            <div class="helix-error"><strong>Login failed:</strong> {{ error }}</div>
+            {% endif %}
+
+            {% if success and user_info %}
+            <div class="helix-success"><strong>Authentication accepted.</strong> Administrative access granted.</div>
+            <div class="helix-box">
+                <div class="helix-row"><strong>Employee ID</strong><span>{{ user_info.employee_id }}</span></div>
+                <div class="helix-row"><strong>Username</strong><span>{{ user_info.username }}</span></div>
+                <div class="helix-row"><strong>Department</strong><span>{{ user_info.department }}</span></div>
+                <div class="helix-row"><strong>Role</strong><span>{{ user_info.role }}</span></div>
+                <div class="helix-row"><strong>Email</strong><span>{{ user_info.email }}</span></div>
+            </div>
+            {% if query %}
+            <div class="helix-box"><strong>Executed Query</strong><code>{{ query }}</code></div>
+            {% endif %}
+            {% else %}
+            <form method="POST">
+                <div class="helix-group">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" placeholder="Enter your username" autocomplete="off" required>
+                </div>
+                <div class="helix-group">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="off" required>
+                </div>
+                <button type="submit" class="helix-submit">Authenticate</button>
+            </form>
+            {% endif %}
+
+            <div class="helix-links">
+                <a href="{{ url_for('lab7_2_menu') }}">Back to Variants</a>
+                <a href="{{ identity.home_url }}">Back to Site</a>
+            </div>
+        </section>
+    </div>
+
+    {% if flag %}
+    <div style="position: fixed; top: 1.2rem; right: 1.2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1rem 1.3rem; border-radius: 10px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 420px;">
+        <p style="margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.45rem;">Challenge Completed</p>
+        <p style="margin: 0; font-family: monospace; font-size: 1rem; color: white; word-break: break-all;">{{ flag }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

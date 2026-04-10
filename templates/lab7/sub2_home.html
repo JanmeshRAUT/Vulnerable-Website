@@ -149,11 +149,54 @@
         .lab72-home-shell { padding: 1rem; }
         .lab72-hero { padding: 1.6rem; }
     }
+
+    .lab72-home-shell.lab72-theme-northstar .lab72-home-topbar {
+        border-radius: 14px;
+        backdrop-filter: blur(8px);
+    }
+    .lab72-home-shell.lab72-theme-northstar .lab72-hero {
+        border-radius: 30px;
+        background: radial-gradient(circle at 82% 12%, color-mix(in srgb, var(--accent) 38%, transparent), transparent 34%),
+                    linear-gradient(180deg, color-mix(in srgb, var(--accent) 24%, #0f172a) 0%, rgba(8, 15, 29, 0.92) 100%);
+    }
+
+    .lab72-home-shell.lab72-theme-aegis {
+        background-image:
+            repeating-linear-gradient(125deg, rgba(255,255,255,0.028) 0 2px, transparent 2px 18px),
+            var(--page-gradient);
+    }
+    .lab72-home-shell.lab72-theme-aegis .lab72-home-topbar,
+    .lab72-home-shell.lab72-theme-aegis .lab72-feature,
+    .lab72-home-shell.lab72-theme-aegis .lab72-operator-note {
+        border-radius: 10px;
+        border-width: 2px;
+    }
+    .lab72-home-shell.lab72-theme-aegis .lab72-hero {
+        border-radius: 12px;
+        background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 32%, #0f172a), #0b1220 62%);
+    }
+
+    .lab72-home-shell.lab72-theme-helix {
+        background-image:
+            radial-gradient(circle at 18% 12%, rgba(255,255,255,0.08), transparent 38%),
+            radial-gradient(circle at 84% 78%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 42%),
+            var(--page-gradient);
+    }
+    .lab72-home-shell.lab72-theme-helix .lab72-home-topbar,
+    .lab72-home-shell.lab72-theme-helix .lab72-feature,
+    .lab72-home-shell.lab72-theme-helix .lab72-operator-note {
+        border-radius: 24px;
+        border-style: dashed;
+    }
+    .lab72-home-shell.lab72-theme-helix .lab72-hero {
+        border-radius: 42px;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 34%, #0e1324) 0%, rgba(8, 15, 29, 0.94) 100%);
+    }
 </style>
 {% endblock %}
 
 {% block layout_container %}
-<div class="lab72-home-shell" style="--accent: {{ identity.accent }}; --page-gradient: {{ identity.gradient }};">
+<div class="lab72-home-shell lab72-theme-{{ identity.theme }}" style="--accent: {{ identity.accent }}; --page-gradient: {{ identity.gradient }};">
     <nav class="lab72-home-topbar">
         <a href="{{ identity.home_url }}" class="lab72-home-brand">
             <span class="lab72-home-mark">{{ identity.icon }}</span>

@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block title %}{{ identity.brand }}{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lab7.css') }}">
+<style>
+    .aegis-shell {
+        min-height: 100vh;
+        padding: 2rem;
+        background:
+            repeating-linear-gradient(125deg, rgba(59, 130, 246, 0.08) 0 2px, transparent 2px 18px),
+            linear-gradient(145deg, #09111d 0%, #16263f 100%);
+    }
+    .aegis-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 0.86fr 1.14fr;
+        gap: 1rem;
+    }
+    .aegis-nav,
+    .aegis-card,
+    .aegis-panel {
+        border: 2px solid rgba(148, 163, 184, 0.34);
+        border-radius: 10px;
+        background: rgba(3, 7, 18, 0.84);
+    }
+    .aegis-nav {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.95rem 1rem;
+    }
+    .aegis-nav a {
+        color: #dbeafe;
+        text-decoration: none;
+        font-weight: 800;
+    }
+    .aegis-tag {
+        color: #93c5fd;
+        border: 1px solid rgba(147, 197, 253, 0.45);
+        border-radius: 999px;
+        padding: 0.25rem 0.55rem;
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .aegis-card {
+        padding: 1.25rem;
+    }
+    .aegis-card h1 {
+        margin: 0.8rem 0;
+        font-size: clamp(1.9rem, 3.8vw, 2.7rem);
+        color: #f8fafc;
+        line-height: 1.05;
+    }
+    .aegis-card p,
+    .aegis-card li { color: #bfdbfe; line-height: 1.7; }
+    .aegis-panel {
+        padding: 1.25rem;
+        background: linear-gradient(180deg, rgba(37, 99, 235, 0.16), rgba(2, 6, 23, 0.9));
+    }
+    .aegis-panel h2 { margin-top: 0; color: #fff; }
+    .aegis-group { margin-bottom: 0.9rem; }
+    .aegis-group label {
+        display: block;
+        margin-bottom: 0.45rem;
+        color: #bfdbfe;
+        font-weight: 700;
+    }
+    .aegis-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.82rem 0.9rem;
+        border: 2px solid rgba(96, 165, 250, 0.34);
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.85);
+        color: #fff;
+    }
+    .aegis-group input:focus {
+        outline: none;
+        border-color: rgba(147, 197, 253, 0.8);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .aegis-btn {
+        width: 100%;
+        border: 2px solid rgba(219, 234, 254, 0.4);
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        background: linear-gradient(135deg, #60a5fa, #2563eb);
+        color: #fff;
+        font-weight: 800;
+        cursor: pointer;
+    }
+    .aegis-msg,
+    .aegis-ok,
+    .aegis-box {
+        border-radius: 8px;
+        padding: 0.75rem 0.85rem;
+        margin-bottom: 0.8rem;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+    .aegis-msg { color: #fecaca; background: rgba(127, 29, 29, 0.35); }
+    .aegis-ok { color: #bbf7d0; background: rgba(20, 83, 45, 0.35); }
+    .aegis-box { color: #dbeafe; background: rgba(2, 6, 23, 0.65); }
+    .aegis-row {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 0.5rem;
+        padding: 0.45rem 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .aegis-row:last-child { border-bottom: none; }
+    .aegis-row strong { color: #93c5fd; }
+    .aegis-box code {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        margin-top: 0.4rem;
+        word-break: break-all;
+    }
+    .aegis-links {
+        margin-top: 0.75rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .aegis-links a { color: #bfdbfe; text-decoration: none; font-weight: 700; }
+    @media (max-width: 960px) {
+        .aegis-shell { padding: 1rem; }
+        .aegis-wrap { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block layout_container %}
+<div class="aegis-shell">
+    <div class="aegis-wrap">
+        <nav class="aegis-nav">
+            <a href="{{ identity.home_url }}">{{ identity.icon }} {{ identity.brand }}</a>
+            <span class="aegis-tag">Lab 7.2.B</span>
+        </nav>
+
+        <section class="aegis-card">
+            <span class="aegis-tag">Protected Staffing Console</span>
+            <h1>{{ identity.title }}</h1>
+            <p>{{ identity.subtitle }}</p>
+            <ul>
+                <li>Inspect how user input affects the login verification path.</li>
+                <li>Validate the difference between normal rejection and bypass success.</li>
+                <li>Document the query output and returned user context.</li>
+            </ul>
+        </section>
+
+        <section class="aegis-panel">
+            <h2>Workforce Authentication</h2>
+
+            {% if error %}
+            <div class="aegis-msg"><strong>Login failed:</strong> {{ error }}</div>
+            {% endif %}
+
+            {% if success and user_info %}
+            <div class="aegis-ok"><strong>Authentication accepted.</strong> Administrative access granted.</div>
+            <div class="aegis-box">
+                <div class="aegis-row"><strong>Employee ID</strong><span>{{ user_info.employee_id }}</span></div>
+                <div class="aegis-row"><strong>Username</strong><span>{{ user_info.username }}</span></div>
+                <div class="aegis-row"><strong>Department</strong><span>{{ user_info.department }}</span></div>
+                <div class="aegis-row"><strong>Role</strong><span>{{ user_info.role }}</span></div>
+                <div class="aegis-row"><strong>Email</strong><span>{{ user_info.email }}</span></div>
+            </div>
+            {% if query %}
+            <div class="aegis-box"><strong>Executed Query</strong><code>{{ query }}</code></div>
+            {% endif %}
+            {% else %}
+            <form method="POST">
+                <div class="aegis-group">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" placeholder="Enter your username" autocomplete="off" required>
+                </div>
+                <div class="aegis-group">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="off" required>
+                </div>
+                <button type="submit" class="aegis-btn">Authenticate</button>
+            </form>
+            {% endif %}
+
+            <div class="aegis-links">
+                <a href="{{ url_for('lab7_2_menu') }}">Back to Variants</a>
+                <a href="{{ identity.home_url }}">Back to Site</a>
+            </div>
+        </section>
+    </div>
+
+    {% if flag %}
+    <div style="position: fixed; top: 1.2rem; right: 1.2rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9)); padding: 1rem 1.3rem; border-radius: 10px; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3); z-index: 1000; max-width: 420px;">
+        <p style="margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); margin-bottom: 0.45rem;">Challenge Completed</p>
+        <p style="margin: 0; font-family: monospace; font-size: 1rem; color: white; word-break: break-all;">{{ flag }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

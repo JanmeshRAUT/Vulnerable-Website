@@ -228,11 +228,52 @@
         .lab72-shell { padding: 1rem; }
         .lab72-brief, .lab72-auth { padding: 1.5rem; }
     }
+
+    .lab72-shell.lab72-theme-northstar .lab72-topbar {
+        border-radius: 14px;
+        backdrop-filter: blur(8px);
+    }
+    .lab72-shell.lab72-theme-northstar .lab72-brief,
+    .lab72-shell.lab72-theme-northstar .lab72-auth {
+        border-radius: 28px;
+    }
+
+    .lab72-shell.lab72-theme-aegis {
+        background-image:
+            repeating-linear-gradient(125deg, rgba(255,255,255,0.028) 0 2px, transparent 2px 18px),
+            var(--page-gradient);
+    }
+    .lab72-shell.lab72-theme-aegis .lab72-topbar,
+    .lab72-shell.lab72-theme-aegis .lab72-brief,
+    .lab72-shell.lab72-theme-aegis .lab72-auth,
+    .lab72-shell.lab72-theme-aegis .lab72-form-input,
+    .lab72-shell.lab72-theme-aegis .lab72-submit {
+        border-radius: 10px;
+    }
+    .lab72-shell.lab72-theme-aegis .lab72-brief {
+        background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 34%, #101828), #0a1222 68%);
+    }
+
+    .lab72-shell.lab72-theme-helix {
+        background-image:
+            radial-gradient(circle at 16% 10%, rgba(255,255,255,0.08), transparent 36%),
+            radial-gradient(circle at 85% 80%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 45%),
+            var(--page-gradient);
+    }
+    .lab72-shell.lab72-theme-helix .lab72-topbar,
+    .lab72-shell.lab72-theme-helix .lab72-brief,
+    .lab72-shell.lab72-theme-helix .lab72-auth {
+        border-radius: 24px;
+        border-style: dashed;
+    }
+    .lab72-shell.lab72-theme-helix .lab72-brief {
+        background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 34%, #101828), #0b1220 72%);
+    }
 </style>
 {% endblock %}
 
 {% block layout_container %}
-<div class="lab72-shell" style="--accent: {{ identity.accent }}; --page-gradient: {{ identity.gradient }};">
+<div class="lab72-shell lab72-theme-{{ identity.theme }}" style="--accent: {{ identity.accent }}; --page-gradient: {{ identity.gradient }};">
     <nav class="lab72-topbar">
         <a href="{{ identity.home_url }}" class="lab72-brand">
             <span class="lab72-brand-mark">{{ identity.icon }}</span>

@@ -4233,7 +4233,7 @@ def lab5_1_login():
 
 @app.route('/lab5/1/account')
 def lab5_1_account():
-    username = session.get('lab5_1_user')
+    username = ensure_lab5_1_user_session()
     if not username:
         return redirect(url_for('lab5_1_login'))
     
@@ -4246,6 +4246,22 @@ def lab5_1_account():
     flag = session.get('lab5_1_flag')
     
     return render_template('lab5/sub1_account.html', username=username, avatar=avatar_url, flag=flag)
+
+
+def ensure_lab5_1_user_session():
+    """Backfill Lab 5.1 session from the main signed-in identity when available."""
+    username = session.get('lab5_1_user')
+    if username:
+        return username
+
+    fallback_identity = (session.get('username') or session.get('email') or '').strip()
+    if not fallback_identity:
+        return None
+
+    session['lab5_1_user'] = fallback_identity
+    if 'lab5_1_uid' not in session:
+        session['lab5_1_uid'] = str(uuid.uuid4())
+    return fallback_identity
 
 
 def save_lab5_avatar_upload(file_obj, upload_dir):
@@ -4308,7 +4324,7 @@ def extract_lab5_flag_from_upload(file_path, lab_id):
 
 @app.route('/lab5/1/upload', methods=['POST'])
 def lab5_1_upload():
-    if 'lab5_1_user' not in session:
+    if not ensure_lab5_1_user_session():
         return redirect(url_for('lab5_1_login'))
         
     if 'avatar' not in request.files:
@@ -5652,7 +5668,10 @@ def lab7_2():
 
 @app.route('/lab7/2/login', methods=['GET', 'POST'])
 def lab7_2_login():
-    return _render_lab7_2_variant(identity=_lab7_2_identity('variation_A', 'a'))
+    return _render_lab7_2_variant(
+        identity=_lab7_2_identity('variation_A', 'a'),
+        template_name='lab7/sub2_a_login.html'
+    )
 
 @app.route('/lab7/2/b')
 def lab7_2_b():
@@ -5660,7 +5679,10 @@ def lab7_2_b():
 
 @app.route('/lab7/2/b/login', methods=['GET', 'POST'])
 def lab7_2_b_login():
-    return _render_lab7_2_variant(identity=_lab7_2_identity('variation_B', 'b'))
+    return _render_lab7_2_variant(
+        identity=_lab7_2_identity('variation_B', 'b'),
+        template_name='lab7/sub2_b_login.html'
+    )
 
 @app.route('/lab7/2/c')
 def lab7_2_c():
@@ -5668,13 +5690,17 @@ def lab7_2_c():
 
 @app.route('/lab7/2/c/login', methods=['GET', 'POST'])
 def lab7_2_c_login():
-    return _render_lab7_2_variant(identity=_lab7_2_identity('variation_C', 'c'))
+    return _render_lab7_2_variant(
+        identity=_lab7_2_identity('variation_C', 'c'),
+        template_name='lab7/sub2_c_login.html'
+    )
 
 def _lab7_2_identity(variation, slug):
     identity_map = {
         'variation_A': {
             'variation': 'variation_A',
             'slug': slug,
+            'theme': 'northstar',
             'brand': 'Northstar Office',
             'icon': 'ðŸ¢',
             'title': 'Northstar Office Portal',
@@ -5695,6 +5721,7 @@ def _lab7_2_identity(variation, slug):
         'variation_B': {
             'variation': 'variation_B',
             'slug': slug,
+            'theme': 'aegis',
             'brand': 'Aegis Workforce',
             'icon': 'ðŸ›¡ï¸',
             'title': 'Aegis Workforce Console',
@@ -5715,6 +5742,7 @@ def _lab7_2_identity(variation, slug):
         'variation_C': {
             'variation': 'variation_C',
             'slug': slug,
+            'theme': 'helix',
             'brand': 'Helix Admin',
             'icon': 'ðŸ§¬',
             'title': 'Helix Admin Gateway',
@@ -5742,7 +5770,7 @@ def _lab7_2_identity(variation, slug):
     )
     return identity
 
-def _render_lab7_2_variant(identity):
+def _render_lab7_2_variant(identity, template_name='lab7/sub2_login.html'):
     error = None
     success = False
     flag = None
@@ -5780,7 +5808,7 @@ def _render_lab7_2_variant(identity):
             error = "Invalid credentials."
 
     return render_template(
-        'lab7/sub2_login.html',
+        template_name,
         error=error,
         success=success,
         flag=flag,
