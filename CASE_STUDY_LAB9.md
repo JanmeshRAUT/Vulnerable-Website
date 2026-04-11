@@ -11,11 +11,63 @@
 
 ## Executive Summary
 
-SecureApp released an Android APK with multiple secret extraction vulnerabilities across different storage and embedding contexts. Each variant demonstrates a different type of secret exposure through distinct analysis techniques. Your task is to extract secrets using appropriate tools for each variant (decompilation, manifest parsing, metadata extraction, etc.).
+SecureApp now exposes a single mobile-binary analysis workflow. The current build does not use the variant-wise Lab 9.1/9.2/9.3/9.4 route structure shown later in this document. Instead, the active flow is:
+
+1. Open the analyzer at `/lab9`
+2. Optionally download the bundled sample APK from `/lab9/sample`
+3. Upload an APK to `/lab9/analyze`
+4. Review `package_name`, `binary_hash`, `findings`, `archive_contents`, and `flags_found`
+5. Export the report with `/lab9/export`
+
+The scanner performs signature-based static analysis on the uploaded binary. It looks for flags, AWS keys, Google API keys, Sentinel Research URLs, Firebase hostnames, IPv4 addresses, and archive markers such as DEX and native libraries.
+
+The sample APK includes a dynamic flag embedded in `res/values/strings.xml`, plus additional mock secrets in `assets/secrets.conf`.
+
+---
+
+## Current Build Alignment
+
+### Active Entry Point
+- `/lab9`
+
+### Active Analyzer Endpoint
+- `/lab9/analyze`
+
+### Active Export Endpoint
+- `/lab9/export`
+
+### Optional Sample Download
+- `/lab9/sample`
+
+### Correct Current Workflow
+1. Open `/lab9`
+2. Download `/lab9/sample` if you need a test APK
+3. Upload the APK to `/lab9/analyze`
+4. Confirm the scan returns `flags_found` and `findings`
+5. Click export or POST the same JSON to `/lab9/export`
+6. Save the generated forensic report
+
+### What the Current Build Actually Detects
+- `FLAG{...}` values in the binary stream
+- `AKIA...` AWS keys
+- `AIza...` Google or Maps keys
+- `https://*.sentinel-research.io...` URLs
+- `*.firebaseio.com` hostnames
+- IPv4 literals
+- Presence of `.dex` and `.so` files in the APK archive
+
+### What the Current Build Does Not Require
+- JADX decompilation is not required by the app
+- Manifest parsing is not required by the app
+- Variant-specific routes are not present in the current build
 
 ---
 
 # Lab 9.1 - Hardcoded Credentials in Source Code
+
+## Legacy Reference Only
+
+The sections below are historical variant narratives and do not reflect the current code paths. Use the Current Build Alignment section above for the active workflow.
 
 ## Variant 9.1 A: Plaintext Database Credentials in Code
 
