@@ -96,9 +96,11 @@ def get_or_refresh_access_gate_cache(email, force_refresh=False, preloaded_user=
 
     approved_lab_ids = set()
     approved_family_ids = set()
+    has_explicit_lab_access = False
 
     if is_approved:
         approved_enrollments = firebase_store.get_user_lab_enrollments(email)
+        has_explicit_lab_access = len(approved_enrollments) > 0
         for enrollment in approved_enrollments:
             if enrollment.get('approval_status') != 'approved':
                 continue
@@ -112,6 +114,7 @@ def get_or_refresh_access_gate_cache(email, force_refresh=False, preloaded_user=
         'is_approved': is_approved,
         'approved_lab_ids': approved_lab_ids,
         'approved_family_ids': approved_family_ids,
+        'has_explicit_lab_access': has_explicit_lab_access,
         'ts': now_ts,
     }
 
@@ -119,6 +122,15 @@ def get_or_refresh_access_gate_cache(email, force_refresh=False, preloaded_user=
         ACCESS_GATE_CACHE[email] = refreshed
 
     return refreshed
+
+
+def invalidate_access_gate_cache(email=None):
+    """Clear cached access checks globally or for one user."""
+    with ACCESS_GATE_CACHE_LOCK:
+        if email:
+            ACCESS_GATE_CACHE.pop(email, None)
+        else:
+            ACCESS_GATE_CACHE.clear()
 
 
 def get_admin_view_cache(cache_key):
@@ -713,6 +725,45 @@ def analyzer_required(f):
     return decorated_function
 
 
+def _configured_admin_emails():
+    """Return normalized bootstrap admin emails from environment."""
+    values = [
+        os.environ.get('DEFAULT_ADMIN_EMAILS', ''),
+        os.environ.get('DEFAULT_ADMIN_EMAIL', ''),
+        os.environ.get('ADMIN_EMAILS', ''),
+    ]
+    emails = set()
+    for raw in values:
+        for item in (raw or '').split(','):
+            candidate = (item or '').strip().lower()
+            if candidate:
+                emails.add(candidate)
+
+    # Requested bootstrap admin account fallback.
+    emails.add('janmeshraut11@gmail.com')
+    return emails
+
+
+def resolve_effective_role(firebase_user, email=None):
+    """Resolve canonical role with admin-safe fallbacks."""
+    profile = firebase_user or {}
+    role = str(profile.get('role') or '').strip().lower()
+
+    if role == 'student':
+        role = 'user'
+    if role in {'admin', 'analyzer', 'user'}:
+        return role
+
+    if bool(profile.get('is_admin')):
+        return 'admin'
+
+    email_value = (email or profile.get('email') or '').strip().lower()
+    if email_value and email_value in _configured_admin_emails():
+        return 'admin'
+
+    return 'user'
+
+
 def sync_session_from_firebase_user(firebase_user, email=None):
     """Keep session identity aligned with the latest Firebase profile."""
     if not firebase_user:
@@ -720,7 +771,7 @@ def sync_session_from_firebase_user(firebase_user, email=None):
 
     session['user_id'] = firebase_user.get('user_id')
     session['username'] = firebase_user.get('username')
-    session['role'] = firebase_user.get('role', 'user')
+    session['role'] = resolve_effective_role(firebase_user, email)
     session['email'] = email or firebase_user.get('email')
     session['guid'] = firebase_user.get('guid')
     session['profile_picture'] = firebase_user.get('profile_picture')
@@ -754,22 +805,28 @@ def enforce_lab_locks():
     is_approved = bool(access_data.get('is_approved'))
     approved_lab_ids = access_data.get('approved_lab_ids', set())
     approved_family_ids = access_data.get('approved_family_ids', set())
+    has_explicit_lab_access = bool(access_data.get('has_explicit_lab_access'))
 
     if not is_approved:
         print(f"[SECURITY] Blocked unvetted subject {email} from entering {path}")
-        return redirect(url_for('auth_pending'))
+        return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id='PENDING_APPROVAL'))
 
     lab_context = resolve_lab_context(lab_path=path)
     exact_lab_id = lab_context.get('exact_lab_id')
     if not exact_lab_id:
         family_match = re.fullmatch(r'/lab(\d+)', path.rstrip('/'))
         if family_match:
+            if not has_explicit_lab_access:
+                return
             family_prefix = f"lab{family_match.group(1)}_"
             has_family_access = family_prefix in approved_family_ids
             if not has_family_access:
                 print(f"[SECURITY] Blocked locked lab landing page for {email}: {path}")
                 return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id='UNMAPPED'))
             return
+        return
+
+    if not has_explicit_lab_access:
         return
 
     if exact_lab_id not in approved_lab_ids:
@@ -1218,14 +1275,20 @@ def approve_user():
     existing_user = firebase_store.get_user_by_email(email) or {}
     was_approved = bool(existing_user.get('is_approved'))
 
-    firebase_store.update_user_access(email, is_approved, requested_role or None)
+    access_updated = firebase_store.update_user_access(email, is_approved, requested_role or None)
+    if not access_updated:
+        return jsonify({'error': f'Failed to update user access for {email}. Check Firebase logs.'}), 500
 
     if assign_lab_access or not is_approved:
         if is_approved:
-            firebase_store.replace_user_lab_access(email, selected_lab_ids)
+            access_replaced = firebase_store.replace_user_lab_access(email, selected_lab_ids)
         else:
-            firebase_store.replace_user_lab_access(email, [])
+            access_replaced = firebase_store.replace_user_lab_access(email, [])
 
+        if not access_replaced:
+            return jsonify({'error': f'User updated, but failed to apply lab access for {email}.'}), 500
+
+    invalidate_access_gate_cache(email)
     invalidate_admin_view_cache()
 
     should_email_user = is_approved and (not was_approved or (assign_lab_access and bool(selected_lab_ids)))
@@ -1512,11 +1575,29 @@ def google_callback():
 
     # 5. Session Finalization
     if firebase_user:
+        effective_role = resolve_effective_role(firebase_user, email)
+
+        if effective_role == 'admin' and (
+            firebase_user.get('role') != 'admin' or not firebase_user.get('is_approved')
+        ):
+            firebase_store.upsert_user(
+                user_id=firebase_user.get('user_id'),
+                username=firebase_user.get('username'),
+                role='admin',
+                email=email,
+                full_name=firebase_user.get('full_name'),
+                guid=firebase_user.get('guid'),
+                enrollment_id=firebase_user.get('enrollment_id'),
+                is_approved=True,
+                profile_picture=firebase_user.get('profile_picture')
+            )
+            firebase_user = firebase_store.get_user_by_email(email) or firebase_user
+
         if google_picture and firebase_user.get('profile_picture') != google_picture:
             firebase_store.upsert_user(
                 user_id=firebase_user.get('user_id'),
                 username=firebase_user.get('username'),
-                role=firebase_user.get('role'),
+                role=resolve_effective_role(firebase_user, email),
                 email=email,
                 full_name=firebase_user.get('full_name'),
                 guid=firebase_user.get('guid'),
@@ -1533,7 +1614,7 @@ def google_callback():
 
         # Check if user is authorized by Command Center
         print(f"[AUTH] User profile retrieved. Approval status: {firebase_user.get('is_approved')}")
-        if not firebase_user.get('is_approved') and firebase_user.get('role') not in ['admin', 'analyzer']:
+        if not firebase_user.get('is_approved') and resolve_effective_role(firebase_user, email) not in ['admin', 'analyzer']:
             return redirect(url_for('auth_pending'))
         
         # Redirection Logic
@@ -1541,9 +1622,9 @@ def google_callback():
         if next_url and next_url.startswith('/') and not next_url.startswith('//'):
             return redirect(next_url)
         
-        if firebase_user.get('role') == 'admin':
+        if resolve_effective_role(firebase_user, email) == 'admin':
             return redirect(url_for('admin_students'))
-        if firebase_user.get('role') == 'analyzer':
+        if resolve_effective_role(firebase_user, email) == 'analyzer':
             return redirect(url_for('analyzer_students'))
         return redirect(url_for('home'))
         
@@ -1586,15 +1667,18 @@ def auth_pending():
         return redirect(url_for('login', error='Identity not found. Please sign in again.'))
 
     sync_session_from_firebase_user(firebase_user, email)
+    effective_role = resolve_effective_role(firebase_user, email)
+    access_data = get_or_refresh_access_gate_cache(email, force_refresh=True, preloaded_user=firebase_user)
+    is_approved = bool(access_data.get('is_approved'))
 
-    if firebase_user.get('is_approved') or firebase_user.get('role') in ['admin', 'analyzer']:
+    if is_approved or effective_role in ['admin', 'analyzer']:
         next_url = session.pop('oauth_next', '')
         if next_url and next_url.startswith('/') and not next_url.startswith('//'):
             return redirect(next_url)
 
-        if firebase_user.get('role') == 'admin':
+        if effective_role == 'admin':
             return redirect(url_for('admin_students'))
-        if firebase_user.get('role') == 'analyzer':
+        if effective_role == 'analyzer':
             return redirect(url_for('analyzer_students'))
         return redirect(url_for('home'))
 
@@ -1607,6 +1691,21 @@ def lab_locked():
     """Crime-scene style lock screen for labs blocked by per-user allowlist."""
     blocked_path = request.args.get('blocked_path', '').strip()
     blocked_lab_id = request.args.get('blocked_lab_id', '').strip()
+
+    if not blocked_path:
+        referrer = (request.referrer or '').strip()
+        if referrer:
+            try:
+                from urllib.parse import urlparse
+                blocked_path = urlparse(referrer).path or '/lab/unknown'
+            except Exception:
+                blocked_path = '/lab/unknown'
+        else:
+            blocked_path = '/lab/unknown'
+
+    if not blocked_lab_id:
+        guessed = resolve_lab_context(lab_path=blocked_path).get('exact_lab_id')
+        blocked_lab_id = guessed or 'UNMAPPED'
 
     return render_template(
         'lab_locked.html',

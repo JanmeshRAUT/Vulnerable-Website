@@ -279,7 +279,9 @@ class FirebaseDataStore:
             if role:
                 payload["role"] = role
 
-            db.collection("users").document(email).update(payload)
+            # Use merge set so authorization works even if the document
+            # was created with a partial/legacy schema.
+            db.collection("users").document(email).set(payload, merge=True)
             return True
         except Exception as e:
             print(f"[Firebase] Access update failed for {email}: {e}")
