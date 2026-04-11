@@ -188,9 +188,11 @@ google = oauth.register(
 
 
 def get_google_redirect_uri():
-    """Build the OAuth redirect URI, forcing https on Vercel/production."""
+    """Build the OAuth redirect URI, forcing one canonical callback URL."""
     configured = (os.environ.get('GOOGLE_REDIRECT_URI') or '').strip()
-    if configured and '127.0.0.1' not in configured and 'localhost' not in configured:
+    # Always honor an explicitly configured redirect URI so auth start/callback
+    # use the same exact host (localhost vs 127.0.0.1 mismatch causes state errors).
+    if configured:
         return configured
     # Auto-build from request context
     uri = url_for('google_callback', _external=True)
