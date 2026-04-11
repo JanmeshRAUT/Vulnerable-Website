@@ -15,6 +15,56 @@ class FirebaseDataStore:
         value = os.environ.get("FIREBASE_ENABLED", "false")
         return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
+    def _normalize_service_account(self, data):
+        """Validate required fields and normalize private key newlines."""
+        if not isinstance(data, dict):
+            raise ValueError("Service account payload must be a JSON object.")
+
+        required = {
+            "type",
+            "project_id",
+            "private_key",
+            "client_email",
+            "token_uri",
+        }
+        missing = sorted(field for field in required if not data.get(field))
+        if missing:
+            raise ValueError(f"Service account JSON missing required fields: {', '.join(missing)}")
+
+        private_key = data.get("private_key", "")
+        if isinstance(private_key, str):
+            # Vercel values are sometimes pasted with escaped newlines.
+            data["private_key"] = private_key.replace("\\n", "\n")
+
+        return data
+
+    def _parse_json_payload(self, raw_json):
+        """Parse JSON payload robustly from environment text."""
+        if not raw_json:
+            return None
+
+        # 1) Direct JSON object
+        try:
+            parsed = json.loads(raw_json)
+            if isinstance(parsed, str):
+                parsed = json.loads(parsed)
+            return self._normalize_service_account(parsed), "SERVICE_ACCOUNT_JSON env var"
+        except Exception:
+            pass
+
+        # 2) Decode escaped content and parse again (common in CI/env dashboards)
+        try:
+            normalized = raw_json.encode("utf-8").decode("unicode_escape")
+            parsed = json.loads(normalized)
+            if isinstance(parsed, str):
+                parsed = json.loads(parsed)
+            return self._normalize_service_account(parsed), "SERVICE_ACCOUNT_JSON env var (decoded escapes)"
+        except Exception as exc:
+            raise ValueError(
+                "SERVICE_ACCOUNT_JSON could not be parsed. Use strict compact JSON, "
+                "or provide FIREBASE_SERVICE_ACCOUNT_JSON_BASE64."
+            ) from exc
+
     def _parse_service_account_env(self):
         """Parse Firebase service account JSON from env in multiple safe formats."""
         raw_json = (
@@ -47,29 +97,20 @@ class FirebaseDataStore:
         # Prefer base64 payloads in hosted environments to avoid escaping issues.
         if base64_json:
             try:
-                decoded = base64.b64decode(base64_json).decode("utf-8")
-                return json.loads(decoded), "SERVICE_ACCOUNT_JSON_BASE64 env var"
+                cleaned_b64 = "".join(base64_json.split())
+                padding = len(cleaned_b64) % 4
+                if padding:
+                    cleaned_b64 += "=" * (4 - padding)
+                decoded = base64.b64decode(cleaned_b64).decode("utf-8")
+                parsed = json.loads(decoded)
+                return self._normalize_service_account(parsed), "SERVICE_ACCOUNT_JSON_BASE64 env var"
             except Exception as exc:
                 raise ValueError(f"Invalid base64 service account JSON: {exc}") from exc
 
         if not raw_json:
             return None, None
 
-        # 1) Direct JSON object
-        try:
-            return json.loads(raw_json), "SERVICE_ACCOUNT_JSON env var"
-        except json.JSONDecodeError:
-            pass
-
-        # 2) Double-escaped JSON string (common in CI/env dashboards)
-        try:
-            normalized = raw_json.encode("utf-8").decode("unicode_escape")
-            return json.loads(normalized), "SERVICE_ACCOUNT_JSON env var (decoded escapes)"
-        except Exception as exc:
-            raise ValueError(
-                "SERVICE_ACCOUNT_JSON could not be parsed. Use strict JSON with double quotes "
-                "or provide SERVICE_ACCOUNT_JSON_BASE64."
-            ) from exc
+        return self._parse_json_payload(raw_json)
 
     def initialize(self):
         if not self._is_enabled():
@@ -85,6 +126,12 @@ class FirebaseDataStore:
 
             project_id = os.environ.get("FIREBASE_PROJECT_ID", "").strip()
             credential_data, credential_source = self._parse_service_account_env()
+
+            if credential_data and project_id and credential_data.get("project_id") != project_id:
+                print(
+                    "[Firebase] WARNING: FIREBASE_PROJECT_ID does not match service account project_id "
+                    f"({project_id} != {credential_data.get('project_id')})."
+                )
 
             if credential_data:
                 print(f"[Firebase] Initializing via {credential_source}")
