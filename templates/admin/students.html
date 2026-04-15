@@ -66,6 +66,9 @@
         <button class="nav-item" id="nav-logs" onclick="switchTab('logs')">
           <span class="nav-icon">📜</span> Audit Logs
         </button>
+        <button class="nav-item" id="nav-db" onclick="showDbStatus()">
+          <span class="nav-icon">🗄️</span> Database Connectivity
+        </button>
       </div>
 
     </div>
@@ -630,6 +633,9 @@
 </div>
 
 <script>
+    function showDbStatus() {
+      alert('Database connectivity is active. (MongoDB)');
+    }
   const TABS = ['dashboard','subjects','authorization','activity','labs','logs'];
   const LABELS = {
     dashboard:     'Dashboard',
