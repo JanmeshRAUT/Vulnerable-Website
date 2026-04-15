@@ -85,7 +85,7 @@ LAB4_2_RUNTIME_STATE = {
     'logged_variants': {}
 }
 
-# Reduce repeated Firebase round-trips for lab gate checks.
+# In-memory TTL cache for admin view payloads (MongoDB-backed).
 ACCESS_GATE_CACHE_TTL_SECONDS = int(os.environ.get('ACCESS_GATE_CACHE_TTL_SECONDS', '90'))
 ACCESS_GATE_CACHE = {}
 ACCESS_GATE_CACHE_LOCK = threading.Lock()
@@ -448,7 +448,7 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
         print(f"[MAIL] Failed to send user access confirmation: {exc}")
         return False
 
-## MongoDB is now used for all data storage. Remove firebase_store.
+## MongoDB is the sole data store for this application.
 
 TRACKABLE_LAB_UNITS = [
     {'id': 'lab1_1', 'canonical_id': 'lab1', 'label': 'Lab 1.1', 'path': '/lab1/1'},
@@ -719,9 +719,9 @@ def _configured_admin_emails():
     return emails
 
 
-def resolve_effective_role(firebase_user, email=None):
+def resolve_effective_role(user, email=None):
     """Resolve canonical role with admin-safe fallbacks."""
-    profile = firebase_user or {}
+    profile = user or {}
     role = str(profile.get('role') or '').strip().lower()
 
     if role == 'student':
@@ -739,17 +739,17 @@ def resolve_effective_role(firebase_user, email=None):
     return 'user'
 
 
-def sync_session_from_firebase_user(firebase_user, email=None):
-    """Keep session identity aligned with the latest Firebase profile."""
-    if not firebase_user:
+def sync_session_from_user(user, email=None):
+    """Keep session identity aligned with the latest MongoDB user profile."""
+    if not user:
         return
 
-    session['user_id'] = firebase_user.get('user_id')
-    session['username'] = firebase_user.get('username')
-    session['role'] = resolve_effective_role(firebase_user, email)
-    session['email'] = email or firebase_user.get('email')
-    session['guid'] = firebase_user.get('guid')
-    session['profile_picture'] = firebase_user.get('profile_picture')
+    session['user_id'] = user.get('user_id') or str(user.get('_id', ''))
+    session['username'] = user.get('username')
+    session['role'] = resolve_effective_role(user, email)
+    session['email'] = email or user.get('email')
+    session['guid'] = user.get('guid')
+    session['profile_picture'] = user.get('profile_picture')
     session.permanent = True
 
 @app.before_request
@@ -891,33 +891,26 @@ def submit_flag():
     print(f"[SUBMISSION] Expected set includes {len(expected_flags)} possible signals.")
 
     if submitted_flag in expected_flags:
-        # Record success in Firebase
-        firebase_store.submit_lab_progress(
+        # Record success in MongoDB
+        mongo_submit_lab_progress(
             email,
             resolved_exact_lab_id,
             variation,
             submitted_flag,
             True,
-            "Deliverable accepted.",
-            canonical_lab_id=canonical_lab_id,
-            exact_lab_id=resolved_exact_lab_id,
-            lab_path=lab_context.get('lab_path')
+            "Deliverable accepted."
         )
         invalidate_admin_view_cache()
         return jsonify({'success': True, 'message': 'Research deliverable verified and serialized.'})
     else:
-        # Record attempt in Firebase
-        # Note: 'Invalid deliverable signal.' is the error seen by user.
-        firebase_store.submit_lab_progress(
+        # Record attempt in MongoDB
+        mongo_submit_lab_progress(
             email,
             resolved_exact_lab_id,
             variation,
             submitted_flag,
             False,
-            "Incorrect deliverable.",
-            canonical_lab_id=canonical_lab_id,
-            exact_lab_id=resolved_exact_lab_id,
-            lab_path=lab_context.get('lab_path')
+            "Incorrect deliverable."
         )
         invalidate_admin_view_cache()
         return jsonify({'success': False, 'error': f'Invalid deliverable signal for {resolved_exact_lab_id}.'})
@@ -925,23 +918,22 @@ def submit_flag():
 
 
 def build_admin_students_payload():
-    """Build admin view payload from Firestore sources."""
-    # Fetch all users from Firebase so roles can be changed both ways.
-    all_users = firebase_store.get_all_users()
+    """Build admin view payload from MongoDB."""
+    all_users = get_all_users()
     students = all_users
-    all_progress_by_email = firebase_store.get_all_users_progress()
-    all_enrollments_by_email = firebase_store.get_all_lab_enrollments()
-    
-    # Calculate aggregate stats from Firebase data
+    all_progress_by_email = mongo_get_all_users_progress()
+    all_enrollments_by_email = mongo_get_all_lab_enrollments()
+
+    # Calculate aggregate stats
     for student in students:
         student_email = student.get('email')
         progress = all_progress_by_email.get(student_email)
         if progress is None:
-            progress = firebase_store.get_user_progress(student_email)
+            progress = mongo_get_user_progress(student_email)
         solved_labs = build_solved_lab_records(progress)
         lab_enrollments = all_enrollments_by_email.get(student_email)
         if lab_enrollments is None:
-            lab_enrollments = firebase_store.get_user_lab_enrollments(student_email)
+            lab_enrollments = mongo_get_user_lab_enrollments(student_email)
         allowed_lab_ids = [
             enrollment.get('lab_id')
             for enrollment in lab_enrollments
@@ -959,11 +951,11 @@ def build_admin_students_payload():
             if get_total_trackable_lab_units() else 0
         )
 
-    # Fetch pending users for authorization
+    # Pending users
     pending_users = [u for u in students if not u.get('is_approved') and u.get('role') not in ['admin', 'analyzer']]
-    
-    # Fetch solved labs feed from Firebase
-    solved_data = firebase_store.get_solved_labs_feed()
+
+    # Solved labs feed
+    solved_data = mongo_get_solved_labs_feed()
     dashboard = build_dashboard_metrics(students, solved_data)
 
     return {
@@ -996,15 +988,15 @@ def admin_students():
 @analyzer_required
 def analyzer_students():
     """Analyzer workspace focused on student performance telemetry."""
-    all_users = firebase_store.get_all_users()
+    all_users = get_all_users()
     students = [u for u in all_users if u.get('role') not in ['admin', 'analyzer']]
-    all_progress_by_email = firebase_store.get_all_users_progress()
+    all_progress_by_email = mongo_get_all_users_progress()
 
     for student in students:
         student_email = student.get('email')
         progress = all_progress_by_email.get(student_email)
         if progress is None:
-            progress = firebase_store.get_user_progress(student_email)
+            progress = mongo_get_user_progress(student_email)
         solved_labs = build_solved_lab_records(progress)
 
         student['labs_enrolled'] = get_total_trackable_lab_units()
@@ -1016,7 +1008,7 @@ def analyzer_students():
             if get_total_trackable_lab_units() else 0
         )
 
-    solved_data = firebase_store.get_solved_labs_feed()
+    solved_data = mongo_get_solved_labs_feed()
     dashboard = build_dashboard_metrics(students, solved_data)
     return render_template('analyzer/students.html', students=students, solved_data=solved_data, dashboard=dashboard)
 
@@ -1025,14 +1017,14 @@ def analyzer_students():
 @analyzer_required
 def analyzer_student_report(email):
     """Detailed read-only report page for one student record."""
-    student = firebase_store.get_user_by_email(email)
+    student = find_user_by_email(email)
     if not student:
         return render_template('error.html', message="Student record not found."), 404
 
     if student.get('role') in ['admin', 'analyzer']:
         return render_template('error.html', message="Full report is available only for student records."), 403
 
-    progress = firebase_store.get_user_progress(email)
+    progress = mongo_get_user_progress(email)
     solved_labs = build_solved_lab_records(progress)
     total_labs = get_total_trackable_lab_units()
     solved_count = len(solved_labs)
@@ -1081,14 +1073,14 @@ def analyzer_student_report(email):
 @analyzer_required
 def analyzer_student_report_csv(email):
     """Export one student's full analyzer report as CSV."""
-    student = firebase_store.get_user_by_email(email)
+    student = find_user_by_email(email)
     if not student:
         return render_template('error.html', message="Student record not found."), 404
 
     if student.get('role') in ['admin', 'analyzer']:
         return render_template('error.html', message="CSV export is available only for student records."), 403
 
-    progress = firebase_store.get_user_progress(email)
+    progress = mongo_get_user_progress(email)
     solved_labs = build_solved_lab_records(progress)
     total_labs = get_total_trackable_lab_units()
     solved_count = len(solved_labs)
@@ -1143,7 +1135,7 @@ def approve_enrollment():
     if not user_email or not lab_id or new_status not in ['approved', 'rejected', 'pending']:
         return jsonify({'error': 'Invalid parameters'}), 400
         
-    firebase_store.update_lab_enrollment_status(user_email, lab_id, new_status)
+    mongo_update_lab_enrollment_status(user_email, lab_id, new_status)
     invalidate_admin_view_cache()
     
     return jsonify({'success': True, 'message': f'Enrollment {new_status} successfully.'})
@@ -1161,9 +1153,9 @@ def check_lab_access(lab_id):
 @app.route('/admin/approve_user', methods=['POST'])
 @admin_required
 def approve_user():
-    """Approve or reject a user's account via Cloud Firestore"""
-    email = request.form.get('email') # Use email as ID for Firebase
-    user_id = request.form.get('user_id') # Fallback if email not provided
+    """Approve or reject a user's account via MongoDB"""
+    email = request.form.get('email')
+    user_id = request.form.get('user_id')  # Fallback if email not provided
     is_approved = request.form.get('is_approved') == '1'
     requested_role = (request.form.get('role') or '').strip().lower()
     assign_lab_access = request.form.get('assign_lab_access') == '1'
@@ -1180,26 +1172,26 @@ def approve_user():
     if not email and not user_id:
         return jsonify({'error': 'Subject identifier required'}), 400
 
-    # If we only have user_id, find email from list or skip
+    # If we only have user_id, look up email from MongoDB
     if not email:
-        all_u = firebase_store.get_all_users()
+        all_u = get_all_users()
         email = next((u['email'] for u in all_u if str(u.get('user_id')) == str(user_id)), None)
 
     if not email:
         return jsonify({'error': 'Subject not found in registry'}), 404
 
-    existing_user = firebase_store.get_user_by_email(email) or {}
+    existing_user = find_user_by_email(email) or {}
     was_approved = bool(existing_user.get('is_approved'))
 
-    access_updated = firebase_store.update_user_access(email, is_approved, requested_role or None)
+    access_updated = mongo_update_user_access(email, is_approved, requested_role or None)
     if not access_updated:
-        return jsonify({'error': f'Failed to update user access for {email}. Check Firebase logs.'}), 500
+        return jsonify({'error': f'Failed to update user access for {email}.'}), 500
 
     if assign_lab_access or not is_approved:
         if is_approved:
-            access_replaced = firebase_store.replace_user_lab_access(email, selected_lab_ids)
+            access_replaced = mongo_replace_user_lab_access(email, selected_lab_ids)
         else:
-            access_replaced = firebase_store.replace_user_lab_access(email, [])
+            access_replaced = mongo_replace_user_lab_access(email, [])
 
         if not access_replaced:
             return jsonify({'error': f'User updated, but failed to apply lab access for {email}.'}), 500
@@ -1609,13 +1601,13 @@ def logout():
 def profile():
     """User profile page showing identity details and lab progress"""
     email = session.get('email')
-    user = firebase_store.get_user_by_email(email)
-    
+    user = find_user_by_email(email)
+
     if not user:
         return redirect(url_for('login'))
-        
+
     # Get solved labs for the profile
-    progress = firebase_store.get_user_progress(email)
+    progress = mongo_get_user_progress(email)
     solved_labs = build_solved_lab_records(progress)
     
     # Calculate real-time stats from registry
@@ -1721,18 +1713,18 @@ def help():
 # -------------------------
 @app.route('/dashboard')
 def student_dashboard():
-    """Main student dashboard showing labs, progress, and assignments via Firestore"""
+    """Main student dashboard showing labs, progress, and assignments via MongoDB"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
+
     email = session.get('email')
-    user = firebase_store.get_user_by_email(email)
-    
+    user = find_user_by_email(email)
+
     if not user:
         return redirect(url_for('login'))
-        
-    # Fetch enrolled lab progress from Cloud Firestore
-    progress = firebase_store.get_user_progress(email)
+
+    # Fetch enrolled lab progress from MongoDB
+    progress = mongo_get_user_progress(email)
     solved_labs = build_solved_lab_records(progress)
     
     # Format for template compatibility
@@ -1780,21 +1772,19 @@ def lab_progress(lab_id):
     """View and update lab progress via Firestore"""
     email = session.get('email')
     
-    # Check enrollment in Firebase
-    enrollment = firebase_store.get_lab_enrollment(email, lab_id)
-    if not enrollment:
-        return redirect(url_for('student_dashboard'))
-    
+    # All signed-in users have access; no enrollment check needed
+    enrollment = mongo_get_lab_enrollment(email, lab_id) or {'lab_id': lab_id, 'email': email}
+
     if request.method == 'POST':
         section_id = request.form.get('section_id')
         is_solved = request.form.get('task_completed') == 'true'
         flag = request.form.get('flag_value', '')
-        
-        firebase_store.submit_lab_progress(email, lab_id, section_id, flag, is_solved, "Progress update.")
-        return jsonify({'success': True, 'message': 'Progress serialized to Cloud.'})
-    
-    # GET request - fetch progress from Firebase
-    progress = firebase_store.get_user_progress(email)
+
+        mongo_submit_lab_progress(email, lab_id, section_id, flag, is_solved, "Progress update.")
+        return jsonify({'success': True, 'message': 'Progress saved to MongoDB.'})
+
+    # GET request - fetch progress from MongoDB
+    progress = mongo_get_user_progress(email)
     lab_data = progress.get(lab_id, {})
     
     return render_template('lab_progress.html',
@@ -1826,9 +1816,9 @@ def assignment_detail(assignment_id):
 @app.route('/dashboard/grades')
 @login_required
 def grades_page():
-    """View all grades and feedback (Firebase Profile Data)"""
+    """View all grades and feedback (MongoDB progress data)"""
     email = session.get('email')
-    progress = firebase_store.get_user_progress(email)
+    progress = mongo_get_user_progress(email)
     
     grades = []
     for lab_id, data in progress.items():
