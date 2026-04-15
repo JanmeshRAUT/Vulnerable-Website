@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import sqlite3
 import subprocess
@@ -779,59 +779,23 @@ def sync_session_from_firebase_user(firebase_user, email=None):
 
 @app.before_request
 def enforce_lab_locks():
-    """Global access controller for the laboratory environment"""
-    path = request.path.lower()
+    """Global access controller for the laboratory environment.
     
+    Access policy: any signed-in user may access all labs.
+    No admin approval or per-lab enrollment is required.
+    """
+    path = request.path.lower()
+
     # Only protect lab routes; everything else keeps its normal behavior.
     if not path.startswith('/lab'):
         return
-        
+
     print(f"[SECURITY] Access attempt to {path} from {request.remote_addr}")
-    
+
+    # Require sign-in only — no role or approval checks.
     if 'user_id' not in session:
         print(f"[SECURITY] Blocked unauthenticated access to {path}")
         return redirect(url_for('login', next=request.path))
-    
-    # Authorized staff (Admins/Analyzers) bypass the vetting protocol
-    if session.get('role') in ['admin', 'analyzer']:
-        return
-        
-    # Standard subjects must be vetted by the Command Center
-    email = session.get('email')
-    if not email:
-        return redirect(url_for('login', next=request.path))
-
-    access_data = get_or_refresh_access_gate_cache(email)
-    is_approved = bool(access_data.get('is_approved'))
-    approved_lab_ids = access_data.get('approved_lab_ids', set())
-    approved_family_ids = access_data.get('approved_family_ids', set())
-    has_explicit_lab_access = bool(access_data.get('has_explicit_lab_access'))
-
-    if not is_approved:
-        print(f"[SECURITY] Blocked unvetted subject {email} from entering {path}")
-        return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id='PENDING_APPROVAL'))
-
-    lab_context = resolve_lab_context(lab_path=path)
-    exact_lab_id = lab_context.get('exact_lab_id')
-    if not exact_lab_id:
-        family_match = re.fullmatch(r'/lab(\d+)', path.rstrip('/'))
-        if family_match:
-            if not has_explicit_lab_access:
-                return
-            family_prefix = f"lab{family_match.group(1)}_"
-            has_family_access = family_prefix in approved_family_ids
-            if not has_family_access:
-                print(f"[SECURITY] Blocked locked lab landing page for {email}: {path}")
-                return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id='UNMAPPED'))
-            return
-        return
-
-    if not has_explicit_lab_access:
-        return
-
-    if exact_lab_id not in approved_lab_ids:
-        print(f"[SECURITY] Blocked locked lab {exact_lab_id} for {email}")
-        return redirect(url_for('lab_locked', blocked_path=path, blocked_lab_id=exact_lab_id))
 
 # -------------------------
 # DYNAMIC RESEARCH DELIVERABLES (FLAGS)
