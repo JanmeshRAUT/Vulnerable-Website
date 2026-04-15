@@ -20,7 +20,21 @@ import threading
 import copy
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
-from mongodb_client import insert_user, find_user_by_email
+from mongodb_client import (
+    insert_user, find_user_by_email,
+    find_user_by_username, find_user_by_enrollment_id,
+    upsert_user as mongo_upsert_user,
+    get_all_users, update_user_access as mongo_update_user_access,
+    get_user_progress as mongo_get_user_progress,
+    get_all_users_progress as mongo_get_all_users_progress,
+    submit_lab_progress as mongo_submit_lab_progress,
+    get_solved_labs_feed as mongo_get_solved_labs_feed,
+    get_user_lab_enrollments as mongo_get_user_lab_enrollments,
+    get_all_lab_enrollments as mongo_get_all_lab_enrollments,
+    get_lab_enrollment as mongo_get_lab_enrollment,
+    replace_user_lab_access as mongo_replace_user_lab_access,
+    update_lab_enrollment_status as mongo_update_lab_enrollment_status,
+)
 import zipfile
 import hashlib
 import csv
@@ -1390,152 +1404,127 @@ def google_callback():
         return redirect(url_for('login', error="Google authentication failed: email not available"))
 
     # ==========================================
-    # FIREBASE-DEPENDENT LOGIN (SOURCE OF TRUTH)
+    # MONGODB-BASED GOOGLE OAUTH FLOW
     # ==========================================
-    
-    # 1. Always check Firebase first for the latest profile/role
-    print(f"[AUTH] Pulling source-of-truth profile from Firebase for {email}")
-    firebase_user = firebase_store.get_user_by_email(email)
-    
-    # 2. Handle Login Flow
+
+    print(f"[AUTH] Pulling profile from MongoDB for {email}")
+    mongo_user = find_user_by_email(email)
+
+    # 2. Login flow — user must already exist
     if auth_source == 'login':
-        if not firebase_user:
-            # User doesn't exist in the cloud yet
-            print(f"[AUTH] Login failed: {email} does not exist in Firebase.")
+        if not mongo_user:
+            print(f"[AUTH] Login failed: {email} not found in MongoDB.")
             return redirect(url_for('register', error='No account found. Please Join the platform first.'))
-            
-    # 3. Handle Registration (Join) Flow
+
+    # 3. Registration (Join) flow
     elif auth_source == 'register':
-        if firebase_user:
-            return redirect(url_for('login', error='Identity already initialized in Firebase. Please sign in.'))
-            
-        # Get pending data from session
+        if mongo_user:
+            return redirect(url_for('login', error='Account already exists. Please sign in.'))
+
         pending = session.pop('pending_join', None)
         if not pending:
             return redirect(url_for('register', error='Session expired. Please start identity initialization again.'))
-            
-        # Create in Firebase
+
         selected_username = pending['username']
         enrollment_id = pending['enrollment_id']
-        
-        # Check collision before final creation
-        # This check needs to be done against Firebase now
-        if firebase_store.get_user_by_username(selected_username):
-             return redirect(url_for('register', error='Username already claimed.'))
-        if firebase_store.get_user_by_enrollment_id(enrollment_id):
+
+        if find_user_by_username(selected_username):
+            return redirect(url_for('register', error='Username already claimed.'))
+        if find_user_by_enrollment_id(enrollment_id):
             return redirect(url_for('register', error='Enrollment ID already exists.'))
 
-        # Generate a unique user_id (Firebase auto-generates doc ID, but we might need an internal int ID)
-        # For simplicity, let's use a random int for user_id for now, or Firebase doc ID can be used.
-        # Assuming user_id is an integer for compatibility with existing session logic.
-        new_user_id = random.randint(100000, 999999) # Placeholder for a unique ID
-        firebase_store.upsert_user(
-            user_id=new_user_id,
-            username=selected_username,
-            role='user',
+        determined_role = 'admin' if email.strip().lower() in _configured_admin_emails() else 'user'
+        mongo_upsert_user(
             email=email,
+            username=selected_username,
+            role=determined_role,
             full_name=full_name,
             guid=uuid.uuid4().hex,
             enrollment_id=enrollment_id,
-            is_approved=False, # New users are not approved by default
-            profile_picture=google_picture
+            is_approved=True,
+            profile_picture=google_picture,
+            user_id=random.randint(100000, 999999),
         )
-        firebase_user = firebase_store.get_user_by_email(email) # Re-fetch the newly created user
-        print(f"[AUTH] New identity {email} committed to Firebase.")
-        send_admin_authorization_email(
-            request_type='account',
-            requester_email=email,
-            requester_name=selected_username,
-            requester_role='user'
-        )
+        mongo_user = find_user_by_email(email)
+        print(f"[AUTH] New identity {email} created in MongoDB.")
 
-    # 4. Global Identifier Management
-    firebase_user = firebase_store.get_user_by_email(email)
-    
-    if not firebase_user:
-        # Initial Acquisition
-        selected_username = email.split('@')[0]
-        enrollment_id = f"SUB-{random.randint(1000, 9999)}"
-        firebase_store.upsert_user(
-            user_id=random.randint(10000, 99999),
-            username=selected_username,
-            role='user',
-            email=email,
-            full_name=full_name,
-            guid=uuid.uuid4().hex,
-            enrollment_id=enrollment_id,
-            is_approved=False,
-            profile_picture=google_picture
-        )
-        firebase_user = firebase_store.get_user_by_email(email)
-        send_admin_authorization_email(
-            request_type='account',
-            requester_email=email,
-            requester_name=selected_username,
-            requester_role='user'
-        )
-
-    # 5. Session Finalization
-    if firebase_user:
-        effective_role = resolve_effective_role(firebase_user, email)
-
-        if effective_role == 'admin' and (
-            firebase_user.get('role') != 'admin' or not firebase_user.get('is_approved')
-        ):
-            firebase_store.upsert_user(
-                user_id=firebase_user.get('user_id'),
-                username=firebase_user.get('username'),
+    # 4. Auto-create if this is an admin email signing in for the first time
+    if not mongo_user:
+        if email.strip().lower() in _configured_admin_emails():
+            selected_username = email.split('@')[0]
+            mongo_upsert_user(
+                email=email,
+                username=selected_username,
                 role='admin',
-                email=email,
-                full_name=firebase_user.get('full_name'),
-                guid=firebase_user.get('guid'),
-                enrollment_id=firebase_user.get('enrollment_id'),
+                full_name=full_name,
+                guid=uuid.uuid4().hex,
+                enrollment_id=f"ADMIN-{random.randint(1000,9999)}",
                 is_approved=True,
-                profile_picture=firebase_user.get('profile_picture')
+                profile_picture=google_picture,
+                user_id=random.randint(10000, 99999),
             )
-            firebase_user = firebase_store.get_user_by_email(email) or firebase_user
+            mongo_user = find_user_by_email(email)
+            print(f"[AUTH] Admin auto-created in MongoDB for {email}")
+        else:
+            print(f"[AUTH] FINAL FAILURE: No MongoDB user found for {email}")
+            return redirect(url_for('login', error="Authentication flow failed. Please check server logs."))
 
-        if google_picture and firebase_user.get('profile_picture') != google_picture:
-            firebase_store.upsert_user(
-                user_id=firebase_user.get('user_id'),
-                username=firebase_user.get('username'),
-                role=resolve_effective_role(firebase_user, email),
-                email=email,
-                full_name=firebase_user.get('full_name'),
-                guid=firebase_user.get('guid'),
-                enrollment_id=firebase_user.get('enrollment_id'),
-                is_approved=firebase_user.get('is_approved', False),
-                profile_picture=google_picture
-            )
-            firebase_user = firebase_store.get_user_by_email(email)
+    # 5. Keep profile picture in sync
+    if google_picture and mongo_user.get('profile_picture') != google_picture:
+        mongo_upsert_user(
+            email=email,
+            username=mongo_user.get('username'),
+            role=mongo_user.get('role', 'user'),
+            full_name=mongo_user.get('full_name'),
+            guid=mongo_user.get('guid'),
+            enrollment_id=mongo_user.get('enrollment_id'),
+            is_approved=mongo_user.get('is_approved', True),
+            profile_picture=google_picture,
+            user_id=mongo_user.get('user_id'),
+        )
+        mongo_user = find_user_by_email(email)
 
-        sync_session_from_firebase_user(firebase_user, email)
+    # 6. Elevate admin emails automatically
+    effective_role = resolve_effective_role(mongo_user, email)
+    if effective_role == 'admin' and mongo_user.get('role') != 'admin':
+        mongo_upsert_user(
+            email=email,
+            username=mongo_user.get('username'),
+            role='admin',
+            full_name=mongo_user.get('full_name'),
+            guid=mongo_user.get('guid'),
+            enrollment_id=mongo_user.get('enrollment_id'),
+            is_approved=True,
+            profile_picture=mongo_user.get('profile_picture'),
+            user_id=mongo_user.get('user_id'),
+        )
+        mongo_user = find_user_by_email(email)
+        effective_role = 'admin'
 
-        # Warm access-gate cache after login to reduce first protected-route latency.
-        get_or_refresh_access_gate_cache(email, force_refresh=True, preloaded_user=firebase_user)
+    # 7. Set session
+    session['user_id'] = str(mongo_user.get('user_id') or mongo_user.get('_id'))
+    session['username'] = mongo_user.get('username')
+    session['role'] = effective_role
+    session['email'] = email
+    session['guid'] = mongo_user.get('guid')
+    session['profile_picture'] = mongo_user.get('profile_picture')
+    session.permanent = True
 
-        # Check if user is authorized by Command Center
-        print(f"[AUTH] User profile retrieved. Approval status: {firebase_user.get('is_approved')}")
-        if not firebase_user.get('is_approved') and resolve_effective_role(firebase_user, email) not in ['admin', 'analyzer']:
-            return redirect(url_for('auth_pending'))
-        
-        # Redirection Logic
-        next_url = session.pop('oauth_next', '')
-        if next_url and next_url.startswith('/') and not next_url.startswith('//'):
-            return redirect(next_url)
-        
-        if resolve_effective_role(firebase_user, email) == 'admin':
-            return redirect(url_for('admin_students'))
-        if resolve_effective_role(firebase_user, email) == 'analyzer':
-            return redirect(url_for('analyzer_students'))
-        return redirect(url_for('home'))
-        
-    print(f"[AUTH] FINAL FAILURE: No firebase user found after all attempts for {email}")
-    return redirect(url_for('login', error="Authentication flow failed. Please check server logs."))
+    print(f"[AUTH] Session set for {email} — role: {effective_role}")
+
+    # 8. Redirect
+    next_url = session.pop('oauth_next', '')
+    if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+        return redirect(next_url)
+    if effective_role == 'admin':
+        return redirect(url_for('admin_students'))
+    if effective_role == 'analyzer':
+        return redirect(url_for('analyzer_students'))
+    return redirect(url_for('home'))
 
 
-# --- MongoDB-based login ---
-@app.route('/login', methods=['GET', 'POST'])
+# --- Google-only login (no email/password) ---
+@app.route('/login', methods=['GET'])
 def login():
     if session.get('user_id'):
         if session.get('role') == 'admin':
@@ -1546,38 +1535,6 @@ def login():
 
     error = request.args.get('error')
     next_url = request.args.get('next', '')
-
-    if request.method == 'POST':
-        email = (request.form.get('email') or '').strip().lower()
-        password = (request.form.get('password') or '').strip()
-        user = find_user_by_email(email)
-
-        # If admin email does not exist, create it as admin
-        if email == 'janmeshraut11@gmail.com' and not user:
-            user_data = {
-                'email': email,
-                'username': 'Janmesh',
-                'role': 'admin',
-                'password': password,
-                'enrollment_id': 'ADMIN-0001',
-            }
-            insert_user(user_data)
-            user = find_user_by_email(email)
-
-        if user and user.get('password') == password:
-            session['user_id'] = str(user.get('_id'))
-            session['username'] = user.get('username')
-            session['role'] = 'admin' if email == 'janmeshraut11@gmail.com' else user.get('role', 'user')
-            session['email'] = user.get('email')
-            session.permanent = True
-            if session['role'] == 'admin':
-                return redirect(url_for('admin_students'))
-            if session['role'] == 'analyzer':
-                return redirect(url_for('analyzer_students'))
-            return redirect(url_for('home'))
-        else:
-            error = 'Invalid credentials.'
-        # fall through to render login
 
     # Only allow local redirects to avoid open redirect abuse.
     if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
@@ -1591,34 +1548,27 @@ def login():
 @app.route('/auth/pending')
 @login_required
 def auth_pending():
-    """Waiting screen that re-checks account approval on each refresh."""
+    """Waiting screen — with MongoDB-based auth all users are auto-approved."""
     email = session.get('email')
     if not email:
         session.clear()
         return redirect(url_for('login', error='Session expired. Please sign in again.'))
 
-    firebase_user = firebase_store.get_user_by_email(email)
-    if not firebase_user:
+    mongo_user = find_user_by_email(email)
+    if not mongo_user:
         session.clear()
         return redirect(url_for('login', error='Identity not found. Please sign in again.'))
 
-    sync_session_from_firebase_user(firebase_user, email)
-    effective_role = resolve_effective_role(firebase_user, email)
-    access_data = get_or_refresh_access_gate_cache(email, force_refresh=True, preloaded_user=firebase_user)
-    is_approved = bool(access_data.get('is_approved'))
+    effective_role = resolve_effective_role(mongo_user, email)
 
-    if is_approved or effective_role in ['admin', 'analyzer']:
-        next_url = session.pop('oauth_next', '')
-        if next_url and next_url.startswith('/') and not next_url.startswith('//'):
-            return redirect(next_url)
-
-        if effective_role == 'admin':
-            return redirect(url_for('admin_students'))
-        if effective_role == 'analyzer':
-            return redirect(url_for('analyzer_students'))
-        return redirect(url_for('home'))
-
-    return render_template('auth_pending.html', user=firebase_user)
+    next_url = session.pop('oauth_next', '')
+    if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+        return redirect(next_url)
+    if effective_role == 'admin':
+        return redirect(url_for('admin_students'))
+    if effective_role == 'analyzer':
+        return redirect(url_for('analyzer_students'))
+    return redirect(url_for('home'))
 
 
 @app.route('/lab/locked')
@@ -1688,7 +1638,7 @@ def profile():
     return render_template('profile.html', user=user, solved_labs=solved_labs, stats=stats, profile_picture=profile_picture, display_name=display_name)
 
 
-# --- MongoDB-based registration ---
+# --- Username + Google registration (no email/password) ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if session.get('user_id'):
@@ -1700,8 +1650,6 @@ def register():
     if request.method == 'POST':
         username = (request.form.get('username') or '').strip()
         enrollment_id = (request.form.get('enrollment_id') or '').strip().upper()
-        email = (request.form.get('email') or '').strip().lower()
-        password = (request.form.get('password') or '').strip()
         next_url = request.form.get('next', '')
 
         if not re.match(r'^[A-Za-z0-9_.-]{3,30}$', username):
@@ -1712,41 +1660,20 @@ def register():
             error = 'Enrollment ID must be 4-30 characters and use uppercase letters, numbers, or hyphen.'
             return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
 
-        if not email or not password:
-            error = 'Email and password are required.'
+        # Check username uniqueness pre-Google-auth
+        if find_user_by_username(username):
+            error = 'Username already claimed. Please choose another.'
             return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
 
-        # Check for existing user/email/enrollment_id
-        user = find_user_by_email(email)
-        if user:
-            error = 'Email already registered.'
+        if find_user_by_enrollment_id(enrollment_id):
+            error = 'Enrollment ID already registered.'
             return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
 
-        # Optionally, check for username/enrollment_id uniqueness
-        # (If you want to enforce unique usernames/enrollment_ids, add more MongoDB queries here)
-
-        role = 'admin' if email == 'janmeshraut11@gmail.com' else 'user'
-        user_data = {
-            'email': email,
-            'username': username,
-            'role': role,
-            'password': password,
-            'enrollment_id': enrollment_id,
-        }
-        insert_user(user_data)
-
-        # Auto-login after registration
-        user = find_user_by_email(email)
-        session['user_id'] = str(user.get('_id'))
-        session['username'] = user.get('username')
-        session['role'] = role
-        session['email'] = user.get('email')
-        session.permanent = True
-        if role == 'admin':
-            return redirect(url_for('admin_students'))
-        if role == 'analyzer':
-            return redirect(url_for('analyzer_students'))
-        return redirect(url_for('home'))
+        # Stash in session and send to Google OAuth
+        session['pending_join'] = {'username': username, 'enrollment_id': enrollment_id}
+        if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+            session['oauth_next'] = next_url
+        return redirect(url_for('google_login', source='register'))
 
     if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
         session['oauth_next'] = next_url
