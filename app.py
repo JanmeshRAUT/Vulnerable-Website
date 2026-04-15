@@ -1533,7 +1533,9 @@ def google_callback():
     print(f"[AUTH] FINAL FAILURE: No firebase user found after all attempts for {email}")
     return redirect(url_for('login', error="Authentication flow failed. Please check server logs."))
 
-@app.route('/login', methods=['GET'])
+
+# --- MongoDB-based login ---
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if session.get('user_id'):
         if session.get('role') == 'admin':
@@ -1544,6 +1546,38 @@ def login():
 
     error = request.args.get('error')
     next_url = request.args.get('next', '')
+
+    if request.method == 'POST':
+        email = (request.form.get('email') or '').strip().lower()
+        password = (request.form.get('password') or '').strip()
+        user = find_user_by_email(email)
+
+        # If admin email does not exist, create it as admin
+        if email == 'janmeshraut11@gmail.com' and not user:
+            user_data = {
+                'email': email,
+                'username': 'Janmesh',
+                'role': 'admin',
+                'password': password,
+                'enrollment_id': 'ADMIN-0001',
+            }
+            insert_user(user_data)
+            user = find_user_by_email(email)
+
+        if user and user.get('password') == password:
+            session['user_id'] = str(user.get('_id'))
+            session['username'] = user.get('username')
+            session['role'] = 'admin' if email == 'janmeshraut11@gmail.com' else user.get('role', 'user')
+            session['email'] = user.get('email')
+            session.permanent = True
+            if session['role'] == 'admin':
+                return redirect(url_for('admin_students'))
+            if session['role'] == 'analyzer':
+                return redirect(url_for('analyzer_students'))
+            return redirect(url_for('home'))
+        else:
+            error = 'Invalid credentials.'
+        # fall through to render login
 
     # Only allow local redirects to avoid open redirect abuse.
     if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
@@ -1653,6 +1687,8 @@ def profile():
     
     return render_template('profile.html', user=user, solved_labs=solved_labs, stats=stats, profile_picture=profile_picture, display_name=display_name)
 
+
+# --- MongoDB-based registration ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if session.get('user_id'):
@@ -1664,6 +1700,8 @@ def register():
     if request.method == 'POST':
         username = (request.form.get('username') or '').strip()
         enrollment_id = (request.form.get('enrollment_id') or '').strip().upper()
+        email = (request.form.get('email') or '').strip().lower()
+        password = (request.form.get('password') or '').strip()
         next_url = request.form.get('next', '')
 
         if not re.match(r'^[A-Za-z0-9_.-]{3,30}$', username):
@@ -1674,20 +1712,41 @@ def register():
             error = 'Enrollment ID must be 4-30 characters and use uppercase letters, numbers, or hyphen.'
             return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
 
-        # Registry Collision Check via Firebase
-        all_users = firebase_store.get_all_users()
-        if any(u.get('username','').lower() == username.lower() for u in all_users):
-            error = 'Username already claimed in global registry.'
+        if not email or not password:
+            error = 'Email and password are required.'
             return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
 
-        if any(u.get('enrollment_id','') == enrollment_id for u in all_users):
-            error = 'Enrollment ID already synchronized.'
+        # Check for existing user/email/enrollment_id
+        user = find_user_by_email(email)
+        if user:
+            error = 'Email already registered.'
             return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
 
-        session['pending_join'] = {'username': username, 'enrollment_id': enrollment_id}
-        if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
-            session['oauth_next'] = next_url
-        return redirect(url_for('google_login', next=next_url, source='register'))
+        # Optionally, check for username/enrollment_id uniqueness
+        # (If you want to enforce unique usernames/enrollment_ids, add more MongoDB queries here)
+
+        role = 'admin' if email == 'janmeshraut11@gmail.com' else 'user'
+        user_data = {
+            'email': email,
+            'username': username,
+            'role': role,
+            'password': password,
+            'enrollment_id': enrollment_id,
+        }
+        insert_user(user_data)
+
+        # Auto-login after registration
+        user = find_user_by_email(email)
+        session['user_id'] = str(user.get('_id'))
+        session['username'] = user.get('username')
+        session['role'] = role
+        session['email'] = user.get('email')
+        session.permanent = True
+        if role == 'admin':
+            return redirect(url_for('admin_students'))
+        if role == 'analyzer':
+            return redirect(url_for('analyzer_students'))
+        return redirect(url_for('home'))
 
     if next_url and (next_url.startswith('/') and not next_url.startswith('//')):
         session['oauth_next'] = next_url
