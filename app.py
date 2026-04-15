@@ -20,7 +20,7 @@ import threading
 import copy
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
-from firebase_db import FirebaseDataStore
+from mongodb_client import insert_user, find_user_by_email
 import zipfile
 import hashlib
 import csv
@@ -434,8 +434,7 @@ def send_user_access_granted_email(user_email, role='user', approved_lab_ids=Non
         print(f"[MAIL] Failed to send user access confirmation: {exc}")
         return False
 
-firebase_store = FirebaseDataStore(BASE_PATH)
-firebase_store.initialize()
+## MongoDB is now used for all data storage. Remove firebase_store.
 
 TRACKABLE_LAB_UNITS = [
     {'id': 'lab1_1', 'canonical_id': 'lab1', 'label': 'Lab 1.1', 'path': '/lab1/1'},
