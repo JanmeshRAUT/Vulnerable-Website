@@ -5,10 +5,29 @@ import os
 import uuid
 import time
 
-MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/')
+# Load .env so DATABASE_URL / MONGO_URI are available even when this module
+# is imported before the Flask app has a chance to call load_dotenv().
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
+# Accept either MONGO_URI (explicit) or DATABASE_URL (used in .env).
+MONGO_URI = (
+    os.environ.get('MONGO_URI')
+    or os.environ.get('DATABASE_URL')
+    or 'mongodb://localhost:27017/'
+)
 MONGO_DB = os.environ.get('MONGO_DB', 'vuln_ecommerce')
 
-client = MongoClient(MONGO_URI)
+client = MongoClient(
+    MONGO_URI,
+    tlsAllowInvalidCertificates=True,   # fix SSL handshake errors on some OS/Python builds
+    serverSelectionTimeoutMS=10000,
+    connectTimeoutMS=10000,
+    socketTimeoutMS=20000,
+)
 db = client[MONGO_DB]
 
 # ── Ensure indexes ────────────────────────────────────────────────────────────
