@@ -49,12 +49,6 @@
         <button class="nav-item" id="nav-subjects" onclick="switchTab('subjects')">
           <span class="nav-icon">👥</span> Research Subjects
         </button>
-        <button class="nav-item" id="nav-authorization" onclick="switchTab('authorization')">
-          <span class="nav-icon">🔐</span> Authorization Queue
-          {% if pending_count > 0 %}
-          <span class="nav-badge">{{ pending_count }}</span>
-          {% endif %}
-        </button>
       </div>
 
       <div class="nav-section">
@@ -130,13 +124,7 @@
             <div class="stat-value">{{ dashboard.total_participants }}</div>
             <div class="stat-trend up">{{ dashboard.active_solvers }} with solved labs</div>
           </div>
-          <div class="stat-card amber">
-            <div class="stat-label">🟡 Pending Authorization</div>
-            <div class="stat-value">{{ dashboard.pending_participants }}</div>
-            <div class="stat-trend {% if pending_count > 0 %}warn{% endif %}">
-              {% if pending_count > 0 %}⚠ Requires action{% else %}All clear{% endif %}
-            </div>
-          </div>
+          <!-- Removed Pending Authorization card -->
           <div class="stat-card green">
             <div class="stat-label">🟢 Distinct Solves</div>
             <div class="stat-value">{{ dashboard.dedup_events }}</div>
@@ -222,10 +210,7 @@
                   <span class="text-muted text-sm">Student accounts</span>
                   <span class="mono" style="color:var(--text-primary);">{{ dashboard.total_participants }}</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span class="text-muted text-sm">Approved students</span>
-                  <span class="mono" style="color:var(--status-success);">{{ dashboard.approved_participants }}</span>
-                </div>
+                <!-- Removed Approved students stat -->
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span class="text-muted text-sm">Average completion</span>
                   <span class="mono" style="color:var(--status-info);">{{ dashboard.avg_completion }}%</span>
@@ -239,15 +224,7 @@
           </div>
         </div>
 
-        {% if pending_count > 0 %}
-        <!-- Quick-action banner for pending -->
-        <div class="panel" style="border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.03);">
-          <div class="panel-header" style="border-color: rgba(245,158,11,0.1);">
-            <div class="panel-title" style="color: var(--status-warning);">⚠ {{ pending_count }} Authorization Request{{ 's' if pending_count != 1 }} Pending</div>
-            <button class="topbar-btn" onclick="switchTab('authorization')">Review Now →</button>
-          </div>
-        </div>
-        {% endif %}
+        <!-- Removed Quick-action banner for pending -->
       </div>
 
 
@@ -302,11 +279,7 @@
                     </span>
                   </td>
                   <td>
-                    {% if student.is_approved %}
-                      <span class="badge badge-active">Active</span>
-                    {% else %}
-                      <span class="badge badge-pending">Pending</span>
-                    {% endif %}
+                    <span class="badge badge-active">Active</span>
                   </td>
                   <td>
                     <div class="mini-progress">
@@ -369,26 +342,9 @@
                         onclick="setUserRole('{{ student.email }}', '{{ '1' if student.is_approved else '0' }}', 'role-{{ loop.index }}')">
                         Apply Role
                       </button>
-                      <button
-                        class="icon-btn lab-access-trigger"
-                        onclick='openLabAccessModal({{ {
-                          "username": student.username,
-                          "email": student.email,
-                          "role": student.role,
-                          "is_approved": student.is_approved,
-                          "lab_access": student.lab_access,
-                          "lab_access_count": student.lab_access_count
-                        } | tojson }}, false)'>
-                        Lab Access ▾
-                      </button>
+                      <!-- Removed Lab Access button -->
                     </div>
-                    <div class="text-muted text-sm" style="margin-top:0.35rem;">
-                      {% if student.lab_access_count %}
-                        {{ student.lab_access_count }} lab{{ 's' if student.lab_access_count != 1 else '' }} enabled
-                      {% else %}
-                        No lab access assigned
-                      {% endif %}
-                    </div>
+                    <!-- Removed lab access count display -->
                   </td>
                 </tr>
                 {% endfor %}
@@ -407,61 +363,7 @@
       </div>
 
 
-      <!-- ━━━━━━━━━━━━━━━━━ TAB: AUTHORIZATION ━━━━━━━━━━━━━━━━━ -->
-      <div id="tab-authorization" class="tab-pane">
-        <div class="page-header">
-          <h2>Authorization Queue</h2>
-          <p>Review and approve or deny pending subject account activations.</p>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">🔐 Pending Requests
-              {% if pending_count > 0 %}
-              <span class="nav-badge" style="margin-left:0.5rem;">{{ pending_count }}</span>
-              {% endif %}
-            </div>
-          </div>
-          <div class="panel-body">
-            {% if pending_users %}
-              {% for user in pending_users %}
-              <div class="pending-card" id="pending-{{ loop.index }}">
-                <div class="pending-identity">
-                  <div class="pending-avatar">{{ user.username[0]|upper if user.username else '?' }}</div>
-                  <div>
-                    <div class="pending-name">{{ user.username }}</div>
-                    <div class="pending-email">{{ user.email }}</div>
-                    <span class="pending-enroll">{{ user.enrollment_id or 'NO ENROLLMENT ID' }}</span>
-                  </div>
-                </div>
-                <div class="pending-actions">
-                  <span class="badge badge-pending" style="margin-right:0.5rem;">PENDING</span>
-                  <select id="pending-role-{{ loop.index }}" class="input" style="min-width:120px;">
-                    <option value="user" {% if user.role not in ['admin', 'analyzer'] %}selected{% endif %}>Student</option>
-                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
-                    <option value="analyzer" {% if user.role == 'analyzer' %}selected{% endif %}>Analyzer</option>
-                  </select>
-                  <button class="btn-approve" onclick='openLabAccessModal({{ {
-                    "username": user.username,
-                    "email": user.email,
-                    "role": user.role,
-                    "is_approved": true,
-                    "lab_access": []
-                  } | tojson }}, true, "pending-role-{{ loop.index }}", {{ loop.index }})'>✓ Authorize</button>
-                  <button class="btn-deny" onclick="approveUser('{{ user.email }}', '0', {{ loop.index }}, 'pending-role-{{ loop.index }}')">✕ Deny</button>
-                </div>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="empty-state">
-                <div class="empty-icon">✅</div>
-                <h3>No Pending Requests</h3>
-                <p>All access requests have been processed. The authorization queue is clear.</p>
-              </div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
+      <!-- Authorization tab removed: no approval required -->
 
 
       <!-- ━━━━━━━━━━━━━━━━━━ TAB: ACTIVITY FEED ━━━━━━━━━━━━━━━━━━ -->

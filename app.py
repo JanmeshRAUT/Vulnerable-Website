@@ -82,46 +82,8 @@ ADMIN_VIEW_CACHE_LOCK = threading.Lock()
 
 
 def get_or_refresh_access_gate_cache(email, force_refresh=False, preloaded_user=None):
-    """Return approval and enrollment access data for an email using TTL cache."""
-    now_ts = int(time.time())
-
-    if not force_refresh:
-        with ACCESS_GATE_CACHE_LOCK:
-            cached = ACCESS_GATE_CACHE.get(email)
-        if cached and (now_ts - int(cached.get('ts', 0))) <= ACCESS_GATE_CACHE_TTL_SECONDS:
-            return cached
-
-    user = preloaded_user if preloaded_user is not None else firebase_store.get_user_by_email(email)
-    is_approved = bool(user and user.get('is_approved'))
-
-    approved_lab_ids = set()
-    approved_family_ids = set()
-    has_explicit_lab_access = False
-
-    if is_approved:
-        approved_enrollments = firebase_store.get_user_lab_enrollments(email)
-        has_explicit_lab_access = len(approved_enrollments) > 0
-        for enrollment in approved_enrollments:
-            if enrollment.get('approval_status') != 'approved':
-                continue
-            lab_id_value = str(enrollment.get('lab_id') or '').strip().lower()
-            if not lab_id_value:
-                continue
-            approved_lab_ids.add(lab_id_value)
-            approved_family_ids.add(lab_id_value.split('_', 1)[0] + '_')
-
-    refreshed = {
-        'is_approved': is_approved,
-        'approved_lab_ids': approved_lab_ids,
-        'approved_family_ids': approved_family_ids,
-        'has_explicit_lab_access': has_explicit_lab_access,
-        'ts': now_ts,
-    }
-
-    with ACCESS_GATE_CACHE_LOCK:
-        ACCESS_GATE_CACHE[email] = refreshed
-
-    return refreshed
+    """No approval or enrollment checks needed. All signed-in users have access."""
+    return {'is_approved': True, 'approved_lab_ids': set(), 'approved_family_ids': set(), 'has_explicit_lab_access': True, 'ts': int(time.time())}
 
 
 def invalidate_access_gate_cache(email=None):
@@ -1176,35 +1138,12 @@ def approve_enrollment():
 @app.route('/lab/enroll/<lab_id>', methods=['POST'])
 @login_required
 def request_lab_enrollment(lab_id):
-    """Student requests access to a specific lab"""
-    user_email = session['email']
-    
-    # Check if already enrolled
-    existing = firebase_store.get_lab_enrollment(user_email, lab_id)
-    if existing:
-        return jsonify({'success': False, 'error': 'Already enrolled or pending.'})
-    
-    try:
-        firebase_store.create_lab_enrollment(user_email, lab_id, 'pending')
-        send_admin_authorization_email(
-            request_type='lab',
-            requester_email=user_email,
-            requester_name=session.get('username'),
-            lab_id=lab_id,
-            requester_role=session.get('role') or 'user'
-        )
-        return jsonify({'success': True, 'message': 'Access request sent for authorization.'})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+    """Enrollment endpoint disabled: all users have access."""
+    return jsonify({'success': True, 'message': 'All users have access to all labs.'})
 
 def check_lab_access(lab_id):
-    """Helper to verify if a user has approved access to a lab"""
-    if session.get('role') == 'admin': return True
-    user_email = session.get('email')
-    enrollment = firebase_store.get_lab_enrollment(user_email, lab_id)
-    
-    if not enrollment: return 'unattached'
-    return enrollment.get('approval_status')
+    """All signed-in users have access to all labs."""
+    return True
 
 @app.route('/admin/approve_user', methods=['POST'])
 @admin_required
@@ -1846,21 +1785,8 @@ def student_dashboard():
 @app.route('/dashboard/enroll', methods=['POST'])
 @login_required
 def dashboard_enroll_lab():
-    """Prevent self-enrollment from bypassing the admin lab allowlist."""
-    email = session.get('email')
-    lab_id = request.form.get('lab_id')
-    
-    if not lab_id:
-        return jsonify({'error': 'Lab identifier required'}), 400
-    
-    try:
-        existing = firebase_store.get_lab_enrollment(email, lab_id)
-        if existing and existing.get('approval_status') == 'approved':
-            return jsonify({'success': True, 'message': 'Subject already has approved access for this lab.'})
-
-        return jsonify({'error': 'Lab access is managed by the admin allowlist.'}), 403
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    """Enrollment endpoint disabled: all users have access."""
+    return jsonify({'success': True, 'message': 'All users have access to all labs.'})
 
 
 @app.route('/dashboard/progress/<lab_id>', methods=['GET', 'POST'])
