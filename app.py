@@ -1396,8 +1396,8 @@ def google_callback():
     redirect_uri = get_google_redirect_uri()
     print(f"[OAUTH] Received Google Callback. Redirect URI used in auth_redirect: {redirect_uri}")
     try:
-        # Passing redirect_uri explicitly ensures Authlib matches the initial redirect
-        token = google.authorize_access_token(redirect_uri=redirect_uri)
+        # Authlib 1.x automatically retrieves the redirect_uri from the session
+        token = google.authorize_access_token()
     except Exception as e:
         print(f"[OAUTH] Token exchange failed: {e}")
         # Helpful error for common local dev domain mismatch (localhost vs 127.0.0.1)
