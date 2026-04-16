@@ -23,9 +23,9 @@
             <div class="input-group">
                 <label for="username">Preferred Username</label>
                 <div class="input-wrapper">
-                    <input type="text" id="username" name="username" value="{{ username or '' }}" placeholder="e.g. AnishJagtap" required autocomplete="off" pattern="^[A-Za-z]{3,30}$" title="3-30 characters: letters only.">
+                    <input type="text" id="username" name="username" value="{{ username or '' }}" placeholder="e.g. Anish Jagtap" required autocomplete="off" pattern="^[A-Za-z0-9 ]{3,30}$" title="3-30 characters: letters, numbers, or spaces only.">
                 </div>
-                <span class="input-hint">3-30 chars: letters only</span>
+                <span class="input-hint">3-30 chars: letters, numbers, or spaces only</span>
             </div>
 
             <div class="input-group">

@@ -1686,8 +1686,8 @@ def register():
         enrollment_id = (request.form.get('enrollment_id') or '').strip().upper()
         next_url = request.form.get('next', '')
 
-        if not re.match(r'^[A-Za-z]{3,30}$', username):
-            error = 'Username must be 3-30 characters and use letters only.'
+        if not re.match(r'^[A-Za-z0-9 ]{3,30}$', username):
+            error = 'Username must be 3-30 characters and use letters, numbers, or spaces only.'
             return render_template('register.html', error=error, next_url=next_url, username=username, enrollment_id=enrollment_id)
 
         if not re.match(r'^[A-Z0-9-]{4,30}$', enrollment_id):
