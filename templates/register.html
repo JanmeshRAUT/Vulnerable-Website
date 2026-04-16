@@ -23,17 +23,17 @@
             <div class="input-group">
                 <label for="username">Preferred Username</label>
                 <div class="input-wrapper">
-                    <input type="text" id="username" name="username" value="{{ username or '' }}" placeholder="e.g. AnishJagtap" required autocomplete="off">
+                    <input type="text" id="username" name="username" value="{{ username or '' }}" placeholder="e.g. AnishJagtap" required autocomplete="off" pattern="^[A-Za-z0-9_.-]{3,30}$" title="3-30 characters: letters, numbers, dot, underscore, or hyphen.">
                 </div>
-                <span class="input-hint">Used for public module displays</span>
+                <span class="input-hint">3-30 chars: letters, numbers, dot, underscore, or hyphen</span>
             </div>
 
             <div class="input-group">
                 <label for="enrollment_id">Security Enrollment ID</label>
                 <div class="input-wrapper">
-                    <input type="text" id="enrollment_id" name="enrollment_id" value="{{ enrollment_id or '' }}" placeholder="e.g. ADT23SOCBXXXX" required autocomplete="off">
+                    <input type="text" id="enrollment_id" name="enrollment_id" value="{{ enrollment_id or '' }}" placeholder="e.g. ADT23SOCBXXXX" required autocomplete="off" pattern="^[A-Z0-9-]{4,30}$" title="4-30 characters: uppercase letters, numbers, or hyphen.">
                 </div>
-                <span class="input-hint">Obtain this from your administrator</span>
+                <span class="input-hint">4-30 chars: A-Z, 0-9, or hyphens (-)</span>
             </div>
 
             <button type="submit" class="auth-submit-button-premium">

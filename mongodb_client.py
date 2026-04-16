@@ -21,9 +21,16 @@ MONGO_URI = (
 )
 MONGO_DB = os.environ.get('MONGO_DB', 'vuln_ecommerce')
 
+try:
+    import certifi
+    ca = certifi.where()
+except ImportError:
+    ca = None
+
 client = MongoClient(
     MONGO_URI,
-    tlsAllowInvalidCertificates=True,   # fix SSL handshake errors on some OS/Python builds
+    tls=True,                            # explicitly enable TLS
+    tlsCAFile=ca,                        # use certifi bundle for secure SSL/TLS
     serverSelectionTimeoutMS=10000,
     connectTimeoutMS=10000,
     socketTimeoutMS=20000,

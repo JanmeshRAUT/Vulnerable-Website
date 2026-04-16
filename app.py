@@ -71,6 +71,31 @@ STATIC_ROOT = PUBLIC_STATIC_ROOT if os.path.isdir(PUBLIC_STATIC_ROOT) else LEGAC
 # Detect Vercel Environment
 IS_VERCEL = os.environ.get('VERCEL') == '1'
 
+# Storage Roots
+# On Vercel, we can only write to /tmp. Locally, we use the 'data' folder.
+if IS_VERCEL:
+    STORAGE_ROOT = '/tmp/vuln_app_storage'
+else:
+    STORAGE_ROOT = os.path.join(BASE_PATH, 'data')
+
+def get_user_workspace():
+    """Return a unique, writable directory path for the current session/user."""
+    # Use GUID if logged in, otherwise use a session-persistent research-id
+    user_id = session.get('guid') or session.get('user_id')
+    if not user_id:
+        if 'research_id' not in session:
+            session['research_id'] = uuid.uuid4().hex
+        user_id = session['research_id']
+    
+    workspace = os.path.join(STORAGE_ROOT, 'workspaces', str(user_id))
+    if not os.path.exists(workspace):
+        try:
+            os.makedirs(workspace, exist_ok=True)
+        except Exception:
+            pass
+    return workspace
+
+
 app = Flask(__name__, static_folder=STATIC_ROOT, static_url_path='/static')
 # USE ENVIRONMENT VARIABLES FOR PRODUCTION SECRETS
 app.secret_key = os.environ.get('SECRET_KEY', 'default_vulnerable_key_replace_in_prod')
@@ -79,11 +104,6 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = IS_VERCEL
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 # 500MB for large binaries
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
-
-LAB4_2_RUNTIME_STATE = {
-    'target_ips': {},
-    'logged_variants': {}
-}
 
 # In-memory TTL cache for admin view payloads (MongoDB-backed).
 ACCESS_GATE_CACHE_TTL_SECONDS = int(os.environ.get('ACCESS_GATE_CACHE_TTL_SECONDS', '90'))
@@ -181,7 +201,17 @@ def get_google_redirect_uri():
     # Always honor an explicitly configured redirect URI so auth start/callback
     # use the same exact host (localhost vs 127.0.0.1 mismatch causes state errors).
     if configured:
-        return configured
+        # Self-healing logic: If the user is accessing via a real domain (like Vercel)
+        # but the config points to a local IP, we MUST ignore the config.
+        current_host = request.headers.get('Host', '')
+        is_request_local = '127.0.0.1' in current_host or 'localhost' in current_host
+        is_config_local = '127.0.0.1' in configured or 'localhost' in configured
+        
+        # If I am on Vercel/Cloud but config says Local -> Ignore config
+        if not is_request_local and is_config_local:
+            print(f"[OAUTH] Domain mismatch detected (Request: {current_host}, Config: {configured}). Ignoring local config.")
+        else:
+            return configured
     # Auto-build from request context
     uri = url_for('google_callback', _external=True)
     # Force https if running behind Vercel's proxy (or any HTTPS host)
@@ -1364,13 +1394,16 @@ def google_callback():
     redirect_uri = get_google_redirect_uri()
     print(f"[OAUTH] Received Google Callback. Redirect URI used in auth_redirect: {redirect_uri}")
     try:
-        # Revert to standard call; OAUTHLIB_INSECURE_TRANSPORT=1 should fix the original issue
-        token = google.authorize_access_token()
+        # Passing redirect_uri explicitly ensures Authlib matches the initial redirect
+        token = google.authorize_access_token(redirect_uri=redirect_uri)
     except Exception as e:
         print(f"[OAUTH] Token exchange failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return redirect(url_for('login', error=f"OAuth state mismatch: {str(e)}. Ensure you use the same address (localhost or 127.0.0.1) consistently."))
+        # Helpful error for common local dev domain mismatch (localhost vs 127.0.0.1)
+        host_header = request.headers.get('Host', '')
+        error_msg = f"OAuth state mismatch: {str(e)}."
+        if '127.0.0.1' in redirect_uri and 'localhost' in host_header:
+            error_msg += " You are accessing the site via 'localhost' but the redirect is set to '127.0.0.1'. Please use http://127.0.0.1:5000 in your browser."
+        return redirect(url_for('login', error=error_msg))
     
     try:
         userinfo = token.get('userinfo')
@@ -1400,7 +1433,14 @@ def google_callback():
     # ==========================================
 
     print(f"[AUTH] Pulling profile from MongoDB for {email}")
-    mongo_user = find_user_by_email(email)
+    try:
+        mongo_user = find_user_by_email(email)
+    except Exception as e:
+        print(f"[AUTH] MongoDB lookup failed: {e}")
+        error_msg = "Database connection timeout."
+        if "ServerSelectionTimeoutError" in str(e) or "SSL handshake failed" in str(e):
+             error_msg = "Database connection blocked. Please ensure your IP is allowlisted in MongoDB Atlas > Network Access."
+        return redirect(url_for('login', error=error_msg))
 
     # 2. Login flow — user must already exist
     if auth_source == 'login':
@@ -1904,7 +1944,8 @@ def lab1_1_download():
             return f"Error accessing system file template: {e}", 500
     
     try:
-        intended_dir = os.path.join(BASE_PATH, 'data', 'docuvault', 'invoices')
+        user_ws = get_user_workspace()
+        intended_dir = os.path.join(user_ws, 'docuvault', 'invoices')
         file_path = os.path.normpath(os.path.join(intended_dir, filename))
         
         if os.path.exists(file_path):
@@ -2068,7 +2109,8 @@ def lab1_3_download():
         return "No file specified", 400
     
     try:
-        intended_dir = os.path.join(BASE_PATH, 'data', 'mediahub', 'gallery', 'uploads')
+        user_ws = get_user_workspace()
+        intended_dir = os.path.join(user_ws, 'mediahub', 'gallery', 'uploads')
         file_path = os.path.normpath(os.path.join(intended_dir, filename))
         
         if os.path.exists(file_path):
@@ -4189,10 +4231,10 @@ def lab5_1_login():
     username_raw = (request.form.get('username') or '')
     password_raw = (request.form.get('password') or '')
     username = username_raw.strip().lower()
-    password = password_raw.strip()
+    password = password_raw.strip().lower()
     
-    # Wiener:peter (Standard PortSwigger user)
-    if username == 'wiener' and password == 'peter':
+    # Wiener:peter (Standard PortSwigger user) - also allowing winere typo
+    if username in ['wiener', 'winere'] and password == 'peter':
         session['lab5_1_user'] = username_raw.strip() or username
         # Generate a unique session ID for file isolation if not exists
         if 'lab5_1_uid' not in session:
@@ -4462,9 +4504,9 @@ def lab5_2_login():
     username_raw = (request.form.get('username') or '')
     password_raw = (request.form.get('password') or '')
     username = username_raw.strip().lower()
-    password = password_raw.strip()
+    password = password_raw.strip().lower()
     
-    if username == 'wiener' and password == 'peter':
+    if username in ['wiener', 'winere'] and password == 'peter':
         session['lab5_2_user'] = username_raw.strip() or username
         if 'lab5_2_uid' not in session:
             session['lab5_2_uid'] = str(uuid.uuid4())
@@ -4589,9 +4631,9 @@ def lab5_2_b_login():
     username_raw = (request.form.get('username') or '')
     password_raw = (request.form.get('password') or '')
     username = username_raw.strip().lower()
-    password = password_raw.strip()
+    password = password_raw.strip().lower()
     
-    if username == 'wiener' and password == 'peter':
+    if username in ['wiener', 'winere'] and password == 'peter':
         session['lab5_2_b_user'] = username_raw.strip() or username
         if 'lab5_2_b_uid' not in session:
             session['lab5_2_b_uid'] = str(uuid.uuid4())
@@ -4709,9 +4751,9 @@ def lab5_2_c_login():
     username_raw = (request.form.get('username') or '')
     password_raw = (request.form.get('password') or '')
     username = username_raw.strip().lower()
-    password = password_raw.strip()
+    password = password_raw.strip().lower()
     
-    if username == 'wiener' and password == 'peter':
+    if username in ['wiener', 'winere'] and password == 'peter':
         session['lab5_2_c_user'] = username_raw.strip() or username
         if 'lab5_2_c_uid' not in session:
             session['lab5_2_c_uid'] = str(uuid.uuid4())
@@ -4835,10 +4877,10 @@ def lab5_1_b_login():
             return redirect(url_for('lab5_1_b_account'))
         return render_template('lab5/sub1_b_login.html')
     
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = (request.form.get('username') or '').strip().lower()
+    password = (request.form.get('password') or '').strip().lower()
     
-    if username == 'wiener' and password == 'peter':
+    if username in ['wiener', 'winere'] and password == 'peter':
         session['lab5_1_b_user'] = username
         if 'lab5_1_b_uid' not in session:
             session['lab5_1_b_uid'] = str(uuid.uuid4())
@@ -4932,10 +4974,10 @@ def lab5_1_c_login():
             return redirect(url_for('lab5_1_c_account'))
         return render_template('lab5/sub1_c_login.html')
     
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = (request.form.get('username') or '').strip().lower()
+    password = (request.form.get('password') or '').strip().lower()
     
-    if username == 'wiener' and password == 'peter':
+    if username in ['wiener', 'winere'] and password == 'peter':
         session['lab5_1_c_user'] = username
         if 'lab5_1_c_uid' not in session:
             session['lab5_1_c_uid'] = str(uuid.uuid4())
