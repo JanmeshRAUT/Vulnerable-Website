@@ -795,7 +795,9 @@ def enforce_lab_locks():
     if not path.startswith('/lab'):
         return
 
-    print(f"[SECURITY] Access attempt to {path} from {request.remote_addr}")
+    # Exempt login and logout paths from the global lock to allow mock lab authentication.
+    if '/login' in path or '/logout' in path:
+        return
 
     # Require sign-in only — no role or approval checks.
     if 'user_id' not in session:
@@ -4235,7 +4237,10 @@ def lab5_1_login():
     
     # Wiener:peter (Standard PortSwigger user) - also allowing winere typo
     if username in ['wiener', 'winere'] and password == 'peter':
-        session['lab5_1_user'] = username_raw.strip() or username
+        session['lab5_1_user'] = (request.form.get('username') or '').strip() or username
+        # Ensure global laboratory access middleware is satisfied
+        if 'user_id' not in session:
+            session['user_id'] = f"lab_guest_{session.get('lab5_1_user')}"
         # Generate a unique session ID for file isolation if not exists
         if 'lab5_1_uid' not in session:
             session['lab5_1_uid'] = str(uuid.uuid4())
@@ -4507,7 +4512,9 @@ def lab5_2_login():
     password = password_raw.strip().lower()
     
     if username in ['wiener', 'winere'] and password == 'peter':
-        session['lab5_2_user'] = username_raw.strip() or username
+        session['lab5_2_user'] = (request.form.get('username') or '').strip() or username
+        if 'user_id' not in session:
+            session['user_id'] = f"lab_guest_{session.get('lab5_2_user')}"
         if 'lab5_2_uid' not in session:
             session['lab5_2_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_2_account'))
@@ -4634,7 +4641,9 @@ def lab5_2_b_login():
     password = password_raw.strip().lower()
     
     if username in ['wiener', 'winere'] and password == 'peter':
-        session['lab5_2_b_user'] = username_raw.strip() or username
+        session['lab5_2_b_user'] = (request.form.get('username') or '').strip() or username
+        if 'user_id' not in session:
+            session['user_id'] = f"lab_guest_{session.get('lab5_2_b_user')}"
         if 'lab5_2_b_uid' not in session:
             session['lab5_2_b_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_2_b_account'))
@@ -4754,7 +4763,9 @@ def lab5_2_c_login():
     password = password_raw.strip().lower()
     
     if username in ['wiener', 'winere'] and password == 'peter':
-        session['lab5_2_c_user'] = username_raw.strip() or username
+        session['lab5_2_c_user'] = (request.form.get('username') or '').strip() or username
+        if 'user_id' not in session:
+            session['user_id'] = f"lab_guest_{session.get('lab5_2_c_user')}"
         if 'lab5_2_c_uid' not in session:
             session['lab5_2_c_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_2_c_account'))
@@ -4881,7 +4892,10 @@ def lab5_1_b_login():
     password = (request.form.get('password') or '').strip().lower()
     
     if username in ['wiener', 'winere'] and password == 'peter':
-        session['lab5_1_b_user'] = username
+        session['lab5_1_b_user'] = (request.form.get('username') or '').strip() or username
+        # Ensure global laboratory access middleware is satisfied
+        if 'user_id' not in session:
+            session['user_id'] = f"lab_guest_{session.get('lab5_1_b_user')}"
         if 'lab5_1_b_uid' not in session:
             session['lab5_1_b_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_1_b_account'))
@@ -4978,7 +4992,10 @@ def lab5_1_c_login():
     password = (request.form.get('password') or '').strip().lower()
     
     if username in ['wiener', 'winere'] and password == 'peter':
-        session['lab5_1_c_user'] = username
+        session['lab5_1_c_user'] = (request.form.get('username') or '').strip() or username
+        # Ensure global laboratory access middleware is satisfied
+        if 'user_id' not in session:
+            session['user_id'] = f"lab_guest_{session.get('lab5_1_c_user')}"
         if 'lab5_1_c_uid' not in session:
             session['lab5_1_c_uid'] = str(uuid.uuid4())
         return redirect(url_for('lab5_1_c_account'))
